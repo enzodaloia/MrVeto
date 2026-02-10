@@ -1,0 +1,188 @@
+/* assets/styles/app.scss */
+
+// 1. IMPORTATION DE LA TYPOGRAPHIE
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
+
+// 2. DÉFINITION EXHAUSTIVE DES VARIABLES (D'après vos images)
+
+// --- A. PRIMARY (Turquoise) ---
+$primary-main:    #36BDAF;
+$primary-bg:      #E8F7F5;
+$primary-pressed: #2A9A8E;
+$primary-hover:   #4ECABF;
+$primary-focus:   #B8E6E0;
+$primary-border:  #5FC4B7;
+
+// --- B. SECONDARY (Yellow) ---
+$secondary-main:    #FFCF00;
+$secondary-bg:      #FFFBEB;
+$secondary-pressed: #E8A500;
+$secondary-hover:   #FBBF24;
+$secondary-focus:   #FEF3C7;
+$secondary-border:  #FCD34D;
+
+// --- C. SUCCESS (Green) ---
+$success-main:    #1B9476;
+$success-bg:      #E7FAF5;
+$success-pressed: #164C3F;
+$success-hover:   #1B5F4E;
+$success-focus:   #C8EBE2;
+$success-border:  #B5D0C9;
+
+// --- D. WARNING (Orange) ---
+$warning-main:    #FF8C42;
+$warning-bg:      #FFF3E0;
+$warning-pressed: #E57020;
+$warning-hover:   #FFA057;
+$warning-focus:   #FFE0CC;
+$warning-border:  #FFBC8A;
+
+// --- E. DANGER (Red) ---
+$danger-main:    #BD3644;
+$danger-bg:      #FFE8E8;
+$danger-pressed: #541212;
+$danger-hover:   #8C1F1F;
+$danger-focus:   #FFDFDF;
+$danger-border:  #E2B6B6;
+
+// --- F. INFO (Blue) ---
+$info-main:    #3688BD;
+$info-bg:      #EBF4FC;
+$info-pressed: #2B5F8F;
+$info-hover:   #A3CAE7;
+$info-focus:   #D1E5F7;
+$info-border:  #6BA3D8;
+
+// --- G. NEUTRALS (Grays) ---
+$neutral-100: #0A0A0A;
+$neutral-90:  #424242;
+$neutral-80:  #616161;
+$neutral-70:  #757575;
+$neutral-60:  #9E9E9E;
+$neutral-50:  #C2C2C2;
+$neutral-40:  #E0E0E0;
+$neutral-30:  #EDEDED;
+$neutral-20:  #F5F5F5;
+$neutral-10:  #FAFAFA;
+
+// --- H. DARK MODE PALETTE ---
+$dm-bg-primary:   #1A1A1A;
+$dm-bg-secondary: #2D2D2D;
+$dm-bg-tertiary:  #3A3A3A;
+$dm-surface:      #424242;
+$dm-text-primary: #FAFAFA;
+$dm-text-secondary: #E0E0E0;
+$dm-text-disabled:  #9E9E9E;
+
+
+// 3. CONFIGURATION BOOTSTRAP (Mapping des variables)
+
+// Couleurs principales standard
+$primary:   $primary-main;
+$secondary: $secondary-main;
+$success:   $success-main;
+$info:      $info-main;
+$warning:   $warning-main;
+$danger:    $danger-main;
+
+// Fonds et Textes par défaut (Light Mode)
+$body-bg:    $neutral-10;  // Correspond à Neutral 10 (background classique)
+$body-color: $neutral-100; // Correspond à Neutral 100 (texte principal)
+
+// Typographie
+$font-family-sans-serif: 'Montserrat', sans-serif;
+$font-size-base: 1.125rem; // 18px (Desktop paragraph)
+
+// Arrondis (optionnel, à ajuster selon le design des boutons sur la maquette)
+$border-radius: 0.375rem; 
+
+// 4. CRÉATION DE LA MAP DE COULEURS ÉTENDUE
+// C'est ici qu'on ajoute TOUTES vos nuances personnalisées.
+// Cela permettra d'utiliser des classes comme : 
+// .bg-primary-bg, .text-success-pressed, .border-warning-border, etc.
+
+$custom-colors: (
+  "primary-bg": $primary-bg,
+  "primary-pressed": $primary-pressed,
+  "primary-border": $primary-border,
+  
+  "secondary-bg": $secondary-bg,
+  "secondary-pressed": $secondary-pressed,
+  "secondary-border": $secondary-border,
+
+  "success-bg": $success-bg,
+  "success-pressed": $success-pressed,
+  "success-border": $success-border,
+
+  "warning-bg": $warning-bg,
+  "warning-pressed": $warning-pressed,
+  "warning-border": $warning-border,
+
+  "danger-bg": $danger-bg,
+  "danger-pressed": $danger-pressed,
+  "danger-border": $danger-border,
+  
+  "info-bg": $info-bg,
+  "info-pressed": $info-pressed,
+  "info-border": $info-border,
+  
+  "neutral-10": $neutral-10,
+  "neutral-20": $neutral-20,
+  "neutral-30": $neutral-30,
+  "neutral-50": $neutral-50,
+  "neutral-90": $neutral-90,
+  
+  "dark-surface": $dm-surface
+);
+
+// On fusionne nos couleurs custom avec les couleurs de base de Bootstrap
+// Nécessaire pour que Bootstrap les "voit" avant l'import
+$theme-colors: $custom-colors; 
+
+// 5. IMPORTATION DE BOOTSTRAP
+@import "~bootstrap/scss/bootstrap";
+
+// 6. GESTION DU RESPONSIVE (Typographie précise)
+// Mobile (<768px)
+@include media-breakpoint-down(md) {
+    h1, .h1 { font-size: 28px !important; }
+    h2, .h2 { font-size: 22px !important; }
+    h3, .h3 { font-size: 18px !important; }
+    p, .lead, body { font-size: 15px !important; }
+    .btn, label { font-size: 14px !important; }
+    small, .small { font-size: 13px !important; }
+}
+// Tablette (768px - 1024px)
+@include media-breakpoint-between(md, lg) {
+    h1, .h1 { font-size: 36px !important; }
+    h2, .h2 { font-size: 28px !important; }
+    h3, .h3 { font-size: 22px !important; }
+    p, .lead, body { font-size: 16px !important; }
+    .btn, label { font-size: 15px !important; }
+    small, .small { font-size: 14px !important; }
+}
+// Desktop (>1024px)
+@include media-breakpoint-up(lg) {
+    h1, .h1 { font-size: 48px; }
+    h2, .h2 { font-size: 36px; }
+    h3, .h3 { font-size: 24px; }
+    p, .lead, body { font-size: 18px; }
+    .btn, label { font-size: 16px; }
+    small, .small { font-size: 14px; }
+}
+
+// 7. MODE SOMBRE (DARK MODE)
+// Bootstrap 5.3 gère le dark mode avec l'attribut data-bs-theme="dark" sur la balise <html>.
+// On surcharge les variables CSS natives pour ce mode.
+
+[data-bs-theme="dark"] {
+    --bs-body-bg: #{$dm-bg-primary};
+    --bs-body-color: #{$dm-text-primary};
+    
+    // Vous pouvez créer des classes spécifiques pour vos fonds progressifs
+    .bg-dark-secondary { background-color: $dm-bg-secondary !important; }
+    .bg-dark-tertiary  { background-color: $dm-bg-tertiary !important; }
+    .bg-dark-surface   { background-color: $dm-surface !important; }
+    
+    .text-muted { color: $dm-text-disabled !important; }
+}
