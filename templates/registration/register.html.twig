@@ -13,10 +13,11 @@
 
     {{ form_start(registrationForm) }}
         {{ form_row(registrationForm.email) }}
-        {{ form_row(registrationForm.plainPassword, {
-            label: 'Password'
-        }) }}
+        {{ form_row(registrationForm.plainPassword, { label: 'Password' }) }}
         {{ form_row(registrationForm.agreeTerms) }}
+
+        {# Rend tout le reste, y compris le token CSRF #}
+        {{ form_rest(registrationForm) }}
 
         <button type="submit" class="btn bg-secondary-pressed text-white">Register</button>
     {{ form_end(registrationForm) }}

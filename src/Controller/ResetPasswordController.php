@@ -99,9 +99,10 @@ class ResetPasswordController extends AbstractController
 
     private function processSendingPasswordResetEmail(string $emailFormData, MailerInterface $mailer, TranslatorInterface $translator): RedirectResponse
     {
-        dd("Début processSendingPasswordResetEmail avec email : $emailFormData"); // <- DEBUG
+        // dd("Début processSendingPasswordResetEmail avec email : $emailFormData"); // <- DEBUG
 
         $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $emailFormData]);
+        dd('ici'); // <- DEBUG : on voit si on entre dans la méthode
         dd("Utilisateur trouvé : ", $user); // <- DEBUG
 
         if (!$user) {
