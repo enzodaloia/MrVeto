@@ -257,6 +257,36 @@
 		font-size: 0.9rem;
 	}
 
+	.vet-actions {
+		margin-left: auto; /* Push to the right */
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: flex-end;
+	}
+
+	.btn-rdv {
+		background-color: var(--secondary-color);
+		color: black;
+		padding: 0.75rem 1.5rem;
+		border-radius: 25px;
+		text-decoration: none;
+		font-weight: 500;
+		box-shadow: var(--shadow-sm);
+		transition: transform 0.2s, box-shadow 0.2s;
+		text-align: center;
+		display: inline-block;
+	}
+
+	.btn-rdv:hover {
+		transform: translateY(-2px);
+		box-shadow: var(--shadow-md);
+	}
+
+	.btn-rdv:active {
+		transform: translateY(0);
+	}
+
 	.filter-panel {
 		background: var(--surface-color);
 		border-radius: var(--border-radius);
@@ -381,6 +411,9 @@
 								Ouvert • Ferme à 19:00</span>
 						</div>
 					</div>
+					<div class="vet-actions">
+						<a href="#" class="btn-rdv">Voir / Prendre RDV</a>
+					</div>
 				</div>
 			{% endfor %}
 		</div>
@@ -395,5 +428,4 @@
 			</div>
 		</div>
 	</div>
-
 </div>{% endblock %}
