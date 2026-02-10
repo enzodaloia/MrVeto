@@ -1,0 +1,399 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}MrVeto - Trouver un vétérinaire
+{% endblock %}
+
+{% block stylesheets %}
+	{{ parent() }}
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<style>
+	/* Material Design - Lite Custom Styles for this page */:root
+	{
+		--primary-color: #6200ee;
+		--primary-variant: #3700b3;
+		--secondary-color: #03dac6;
+		--background-color: #f5f5f5;
+		--surface-color: #ffffff;
+		--error-color: #b00020;
+		--text-primary: rgba(0, 0, 0, 0.87);
+		--text-secondary: rgba(0, 0, 0, 0.6);
+		--border-radius: 8px;
+		--shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+		--shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+		--shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+	}
+
+	body {
+		background-color: var(--background-color);
+		color: var(--text-primary);
+		font-family: 'Roboto', 'Segoe UI', sans-serif;
+		margin: 0;
+	}
+
+	/* Layout */
+	.search-page-container {
+		display: flex;
+		flex-direction: column;
+		min-height: 100vh;
+	}
+
+	/* Sticky Search Bar (Airline Style) */
+	.sticky-search-wrapper {
+		position: sticky;
+		top: 20px;
+		z-index: 1000;
+		display: flex;
+		justify-content: center;
+		padding: 0 1rem;
+		pointer-events: none; /* Allows clicking through the empty space around the bar */
+	}
+
+	.search-container-inner {
+		background-color: var(--primary-color);
+		color: white;
+		padding: 0.5rem 1rem;
+		border-radius: 50px; /* Fully rounded corners */
+		box-shadow: var(--shadow-lg);
+		display: flex;
+		gap: 1rem;
+		align-items: center;
+		width: 100%;
+		max-width: 900px; /* Limit width */
+		pointer-events: auto; /* Re-enable clicks on the bar itself */
+	}
+
+	.search-input-group {
+		display: flex;
+		align-items: center;
+		background: rgba(255, 255, 255, 0.15);
+		border-radius: 25px;
+		padding: 0.5rem 1rem;
+		flex: 1;
+		transition: background 0.2s;
+	}
+
+	.search-input-group:focus-within {
+		background: white;
+		color: var(--text-primary);
+	}
+
+	.search-input-group input,
+	.search-input-group select {
+		border: none;
+		background: transparent;
+		color: inherit;
+		outline: none;
+		width: 100%;
+		font-size: 1rem;
+		margin-left: 0.5rem;
+	}
+
+	.search-input-group select {
+		cursor: pointer;
+	}
+
+	.search-input-group select option {
+		color: black;
+	}
+
+	.search-input-group input::placeholder {
+		color: rgba(255, 255, 255, 0.7);
+	}
+	.search-input-group:focus-within input::placeholder {
+		color: var(--text-secondary);
+	}
+
+	.search-btn {
+		background-color: var(--secondary-color);
+		color: black;
+		border: none;
+		width: 48px;
+		height: 48px;
+		border-radius: 50%;
+		cursor: pointer;
+		box-shadow: var(--shadow-sm);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: transform 0.2s;
+		flex-shrink: 0;
+	}
+
+	.search-btn:hover {
+		transform: scale(1.05);
+	}
+
+	/* Main Content Grid */
+	.content-grid {
+		display: grid;
+		/* 
+           Grid Template:
+           - 300px: Filters (Left)
+           - 800px: Results (Center)
+           - 300px: Map (Right) 
+        */
+		grid-template-columns: 300px 800px 300px;
+		gap: 2rem;
+		width: 100%;
+		max-width: 1464px;
+		margin: 0 auto;
+		padding: 2rem 1rem;
+		box-sizing: border-box;
+		justify-content: center;
+	}
+
+	@media(max-width: 1500px) {
+		.content-grid {
+			grid-template-columns: 300px 1fr;
+			max-width: 1200px;
+		}
+		.map-section {
+			display: none;
+		}
+	}
+
+	/* Filters Section (Left Sticky) */
+	.filters-section {
+		grid-column: 1;
+		position: sticky;
+		top: 100px;
+		height: calc(100vh - 120px);
+		overflow-y: auto;
+		scrollbar-width: thin;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		justify-content: center; /* Vertically center content */
+	}
+
+	/* Results Section (Center) */
+	.results-section {
+		grid-column: 2;
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+	}
+
+	/* Map Section (Right Sticky) */
+	.map-section {
+		grid-column: 3;
+		position: sticky;
+		top: 100px;
+		height: calc(100vh - 120px);
+		display: flex;
+		flex-direction: column;
+		justify-content: center; /* Vertically center content */
+	}
+
+	.map-container-sticky {
+		width: 100%;
+		/* Square aspect ratio */
+		aspect-ratio: 1 / 1;
+		background-color: #e0e0e0;
+		border-radius: var(--border-radius);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--text-secondary);
+		font-weight: bold;
+		box-shadow: var(--shadow-sm);
+		position: relative; /* For absolute button positioning */
+	}
+
+	.map-expand-btn {
+		position: absolute;
+		top: 10px;
+		right: 10px;
+		background: white;
+		border: none;
+		border-radius: 50%;
+		width: 32px;
+		height: 32px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		box-shadow: var(--shadow-sm);
+		transition: background 0.2s;
+		z-index: 10;
+	}
+
+	.map-expand-btn:hover {
+		background: #f0f0f0;
+	}
+
+	.vet-card {
+		background: var(--surface-color);
+		border-radius: var(--border-radius);
+		padding: 1.5rem;
+		box-shadow: var(--shadow-sm);
+		display: flex;
+		gap: 1.5rem;
+		transition: box-shadow 0.2s;
+	}
+
+	.vet-card:hover {
+		box-shadow: var(--shadow-md);
+	}
+
+	.vet-avatar {
+		width: 80px;
+		height: 80px;
+		background-color: #e0e0e0;
+		border-radius: 50%;
+		flex-shrink: 0;
+	}
+
+	.vet-info h3 {
+		margin: 0 0 0.5rem;
+		color: var(--primary-color);
+	}
+
+	.vet-details {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		color: var(--text-secondary);
+		font-size: 0.9rem;
+	}
+
+	.filter-panel {
+		background: var(--surface-color);
+		border-radius: var(--border-radius);
+		padding: 1.5rem;
+		box-shadow: var(--shadow-sm);
+	}
+
+	.filter-group {
+		margin-bottom: 1.5rem;
+	}
+
+	.filter-group:last-child {
+		margin-bottom: 0;
+	}
+
+	.filter-group h4 {
+		margin: 0 0 1rem;
+		font-size: 1rem;
+	}
+
+	.checkbox-label {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-bottom: 0.5rem;
+		cursor: pointer;
+		font-size: 0.9rem;
+	}
+</style>{% endblock %}{% block body %}
+<div
+	class="search-page-container">
+
+	<!-- Sticky Search Bar Wrapper -->
+	<div class="sticky-search-wrapper">
+		<form
+			class="search-container-inner" action="{{ path('app_search_vet') }}" method="get">
+
+			<!-- Ville / Code postal -->
+			<div class="search-input-group" style="flex: 2;">
+				<span class="material-icons">location_on</span>
+				<input type="text" name="location" placeholder="Ville ou Code postal">
+			</div>
+
+			<!-- Distance Filter -->
+			<div class="search-input-group" style="flex: 1;">
+				<span class="material-icons">radar</span>
+				<select name="distance">
+					<option value="user_loc">Autour de moi</option>
+					<option value="5">5 km</option>
+					<option value="10">10 km</option>
+					<option value="20">20 km</option>
+				</select>
+			</div>
+
+			<!-- Search Button -->
+			<button type="submit" class="search-btn" title="Rechercher">
+				<span class="material-icons">search</span>
+			</button>
+		</form>
+	</div>
+
+	<!-- Main Content (Filters + Results + Map) -->
+	<div
+		class="content-grid">
+
+		<!-- Left Column: Filters -->
+		<div class="filters-section">
+			<div class="filter-panel">
+				<div class="filter-group">
+					<h4>Urgence</h4>
+					<label class="checkbox-label">
+						<input type="checkbox" name="emergency">
+						Urgences 24/7
+					</label>
+				</div>
+
+				<div class="filter-group">
+					<h4>Spécialités</h4>
+					<label class="checkbox-label"><input type="checkbox" name="spec[]" value="general">
+						Généraliste</label>
+					<label class="checkbox-label"><input type="checkbox" name="spec[]" value="surgery">
+						Chirurgie</label>
+					<label class="checkbox-label"><input type="checkbox" name="spec[]" value="derma">
+						Dermatologie</label>
+					<label class="checkbox-label"><input type="checkbox" name="spec[]" value="nac">
+						NAC</label>
+				</div>
+
+				<div class="filter-group">
+					<h4>Disponibilité</h4>
+					<label class="checkbox-label"><input type="checkbox" name="avail">
+						Rendez-vous aujourd'hui</label>
+					<label class="checkbox-label"><input type="checkbox" name="video">
+						Téléconsultation</label>
+				</div>
+			</div>
+		</div>
+
+		<!-- Middle Column: Results -->
+		<div
+			class="results-section">
+			<!-- Mockup Cards -->
+			{% for i in 1..10 %}
+				<div class="vet-card">
+					<div
+						class="vet-avatar">
+						<!-- Placeholder Image -->
+						<img src="https://ui-avatars.com/api/?name=Dr+Veto+{{ i }}&background=random" alt="Avatar" style="width:100%; height:100%; border-radius:50%;">
+					</div>
+					<div class="vet-info">
+						<h3>Dr. Exemple Veto
+							{{ i }}</h3>
+						<div class="vet-details">
+							<span>
+								<i class="material-icons" style="font-size:14px; vertical-align:middle;">medical_services</i>
+								Clinique Vétérinaire des Lilas</span>
+							<span>
+								<i class="material-icons" style="font-size:14px; vertical-align:middle;">place</i>
+								12 Rue des Animaux, 75000 Paris</span>
+							<span>
+								<i class="material-icons" style="font-size:14px; vertical-align:middle;">schedule</i>
+								Ouvert • Ferme à 19:00</span>
+						</div>
+					</div>
+				</div>
+			{% endfor %}
+		</div>
+
+		<!-- Right Column: Map -->
+		<div class="map-section">
+			<div class="map-container-sticky">
+				Carte Interactive (Google Maps / Leaflet)
+				<button class="map-expand-btn" title="Agrandir la carte">
+					<span class="material-icons">open_in_full</span>
+				</button>
+			</div>
+		</div>
+	</div>
+
+</div>{% endblock %}
