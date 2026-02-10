@@ -18,10 +18,10 @@ class TestMailerController extends AbstractController
                 ->from('contact@mrveto.fr')
                 ->to('mathys.nourry@gmail.com')
                 ->subject('Test Symfony Mailer')
-                ->text('Ceci est un mail de test depuis Symfony.');
+                ->text('zobalobzobzob');
 
             $mailer->send($email);
-            return new Response('Mail envoyé (ou tenté)');
+            return new Response('Mail envoyé enfin !');
         } catch (\Throwable $e) {
             return new Response('Erreur lors de l’envoi : '.$e->getMessage());
         }
