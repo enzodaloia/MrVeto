@@ -8,51 +8,60 @@
 	<div class="container my-5">
 
 		<!-- HEADER CARD -->
-		<!-- Border warning (yellow) as per mockup -->
-			<div class="card border border-warning shadow-sm mb-5 rounded-4 overflow-hidden position-relative bg-white"> <div
-				class="card-body p-4 p-lg-5 d-flex flex-column flex-md-row align-items-center gap-4">
+		<!-- Centered, ~70% width -->
+			<div class="row justify-content-center"> <div
+				class="col-lg-9">
+				<!-- Border secondary (yellow) as per mockup -->
+				<div class="card border border-secondary shadow-sm mb-5 rounded-4 overflow-hidden position-relative bg-white">
+					<div
+						class="card-body p-4 p-lg-5 d-flex flex-column flex-md-row align-items-center gap-4">
 
-				<!-- VET PHOTO -->
-				<div class="flex-shrink-0">
-					<img src="{{ vet.image }}" alt="{{ vet.name }}" class="rounded-circle shadow-sm" style="width: 120px; height: 120px; object-fit: cover;">
-				</div>
+						<!-- VET PHOTO -->
+						<div class="flex-shrink-0">
+							<img src="{{ vet.image }}" alt="{{ vet.name }}" class="rounded-circle shadow-sm" style="width: 120px; height: 120px; object-fit: cover;">
+						</div>
 
-				<!-- VET INFO (Middle) -->
-				<div class="flex-grow-1 text-center text-md-start">
-					<h1 class="h2 fw-bold mb-1 text-dark">{{ vet.name }}</h1>
-					<p class="h5 text-muted mb-2 fw-normal">{{ vet.title }}</p>
-					<a href="#" class="text-decoration-none text-info fw-medium d-inline-block mb-3">
-						<i class="bi bi-geo-alt me-1"></i>
-						{{ vet.address }}
-						•
-						{{ vet.distance }}
-					</a>
+						<!-- VET INFO (Middle) -->
+						<div class="flex-grow-1 text-center text-md-start">
+							<h1 class="h2 fw-bold mb-1 text-dark">{{ vet.name }}</h1>
+							<p class="h5 text-muted mb-2 fw-normal">{{ vet.title }}</p>
+							<a href="#" class="text-decoration-none text-info fw-medium d-inline-block mb-3">
+								<i class="bi bi-geo-alt me-1"></i>
+								{{ vet.address }}
+								•
+								{{ vet.distance }}
+							</a>
 
-					<div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-2 mt-2">
-						<span class="badge rounded-pill bg-primary-bg text-primary-pressed fw-medium px-3 py-2 border border-primary-bg">
-							Prochain RDV : Demain à 14H30
-						</span>
-						<span class="badge rounded-pill bg-info-bg text-info-pressed fw-medium px-3 py-2 border border-info-bg">
-							Urgence
-						</span>
-						<span class="badge rounded-pill bg-neutral-20 text-muted fw-medium px-3 py-2 border border-neutral-20">
-							Parking
-						</span>
+							<div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-2 mt-2">
+								<span class="badge rounded-pill bg-primary-bg text-primary-pressed fw-medium px-3 py-2 border border-primary-bg">
+									Prochain RDV : Demain à 14H30
+								</span>
+								<span class="badge rounded-pill bg-info-bg text-info-pressed fw-medium px-3 py-2 border border-info-bg">
+									Urgence
+								</span>
+								<span class="badge rounded-pill bg-neutral-20 text-muted fw-medium px-3 py-2 border border-neutral-20">
+									Parking
+								</span>
+							</div>
+						</div>
+
+						<!-- VET ACTIONS (Right) -->
+						<div
+							class="d-flex flex-column align-items-center align-items-md-end gap-3 w-100 w-md-auto mt-3 mt-md-0">
+							<!-- Fav Button: Border gray200 (using neutral-40 for visible gray border as per mockup request if neutral-20 too light, sticking to gray200 roughly) -->
+							<button class="btn btn-link text-decoration-none text-info fw-medium d-flex align-items-center gap-2 px-3 py-2 rounded-pill border border-neutral-40 bg-white">
+								<i class="bi bi-heart"></i>
+								Ajouter aux favoris
+							</button>
+
+							<!-- Main Button: Primary + White text -->
+							<a href="#" class="btn btn-primary bg-primary text-white fw-bold rounded-pill px-5 py-3 shadow-sm mt-2">
+								Voir / Prendre RDV
+							</a>
+						</div>
+
 					</div>
 				</div>
-
-				<!-- VET ACTIONS (Right) -->
-				<div class="d-flex flex-column align-items-center align-items-md-end gap-3 w-100 w-md-auto mt-3 mt-md-0">
-					<button class="btn btn-link text-decoration-none text-info fw-medium d-flex align-items-center gap-2 p-0 border-0">
-						<i class="bi bi-heart"></i>
-						Ajouter aux favoris
-					</button>
-
-					<a href="#" class="btn btn-primary text-white fw-bold rounded-pill px-5 py-3 shadow-sm mt-2">
-						Voir / Prendre RDV
-					</a>
-				</div>
-
 			</div>
 		</div>
 
