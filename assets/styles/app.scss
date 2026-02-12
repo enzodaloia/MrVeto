@@ -199,7 +199,20 @@ $theme-colors: $custom-colors;
     small, .small { font-size: 14px; }
 }
 
-// 7. MODE SOMBRE (DARK MODE)
+// 7. FORCER LES COULEURS CUSTOM
+@each $name, $color in $custom-colors {
+    .bg-#{$name} {
+        background-color: $color !important;
+    }
+    .text-#{$name} {
+        color: $color !important;
+    }
+    .hover-text-#{$name}:hover {
+        color: $color !important;
+    }
+}
+
+// 8. MODE SOMBRE (DARK MODE)
 // Bootstrap 5.3 gère le dark mode avec l'attribut data-bs-theme="dark" sur la balise <html>.
 // On surcharge les variables CSS natives pour ce mode.
 
