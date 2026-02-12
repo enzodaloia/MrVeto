@@ -1,0 +1,106 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon compte{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+{% endblock %}
+
+{% block body %}
+
+<div class="container my-5" style="max-width: 900px;">
+    <h1 class="text-center text-info fw-bold mb-5">Mon compte</h1>
+
+    {# Profile Picture Section #}
+    <div class="card border-0 shadow-sm mb-5 rounded-4 bg-secondary-bg">
+        <div class="card-body d-flex justify-content-center align-items-center py-4">
+            <div class="d-flex align-items-center gap-4">
+                 <div class="rounded-circle overflow-hidden border border-2 border-white shadow-sm" style="width: 80px; height: 80px;">
+                     <img src="https://ui-avatars.com/api/?name=Edouard+Martin&background=random" class="w-100 h-100 object-fit-cover" alt="Avatar">
+                 </div>
+                 <button class="btn btn-outline-info hover-text-primary-bg rounded-pill px-4 fw-bold">Mettre à jour</button>
+                 <button class="btn text-danger fw-bold"><i class="bi bi-trash"></i> Supprimer</button>
+            </div>
+        </div>
+    </div>
+
+    {# Informations personnelles #}
+    <div class="card border-0 shadow-sm mb-4 rounded-3 overflow-hidden">
+        <div class="card-header text-white px-4 py-3 bg-primary-pressed">
+            <i class="bi bi-person-circle me-2 fs-4"></i> <span class="fw-bold fs-5">Informations personnelles</span>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom">
+                <span class="fs-6">Nom: Martin</span>
+                <a href="#" class="text-primary fs-5"><i class="bi bi-pencil-fill"></i></a>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom">
+                <span class="fs-6">Prénom: Edouard</span>
+                <a href="#" class="text-primary fs-5"><i class="bi bi-pencil-fill"></i></a>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom">
+                <span class="fs-6">Adresse postale : 12 rue Parla</span>
+                <a href="#" class="text-primary fs-5"><i class="bi bi-pencil-fill"></i></a>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
+                <span class="fs-6">Téléphone: +22 7 98 78 77 11</span>
+                <a href="#" class="text-primary fs-5"><i class="bi bi-pencil-fill"></i></a>
+            </li>
+        </ul>
+    </div>
+
+    {# Sécurité #}
+    <div class="card border-0 shadow-sm mb-4 rounded-3 overflow-hidden">
+        <div class="card-header text-white px-4 py-3 bg-primary-pressed">
+             <i class="bi bi-shield-lock me-2 fs-4"></i> <span class="fw-bold fs-5">Sécurité</span>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom">
+                <span class="fs-6">Adresse email : hello@gmail.com</span>
+                <a href="#" class="text-primary fs-5"><i class="bi bi-pencil-fill"></i></a>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom">
+                <span class="fs-6">Mot de passe: ********************</span>
+                <a href="#" class="text-primary fs-5"><i class="bi bi-pencil-fill"></i></a>
+            </li>
+            <li class="list-group-item text-center py-4">
+                <button class="btn text-danger bg-transparent border-0 px-4 py-2 fw-bold"><i class="bi bi-archive-fill me-2"></i> Archiver mes informations</button>
+            </li>
+        </ul>
+    </div>
+
+    {# Données #}
+    <div class="card border-0 shadow-sm mb-5 rounded-3 overflow-hidden">
+         <div class="card-header text-white px-4 py-3 bg-info">
+            <i class="bi bi-file-text me-2 fs-4"></i> <span class="fw-bold fs-5">Données</span>
+        </div>
+        <div class="card-body p-0">
+             <div class="d-flex justify-content-between align-items-center px-4 py-3 border-bottom bg-light bg-opacity-10">
+                <span class="fs-6">J'accepte toutes les <strong>conditions</strong> et les <strong>politiques de confidentialité</strong>.</span>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked style="width: 3em; height: 1.5em; cursor: pointer;">
+                </div>
+            </div>
+            <div class="text-center py-3 border-bottom">
+                 <button class="btn text-info fw-bold bg-transparent border-0 px-4 py-2"><i class="bi bi-download me-2"></i> Télécharger mes données</button>
+            </div>
+            <div class="text-center py-3">
+                 <button class="btn text-danger fw-bold bg-transparent border-0 px-4 py-2"><i class="bi bi-trash me-2"></i> Supprimer mon compte</button>
+            </div>
+        </div>
+    </div>
+
+    {# Reset Password Link #}
+    <div class="text-center mb-5">
+        <span class="text-muted">Mot de passe oublié?</span> <a href="#" class="text-danger fw-bold text-decoration-underline ms-1">Réinitialiser mon mot de passe</a>
+    </div>
+
+    {# Action Buttons #}
+    <div class="d-flex justify-content-center gap-4 mb-5 pb-5">
+        <button class="btn btn-success-bg rounded-pill px-5 py-2 fw-bold shadow-sm text-info">Annuler</button>
+        <button class="btn btn-success text-primary-bg rounded-pill px-5 py-2 fw-bold shadow-sm">Enregistrer mes modifications</button>
+    </div>
+
+</div>
+{% endblock %}
