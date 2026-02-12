@@ -13,7 +13,43 @@
             {% block importmap %}{{ importmap('app') }}{% endblock %}
         {% endblock %}
     </head>
-    <body>
-        {% block body %}{% endblock %}
-    </body>
+	<body>
+		<nav class="navbar navbar-expand-lg navbar-light bg-warning-bg py-4 shadow-sm">
+			<div class="container-fluid px-5">
+				<a class="navbar-brand fw-bold text-dark" href="#">LOGO</a>
+
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+
+				<div class="collapse navbar-collapse justify-content-center" id="navbarContent">
+					<div class="bg-white rounded-pill px-4 py-2 shadow-sm d-flex gap-4 align-items-center">
+						<a class="nav-link text-muted hover-text-primary" href="#">Accueil</a>
+						<a class="nav-link text-muted hover-text-primary" href="#">Rechercher un vétérinaire</a>
+						<a class="nav-link text-muted hover-text-primary" href="#">Mes rendez-vous</a>
+						<a class="nav-link text-muted hover-text-primary" href="#">Mes animaux</a>
+					</div>
+				</div>
+
+				<div class="d-flex align-items-center gap-4">
+					<a class="nav-link text-info fw-bold d-flex align-items-center gap-2" href="#">
+						Notifications
+					</a>
+					<i class="bi bi-bell"></i>
+
+
+					<div class="text-end lh-1">
+						<small class="text-primary d-block mb-1">Bonjour,</small>
+						<span class="fw-bold text-dark">Edouard Martin</span>
+					</div>
+					<div class="d-flex align-items-center gap-2">
+						<div class="rounded-circle overflow-hidden shadow-sm" style="width: 45px; height: 45px;">
+							<img src="https://ui-avatars.com/api/?name=Edouard+Martin&background=random" class="w-100 h-100 object-fit-cover" alt="Avatar">
+						</div>
+						<a href="#" class="text-decoration-none text-dark dropdown-toggle"></a>
+					</div>
+			</div>
+		</nav>
+		{% block body %}{% endblock %}
+	</body>
 </html>
