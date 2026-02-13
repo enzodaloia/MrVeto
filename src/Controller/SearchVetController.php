@@ -8,7 +8,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class SearchVetController extends AbstractController
 {
-    #[Route('/search', name: 'app_search_vet')]
+    #[Route('/front/search', name: 'app_search_vet')]
     public function index(): Response
     {
         return $this->render('search-vet/searchvet.html.twig', [
