@@ -1,34 +1,68 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Log in!{% endblock %}
+{% block title %}Se connecter{% endblock %}
 
 {% block body %}
-<form method="post">
-    {% if error %}
-        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-    {% endif %}
+<div class="container-fluid d-flex flex-column p-0" style="background-color: #fff9f0;">
 
-    {% if app.user %}
-        <div class="mb-3">
-            You are logged in as {{ app.user.userIdentifier }}, <a href="{{ logout_path() }}">Logout</a>
-        </div>
-    {% endif %}
+    <!-- Main Form -->
+    <main class="d-flex justify-content-center align-items-center py-5" style="min-height: 100vh;">
+        <form method="post" class="w-100" style="max-width: 600px;">
+            
+            <h2 class="text-center mb-4" style="color: #36BDAF;">Connexion</h2>
 
-    <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-    <label for="inputEmail">Email</label>
-    <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" autocomplete="email" required autofocus>
-    <label for="inputPassword">Password</label>
-    <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
-    <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
+            {% if error %}
+                <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+            {% endif %}
 
-    <div class="checkbox mb-3">
-        <label>
-            <input type="checkbox" name="_remember_me"> Remember me
-        </label>
-    </div>
+            <div class="mb-3 form-floating">
+                <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" placeholder="Adresse email" autocomplete="email" required autofocus>
+                <label for="inputEmail">Adresse email</label>
+            </div>
 
-    <button class="btn btn-lg btn-primary" type="submit">
-        Sign in
-    </button>
-</form>
+            <div class="mb-3 form-floating position-relative">
+                <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Mot de passe" autocomplete="current-password" required>
+                <label for="inputPassword">Mot de passe</label>
+
+                <!-- Bouton toggle avec Font Awesome -->
+                <button type="button" id="togglePassword" class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2" style="z-index: 2;">
+                    <i class="fa-solid fa-eye"></i>
+                </button>
+            </div>
+
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="_remember_me" id="remember_me">
+                    <label class="form-check-label" for="remember_me">Se souvenir de moi</label>
+                </div>
+                <a href="#" class="text-danger small">Mot de passe oublié?</a>
+            </div>
+
+            <center>
+                <button class="btn w-50 mb-3" style="background-color: #36BDAF; color: white;" type="submit">Se connecter</button>
+            </center>
+
+            <div class="text-center small text-muted">
+                Nouveau sur Mr Veto? <a href="{{ path('app_register') }}">Créer un compte personnel ou professionnel</a>
+            </div>
+        </form>
+    </main>
+</div>
+
+<script>
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('inputPassword');
+    const toggleIcon = togglePassword.querySelector('i');
+
+    togglePassword.addEventListener('click', function () {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+
+        // Changer l'icône
+        toggleIcon.classList.toggle('fa-eye');
+        toggleIcon.classList.toggle('fa-eye-slash');
+    });
+</script>
 {% endblock %}
