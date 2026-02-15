@@ -45,7 +45,7 @@
             </center>
 
             <div class="text-center small text-muted">
-                Nouveau sur Mr Veto? <a href="{{ path('app_register') }}">Créer un compte personnel ou professionnel</a>
+                Nouveau sur Mr Veto? Créer un compte <a href="{{ path('app_register', {'type': 'utilisateur'}) }}">personnel</a> ou <a href="{{ path('app_register', {'type': 'veterinaire'}) }}">professionnel</a>
             </div>
         </form>
     </main>

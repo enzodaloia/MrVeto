@@ -27,17 +27,18 @@
                         <a class="nav-link text-muted hover-text-primary" href="{{ path('app_home') }}">Accueil</a>
                         <a class="nav-link text-muted hover-text-primary" href="{{path('app_search_vet')}}">Rechercher un vétérinaire</a>
                         <a class="nav-link text-muted hover-text-primary" href="#">Mes rendez-vous</a>
-                        <div class="dropdown">
-                            <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                                S'inscrire
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                <li><a class="dropdown-item" href="{{ path('app_register') }}">Vétérinaire</a></li>
-                                <li><a class="dropdown-item" href="{{ path('app_register') }}">Utilisateur</a></li>
-                            </ul>
-                        </div>
-                        <a class="nav-link text-muted hover-text-primary" href="{{ path('app_login') }}">Me connecter</a>
-
+                        {% if app.user == null %}
+                            <div class="dropdown">
+                                <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                    S'inscrire
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <li><a class="dropdown-item" href="{{ path('app_register', {'type': 'veterinaire'}) }}">Vétérinaire</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('app_register', {'type': 'utilisateur'}) }}">Utilisateur</a></li>
+                                </ul>
+                            </div>
+                            <a class="nav-link text-muted hover-text-primary" href="{{ path('app_login') }}">Me connecter</a>
+                        {% endif %}
                         {% if app.user %}
                             <a class="nav-link text-muted hover-text-primary" href="#">Mes animaux</a>
                         {% endif %}
