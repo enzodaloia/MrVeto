@@ -2,6 +2,7 @@
 <html>
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1"> {#Responsive design meta tag #}
         <title>{% block title %}Welcome!{% endblock %}</title>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
         {% block stylesheets %}
@@ -24,7 +25,7 @@
 
                 <div class="collapse navbar-collapse justify-content-center" id="navbarContent">
                     <div class="bg-white rounded-pill px-4 py-2 shadow-sm d-flex gap-4 align-items-center">
-                        <a class="nav-link text-muted hover-text-primary" href="{{ path('app_home') }}">Accueil</a>
+                        <a class="nav-link text-muted hover-text-primary" href="{{ path('app_user_front_index') }}">Accueil</a>
                         <a class="nav-link text-muted hover-text-primary" href="{{path('app_search_vet')}}">Rechercher un vétérinaire</a>
                         <a class="nav-link text-muted hover-text-primary" href="#">Mes rendez-vous</a>
                         {% if app.user == null %}

@@ -1,6 +1,8 @@
 import './stimulus_bootstrap.js';
 import './styles/app.scss';
 
+import './bootstrap.js';
+import './lucide.js';
 import '@popperjs/core';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
