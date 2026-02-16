@@ -7,6 +7,7 @@ use App\Form\UserType;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -69,13 +70,21 @@ final class UserFrontController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_user_front_delete', methods: ['POST'])]
-    public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, User $user, EntityManagerInterface $entityManager, Security $security): Response
     {
         if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->getPayload()->getString('_token'))) {
+            // Vérifier si l'utilisateur supprime son propre compte
+            $isCurrentUser = $this->getUser() === $user;
+            
             $entityManager->remove($user);
             $entityManager->flush();
+            
+            // Si c'est l'utilisateur connecté, le déconnecter
+            if ($isCurrentUser) {
+                $security->logout(false);
+            }
         }
 
-        return $this->redirectToRoute('app_user_front_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_home', [], Response::HTTP_SEE_OTHER);
     }
 }

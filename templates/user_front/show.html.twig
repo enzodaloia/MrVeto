@@ -1,74 +1,126 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}User{% endblock %}
+{% block title %}Mon compte{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+{% endblock %}
 
 {% block body %}
-    <h1>User</h1>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ user.id }}</td>
-            </tr>
-            <tr>
-                <th>Email</th>
-                <td>{{ user.email }}</td>
-            </tr>
-            <tr>
-                <th>Roles</th>
-                <td>{{ user.roles ? user.roles|json_encode : '' }}</td>
-            </tr>
-            <tr>
-                <th>Password</th>
-                <td>{{ user.password }}</td>
-            </tr>
-            <tr>
-                <th>IsVerified</th>
-                <td>{{ user.isVerified ? 'Yes' : 'No' }}</td>
-            </tr>
-            <tr>
-                <th>Nom</th>
-                <td>{{ user.nom }}</td>
-            </tr>
-            <tr>
-                <th>Prenom</th>
-                <td>{{ user.prenom }}</td>
-            </tr>
-            <tr>
-                <th>Datenaissance</th>
-                <td>{{ user.datenaissance ? user.datenaissance|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Adresse</th>
-                <td>{{ user.adresse }}</td>
-            </tr>
-            <tr>
-                <th>Telephone</th>
-                <td>{{ user.telephone }}</td>
-            </tr>
-            <tr>
-                <th>Ville</th>
-                <td>{{ user.ville }}</td>
-            </tr>
-            <tr>
-                <th>Codepostal</th>
-                <td>{{ user.codepostal }}</td>
-            </tr>
-            <tr>
-                <th>Siret</th>
-                <td>{{ user.siret }}</td>
-            </tr>
-            <tr>
-                <th>Adressecabinet</th>
-                <td>{{ user.adressecabinet }}</td>
-            </tr>
-        </tbody>
-    </table>
+<div class="container my-5" style="max-width: 900px;">
+    <h1 class="text-center text-info fw-bold mb-5">Mon compte</h1>
 
-    <a href="{{ path('app_user_front_index') }}">back to list</a>
+    {# Profile Picture Section #}
+    <div class="card border-0 shadow-sm mb-5 rounded-4 bg-secondary-bg">
+        <div class="card-body d-flex justify-content-center align-items-center py-4">
+            <div class="d-flex align-items-center gap-4">
+                 <div class="rounded-circle overflow-hidden border border-2 border-white shadow-sm" style="width: 80px; height: 80px;">
+                     <img src="https://ui-avatars.com/api/?name={{ user.prenom }}+{{ user.nom }}&background=random" class="w-100 h-100 object-fit-cover" alt="Avatar">
+                 </div>
+                 <button class="btn btn-outline-info hover-text-primary-bg rounded-pill px-4 fw-bold">Mettre à jour</button>
+                 <button class="btn text-danger fw-bold"><i class="bi bi-trash"></i> Supprimer</button>
+            </div>
+        </div>
+    </div>
 
-    <a href="{{ path('app_user_front_edit', {'id': user.id}) }}">edit</a>
+    {# Informations personnelles #}
+    <div class="card border-0 shadow-sm mb-4 rounded-3 overflow-hidden">
+        <div class="card-header text-white px-4 py-3 bg-primary-pressed">
+            <i class="bi bi-person-circle me-2 fs-4"></i> <span class="fw-bold fs-5">Informations personnelles</span>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field">
+                <div class="d-flex align-items-center w-100">
+                    <span class="fs-6 fw-bold me-2">Nom :</span>
+                    <span class="fs-6" >{{ user.nom }}</span>
+                    <input type="text" class="form-control d-none w-auto" value="{{ user.nom }}">
+                </div>
+                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit"><i class="bi bi-pencil-fill"></i></button>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field">
+                <div class="d-flex align-items-center w-100">
+                    <span class="fs-6 fw-bold me-2">Prénom :</span>
+                    <span class="fs-6" >{{ user.prenom }}</span>
+                    <input type="text" class="form-control d-none w-auto" value="{{ user.prenom }}">
+                </div>
+                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit"><i class="bi bi-pencil-fill"></i></button>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field">
+                <div class="d-flex align-items-center w-100">
+                    <span class="fs-6 fw-bold me-2">Adresse postale :</span>
+                    <span class="fs-6" >{{ user.adresse }}</span>
+                    <input type="text" class="form-control d-none w-auto" value="{{ user.adresse }}">
+                </div>
+                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit"><i class="bi bi-pencil-fill"></i></button>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3" data-controller="editable-field">
+                <div class="d-flex align-items-center w-100">
+                    <span class="fs-6 fw-bold me-2">Téléphone :</span>
+                    <span class="fs-6" >{{ user.telephone }}</span>
+                    <input type="text" class="form-control d-none w-auto" value="{{ user.telephone }}">
+                </div>
+                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit"><i class="bi bi-pencil-fill"></i></button>
+            </li>
+        </ul>
+    </div>
 
-    {{ include('user_front/_delete_form.html.twig') }}
+    {# Sécurité #}
+    <div class="card border-0 shadow-sm mb-4 rounded-3 overflow-hidden">
+        <div class="card-header text-white px-4 py-3 bg-primary-pressed">
+             <i class="bi bi-shield-lock me-2 fs-4"></i> <span class="fw-bold fs-5">Sécurité</span>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field">
+                <div class="d-flex align-items-center w-100">
+                    <span class="fs-6 me-2">Adresse email :</span>
+                    <span class="fs-6"  >{{ user.email }}</span>
+                    <input type="email" class="form-control d-none w-auto" value="{{ user.email }}">
+                </div>
+                <a href="#" class="text-primary fs-5" data-action="click->editable-field#edit"><i class="bi bi-pencil-fill"></i></a>
+            </li>
+{#             <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom">
+                <span class="fs-6">Mot de passe: ********************</span>
+                <a href="#" class="text-primary fs-5"><i class="bi bi-pencil-fill"></i></a>
+            </li> #}
+            <li class="list-group-item text-center py-4">
+                <button class="btn text-danger bg-transparent border-0 px-4 py-2 fw-bold"><i class="bi bi-archive-fill me-2"></i> Archiver mes informations</button>
+            </li>
+        </ul>
+    </div>
+
+    {# Données #}
+    <div class="card border-0 shadow-sm mb-5 rounded-3 overflow-hidden">
+         <div class="card-header text-white px-4 py-3 bg-info">
+            <i class="bi bi-file-text me-2 fs-4"></i> <span class="fw-bold fs-5">Données</span>
+        </div>
+        <div class="card-body p-0">
+             <div class="d-flex justify-content-between align-items-center px-4 py-3 border-bottom bg-light bg-opacity-10">
+                <span class="fs-6">J'accepte toutes les <strong>conditions</strong> et les <strong>politiques de confidentialité</strong>.</span>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked style="width: 3em; height: 1.5em; cursor: pointer;">
+                </div>
+            </div>
+            <div class="text-center py-3 border-bottom">
+                 <button class="btn text-info fw-bold bg-transparent border-0 px-4 py-2"><i class="bi bi-download me-2"></i> Télécharger mes données</button>
+            </div>
+            <div class="text-center py-3">
+                 <button class="btn text-danger fw-bold bg-transparent border-0 px-4 py-2"><i class="bi bi-trash me-2"></i> Supprimer mon compte</button>
+            </div>
+        </div>
+    </div>
+
+    {# Reset Password Link #}
+    <div class="text-center mb-5">
+        <span class="text-muted">Mot de passe oublié?</span> <a href="#" class="text-danger fw-bold text-decoration-underline ms-1">Réinitialiser mon mot de passe</a>
+    </div>
+
+    {# Action Buttons #}
+    <div class="d-flex justify-content-center gap-4 mb-5 pb-5">
+        <button class="btn btn-success-bg rounded-pill px-5 py-2 fw-bold shadow-sm text-info">Annuler</button>
+        <button class="btn btn-success text-primary-bg rounded-pill px-5 py-2 fw-bold shadow-sm">Enregistrer mes modifications</button>
+    </div>
+
+</div>
 {% endblock %}
