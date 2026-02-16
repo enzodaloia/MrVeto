@@ -1,0 +1,232 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}MrVeto -
+	{{ vet.name }}
+{% endblock %}
+
+{% block body %}
+	<div class="container my-5">
+
+		<!-- HEADER CARD -->
+		<!-- Centered, ~70% width -->
+			<div class="row justify-content-center"> <div
+				class="col-lg-9">
+				<!-- Border secondary (yellow) as per mockup -->
+				<div class="card border border-secondary shadow-sm mb-5 rounded-4 overflow-hidden position-relative bg-white">
+					<div
+						class="card-body p-4 p-lg-5 d-flex flex-column flex-md-row align-items-center gap-4">
+
+						<!-- VET PHOTO -->
+						<div class="flex-shrink-0">
+							<img src="{{ vet.image }}" alt="{{ vet.name }}" class="rounded-circle shadow-sm" style="width: 120px; height: 120px; object-fit: cover;">
+						</div>
+
+						<!-- VET INFO (Middle) -->
+						<div class="flex-grow-1 text-center text-md-start">
+							<h1 class="h2 fw-bold mb-1 text-dark">{{ vet.name }}</h1>
+							<p class="h5 text-muted mb-2 fw-normal">{{ vet.title }}</p>
+							<a href="#" class="text-decoration-none text-info fw-medium d-inline-block mb-3">
+								<i class="bi bi-geo-alt me-1"></i>
+								{{ vet.address }}
+								•
+								{{ vet.distance }}
+							</a>
+
+							<div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-2 mt-2">
+								<span class="badge rounded-pill bg-primary-bg text-primary-pressed fw-medium px-3 py-2 border border-primary-bg">
+									Prochain RDV : Demain à 14H30
+								</span>
+								<span class="badge rounded-pill bg-info-bg text-info-pressed fw-medium px-3 py-2 border border-info-bg">
+									Urgence
+								</span>
+								<span class="badge rounded-pill bg-neutral-20 text-muted fw-medium px-3 py-2 border border-neutral-20">
+									Parking
+								</span>
+							</div>
+						</div>
+
+						<!-- VET ACTIONS (Right) -->
+						<div
+							class="d-flex flex-column align-items-center align-items-md-end gap-3 w-100 w-md-auto mt-3 mt-md-0">
+							<!-- Fav Button: Border gray200 (using neutral-40 for visible gray border as per mockup request if neutral-20 too light, sticking to gray200 roughly) -->
+							<button class="btn btn-link text-decoration-none text-info fw-medium d-flex align-items-center gap-2 px-3 py-2 rounded-pill border border-neutral-40 bg-white">
+								<i class="bi bi-heart"></i>
+								Ajouter aux favoris
+							</button>
+
+							<!-- Main Button: Primary + White text -->
+							<a href="#" class="btn btn-primary bg-primary text-white fw-bold rounded-pill px-5 py-3 shadow-sm mt-2">
+								Voir / Prendre RDV
+							</a>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- MAIN CONTENT GRID -->
+		<div
+			class="row g-4">
+
+			<!-- LEFT COLUMN (Main Info) -->
+			<div class="col-lg-7">
+				<div
+					class="card border-0 shadow-sm p-4 p-lg-5 h-100 rounded-4 bg-white">
+
+					<!-- A PROPOS -->
+					<div class="mb-5">
+						<h2 class="h4 fw-bold mb-3 text-dark">A propos</h2>
+						<p class="text-secondary lh-lg mb-0 text-muted">
+							Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+						</p>
+					</div>
+
+					<!-- SPECIALITES -->
+					<div class="mb-5">
+						<h2 class="h4 fw-bold mb-3 text-dark">Spécialités</h2>
+						<div class="d-flex flex-wrap gap-2">
+							{% for spec in vet.specialties %}
+								<span class="badge rounded-pill bg-warning-bg text-warning-pressed fw-normal px-3 py-2 border border-warning-bg fs-6">
+									{{ spec }}
+								</span>
+							{% endfor %}
+							<span class="badge rounded-pill bg-warning-bg text-warning-pressed fw-normal px-3 py-2 border border-warning-bg fs-6">
+								Lorem
+							</span>
+						</div>
+					</div>
+
+					<!-- DETAILS (List) -->
+					<div class="vstack gap-4">
+						<div>
+							<span class="d-block h5 fw-bold mb-1 text-dark">Moyens de paiement</span>
+							<span class="text-info fw-medium">{{ vet.payment_methods }}</span>
+						</div>
+
+						<div>
+							<span class="d-block h5 fw-bold mb-1 text-dark">Types d'animaux acceptés</span>
+							<span class="text-info fw-medium">{{ vet.animal_types }}</span>
+						</div>
+
+						<div>
+							<span class="d-block h5 fw-bold mb-1 text-dark">Durée moyenne de consultation</span>
+							<span class="text-info fw-medium">{{ vet.consultation_duration }}</span>
+						</div>
+
+						<div>
+							<span class="d-block h5 fw-bold mb-1 text-dark">Langues parlées</span>
+							<span class="text-info fw-medium">{{ vet.languages }}</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- RIGHT COLUMN (Widgets) -->
+			<div class="col-lg-5">
+				<div
+					class="vstack gap-4">
+
+					<!-- 1. CALENDAR CARD -->
+					<div class="card border-0 shadow-sm p-4 rounded-4 bg-white">
+						<h2 class="h4 fw-bold mb-4 text-dark">Prochaines disponibilités</h2>
+
+						<div class="d-flex justify-content-between align-items-center mb-2">
+							<button class="btn btn-link text-warning p-0 text-decoration-none">
+								<i class="bi bi-chevron-left fs-5 fw-bold"></i>
+							</button>
+
+							<div class="d-flex justify-content-between flex-grow-1 mx-3 text-center">
+								<div class="d-flex flex-column align-items-center" style="width: 38px;">
+									<span class="fw-bold small text-dark mb-1">Lun</span>
+									<span class="text-muted small">1</span>
+								</div>
+								<div class="d-flex flex-column align-items-center" style="width: 38px;">
+									<span class="fw-bold small text-dark mb-1">Mar</span>
+									<span class="text-muted small">2</span>
+								</div>
+								<!-- Active Day (Yellow) -->
+								<div class="d-flex flex-column align-items-center bg-warning rounded-3 shadow-sm pt-1 pb-1" style="width: 38px;">
+									<span class="fw-bold small text-dark mb-1">Mer</span>
+									<span class="fw-bold small text-dark">3</span>
+								</div>
+								<div class="d-flex flex-column align-items-center" style="width: 38px;">
+									<span class="fw-bold small text-dark mb-1">Jeu</span>
+									<span class="text-muted small">4</span>
+								</div>
+								<div class="d-flex flex-column align-items-center" style="width: 38px;">
+									<span class="fw-bold small text-dark mb-1">Ven</span>
+									<span class="text-muted small">5</span>
+								</div>
+								<div class="d-flex flex-column align-items-center" style="width: 38px;">
+									<span class="fw-bold small text-dark mb-1">Sam</span>
+									<span class="text-muted small text-info">6</span>
+								</div>
+								<div class="d-flex flex-column align-items-center" style="width: 38px;">
+									<span class="fw-bold small text-dark mb-1">Dim</span>
+									<span class="text-muted small text-info">7</span>
+								</div>
+							</div>
+
+							<button class="btn btn-link text-warning p-0 text-decoration-none">
+								<i class="bi bi-chevron-right fs-5 fw-bold"></i>
+							</button>
+						</div>
+					</div>
+
+					<!-- 2. HOURS CARD -->
+					<div class="card border-0 shadow-sm p-4 rounded-4 bg-white">
+						<h2 class="h4 fw-bold mb-4 text-dark">Horaire</h2>
+						<div class="row row-cols-4 g-3">
+							<div class="col">
+								<div class="border border-neutral-40 rounded-3 text-center py-2 text-dark small fw-medium">6:00</div>
+							</div>
+							<div class="col">
+								<div class="border border-neutral-40 rounded-3 text-center py-2 text-dark small fw-medium">13:00</div>
+							</div>
+							<div class="col">
+								<div class="border border-neutral-40 rounded-3 text-center py-2 text-dark small fw-medium">14:00</div>
+							</div>
+							<div class="col">
+								<div class="border border-neutral-40 rounded-3 text-center py-2 text-dark small fw-medium">15:30</div>
+							</div>
+							<div class="col">
+								<div class="border border-neutral-40 rounded-3 text-center py-2 text-dark small fw-medium">18:00</div>
+							</div>
+							<div class="col">
+								<div class="border border-neutral-40 rounded-3 text-center py-2 text-dark small fw-medium">19:00</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- 3. CONTACT CARD -->
+					<div class="card border-0 shadow-sm p-4 rounded-4 position-relative bg-white">
+						<div class="d-flex justify-content-between align-items-center mb-4">
+							<h2 class="h4 fw-bold mb-0 text-dark">Contact</h2>
+							<button class="btn btn-link text-muted p-0 text-decoration-none">
+								<i class="bi bi-three-dots-vertical"></i>
+							</button>
+						</div>
+
+						<div class="vstack gap-3">
+							<div class="d-flex align-items-center gap-3">
+								<div class="bg-info-bg rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 40px; height: 40px;">
+									<i class="bi bi-telephone text-info fs-5"></i>
+								</div>
+								<a href="tel:{{ vet.phone }}" class="text-info fw-medium text-decoration-none">{{ vet.phone }}</a>
+							</div>
+
+							<div class="d-flex align-items-center gap-3">
+								<div class="bg-info-bg rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 40px; height: 40px;">
+									<i class="bi bi-envelope text-info fs-5"></i>
+								</div>
+								<a href="mailto:{{ vet.email }}" class="text-info fw-medium text-decoration-none">{{ vet.email }}</a>
+							</div>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
