@@ -6,426 +6,237 @@
 {% block stylesheets %}
 	{{ parent() }}
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-	<style>
-	/* Material Design - Lite Custom Styles for this page */:root
-	{
-		--primary-color: #6200ee;
-		--primary-variant: #3700b3;
-		--secondary-color: #03dac6;
-		--background-color: #f5f5f5;
-		--surface-color: #ffffff;
-		--error-color: #b00020;
-		--text-primary: rgba(0, 0, 0, 0.87);
-		--text-secondary: rgba(0, 0, 0, 0.6);
-		--border-radius: 8px;
-		--shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
-		--shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-		--shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-	}
+{% endblock %}
 
-	body {
-		background-color: var(--background-color);
-		color: var(--text-primary);
-		/* font-family: 'Roboto', 'Segoe UI', sans-serif; */
-		margin: 0;
-	}
-
-	/* Layout */
-	.search-page-container {
-		display: flex;
-		flex-direction: column;
-		min-height: 100vh;
-	}
-
-	/* Sticky Search Bar (Airline Style) */
-	.sticky-search-wrapper {
-		position: sticky;
-		top: 20px;
-		z-index: 1000;
-		display: flex;
-		justify-content: center;
-		padding: 0 1rem;
-		pointer-events: none; /* Allows clicking through the empty space around the bar */
-	}
-
-	.search-container-inner {
-		background-color: var(--primary-color);
-		color: white;
-		padding: 0.5rem 1rem;
-		border-radius: 50px; /* Fully rounded corners */
-		box-shadow: var(--shadow-lg);
-		display: flex;
-		gap: 1rem;
-		align-items: center;
-		width: 100%;
-		max-width: 900px; /* Limit width */
-		pointer-events: auto; /* Re-enable clicks on the bar itself */
-	}
-
-	.search-input-group {
-		display: flex;
-		align-items: center;
-		background: rgba(255, 255, 255, 0.15);
-		border-radius: 25px;
-		padding: 0.5rem 1rem;
-		flex: 1;
-		transition: background 0.2s;
-	}
-
-	.search-input-group:focus-within {
-		background: white;
-		color: var(--text-primary);
-	}
-
-	.search-input-group input,
-	.search-input-group select {
-		border: none;
-		background: transparent;
-		color: inherit;
-		outline: none;
-		width: 100%;
-		font-size: 1rem;
-		margin-left: 0.5rem;
-	}
-
-	.search-input-group select {
-		cursor: pointer;
-	}
-
-	.search-input-group select option {
-		color: black;
-	}
-
-	.search-input-group input::placeholder {
-		color: rgba(255, 255, 255, 0.7);
-	}
-	.search-input-group:focus-within input::placeholder {
-		color: var(--text-secondary);
-	}
-
-	.search-btn {
-		background-color: var(--secondary-color);
-		color: black;
-		border: none;
-		width: 48px;
-		height: 48px;
-		border-radius: 50%;
-		cursor: pointer;
-		box-shadow: var(--shadow-sm);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		transition: transform 0.2s;
-		flex-shrink: 0;
-	}
-
-	.search-btn:hover {
-		transform: scale(1.05);
-	}
-
-	/* Main Content Grid */
-	.content-grid {
-		display: grid;
-		/* 
-           Grid Template:
-           - 300px: Filters (Left)
-           - 800px: Results (Center)
-           - 300px: Map (Right) 
-        */
-		grid-template-columns: 300px 800px 300px;
-		gap: 2rem;
-		width: 100%;
-		max-width: 1464px;
-		margin: 0 auto;
-		padding: 2rem 1rem;
-		box-sizing: border-box;
-		justify-content: center;
-	}
-
-	@media(max-width: 1500px) {
-		.content-grid {
-			grid-template-columns: 300px 1fr;
-			max-width: 1200px;
-		}
-		.map-section {
-			display: none;
-		}
-	}
-
-	/* Filters Section (Left Sticky) */
-	.filters-section {
-		grid-column: 1;
-		position: sticky;
-		top: 100px;
-		height: calc(100vh - 120px);
-		overflow-y: auto;
-		scrollbar-width: thin;
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-		justify-content: center; /* Vertically center content */
-	}
-
-	/* Results Section (Center) */
-	.results-section {
-		grid-column: 2;
-		display: flex;
-		flex-direction: column;
-		gap: 1.5rem;
-	}
-
-	/* Map Section (Right Sticky) */
-	.map-section {
-		grid-column: 3;
-		position: sticky;
-		top: 100px;
-		height: calc(100vh - 120px);
-		display: flex;
-		flex-direction: column;
-		justify-content: center; /* Vertically center content */
-	}
-
-	.map-container-sticky {
-		width: 100%;
-		/* Square aspect ratio */
-		aspect-ratio: 1 / 1;
-		background-color: #e0e0e0;
-		border-radius: var(--border-radius);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		color: var(--text-secondary);
-		font-weight: bold;
-		box-shadow: var(--shadow-sm);
-		position: relative; /* For absolute button positioning */
-	}
-
-	.map-expand-btn {
-		position: absolute;
-		top: 10px;
-		right: 10px;
-		background: white;
-		border: none;
-		border-radius: 50%;
-		width: 32px;
-		height: 32px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		cursor: pointer;
-		box-shadow: var(--shadow-sm);
-		transition: background 0.2s;
-		z-index: 10;
-	}
-
-	.map-expand-btn:hover {
-		background: #f0f0f0;
-	}
-
-	.vet-card {
-		background: var(--surface-color);
-		border-radius: var(--border-radius);
-		padding: 1.5rem;
-		box-shadow: var(--shadow-sm);
-		display: flex;
-		gap: 1.5rem;
-		transition: box-shadow 0.2s;
-	}
-
-	.vet-card:hover {
-		box-shadow: var(--shadow-md);
-	}
-
-	.vet-avatar {
-		width: 80px;
-		height: 80px;
-		background-color: #e0e0e0;
-		border-radius: 50%;
-		flex-shrink: 0;
-	}
-
-	.vet-info h3 {
-		margin: 0 0 0.5rem;
-		color: var(--primary-color);
-	}
-
-	.vet-details {
-		display: flex;
-		flex-direction: column;
-		gap: 0.25rem;
-		color: var(--text-secondary);
-		font-size: 0.9rem;
-	}
-
-	.vet-actions {
-		margin-left: auto; /* Push to the right */
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: flex-end;
-	}
-
-	.btn-rdv {
-		background-color: var(--secondary-color);
-		color: black;
-		padding: 0.75rem 1.5rem;
-		border-radius: 25px;
-		text-decoration: none;
-		font-weight: 500;
-		box-shadow: var(--shadow-sm);
-		transition: transform 0.2s, box-shadow 0.2s;
-		text-align: center;
-		display: inline-block;
-	}
-
-	.btn-rdv:hover {
-		transform: translateY(-2px);
-		box-shadow: var(--shadow-md);
-	}
-
-	.btn-rdv:active {
-		transform: translateY(0);
-	}
-
-	.filter-panel {
-		background: var(--surface-color);
-		border-radius: var(--border-radius);
-		padding: 1.5rem;
-		box-shadow: var(--shadow-sm);
-	}
-
-	.filter-group {
-		margin-bottom: 1.5rem;
-	}
-
-	.filter-group:last-child {
-		margin-bottom: 0;
-	}
-
-	.filter-group h4 {
-		margin: 0 0 1rem;
-		font-size: 1rem;
-	}
-
-	.checkbox-label {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		margin-bottom: 0.5rem;
-		cursor: pointer;
-		font-size: 0.9rem;
-	}
-</style>{% endblock %}{% block body %}
-<div
-	class="search-page-container">
-
-	<!-- Sticky Search Bar Wrapper -->
-	<div class="sticky-search-wrapper">
-		<form
-			class="search-container-inner" action="{{ path('app_search_vet') }}" method="get">
-
-			<!-- Ville / Code postal -->
-			<div class="search-input-group" style="flex: 2;">
-				<span class="material-icons">location_on</span>
-				<input type="text" name="location" placeholder="Ville ou Code postal">
-			</div>
-
-			<!-- Distance Filter -->
-			<div class="search-input-group" style="flex: 1;">
-				<span class="material-icons">radar</span>
-				<select name="distance">
-					<option value="user_loc">Autour de moi</option>
-					<option value="5">5 km</option>
-					<option value="10">10 km</option>
-					<option value="20">20 km</option>
-				</select>
-			</div>
-
-			<!-- Search Button -->
-			<button type="submit" class="search-btn" title="Rechercher">
-				<span class="material-icons">search</span>
-			</button>
-		</form>
-	</div>
-
-	<!-- Main Content (Filters + Results + Map) -->
+{% block body %}
+	{# Main Container #}
 	<div
-		class="content-grid">
+		class="container-xxl min-vh-100 d-flex flex-column gap-4 py-4">
 
-		<!-- Left Column: Filters -->
-		<div class="filters-section">
-			<div class="filter-panel">
-				<div class="filter-group">
-					<h4>Urgence</h4>
-					<label class="checkbox-label">
-						<input type="checkbox" name="emergency">
-						Urgences 24/7
-					</label>
-				</div>
-
-				<div class="filter-group">
-					<h4>Spécialités</h4>
-					<label class="checkbox-label"><input type="checkbox" name="spec[]" value="general">
-						Généraliste</label>
-					<label class="checkbox-label"><input type="checkbox" name="spec[]" value="surgery">
-						Chirurgie</label>
-					<label class="checkbox-label"><input type="checkbox" name="spec[]" value="derma">
-						Dermatologie</label>
-					<label class="checkbox-label"><input type="checkbox" name="spec[]" value="nac">
-						NAC</label>
-				</div>
-
-				<div class="filter-group">
-					<h4>Disponibilité</h4>
-					<label class="checkbox-label"><input type="checkbox" name="avail">
-						Rendez-vous aujourd'hui</label>
-					<label class="checkbox-label"><input type="checkbox" name="video">
-						Téléconsultation</label>
-				</div>
-			</div>
-		</div>
-
-		<!-- Middle Column: Results -->
+		{# Sticky Search Bar #}
 		<div
-			class="results-section">
-			<!-- Mockup Cards -->
-			{% for i in 1..10 %}
-				<div class="vet-card">
-					<div
-						class="vet-avatar">
-						<!-- Placeholder Image -->
-						<img src="https://ui-avatars.com/api/?name=Dr+Veto+{{ i }}&background=random" alt="Avatar" style="width:100%; height:100%; border-radius:50%;">
+			class="sticky-top pt-2 pb-3" style="top: 0; z-index: 1020;">
+			{# Increased z-index to ensure dropdown is above content #}
+			<div class="d-flex justify-content-center">
+				<form
+					action="{{ path('app_search_vet') }}" method="get" class="bg-secondary-bg p-2 ps-4 pe-2 rounded-pill shadow d-flex align-items-center gap-3 w-100" style="max-width: 900px;">
+
+					{# Location Input #}
+					<div class="d-flex align-items-center flex-grow-1 bg-white rounded-pill px-3 py-2 shadow-sm">
+						<span class="material-icons text-secondary me-2">location_on</span>
+						<input type="text" name="location" placeholder="Ville ou Code postal" class="form-control bg-transparent border-0 text-dark shadow-none p-0 focus-ring-none" style="outline: none;">
 					</div>
-					<div class="vet-info">
-						<h3>Dr. Exemple Veto
-							{{ i }}</h3>
-						<div class="vet-details">
-							<span>
-								<i class="material-icons" style="font-size:14px; vertical-align:middle;">medical_services</i>
-								Clinique Vétérinaire des Lilas</span>
-							<span>
-								<i class="material-icons" style="font-size:14px; vertical-align:middle;">place</i>
-								12 Rue des Animaux, 75000 Paris</span>
-							<span>
-								<i class="material-icons" style="font-size:14px; vertical-align:middle;">schedule</i>
-								Ouvert • Ferme à 19:00</span>
+
+					{# Distance Dropdown (Custom Design) #}
+					<div class="d-none d-md-block position-relative">
+						<div class="dropdown">
+							<button
+								class="btn bg-white rounded-pill px-3 py-2 d-flex align-items-center justify-content-between gap-2 shadow-sm border-0 dropdown-toggle remove-caret" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 11rem;">
+								{# Fixed width to accommodate 'Autour de moi' #}
+								<div class="d-flex align-items-center gap-2">
+									<span class="material-icons text-secondary">radar</span>
+									<span class="text-dark fw-medium text-truncate" id="distanceLabel">Autour de moi</span>
+								</div>
+								<span class="material-icons text-muted fs-6">expand_more</span>
+							</button>
+							<ul class="dropdown-menu border-0 shadow-lg rounded-4 mt-2 p-2 w-100 animate slide-in">
+								<li>
+									<a class="dropdown-item rounded-3 mb-1 py-2 fw-medium d-flex align-items-center gap-2" href="#" onclick="updateDistance('user_loc', 'Autour de moi', event)">
+										<span class="material-icons fs-6 text-primary">my_location</span>
+										Autour de moi
+									</a>
+								</li>
+								<li><hr class="dropdown-divider my-1"></li>
+								<li>
+									<a class="dropdown-item rounded-3 mb-1 py-2 fw-medium" href="#" onclick="updateDistance('5', '5 km', event)">5 km</a>
+								</li>
+								<li>
+									<a class="dropdown-item rounded-3 mb-1 py-2 fw-medium" href="#" onclick="updateDistance('10', '10 km', event)">10 km</a>
+								</li>
+								<li>
+									<a class="dropdown-item rounded-3 mb-1 py-2 fw-medium" href="#" onclick="updateDistance('20', '20 km', event)">20 km</a>
+								</li>
+							</ul>
+							<input type="hidden" name="distance" id="distanceInput" value="user_loc">
 						</div>
 					</div>
-					<div class="vet-actions">
-						<a href="#" class="btn-rdv">Voir / Prendre RDV</a>
-					</div>
-				</div>
-			{% endfor %}
-		</div>
 
-		<!-- Right Column: Map -->
-		<div class="map-section">
-			<div class="map-container-sticky">
-				Carte Interactive (Google Maps / Leaflet)
-				<button class="map-expand-btn" title="Agrandir la carte">
-					<span class="material-icons">open_in_full</span>
-				</button>
+					{# Submit Button #}
+					<button type="submit" class="btn btn-secondary rounded-circle p-0 d-flex align-items-center justify-content-center flex-shrink-0 shadow shadow-hover text-dark" style="width: 48px; height: 48px;" title="Rechercher">
+						<span class="material-icons">search</span>
+					</button>
+				</form>
 			</div>
 		</div>
+
+		{# Content Grid #}
+		<div
+			class="row g-4 justify-content-center">
+
+			{# Left Column: Filters #}
+			<div class="col-lg-3 col-xl-2">
+				<div class="sticky-top" style="top: 100px; max-height: calc(100vh - 120px); overflow-y: auto;">
+					<div
+						class="card border-0 shadow-sm p-4 h-100">
+						{# Emergency #}
+						<div class="mb-4">
+							<h4 class="h6 fw-bold mb-3 text-secondary">Urgence</h4>
+							<div class="form-check">
+								<input class="form-check-input border-secondary" type="checkbox" name="emergency" id="emergency">
+								<label class="form-check-label small" for="emergency">Urgences 24/7</label>
+							</div>
+						</div>
+
+						{# Specialities #}
+						<div class="mb-4">
+							<h4 class="h6 fw-bold mb-3 text-secondary">Spécialités</h4>
+							<div class="d-flex flex-column gap-2">
+								<div class="form-check">
+									<input class="form-check-input border-secondary" type="checkbox" name="spec[]" value="general" id="spec_gen">
+									<label class="form-check-label small" for="spec_gen">Généraliste</label>
+								</div>
+								<div class="form-check">
+									<input class="form-check-input border-secondary" type="checkbox" name="spec[]" value="surgery" id="spec_surg">
+									<label class="form-check-label small" for="spec_surg">Chirurgie</label>
+								</div>
+								<div class="form-check">
+									<input class="form-check-input border-secondary" type="checkbox" name="spec[]" value="derma" id="spec_derma">
+									<label class="form-check-label small" for="spec_derma">Dermatologie</label>
+								</div>
+								<div class="form-check">
+									<input class="form-check-input border-secondary" type="checkbox" name="spec[]" value="nac" id="spec_nac">
+									<label class="form-check-label small" for="spec_nac">NAC</label>
+								</div>
+							</div>
+						</div>
+
+						{# Availability #}
+						<div>
+							<h4 class="h6 fw-bold mb-3 text-secondary">Disponibilité</h4>
+							<div class="d-flex flex-column gap-2">
+								<div class="form-check">
+									<input class="form-check-input border-secondary" type="checkbox" name="avail" id="avail_today">
+									<label class="form-check-label small" for="avail_today">Rendez-vous aujourd'hui</label>
+								</div>
+								<div class="form-check">
+									<input class="form-check-input border-secondary" type="checkbox" name="video" id="avail_video">
+									<label class="form-check-label small" for="avail_video">Téléconsultation</label>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			{# Center Column: Results #}
+			<div class="col-lg-6 col-xl-7">
+				<div class="d-flex flex-column gap-4">
+					{% for i in 1..10 %}
+						<div class="card border-0 shadow-sm p-4 transition-hover cursor-pointer" onclick="window.location.href='#'">
+							<div
+								class="d-flex flex-column flex-sm-row gap-4 align-items-start align-items-sm-center">
+								{# Avatar #}
+								<img
+								src="https://ui-avatars.com/api/?name=Dr+Veto+{{ i }}&background=random" alt="Avatar" class="rounded-circle flex-shrink-0 bg-light shadow-sm" style="width: 80px; height: 80px; object-fit: cover;">
+
+								{# Info #}
+								<div class="flex-grow-1">
+									<h3 class="h5 text-primary fw-bold mb-2">Dr. Exemple Veto
+										{{ i }}</h3>
+									<div class="d-flex flex-column gap-1 text-muted small">
+										<span class="d-flex align-items-center gap-2">
+											<i class="material-icons fs-6 text-primary">medical_services</i>
+											Clinique Vétérinaire des Lilas
+										</span>
+										<span class="d-flex align-items-center gap-2">
+											<i class="material-icons fs-6 text-primary">place</i>
+											12 Rue des Animaux, 75000 Paris
+										</span>
+										<span class="d-flex align-items-center gap-2">
+											<i class="material-icons fs-6 text-primary">schedule</i>
+											<span class="text-primary fw-medium">Ouvert</span>
+											• Ferme à 19:00
+										</span>
+									</div>
+								</div>
+
+								{# Actions #}
+								<div class="mt-3 mt-sm-0 ms-sm-auto align-self-sm-center">
+									<a href="#" class="btn btn-primary rounded-pill px-4 py-2 fw-medium shadow-sm custom-hover-lift text-dark">
+										Voir / Prendre RDV
+									</a>
+								</div>
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+			</div>
+
+			{# Right Column: Map #}
+			<div class="col-lg-3 d-none d-lg-block">
+				<div class="sticky-top" style="top: 100px;">
+					<div class="bg-light rounded-4 d-flex align-items-center justify-content-center text-muted fw-bold shadow-sm position-relative overflow-hidden" style="aspect-ratio: 1/1;">
+						Carte Interactive
+						<button class="btn btn-white position-absolute top-0 end-0 m-2 rounded-circle shadow-sm p-2 d-flex align-items-center justify-content-center hover-scale" style="width: 32px; height: 32px;" title="Agrandir la carte">
+							<span class="material-icons fs-6 text-primary">open_in_full</span>
+						</button>
+					</div>
+				</div>
+			</div>
+
+		</div>
 	</div>
-</div>{% endblock %}
+
+	<script>
+		function updateDistance(value, label, event) {
+event.preventDefault();
+document.getElementById('distanceInput').value = value;
+document.getElementById('distanceLabel').textContent = label;
+}
+	</script>
+
+	<style>
+		/* Minimal Custom Styles for interactions that Bootstrap doesn't fully cover smoothly */
+		.transition-hover {
+			transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
+		}
+		.transition-hover:hover {
+			transform: translateY(-4px);
+			box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+		}
+
+		.custom-hover-lift {
+			transition: transform 0.2s;
+		}
+		.custom-hover-lift:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+		}
+
+		.hover-scale {
+			transition: transform 0.2s;
+		}
+		.hover-scale:hover {
+			transform: scale(1.1);
+		}
+
+		/* Remove Dropdown Caret for cleaner look */
+		.remove-caret::after {
+			display: none !important;
+		}
+
+		/* Smooth Dropdown Animation */
+		.dropdown-menu {
+			display: block;
+			opacity: 0;
+			visibility: hidden;
+			transform: translateY(10px);
+			transition: all 0.2s ease;
+		}
+		.dropdown-menu.show {
+			opacity: 1;
+			visibility: visible;
+			transform: translateY(0);
+		}
+	</style>
+{% endblock %}
