@@ -46,7 +46,25 @@ final class UserFrontController extends AbstractController
     #[Route('/{id}', name: 'app_user_front_show', methods: ['GET'])]
     public function show(User $user): Response
     {
+        // Rediriger vers le profil vétérinaire si l'utilisateur a le rôle ROLE_VETO
+        if (in_array('ROLE_VETO', $user->getRoles())) {
+            return $this->redirectToRoute('app_user_front_show_vet', ['id' => $user->getId()]);
+        }
+        
         return $this->render('user_front/show.html.twig', [
+            'user' => $user,
+        ]);
+    }
+
+    #[Route('/veterinaire/{id}', name: 'app_user_front_show_vet', methods: ['GET'])]
+    public function showVet(User $user): Response
+    {
+        // Vérifier que l'utilisateur est bien un vétérinaire
+        if (!in_array('ROLE_VETO', $user->getRoles())) {
+            return $this->redirectToRoute('app_user_front_show', ['id' => $user->getId()]);
+        }
+        
+        return $this->render('user_front/show_vet.html.twig', [
             'user' => $user,
         ]);
     }
