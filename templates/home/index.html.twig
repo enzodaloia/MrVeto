@@ -1,7 +1,120 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Accueil{% endblock %}
+{% block title %}MrVeto
+{% endblock %}
 
 {% block body %}
-Coucou je vous annonce que MrVeto est en dev !
+	<style>
+		@media(min-width: 768px) {
+			.step-2-offset {
+				margin-top: 200px;
+			}
+			.step-3-offset {
+				margin-top: 400px;
+			}
+		}
+	</style>
+	<div class="container-fluid bg-warning-bg py-5">
+		<div class="container">
+			<div class="row align-items-center">
+				<div class="col-12 col-md-6">
+					<div class="p-3 ">
+						<img src="{{ asset('images/home/hero_homepage.png') }}" alt="Description" class="img-fluid">
+
+					</div>
+				</div>
+
+				<div class="col-12 col-md-6">
+					<div class="p-3 ">
+						<h1 class="text-primary">Prendre rendez-vous chez un vétérinaire</h1>
+						<p class="text-info">Trouvez rapidement un vétérinaire disponible près de chez vous.</p>
+					</div>
+					<div class="p-3 ">
+						<form action="" method="get">
+							<div class="input-group mb-3 bg-neutral-20">
+								<span class="input-group-text ">
+									<span data-lucide="search"></span>
+								</span>
+								<input type="text" class="form-control" name="q" placeholder="Ville ou code postale">
+								<button type="submit" class="btn btn-secondary text-info px-4 fw-bold">Rechercher</button>
+							</div>
+
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" id="autourDeMoi">
+								<label class="form-check-label text-warning" for="autourDeMoi">
+									Autour de moi
+								</label>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="container-fluid mt-4">
+			<div class="row justify-content-center">
+				<div class="col-12 col-md-8 col-lg-6">
+					<div class="p-3  text-center">
+						<h1 class="text-info">Comment ça marche ?</h1>
+						<p class="text-info">MrVeto simplifie la prise de rendez-vous chez le vétérinaire, 
+																					en quelques étapes. 
+																					Plus de panique, contactez rapidement les véto les plus proches de vous en cas d'urgence avec MrVeto.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="container-fluid mt-5 py-5">
+<img src="{{ asset('images/home/paw_secondary_homepage.svg') }}" alt="" class="d-none d-md-block" style="position: absolute; top: 509px; right: 0; opacity: 1; width: 100px; z-index: 0;">
+    <img src="{{ asset('images/home/paw_primary_homepage.svg') }}" alt="" class="d-none d-md-block" style="position: absolute; top: 1331px; left: 92px; opacity: 1; width: 90px; z-index: 0;">
+			<img src="{{ asset('images/home/paw_primary.png') }}" alt="" class="d-none d-md-block" style="position: absolute; bottom: 15%; left: 10%; opacity: 0.3; width: 90px; z-index: 0;">
+			<div
+				class="row justify-content-evenly">
+				{# Étape 1 #}
+				<div class="col-12 col-md-4 mb-2" style="max-width: 330px;">
+					<div class="text-center">
+						<div class="mb-3">
+							<img src="{{ asset('images/home/paw_homepage.svg') }}" alt="Recherche">
+						</div>
+						<h3 class="text-primary">1. Rechercher un vétérinaire</h3>
+						<p class="text-info">
+							Aliquam erat volutpat. Integer malesuada turpis id fringilla suscipit. 
+														                    Maecenas ultrices, orci vitae convallis mattis.
+						</p>
+					</div>
+				</div>
+
+				{# Étape 2 #}
+				<div class="col-12 col-md-4 mb-2 step-2-offset" style="max-width: 330px">
+					<div class="text-center">
+						<div class="mb-3">
+							<img src="{{ asset('images/home/calendar_homepage.svg') }}" alt="Calendrier">
+						</div>
+						<h3 class="text-primary">2. Choisir un créneau</h3>
+						<p class="text-info">
+							Aliquam erat volutpat. Integer malesuada turpis id fringilla suscipit. 
+														                    Maecenas ultrices, orci vitae convallis mattis.
+						</p>
+					</div>
+				</div>
+
+				{# Étape 3 #}
+				<div class="col-12 col-md-4 mb-2 step-3-offset" style="max-width: 330px">
+					<div class="text-center">
+						<div class="mb-3">
+							<img src="{{ asset('images/home/bandage_homepage.svg') }}" alt="Vétérinaire">
+						</div>
+						<h3 class="text-primary">3. Consulter votre vétérinaire</h3>
+						<p class="text-info">
+							Aliquam erat volutpat. Integer malesuada turpis id fringilla suscipit. 
+														                    Maecenas ultrices, orci vitae convallis mattis.
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+    <script>
+    if (typeof createIcons !== 'undefined') {
+        createIcons();
+    }
+</script>
 {% endblock %}
