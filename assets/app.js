@@ -8,5 +8,6 @@ import './stimulus_bootstrap.js';
 import './styles/app.scss';
 
 import './bootstrap.js';
+import './lucide.js';
 
 console.log('This log comes from assets/app.js - welcome to AssetMapper! 🎉');
