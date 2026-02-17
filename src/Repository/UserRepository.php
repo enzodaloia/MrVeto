@@ -33,7 +33,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
-//    /**
+    //    /**
 //     * @return User[] Returns an array of User objects
 //     */
 //    public function findByExampleField($value): array
@@ -48,7 +48,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?User
+    //    public function findOneBySomeField($value): ?User
 //    {
 //        return $this->createQueryBuilder('u')
 //            ->andWhere('u.exampleField = :val')
@@ -57,4 +57,16 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 //            ->getOneOrNullResult()
 //        ;
 //    }
+    /**
+     * @return User[] Returns an array of User objects with ROLE_VETO
+     */
+    public function findAllVets(): array
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.roles LIKE :role')
+            ->setParameter('role', '%"ROLE_VETO"%')
+            ->orderBy('u.nom', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }
