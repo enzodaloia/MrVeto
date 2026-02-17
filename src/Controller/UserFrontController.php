@@ -7,6 +7,7 @@ use App\Form\UserType;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -45,7 +46,25 @@ final class UserFrontController extends AbstractController
     #[Route('/{id}', name: 'app_user_front_show', methods: ['GET'])]
     public function show(User $user): Response
     {
+        // Rediriger vers le profil vétérinaire si l'utilisateur a le rôle ROLE_VETO
+        if (in_array('ROLE_VETO', $user->getRoles())) {
+            return $this->redirectToRoute('app_user_front_show_vet', ['id' => $user->getId()]);
+        }
+        
         return $this->render('user_front/show.html.twig', [
+            'user' => $user,
+        ]);
+    }
+
+    #[Route('/veterinaire/{id}', name: 'app_user_front_show_vet', methods: ['GET'])]
+    public function showVet(User $user): Response
+    {
+        // Vérifier que l'utilisateur est bien un vétérinaire
+        if (!in_array('ROLE_VETO', $user->getRoles())) {
+            return $this->redirectToRoute('app_user_front_show', ['id' => $user->getId()]);
+        }
+        
+        return $this->render('user_front/show_vet.html.twig', [
             'user' => $user,
         ]);
     }
@@ -69,13 +88,21 @@ final class UserFrontController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_user_front_delete', methods: ['POST'])]
-    public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, User $user, EntityManagerInterface $entityManager, Security $security): Response
     {
         if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->getPayload()->getString('_token'))) {
+            // Vérifier si l'utilisateur supprime son propre compte
+            $isCurrentUser = $this->getUser() === $user;
+            
             $entityManager->remove($user);
             $entityManager->flush();
+            
+            // Si c'est l'utilisateur connecté, le déconnecter
+            if ($isCurrentUser) {
+                $security->logout(false);
+            }
         }
 
-        return $this->redirectToRoute('app_user_front_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_home', [], Response::HTTP_SEE_OTHER);
     }
 }
