@@ -18,31 +18,35 @@
 			class="sticky-top pt-2 pb-3" style="top: 0; z-index: 1020;">
 			{# Increased z-index to ensure dropdown is above content #}
 			<div class="d-flex justify-content-center">
-				<form
-					action="{{ path('app_search_vet') }}" method="get" class="bg-secondary-bg p-2 ps-4 pe-2 rounded-pill shadow d-flex align-items-center gap-3 w-100" style="max-width: 900px;">
+				<form action="{{ path('app_search_vet') }}" method="get" class="bg-secondary-bg p-2 ps-4 pe-2 rounded-pill shadow d-flex align-items-center gap-3 w-100" style="max-width: 900px;" data-controller="autocomplete-address">
+
+					<input type="hidden" name="lat" data-autocomplete-address-target="lat">
+					<input
+					type="hidden" name="lon" data-autocomplete-address-target="lon">
 
 					{# Location Input #}
-					<div class="d-flex align-items-center flex-grow-1 bg-white rounded-pill px-3 py-2 shadow-sm">
-						<span class="material-icons text-secondary me-2">location_on</span>
-						<input type="text" name="location" placeholder="Ville ou Code postal" class="form-control bg-transparent border-0 text-dark shadow-none p-0 focus-ring-none" style="outline: none;">
+					<div class="d-flex align-items-center flex-grow-1 bg-white rounded-pill px-3 py-2 shadow-sm position-relative">
+						<twig:ux:icon class="text-secondary fs-5 me-2" name="lucide:map-pin"/>
+						<input
+						type="text" name="location" placeholder="Ville ou Code postal" class="form-control bg-transparent border-0 text-dark shadow-none p-0 focus-ring-none" style="outline: none;" data-autocomplete-address-target="input" data-action="input->autocomplete-address#search" autocomplete="off">
+						{# Autocomplete Results Container #}
+						<div data-autocomplete-address-target="results" class="position-absolute start-0 end-0 top-100 z-3"></div>
 					</div>
 
 					{# Distance Dropdown (Custom Design) #}
 					<div class="d-none d-md-block position-relative">
 						<div class="dropdown">
-							<button
-								class="btn bg-white rounded-pill px-3 py-2 d-flex align-items-center justify-content-between gap-2 shadow-sm border-0 dropdown-toggle remove-caret" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 11rem;">
-								{# Fixed width to accommodate 'Autour de moi' #}
+							<button class="btn bg-white rounded-pill px-3 py-2 d-flex align-items-center justify-content-between gap-2 shadow-sm border-0 dropdown-toggle remove-caret" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 11rem;">
 								<div class="d-flex align-items-center gap-2">
-									<span class="material-icons text-secondary">radar</span>
+									<twig:ux:icon class="text-secondary fs-5" name="lucide:radar"/>
 									<span class="text-dark fw-medium text-truncate" id="distanceLabel">Autour de moi</span>
 								</div>
-								<span class="material-icons text-muted fs-6">expand_more</span>
+								<twig:ux:icon class="text-muted fs-5" name="lucide:chevron-down"/>
 							</button>
 							<ul class="dropdown-menu border-0 shadow-lg rounded-4 mt-2 p-2 w-100 animate slide-in">
 								<li>
-									<a class="dropdown-item rounded-3 mb-1 py-2 fw-medium d-flex align-items-center gap-2" href="#" onclick="updateDistance('user_loc', 'Autour de moi', event)">
-										<span class="material-icons fs-6 text-primary">my_location</span>
+									<a class="dropdown-item rounded-3 mb-1 py-2 fw-medium d-flex align-items-center gap-2" href="#" data-action="click->autocomplete-address#locate" onclick="updateDistance('user_loc', 'Autour de moi', event)">
+										<twig:ux:icon class="fs-5 text-secondary" name="lucide:radar"/>
 										Autour de moi
 									</a>
 								</li>
@@ -63,7 +67,7 @@
 
 					{# Submit Button #}
 					<button type="submit" class="btn btn-secondary rounded-circle p-0 d-flex align-items-center justify-content-center flex-shrink-0 shadow shadow-hover text-dark" style="width: 48px; height: 48px;" title="Rechercher">
-						<span class="material-icons">search</span>
+						<twig:ux:icon class="fs-5 text-light" name="lucide:search"/>
 					</button>
 				</form>
 			</div>
@@ -74,7 +78,7 @@
 			class="row g-4 justify-content-center">
 
 			{# Left Column: Filters #}
-			<div class="col-lg-3 col-xl-2">
+			<div class="col-lg-3 col-xl-2 zindex-moins1">
 				<div class="sticky-top" style="top: 100px; max-height: calc(100vh - 120px); overflow-y: auto;">
 					<div
 						class="card border-0 shadow-sm p-4 h-100">
@@ -131,38 +135,35 @@
 			{# Center Column: Results #}
 			<div class="col-lg-6 col-xl-7">
 				<div class="d-flex flex-column gap-4">
-					{% for i in 1..10 %}
-						<div class="card border-0 shadow-sm p-4 transition-hover cursor-pointer" onclick="window.location.href='#'">
+					{% for vet in vets %}
+						<div class="card border-0 shadow-sm p-4 transition-hover cursor-pointer">
 							<div
 								class="d-flex flex-column flex-sm-row gap-4 align-items-start align-items-sm-center">
 								{# Avatar #}
 								<img
-								src="https://ui-avatars.com/api/?name=Dr+Veto+{{ i }}&background=random" alt="Avatar" class="rounded-circle flex-shrink-0 bg-light shadow-sm" style="width: 80px; height: 80px; object-fit: cover;">
+								src="https://ui-avatars.com/api/?name={{ vet.prenom }}+{{ vet.nom }}&background=random" alt="Avatar" class="rounded-circle flex-shrink-0 bg-light shadow-sm" style="width: 80px; height: 80px; object-fit: cover;">
 
 								{# Info #}
 								<div class="flex-grow-1">
-									<h3 class="h5 text-primary fw-bold mb-2">Dr. Exemple Veto
-										{{ i }}</h3>
+									<h3 class="h5 text-primary fw-bold mb-2">Dr.
+										{{ vet.prenom }}
+										{{ vet.nom }}</h3>
 									<div class="d-flex flex-column gap-1 text-muted small">
 										<span class="d-flex align-items-center gap-2">
-											<i class="material-icons fs-6 text-primary">medical_services</i>
-											Clinique Vétérinaire des Lilas
+											<twig:ux:icon class="fs-6 text-primary" name="lucide:map-pin"/>
+											{{ vet.adresse }}
 										</span>
 										<span class="d-flex align-items-center gap-2">
-											<i class="material-icons fs-6 text-primary">place</i>
-											12 Rue des Animaux, 75000 Paris
-										</span>
-										<span class="d-flex align-items-center gap-2">
-											<i class="material-icons fs-6 text-primary">schedule</i>
-											<span class="text-primary fw-medium">Ouvert</span>
-											• Ferme à 19:00
+											<twig:ux:icon class="fs-6 text-primary" name="lucide:clock"/>
+											<span class="text-primary fw-medium">Ouvert (à voir)</span>
+											• besoin des dispos véto
 										</span>
 									</div>
 								</div>
 
 								{# Actions #}
 								<div class="mt-3 mt-sm-0 ms-sm-auto align-self-sm-center">
-									<a href="#" class="btn btn-primary rounded-pill px-4 py-2 fw-medium shadow-sm custom-hover-lift text-dark">
+									<a href="#" class="btn btn-primary rounded-pill hover-bg-secondary px-4 py-2 fw-medium shadow-sm custom-hover-lift text-light">
 										Voir / Prendre RDV
 									</a>
 								</div>
@@ -173,12 +174,12 @@
 			</div>
 
 			{# Right Column: Map #}
-			<div class="col-lg-3 d-none d-lg-block">
+			<div class="col-lg-3 d-none d-lg-block interactive-map">
 				<div class="sticky-top" style="top: 100px;">
 					<div class="bg-light rounded-4 d-flex align-items-center justify-content-center text-muted fw-bold shadow-sm position-relative overflow-hidden" style="aspect-ratio: 1/1;">
 						Carte Interactive
 						<button class="btn btn-white position-absolute top-0 end-0 m-2 rounded-circle shadow-sm p-2 d-flex align-items-center justify-content-center hover-scale" style="width: 32px; height: 32px;" title="Agrandir la carte">
-							<span class="material-icons fs-6 text-primary">open_in_full</span>
+							<twig:ux:icon class="fs-5 text-primary" name="lucide:expand"/>
 						</button>
 					</div>
 				</div>
@@ -201,8 +202,8 @@ document.getElementById('distanceLabel').textContent = label;
 			transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
 		}
 		.transition-hover:hover {
-			transform: translateY(-4px);
-			box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+			transform: translateY(-2px);
+			box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1) !important;
 		}
 
 		.custom-hover-lift {
@@ -232,11 +233,20 @@ document.getElementById('distanceLabel').textContent = label;
 			visibility: hidden;
 			transform: translateY(10px);
 			transition: all 0.2s ease;
+			z-index: 1000;
 		}
 		.dropdown-menu.show {
 			opacity: 1;
 			visibility: visible;
 			transform: translateY(0);
+		}
+
+		.interactive-map {
+			z-index: -1;
+		}
+
+		.zindex-moins1 {
+			z-index: -1;
 		}
 	</style>
 {% endblock %}
