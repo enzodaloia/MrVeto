@@ -73,7 +73,6 @@ final class UserFrontController extends AbstractController
     #[Route('/{id}/update_vet', name: 'app_user_front_update_vet', methods: ['POST'])]
     public function updateVet(Request $request, User $user, EntityManagerInterface $entityManager): JsonResponse
     {
-        // Check if the current user is allowed to edit this profile
         if ($this->getUser() !== $user && !$this->isGranted('ROLE_ADMIN')) {
              return new JsonResponse(['error' => 'Access Denied'], Response::HTTP_FORBIDDEN);
         }
@@ -107,6 +106,41 @@ final class UserFrontController extends AbstractController
         }
         if (isset($data['codepostal'])) {
             $user->setCodepostal($data['codepostal']);
+        }
+        if (isset($data['email'])) {
+            $user->setEmail($data['email']);
+        }
+
+        $entityManager->flush();
+
+        return new JsonResponse(['status' => 'success']);
+    }
+
+    #[Route('/{id}/update_user', name: 'app_user_front_update_user', methods: ['POST'])]
+    public function updateUser(Request $request, User $user, EntityManagerInterface $entityManager): JsonResponse
+    {
+        // Check if the current user is allowed to edit this profile
+        if ($this->getUser() !== $user && !$this->isGranted('ROLE_ADMIN')) {
+             return new JsonResponse(['error' => 'Access Denied'], Response::HTTP_FORBIDDEN);
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        if (!$data) {
+             return new JsonResponse(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
+        }
+
+        if (isset($data['nom'])) {
+            $user->setNom($data['nom']);
+        }
+        if (isset($data['prenom'])) {
+            $user->setPrenom($data['prenom']);
+        }
+        if (isset($data['adresse'])) {
+            $user->setAdresse($data['adresse']);
+        }
+        if (isset($data['telephone'])) {
+            $user->setTelephone($data['telephone']);
         }
         if (isset($data['email'])) {
             $user->setEmail($data['email']);
