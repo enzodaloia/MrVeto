@@ -68,9 +68,6 @@ class ResetPasswordController extends AbstractController
         }
 
         $token = $this->getTokenFromSession();
-        if (!$token) {
-            dd("Aucun token trouvé en session"); // <- DEBUG
-        }
 
         try {
             $user = $this->resetPasswordHelper->validateTokenAndFetchUser($token);
