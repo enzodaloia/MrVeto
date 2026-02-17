@@ -8,6 +8,7 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -67,6 +68,53 @@ final class UserFrontController extends AbstractController
         return $this->render('user_front/show_vet.html.twig', [
             'user' => $user,
         ]);
+    }
+
+    #[Route('/{id}/update_vet', name: 'app_user_front_update_vet', methods: ['POST'])]
+    public function updateVet(Request $request, User $user, EntityManagerInterface $entityManager): JsonResponse
+    {
+        // Check if the current user is allowed to edit this profile
+        if ($this->getUser() !== $user && !$this->isGranted('ROLE_ADMIN')) {
+             return new JsonResponse(['error' => 'Access Denied'], Response::HTTP_FORBIDDEN);
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        if (!$data) {
+             return new JsonResponse(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
+        }
+
+        if (isset($data['nom'])) {
+            $user->setNom($data['nom']);
+        }
+        if (isset($data['prenom'])) {
+            $user->setPrenom($data['prenom']);
+        }
+        if (isset($data['adresse'])) {
+            $user->setAdresse($data['adresse']);
+        }
+        if (isset($data['telephone'])) {
+            $user->setTelephone($data['telephone']);
+        }
+        if (isset($data['siret'])) {
+            $user->setSiret($data['siret']);
+        }
+        if (isset($data['adressecabinet'])) {
+            $user->setAdressecabinet($data['adressecabinet']);
+        }
+        if (isset($data['ville'])) {
+            $user->setVille($data['ville']);
+        }
+        if (isset($data['codepostal'])) {
+            $user->setCodepostal($data['codepostal']);
+        }
+        if (isset($data['email'])) {
+            $user->setEmail($data['email']);
+        }
+
+        $entityManager->flush();
+
+        return new JsonResponse(['status' => 'success']);
     }
 
     #[Route('/{id}/edit', name: 'app_user_front_edit', methods: ['GET', 'POST'])]
