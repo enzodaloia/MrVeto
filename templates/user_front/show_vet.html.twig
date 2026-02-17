@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Mon compte{% endblock %}
+{% block title %}Mon compte professionnel{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
@@ -10,7 +10,7 @@
 {% block body %}
 
 <div class="container my-5" style="max-width: 900px;">
-    <h1 class="text-center text-info fw-bold mb-5">Mon compte</h1>
+    <h1 class="text-center text-info fw-bold mb-5">Mon compte professionnel</h1>
 
     {# Profile Picture Section #}
     <div class="card border-0 shadow-sm mb-5 rounded-4 bg-secondary-bg">
@@ -49,7 +49,7 @@
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field">
                 <div class="d-flex align-items-center w-100">
-                    <span class="fs-6 fw-bold me-2">Adresse postale :</span>
+                    <span class="fs-6 fw-bold me-2">Adresse personnelle :</span>
                     <span class="fs-6" >{{ user.adresse }}</span>
                     <input type="text" class="form-control d-none w-auto" value="{{ user.adresse }}">
                 </div>
@@ -60,6 +60,47 @@
                     <span class="fs-6 fw-bold me-2">Téléphone :</span>
                     <span class="fs-6" >{{ user.telephone }}</span>
                     <input type="text" class="form-control d-none w-auto" value="{{ user.telephone }}">
+                </div>
+                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit"><i class="bi bi-pencil-fill"></i></button>
+            </li>
+        </ul>
+    </div>
+
+    {# Informations professionnelles #}
+    <div class="card border-0 shadow-sm mb-4 rounded-3 overflow-hidden">
+        <div class="card-header text-white px-4 py-3 bg-primary-pressed">
+            <i class="bi bi-briefcase-fill me-2 fs-4"></i> <span class="fw-bold fs-5">Informations professionnelles</span>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field">
+                <div class="d-flex align-items-center w-100">
+                    <span class="fs-6 fw-bold me-2">N° de Siret :</span>
+                    <span class="fs-6" >{{ user.siret }}</span>
+                    <input type="text" class="form-control d-none w-auto" value="{{ user.siret }}">
+                </div>
+                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit"><i class="bi bi-pencil-fill"></i></button>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field">
+                <div class="d-flex align-items-center w-100">
+                    <span class="fs-6 fw-bold me-2">Adresse du cabinet :</span>
+                    <span class="fs-6" >{{ user.adressecabinet }}</span>
+                    <input type="text" class="form-control d-none w-auto" value="{{ user.adressecabinet }}">
+                </div>
+                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit"><i class="bi bi-pencil-fill"></i></button>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field">
+                <div class="d-flex align-items-center w-100">
+                    <span class="fs-6 fw-bold me-2">Ville :</span>
+                    <span class="fs-6" >{{ user.ville }}</span>
+                    <input type="text" class="form-control d-none w-auto" value="{{ user.ville }}">
+                </div>
+                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit"><i class="bi bi-pencil-fill"></i></button>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3" data-controller="editable-field">
+                <div class="d-flex align-items-center w-100">
+                    <span class="fs-6 fw-bold me-2">Code postal :</span>
+                    <span class="fs-6" >{{ user.codepostal }}</span>
+                    <input type="text" class="form-control d-none w-auto" value="{{ user.codepostal }}">
                 </div>
                 <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit"><i class="bi bi-pencil-fill"></i></button>
             </li>
@@ -80,10 +121,6 @@
                 </div>
                 <a href="#" class="text-primary fs-5" data-action="click->editable-field#edit"><i class="bi bi-pencil-fill"></i></a>
             </li>
-{#             <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom">
-                <span class="fs-6">Mot de passe: ********************</span>
-                <a href="#" class="text-primary fs-5"><i class="bi bi-pencil-fill"></i></a>
-            </li> #}
             <li class="list-group-item text-center py-4">
                 <button class="btn text-danger bg-transparent border-0 px-4 py-2 fw-bold"><i class="bi bi-archive-fill me-2"></i> Archiver mes informations</button>
             </li>
@@ -127,7 +164,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body px-4 py-4">
-                    <p class="mb-3 fs-6">Êtes-vous sûr de vouloir supprimer votre compte ?</p>
+                    <p class="mb-3 fs-6">Êtes-vous sûr de vouloir supprimer votre compte professionnel ?</p>
                     <p class="text-danger fw-bold mb-0"><i class="bi bi-info-circle me-1"></i> Cette action est irréversible.</p>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
