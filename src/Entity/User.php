@@ -279,4 +279,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->createdAt = $createdAt;
         return $this;
     }
+
+    /**
+     * @return Collection<int, DayOfWork>
+     */
+    public function getDayOfWorks(): Collection
+    {
+        return $this->dayOfWorks;
+    }
+
+    public function addDayOfWork(DayOfWork $dayOfWork): static
+    {
+        if (!$this->dayOfWorks->contains($dayOfWork)) {
+            $this->dayOfWorks->add($dayOfWork);
+            $dayOfWork->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDayOfWork(DayOfWork $dayOfWork): static
+    {
+        if ($this->dayOfWorks->removeElement($dayOfWork)) {
+            if ($dayOfWork->getUser() === $this) {
+                $dayOfWork->setUser(null);
+            }
+        }
+
+        return $this;
+    }
 }
