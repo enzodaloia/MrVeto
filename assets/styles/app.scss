@@ -7,87 +7,87 @@
 // 2. DÉFINITION EXHAUSTIVE DES VARIABLES
 
 // --- A. PRIMARY (Turquoise) ---
-$primary-main:    #36BDAF;
-$primary-bg:      #E8F7F5;
+$primary-main: #36BDAF;
+$primary-bg: #E8F7F5;
 $primary-pressed: #2A9A8E;
-$primary-hover:   #4ECABF;
-$primary-focus:   #B8E6E0;
-$primary-border:  #5FC4B7;
+$primary-hover: #4ECABF;
+$primary-focus: #B8E6E0;
+$primary-border: #5FC4B7;
 
 // --- B. SECONDARY (Yellow) ---
-$secondary-main:    #FFCF00;
-$secondary-bg:      #FFFBEB;
+$secondary-main: #FFCF00;
+$secondary-bg: #FFFBEB;
 $secondary-pressed: #E8A500;
-$secondary-hover:   #FBBF24;
-$secondary-focus:   #FEF3C7;
-$secondary-border:  #FCD34D;
+$secondary-hover: #FBBF24;
+$secondary-focus: #FEF3C7;
+$secondary-border: #FCD34D;
 
 // --- C. SUCCESS (Green) ---
-$success-main:    #1B9476;
-$success-bg:      #E7FAF5;
+$success-main: #1B9476;
+$success-bg: #E7FAF5;
 $success-pressed: #164C3F;
-$success-hover:   #1B5F4E;
-$success-focus:   #C8EBE2;
-$success-border:  #B5D0C9;
+$success-hover: #1B5F4E;
+$success-focus: #C8EBE2;
+$success-border: #B5D0C9;
 
 // --- D. WARNING (Orange) ---
-$warning-main:    #FF8C42;
-$warning-bg:      #FFF3E0;
+$warning-main: #FF8C42;
+$warning-bg: #FFF3E0;
 $warning-pressed: #E57020;
-$warning-hover:   #FFA057;
-$warning-focus:   #FFE0CC;
-$warning-border:  #FFBC8A;
+$warning-hover: #FFA057;
+$warning-focus: #FFE0CC;
+$warning-border: #FFBC8A;
 
 // --- E. DANGER (Red) ---
-$danger-main:    #BD3644;
-$danger-bg:      #FFE8E8;
+$danger-main: #BD3644;
+$danger-bg: #FFE8E8;
 $danger-pressed: #541212;
-$danger-hover:   #8C1F1F;
-$danger-focus:   #FFDFDF;
-$danger-border:  #E2B6B6;
+$danger-hover: #8C1F1F;
+$danger-focus: #FFDFDF;
+$danger-border: #E2B6B6;
 
 // --- F. INFO (Blue) ---
-$info-main:    #3688BD;
-$info-bg:      #EBF4FC;
+$info-main: #3688BD;
+$info-bg: #EBF4FC;
 $info-pressed: #2B5F8F;
-$info-hover:   #A3CAE7;
-$info-focus:   #D1E5F7;
-$info-border:  #6BA3D8;
+$info-hover: #A3CAE7;
+$info-focus: #D1E5F7;
+$info-border: #6BA3D8;
 
 // --- G. NEUTRALS (Grays) ---
 $neutral-100: #0A0A0A;
-$neutral-90:  #424242;
-$neutral-80:  #616161;
-$neutral-70:  #757575;
-$neutral-60:  #9E9E9E;
-$neutral-50:  #C2C2C2;
-$neutral-40:  #E0E0E0;
-$neutral-30:  #EDEDED;
-$neutral-20:  #F5F5F5;
-$neutral-10:  #FAFAFA;
+$neutral-90: #424242;
+$neutral-80: #616161;
+$neutral-70: #757575;
+$neutral-60: #9E9E9E;
+$neutral-50: #C2C2C2;
+$neutral-40: #E0E0E0;
+$neutral-30: #EDEDED;
+$neutral-20: #F5F5F5;
+$neutral-10: #FAFAFA;
 
 // --- H. DARK MODE PALETTE ---
-$dm-bg-primary:   #1A1A1A;
+$dm-bg-primary: #1A1A1A;
 $dm-bg-secondary: #2D2D2D;
-$dm-bg-tertiary:  #3A3A3A;
-$dm-surface:      #424242;
+$dm-bg-tertiary: #3A3A3A;
+$dm-surface: #424242;
 $dm-text-primary: #FAFAFA;
 $dm-text-secondary: #E0E0E0;
-$dm-text-disabled:  #9E9E9E;
+$dm-text-disabled: #9E9E9E;
 
 
 // 3. CONFIGURATION BOOTSTRAP (Mapping des variables)
 
 // Couleurs principales standard
-$primary:   $primary-main;
+$primary: $primary-main;
 $secondary: $secondary-main;
-$success:   $success-main;
-$info:      $info-main;
-$warning:   $warning-main;
-$danger:    $danger-main;
+$success: $success-main;
+$info: $info-main;
+$warning: $warning-main;
+$danger: $danger-main;
 
 // Fonds et Textes par défaut (Light Mode)
-$body-bg:    $neutral-10;  // Correspond à Neutral 10 (background classique)
+$body-bg: $neutral-10; // Correspond à Neutral 10 (background classique)
 $body-color: $neutral-100; // Correspond à Neutral 100 (texte principal)
 
 // Typographie
@@ -95,78 +95,77 @@ $font-family-sans-serif: 'Montserrat', sans-serif;
 $font-size-base: 1.125rem; // 18px (Desktop paragraph)
 
 // Arrondis globaux
-$border-radius: 0.375rem; 
+$border-radius: 0.375rem;
 
 // 4. CRÉATION DE LA MAP DE COULEURS ÉTENDUE
 
 $custom-colors: (
+    "primary": $primary-main,
+    "secondary": $secondary-main,
+    "success": $success-main,
+    "warning": $warning-main,
+    "danger": $danger-main,
+    "info": $info-main,
 
-  "primary": $primary-main,
-  "secondary": $secondary-main,
-  "success": $success-main,
-  "warning": $warning-main,
-  "danger": $danger-main,
-  "info": $info-main,
+    "primary-bg": $primary-bg,
+    "primary-pressed": $primary-pressed,
+    "primary-border": $primary-border,
+    "primary-hover": $primary-hover,
+    "primary-focus": $primary-focus,
 
-  "primary-bg": $primary-bg,
-  "primary-pressed": $primary-pressed,
-  "primary-border": $primary-border,
-  "primary-hover": $primary-hover, 
-  "primary-focus": $primary-focus,
-  
-  "secondary-bg": $secondary-bg,
-  "secondary-pressed": $secondary-pressed,
-  "secondary-border": $secondary-border,
-  "secondary-hover": $secondary-hover, 
-  "secondary-focus": $secondary-focus,
+    "secondary-bg": $secondary-bg,
+    "secondary-pressed": $secondary-pressed,
+    "secondary-border": $secondary-border,
+    "secondary-hover": $secondary-hover,
+    "secondary-focus": $secondary-focus,
 
-  "success-bg": $success-bg,
-  "success-pressed": $success-pressed,
-  "success-border": $success-border,
-  "success-hover": $success-hover, 
-  "success-focus": $success-focus,
+    "success-bg": $success-bg,
+    "success-pressed": $success-pressed,
+    "success-border": $success-border,
+    "success-hover": $success-hover,
+    "success-focus": $success-focus,
 
-  "warning-bg": $warning-bg,
-  "warning-pressed": $warning-pressed,
-  "warning-border": $warning-border,
-  "warning-hover": $warning-hover, 
-  "warning-focus": $warning-focus,
+    "warning-bg": $warning-bg,
+    "warning-pressed": $warning-pressed,
+    "warning-border": $warning-border,
+    "warning-hover": $warning-hover,
+    "warning-focus": $warning-focus,
 
-  "danger-bg": $danger-bg,
-  "danger-pressed": $danger-pressed,
-  "danger-border": $danger-border,
-  "danger-hover": $danger-hover, 
-  "danger-focus": $danger-focus,
-  
-  "info-bg": $info-bg,
-  "info-pressed": $info-pressed,
-  "info-border": $info-border,
-  "info-hover": $info-hover, 
-  "info-focus": $info-focus,
-  
-  "neutral-10": $neutral-10,
-  "neutral-20": $neutral-20,
-  "neutral-30": $neutral-30,
-  "neutral-40": $neutral-40,
-  "neutral-50": $neutral-50,
-  "neutral-60": $neutral-60, 
-  "neutral-70": $neutral-70, 
-  "neutral-80": $neutral-80,
-  "neutral-90": $neutral-90,
-  "neutral-100": $neutral-100, 
-  
-  "dark-surface": $dm-surface,
-  "dark-bg-primary": $dm-bg-primary, 
-  "dark-bg-secondary": $dm-bg-secondary, 
-  "dark-bg-tertiary": $dm-bg-tertiary, 
-  "dark-text-primary": $dm-text-primary, 
-  "dark-text-secondary": $dm-text-secondary, 
-  "dark-text-disabled": $dm-text-disabled
+    "danger-bg": $danger-bg,
+    "danger-pressed": $danger-pressed,
+    "danger-border": $danger-border,
+    "danger-hover": $danger-hover,
+    "danger-focus": $danger-focus,
+
+    "info-bg": $info-bg,
+    "info-pressed": $info-pressed,
+    "info-border": $info-border,
+    "info-hover": $info-hover,
+    "info-focus": $info-focus,
+
+    "neutral-10": $neutral-10,
+    "neutral-20": $neutral-20,
+    "neutral-30": $neutral-30,
+    "neutral-40": $neutral-40,
+    "neutral-50": $neutral-50,
+    "neutral-60": $neutral-60,
+    "neutral-70": $neutral-70,
+    "neutral-80": $neutral-80,
+    "neutral-90": $neutral-90,
+    "neutral-100": $neutral-100,
+
+    "dark-surface": $dm-surface,
+    "dark-bg-primary": $dm-bg-primary,
+    "dark-bg-secondary": $dm-bg-secondary,
+    "dark-bg-tertiary": $dm-bg-tertiary,
+    "dark-text-primary": $dm-text-primary,
+    "dark-text-secondary": $dm-text-secondary,
+    "dark-text-disabled": $dm-text-disabled
 );
 
 // On fusionne nos couleurs custom avec les couleurs de base de Bootstrap
 // Nécessaire pour que Bootstrap les "voit" avant l'import
-$theme-colors: $custom-colors; 
+$theme-colors: $custom-colors;
 
 // 5. IMPORTATION DE BOOTSTRAP
 @import "~bootstrap/scss/bootstrap";
@@ -174,30 +173,107 @@ $theme-colors: $custom-colors;
 // 6. GESTION DU RESPONSIVE (Typographie précise)
 // Mobile (<768px)
 @include media-breakpoint-down(md) {
-    h1, .h1 { font-size: 28px !important; }
-    h2, .h2 { font-size: 22px !important; }
-    h3, .h3 { font-size: 18px !important; }
-    p, .lead, body { font-size: 15px !important; }
-    .btn, label { font-size: 14px !important; }
-    small, .small { font-size: 13px !important; }
+
+    h1,
+    .h1 {
+        font-size: 28px !important;
+    }
+
+    h2,
+    .h2 {
+        font-size: 22px !important;
+    }
+
+    h3,
+    .h3 {
+        font-size: 18px !important;
+    }
+
+    p,
+    .lead,
+    body {
+        font-size: 15px !important;
+    }
+
+    .btn,
+    label {
+        font-size: 14px !important;
+    }
+
+    small,
+    .small {
+        font-size: 13px !important;
+    }
 }
+
 // Tablette (768px - 1024px)
 @include media-breakpoint-between(md, lg) {
-    h1, .h1 { font-size: 36px !important; }
-    h2, .h2 { font-size: 28px !important; }
-    h3, .h3 { font-size: 22px !important; }
-    p, .lead, body { font-size: 16px !important; }
-    .btn, label { font-size: 15px !important; }
-    small, .small { font-size: 14px !important; }
+
+    h1,
+    .h1 {
+        font-size: 36px !important;
+    }
+
+    h2,
+    .h2 {
+        font-size: 28px !important;
+    }
+
+    h3,
+    .h3 {
+        font-size: 22px !important;
+    }
+
+    p,
+    .lead,
+    body {
+        font-size: 16px !important;
+    }
+
+    .btn,
+    label {
+        font-size: 15px !important;
+    }
+
+    small,
+    .small {
+        font-size: 14px !important;
+    }
 }
+
 // Desktop (>1024px)
 @include media-breakpoint-up(lg) {
-    h1, .h1 { font-size: 48px; }
-    h2, .h2 { font-size: 36px; }
-    h3, .h3 { font-size: 24px; }
-    p, .lead, body { font-size: 18px; }
-    .btn, label { font-size: 16px; }
-    small, .small { font-size: 14px; }
+
+    h1,
+    .h1 {
+        font-size: 48px;
+    }
+
+    h2,
+    .h2 {
+        font-size: 36px;
+    }
+
+    h3,
+    .h3 {
+        font-size: 24px;
+    }
+
+    p,
+    .lead,
+    body {
+        font-size: 18px;
+    }
+
+    .btn,
+    label {
+        font-size: 16px;
+    }
+
+    small,
+    .small {
+        font-size: 14px;
+    }
 }
 
 // 7. FORCER LES COULEURS CUSTOM
@@ -205,9 +281,11 @@ $theme-colors: $custom-colors;
     .bg-#{$name} {
         background-color: $color !important;
     }
+
     .text-#{$name} {
         color: $color !important;
     }
+
     .hover-text-#{$name}:hover {
         color: $color !important;
     }
@@ -220,11 +298,91 @@ $theme-colors: $custom-colors;
 [data-bs-theme="dark"] {
     --bs-body-bg: #{$dm-bg-primary};
     --bs-body-color: #{$dm-text-primary};
-    
+
     // Vous pouvez créer des classes spécifiques pour vos fonds progressifs
-    .bg-dark-secondary { background-color: $dm-bg-secondary !important; }
-    .bg-dark-tertiary  { background-color: $dm-bg-tertiary !important; }
-    .bg-dark-surface   { background-color: $dm-surface !important; }
-    
-    .text-muted { color: $dm-text-disabled !important; }
+    .bg-dark-secondary {
+        background-color: $dm-bg-secondary !important;
+    }
+
+    .bg-dark-tertiary {
+        background-color: $dm-bg-tertiary !important;
+    }
+
+    .bg-dark-surface {
+        background-color: $dm-surface !important;
+    }
+
+    .text-muted {
+        color: $dm-text-disabled !important;
+    }
+}
+
+.hidden-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+// Utilities
+.cursor-pointer {
+    cursor: pointer !important;
+}
+
+.scroll-indicator {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(0, 0, 0, 0.05) 50%, rgba(0, 0, 0, 0.15) 100%);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    padding-bottom: 8px;
+    pointer-events: none;
+    border-bottom-left-radius: 1rem;
+    border-bottom-right-radius: 1rem;
+    z-index: 1050;
+    transition: opacity 0.3s ease;
+
+    &.hidden {
+        opacity: 0;
+    }
+
+    /* Simple CSS arrow */
+    &::after {
+        content: '';
+        display: block;
+        width: 10px;
+        height: 10px;
+        border-bottom: 2px solid #555;
+        /* Dark arrow */
+        border-right: 2px solid #555;
+        transform: rotate(45deg);
+        margin-bottom: 5px;
+        animation: bounce 2s infinite;
+        opacity: 0.7;
+    }
+}
+
+@keyframes bounce {
+
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+        transform: translateY(0) rotate(45deg);
+    }
+
+    40% {
+        transform: translateY(-5px) rotate(45deg);
+    }
+
+    60% {
+        transform: translateY(-3px) rotate(45deg);
+    }
 }
