@@ -9,7 +9,9 @@
 
 {% block body %}
 
-<div class="container my-5" style="max-width: 900px;">
+<div class="container my-5" style="max-width: 900px;" 
+     data-controller="profile-form"
+     data-profile-form-url-value="{{ path('app_user_front_update_vet', {id: user.id}) }}">
     <h1 class="text-center text-info fw-bold mb-5">Mon compte professionnel</h1>
 
     {# Profile Picture Section #}
@@ -31,37 +33,37 @@
             <i class="bi bi-person-circle me-2 fs-4"></i> <span class="fw-bold fs-5">Informations personnelles</span>
         </div>
         <ul class="list-group list-group-flush">
-            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field">
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
                 <div class="d-flex align-items-center w-100">
                     <span class="fs-6 fw-bold me-2">Nom :</span>
-                    <span class="fs-6" >{{ user.nom }}</span>
-                    <input type="text" class="form-control d-none w-auto" value="{{ user.nom }}">
+                    <span class="fs-6" data-editable-field-target="display">{{ user.nom }}</span>
+                    <input type="text" name="nom" class="form-control d-none w-auto" value="{{ user.nom }}" data-editable-field-target="input">
                 </div>
-                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit"><i class="bi bi-pencil-fill"></i></button>
+                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
             </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field">
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
                 <div class="d-flex align-items-center w-100">
                     <span class="fs-6 fw-bold me-2">Prénom :</span>
-                    <span class="fs-6" >{{ user.prenom }}</span>
-                    <input type="text" class="form-control d-none w-auto" value="{{ user.prenom }}">
+                    <span class="fs-6" data-editable-field-target="display">{{ user.prenom }}</span>
+                    <input type="text" name="prenom" class="form-control d-none w-auto" value="{{ user.prenom }}" data-editable-field-target="input">
                 </div>
-                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit"><i class="bi bi-pencil-fill"></i></button>
+                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
             </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field">
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
                 <div class="d-flex align-items-center w-100">
                     <span class="fs-6 fw-bold me-2">Adresse personnelle :</span>
-                    <span class="fs-6" >{{ user.adresse }}</span>
-                    <input type="text" class="form-control d-none w-auto" value="{{ user.adresse }}">
+                    <span class="fs-6" data-editable-field-target="display">{{ user.adresse }}</span>
+                    <input type="text" name="adresse" class="form-control d-none w-auto" value="{{ user.adresse }}" data-editable-field-target="input">
                 </div>
-                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit"><i class="bi bi-pencil-fill"></i></button>
+                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
             </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3" data-controller="editable-field">
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
                 <div class="d-flex align-items-center w-100">
                     <span class="fs-6 fw-bold me-2">Téléphone :</span>
-                    <span class="fs-6" >{{ user.telephone }}</span>
-                    <input type="text" class="form-control d-none w-auto" value="{{ user.telephone }}">
+                    <span class="fs-6" data-editable-field-target="display">{{ user.telephone }}</span>
+                    <input type="text" name="telephone" class="form-control d-none w-auto" value="{{ user.telephone }}" data-editable-field-target="input">
                 </div>
-                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit"><i class="bi bi-pencil-fill"></i></button>
+                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
             </li>
         </ul>
     </div>
@@ -72,37 +74,37 @@
             <i class="bi bi-briefcase-fill me-2 fs-4"></i> <span class="fw-bold fs-5">Informations professionnelles</span>
         </div>
         <ul class="list-group list-group-flush">
-            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field">
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
                 <div class="d-flex align-items-center w-100">
                     <span class="fs-6 fw-bold me-2">N° de Siret :</span>
-                    <span class="fs-6" >{{ user.siret }}</span>
-                    <input type="text" class="form-control d-none w-auto" value="{{ user.siret }}">
+                    <span class="fs-6" data-editable-field-target="display">{{ user.siret }}</span>
+                    <input type="text" name="siret" class="form-control d-none w-auto" value="{{ user.siret }}" data-editable-field-target="input">
                 </div>
-                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit"><i class="bi bi-pencil-fill"></i></button>
+                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
             </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field">
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
                 <div class="d-flex align-items-center w-100">
                     <span class="fs-6 fw-bold me-2">Adresse du cabinet :</span>
-                    <span class="fs-6" >{{ user.adressecabinet }}</span>
-                    <input type="text" class="form-control d-none w-auto" value="{{ user.adressecabinet }}">
+                    <span class="fs-6" data-editable-field-target="display">{{ user.adressecabinet }}</span>
+                    <input type="text" name="adressecabinet" class="form-control d-none w-auto" value="{{ user.adressecabinet }}" data-editable-field-target="input">
                 </div>
-                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit"><i class="bi bi-pencil-fill"></i></button>
+                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
             </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field">
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
                 <div class="d-flex align-items-center w-100">
                     <span class="fs-6 fw-bold me-2">Ville :</span>
-                    <span class="fs-6" >{{ user.ville }}</span>
-                    <input type="text" class="form-control d-none w-auto" value="{{ user.ville }}">
+                    <span class="fs-6" data-editable-field-target="display">{{ user.ville }}</span>
+                    <input type="text" name="ville" class="form-control d-none w-auto" value="{{ user.ville }}" data-editable-field-target="input">
                 </div>
-                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit"><i class="bi bi-pencil-fill"></i></button>
+                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
             </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3" data-controller="editable-field">
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
                 <div class="d-flex align-items-center w-100">
                     <span class="fs-6 fw-bold me-2">Code postal :</span>
-                    <span class="fs-6" >{{ user.codepostal }}</span>
-                    <input type="text" class="form-control d-none w-auto" value="{{ user.codepostal }}">
+                    <span class="fs-6" data-editable-field-target="display">{{ user.codepostal }}</span>
+                    <input type="text" name="codepostal" class="form-control d-none w-auto" value="{{ user.codepostal }}" data-editable-field-target="input">
                 </div>
-                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit"><i class="bi bi-pencil-fill"></i></button>
+                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
             </li>
         </ul>
     </div>
@@ -113,13 +115,13 @@
              <i class="bi bi-shield-lock me-2 fs-4"></i> <span class="fw-bold fs-5">Sécurité</span>
         </div>
         <ul class="list-group list-group-flush">
-            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field">
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
                 <div class="d-flex align-items-center w-100">
-                    <span class="fs-6 me-2">Adresse email :</span>
-                    <span class="fs-6"  >{{ user.email }}</span>
-                    <input type="email" class="form-control d-none w-auto" value="{{ user.email }}">
+                    <span class="fs-6 fw-bold me-2">Adresse email :</span>
+                    <span class="fs-6" data-editable-field-target="display">{{ user.email }}</span>
+                    <input type="email" name="email" class="form-control d-none w-auto" value="{{ user.email }}" data-editable-field-target="input">
                 </div>
-                <a href="#" class="text-primary fs-5" data-action="click->editable-field#edit"><i class="bi bi-pencil-fill"></i></a>
+                <a href="#" class="text-primary fs-5" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></a>
             </li>
             <li class="list-group-item text-center py-4">
                 <button class="btn text-danger bg-transparent border-0 px-4 py-2 fw-bold"><i class="bi bi-archive-fill me-2"></i> Archiver mes informations</button>
@@ -186,8 +188,20 @@
 
     {# Action Buttons #}
     <div class="d-flex justify-content-center gap-4 mb-5 pb-5">
-        <button class="btn btn-success-bg rounded-pill px-5 py-2 fw-bold shadow-sm text-info">Annuler</button>
-        <button class="btn btn-success text-primary-bg rounded-pill px-5 py-2 fw-bold shadow-sm">Enregistrer mes modifications</button>
+        <button class="btn btn-success-bg rounded-pill px-5 py-2 fw-bold shadow-sm text-info" data-action="click->profile-form#cancel">Annuler</button>
+        <button class="btn btn-success text-primary-bg rounded-pill px-5 py-2 fw-bold shadow-sm" data-action="click->profile-form#save">Enregistrer mes modifications</button>
+    </div>
+
+    {# Toast Notification Container #}
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="statusToast" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body fw-bold">
+                    Hello, world! This is a toast message.
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
     </div>
 
 </div>
