@@ -1,28 +1,278 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-<div class="container py-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h4 mb-0">Mes disponibilités</h1>
-    <a class="btn btn-primary" href="{{ path('app_availability_horaire_new') }}">Ajouter un créneau</a>
-  </div>
+	<div
+		class="container-fluid py-4 px-4">
 
-  {% for day in daysOfWork %}
-    <div class="card mb-3">
-      <div class="card-body">
-        <div class="fw-bold mb-2">Jour : {{ day.jour.libelle }}</div>
+		{# ── Header ── #}
+		<div class="d-flex justify-content-between align-items-center mb-3">
+			<h1 class="h4 mb-0 fw-bold" style="color:#1aab96;">Mes disponibilités</h1>
+		</div>
 
-        {% if day.horaires|length == 0 %}
-          <div class="text-muted">Aucun créneau</div>
-        {% else %}
-          <ul class="mb-0">
-            {% for h in day.horaires %}
-              <li>{{ h.startTime|date('H:i') }} - {{ h.endTime|date('H:i') }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      </div>
-    </div>
-  {% endfor %}
-</div>
+		{# ── Barre d'actions ── #}
+		<div class="d-flex align-items-center gap-2 mb-4 p-3 rounded-3" style="background:#f0faf8;">
+			<button class="btn btn-sm rounded-pill border px-3" style="border-color:#1aab96 !important; color:#1aab96;">
+				<i class="bi bi-funnel me-1"></i>
+				Statut
+				<i class="bi bi-chevron-down ms-1"></i>
+			</button>
+			<button class="btn btn-sm rounded-pill border px-3" style="border-color:#1aab96 !important; color:#1aab96;">
+				<i class="bi bi-calendar3 me-1"></i>
+				Date
+				<i class="bi bi-chevron-down ms-1"></i>
+			</button>
+			<button class="btn btn-sm rounded-pill px-3 text-white ms-auto" style="background:#1aab96;">
+				<i class="bi bi-plus me-1"></i>
+				Bloquer un créneau
+			</button>
+			<button class="btn btn-sm rounded-pill px-3" style="background:#e8f8f6; color:#1aab96;" data-bs-toggle="modal" data-bs-target="#horaireModal">
+				<i class="bi bi-pencil me-1"></i>
+				Modifier mes horaires
+			</button>
+		</div>
+
+		{# Flash messages #}
+		{% for message in app.flashes('success') %}
+			<div class="alert alert-success rounded-3 border-0 shadow-sm">{{ message }}</div>
+		{% endfor %}
+
+		{# ── FullCalendar ── #}
+		<div id="calendar"></div>
+
+	</div>
+
+	{# ── MODAL horaires ── #}
+	{# ── MODAL 2 étapes ── #}
+	<div class="modal fade" id="horaireModal" tabindex="-1" aria-hidden="true">
+		<div class="modal-dialog modal-xl modal-dialog-centered">
+			<div class="modal-content rounded-4 border-0 shadow-lg position-relative px-2 py-2">
+
+				<button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"></button>
+
+				<div class="modal-body px-5 py-4">
+
+					<h4 class="text-center fw-bold mb-1" style="color:#1aab96;">Mes disponibilités</h4>
+					<p class="text-center text-muted small mb-4">Fuseau horaire (UTC+1)</p>
+
+					{{ form_start(form, { attr: { novalidate: 'novalidate', id: 'disponibilite-form' } }) }}
+
+					{# ── ÉTAPE 1 : Jours travaillés ── #}
+					<div id="step-1">
+						<p class="text-center fw-medium mb-4">Quels jours travaillez-vous ?</p>
+						<div class="d-flex flex-wrap justify-content-center gap-3 mb-4">
+							{% for dow in daysOfWork %}
+								<div class="form-check d-flex flex-column align-items-center gap-2">
+									<input class="form-check-input day-checkbox" type="checkbox" name="working_days[]" value="{{ dow.id }}" id="day_{{ dow.id }}" data-day-id="{{ dow.id }}" style="width:22px; height:22px; accent-color:#1aab96; cursor:pointer;" {{ dow.isWorking ? 'checked' : '' }}>
+									<label class="form-check-label fw-medium" for="day_{{ dow.id }}" style="color:#1aab96;">
+										{{ dow.jour.libelle }}
+									</label>
+								</div>
+							{% endfor %}
+						</div>
+
+						<div class="d-flex justify-content-center mt-4">
+							<button type="button" id="btn-next" class="btn rounded-pill px-5 fw-medium text-white" style="background:#1aab96;">
+								Suivant →
+							</button>
+						</div>
+					</div>
+
+					{# ── ÉTAPE 2 : Horaires ── #}
+					<div id="step-2" style="display:none;">
+
+						<p class="text-center text-warning small mb-3">
+							<i class="bi bi-exclamation-triangle me-1"></i>
+							L'heure de début doit être inférieure à l'heure de fin.
+						</p>
+
+						<div class="table-responsive">
+							<table class="table align-middle text-center" style="min-width:750px;">
+								<thead>
+									<tr>
+										<th class="text-start" style="width:110px;"></th>
+										<th colspan="3" style="color:#1aab96; font-weight:600;">Matinée</th>
+										<th style="width:30px;"></th>
+										<th colspan="3" style="color:#1aab96; font-weight:600;">Après-midi</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for horaire in form.horaires %}
+										<tr class="horaire-row" data-day-id="{{ horaire.vars.data.dayOfWork.id }}">
+											<td class="text-start fw-medium text-dark">
+												{{ horaire.vars.data.dayOfWork.jour.libelle }}
+											</td>
+
+											<td>
+												<div class="input-group mx-auto" style="width:140px;">
+													{{ form_widget(horaire.morningStart, {
+                        attr: { class: 'form-control border-0 text-center rounded-start-pill', style: 'background:#e8f8f6; color:#1aab96; font-weight:600;' }
+                      }) }}
+													<span class="input-group-text border-0 rounded-end-pill px-2" style="background:#e8f8f6; color:#1aab96; cursor:pointer;" onclick="this.previousElementSibling.showPicker()">
+														<i class="bi bi-chevron-down"></i>
+													</span>
+												</div>
+											</td>
+											<td class="text-muted fw-medium px-1">à</td>
+											<td>
+												<div class="input-group mx-auto" style="width:140px;">
+													{{ form_widget(horaire.morningEnd, {
+                        attr: { class: 'form-control border-0 text-center rounded-start-pill', style: 'background:#e8f8f6; color:#1aab96; font-weight:600;' }
+                      }) }}
+													<span class="input-group-text border-0 rounded-end-pill px-2" style="background:#e8f8f6; color:#1aab96; cursor:pointer;" onclick="this.previousElementSibling.showPicker()">
+														<i class="bi bi-chevron-down"></i>
+													</span>
+												</div>
+												{{ form_errors(horaire.morningEnd) }}
+											</td>
+
+											<td></td>
+
+											<td>
+												<div class="input-group mx-auto" style="width:140px;">
+													{{ form_widget(horaire.afternoonStart, {
+                        attr: { class: 'form-control border-0 text-center rounded-start-pill', style: 'background:#e8f8f6; color:#1aab96; font-weight:600;' }
+                      }) }}
+													<span class="input-group-text border-0 rounded-end-pill px-2" style="background:#e8f8f6; color:#1aab96; cursor:pointer;" onclick="this.previousElementSibling.showPicker()">
+														<i class="bi bi-chevron-down"></i>
+													</span>
+												</div>
+											</td>
+											<td class="text-muted fw-medium px-1">à</td>
+											<td>
+												<div class="input-group mx-auto" style="width:140px;">
+													{{ form_widget(horaire.afternoonEnd, {
+                        attr: { class: 'form-control border-0 text-center rounded-start-pill', style: 'background:#e8f8f6; color:#1aab96; font-weight:600;' }
+                      }) }}
+													<span class="input-group-text border-0 rounded-end-pill px-2" style="background:#e8f8f6; color:#1aab96; cursor:pointer;" onclick="this.previousElementSibling.showPicker()">
+														<i class="bi bi-chevron-down"></i>
+													</span>
+												</div>
+												{{ form_errors(horaire.afternoonEnd) }}
+											</td>
+
+											<td style="display:none;">{{ form_widget(horaire.dayOfWork) }}</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+
+						<div class="d-flex justify-content-center gap-3 mt-4">
+							<button type="button" id="btn-prev" class="btn rounded-pill px-4 fw-medium" style="background:#d0d0d0; color:#fff;">
+								← Retour
+							</button>
+							<button type="submit" class="btn rounded-pill px-4 fw-medium text-white" style="background:#1aab96;">
+								Enregistrer
+							</button>
+						</div>
+					</div>
+
+					{{ form_end(form) }}
+				</div>
+			</div>
+		</div>
+	</div>
+
+	{# ── FullCalendar JS ── #}
+	<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
+ <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+	 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/locales/fr.global.min.js"></script>
+
+	 <script>
+		document.addEventListener('DOMContentLoaded', function () {
+		  const calendarEl = document.getElementById('calendar');
+		
+		  const calendar = new FullCalendar.Calendar(calendarEl, {
+		    locale: 'fr',
+		    initialView: 'timeGridWeek',
+		    headerToolbar: {
+		      left:   'prev,next today',
+		      center: 'title',
+		      right:  'timeGridWeek,timeGridDay'
+		    },
+		    slotMinTime: '07:00:00',
+		    slotMaxTime: '23:59:00',
+		    slotDuration: '00:30:00',
+		    allDaySlot: false,
+		    nowIndicator: true,
+		    height: 'auto',
+		    eventSources: [{
+		      url: '{{ path("api_availability") }}',
+		      failure: function () {
+		        alert('Erreur lors du chargement des disponibilités.');
+		      }
+		    }],
+		    // Rafraîchit le calendrier après soumission du formulaire
+		    eventDidMount: function(info) {
+		      info.el.style.borderRadius = '6px';
+		    }
+		  });
+		
+		  calendar.render();
+		
+		  // Rafraîchir le calendrier après enregistrement
+		  document.getElementById('disponibilite-form').addEventListener('submit', function () {
+		    setTimeout(() => calendar.refetchEvents(), 500);
+		  });
+		  // ── Gestion des 2 étapes ──
+		const step1 = document.getElementById('step-1');
+		const step2 = document.getElementById('step-2');
+		const btnNext = document.getElementById('btn-next');
+		const btnPrev = document.getElementById('btn-prev');
+		const checkboxes = document.querySelectorAll('.day-checkbox');
+		
+		// Réinitialise à l'étape 1 à chaque ouverture du modal
+		document.getElementById('horaireModal').addEventListener('show.bs.modal', function () {
+		    step1.style.display = 'block';
+		    step2.style.display = 'none';
+		    updateRows(); // applique l'état actuel des checkboxes
+		});
+		
+		// Passer à l'étape 2
+		btnNext.addEventListener('click', function () {
+		    updateRows();
+		    step1.style.display = 'none';
+		    step2.style.display = 'block';
+		});
+		
+		// Retour à l'étape 1
+		btnPrev.addEventListener('click', function () {
+		    step2.style.display = 'none';
+		    step1.style.display = 'block';
+		});
+		
+		// Masque/affiche les lignes selon les jours cochés
+		function updateRows() {
+		    const checkedIds = Array.from(checkboxes)
+		        .filter(cb => cb.checked)
+		        .map(cb => cb.dataset.dayId);
+		
+		    document.querySelectorAll('.horaire-row').forEach(row => {
+		        row.style.display = checkedIds.includes(row.dataset.dayId) ? '' : 'none';
+		    });
+		}
+		
+		// AJAX submit
+		document.getElementById('disponibilite-form').addEventListener('submit', function (e) {
+		    e.preventDefault();
+		    const form = e.target;
+		    const data = new FormData(form);
+		
+		    fetch(window.location.href, {
+		        method: 'POST',
+		        body: data,
+		        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+		    })
+		    .then(res => res.json())
+		    .then(data => {
+		        if (data.success) {
+		            bootstrap.Modal.getInstance(document.getElementById('horaireModal')).hide();
+		            calendar.refetchEvents();
+		        }
+		    })
+		    .catch(() => alert('Une erreur est survenue.'));
+		});
+		});
+		</script>
+
 {% endblock %}
