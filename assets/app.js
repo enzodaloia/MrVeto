@@ -1,12 +1,11 @@
-import './stimulus_bootstrap.js';
-/*
- * Welcome to your app's main JavaScript file!
- *
- * This file will be included onto the page via the importmap() Twig function,
- * which should already be in your base.html.twig.
- */
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 import './styles/app.scss';
 
+import '@popperjs/core';
+import 'bootstrap';
 import './bootstrap.js';
+import './lucide.js';
+import './stimulus_bootstrap.js';
 
-console.log('This log comes from assets/app.js - welcome to AssetMapper! 🎉');
+console.log('Assets loaded!');

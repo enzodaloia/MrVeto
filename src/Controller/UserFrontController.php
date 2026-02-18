@@ -1,0 +1,190 @@
+<?php
+
+namespace App\Controller;
+
+use App\Entity\User;
+use App\Form\UserType;
+use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+
+#[Route('/user/front')]
+final class UserFrontController extends AbstractController
+{
+    #[Route(name: 'app_user_front_index', methods: ['GET'])]
+    public function index(UserRepository $userRepository): Response
+    {
+        return $this->render('user_front/index.html.twig', [
+            'users' => $userRepository->findAll(),
+        ]);
+    }
+
+    #[Route('/new', name: 'app_user_front_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $user = new User();
+        $form = $this->createForm(UserType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->persist($user);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_user_front_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->render('user_front/new.html.twig', [
+            'user' => $user,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/{id}', name: 'app_user_front_show', methods: ['GET'])]
+    public function show(User $user): Response
+    {
+        // Rediriger vers le profil vétérinaire si l'utilisateur a le rôle ROLE_VETO
+        if (in_array('ROLE_VETO', $user->getRoles())) {
+            return $this->redirectToRoute('app_user_front_show_vet', ['id' => $user->getId()]);
+        }
+        
+        return $this->render('user_front/show.html.twig', [
+            'user' => $user,
+        ]);
+    }
+
+    #[Route('/veterinaire/{id}', name: 'app_user_front_show_vet', methods: ['GET'])]
+    public function showVet(User $user): Response
+    {
+        // Vérifier que l'utilisateur est bien un vétérinaire
+        if (!in_array('ROLE_VETO', $user->getRoles())) {
+            return $this->redirectToRoute('app_user_front_show', ['id' => $user->getId()]);
+        }
+        
+        return $this->render('user_front/show_vet.html.twig', [
+            'user' => $user,
+        ]);
+    }
+
+    #[Route('/{id}/update_vet', name: 'app_user_front_update_vet', methods: ['POST'])]
+    public function updateVet(Request $request, User $user, EntityManagerInterface $entityManager): JsonResponse
+    {
+        if ($this->getUser() !== $user && !$this->isGranted('ROLE_ADMIN')) {
+             return new JsonResponse(['error' => 'Access Denied'], Response::HTTP_FORBIDDEN);
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        if (!$data) {
+             return new JsonResponse(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
+        }
+
+        if (isset($data['nom'])) {
+            $user->setNom($data['nom']);
+        }
+        if (isset($data['prenom'])) {
+            $user->setPrenom($data['prenom']);
+        }
+        if (isset($data['adresse'])) {
+            $user->setAdresse($data['adresse']);
+        }
+        if (isset($data['telephone'])) {
+            $user->setTelephone($data['telephone']);
+        }
+        if (isset($data['siret'])) {
+            $user->setSiret($data['siret']);
+        }
+        if (isset($data['adressecabinet'])) {
+            $user->setAdressecabinet($data['adressecabinet']);
+        }
+        if (isset($data['ville'])) {
+            $user->setVille($data['ville']);
+        }
+        if (isset($data['codepostal'])) {
+            $user->setCodepostal($data['codepostal']);
+        }
+        if (isset($data['email'])) {
+            $user->setEmail($data['email']);
+        }
+
+        $entityManager->flush();
+
+        return new JsonResponse(['status' => 'success']);
+    }
+
+    #[Route('/{id}/update_user', name: 'app_user_front_update_user', methods: ['POST'])]
+    public function updateUser(Request $request, User $user, EntityManagerInterface $entityManager): JsonResponse
+    {
+        // Check if the current user is allowed to edit this profile
+        if ($this->getUser() !== $user && !$this->isGranted('ROLE_ADMIN')) {
+             return new JsonResponse(['error' => 'Access Denied'], Response::HTTP_FORBIDDEN);
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        if (!$data) {
+             return new JsonResponse(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
+        }
+
+        if (isset($data['nom'])) {
+            $user->setNom($data['nom']);
+        }
+        if (isset($data['prenom'])) {
+            $user->setPrenom($data['prenom']);
+        }
+        if (isset($data['adresse'])) {
+            $user->setAdresse($data['adresse']);
+        }
+        if (isset($data['telephone'])) {
+            $user->setTelephone($data['telephone']);
+        }
+        if (isset($data['email'])) {
+            $user->setEmail($data['email']);
+        }
+
+        $entityManager->flush();
+
+        return new JsonResponse(['status' => 'success']);
+    }
+
+    #[Route('/{id}/edit', name: 'app_user_front_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    {
+        $form = $this->createForm(UserType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_user_front_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->render('user_front/edit.html.twig', [
+            'user' => $user,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/{id}', name: 'app_user_front_delete', methods: ['POST'])]
+    public function delete(Request $request, User $user, EntityManagerInterface $entityManager, Security $security): Response
+    {
+        if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->getPayload()->getString('_token'))) {
+            // Vérifier si l'utilisateur supprime son propre compte
+            $isCurrentUser = $this->getUser() === $user;
+            
+            $entityManager->remove($user);
+            $entityManager->flush();
+            
+            // Si c'est l'utilisateur connecté, le déconnecter
+            if ($isCurrentUser) {
+                $security->logout(false);
+            }
+        }
+
+        return $this->redirectToRoute('app_home', [], Response::HTTP_SEE_OTHER);
+    }
+}

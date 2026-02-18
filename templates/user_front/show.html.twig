@@ -1,0 +1,171 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon compte{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+{% endblock %}
+
+{% block body %}
+
+<div class="container my-5" style="max-width: 900px;"
+     data-controller="profile-form"
+     data-profile-form-url-value="{{ path('app_user_front_update_user', {id: user.id}) }}">
+    <h1 class="text-center text-info fw-bold mb-5">Mon compte</h1>
+
+    {# Profile Picture Section #}
+    <div class="card border-0 shadow-sm mb-5 rounded-4 bg-secondary-bg">
+        <div class="card-body d-flex justify-content-center align-items-center py-4">
+            <div class="d-flex align-items-center gap-4">
+                 <div class="rounded-circle overflow-hidden border border-2 border-white shadow-sm" style="width: 80px; height: 80px;">
+                     <img src="https://ui-avatars.com/api/?name={{ user.prenom }}+{{ user.nom }}&background=random" class="w-100 h-100 object-fit-cover" alt="Avatar">
+                 </div>
+                 <button class="btn btn-outline-info hover-text-primary-bg rounded-pill px-4 fw-bold">Mettre à jour</button>
+                 <button class="btn text-danger fw-bold"><i class="bi bi-trash"></i> Supprimer</button>
+            </div>
+        </div>
+    </div>
+
+    {# Informations personnelles #}
+    <div class="card border-0 shadow-sm mb-4 rounded-3 overflow-hidden">
+        <div class="card-header text-white px-4 py-3 bg-primary-pressed">
+            <i class="bi bi-person-circle me-2 fs-4"></i> <span class="fw-bold fs-5">Informations personnelles</span>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
+                <div class="d-flex align-items-center w-100">
+                    <span class="fs-6 fw-bold me-2">Nom :</span>
+                    <span class="fs-6" data-editable-field-target="display">{{ user.nom }}</span>
+                    <input type="text" name="nom" class="form-control d-none w-auto" value="{{ user.nom }}" data-editable-field-target="input">
+                </div>
+                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
+                <div class="d-flex align-items-center w-100">
+                    <span class="fs-6 fw-bold me-2">Prénom :</span>
+                    <span class="fs-6" data-editable-field-target="display">{{ user.prenom }}</span>
+                    <input type="text" name="prenom" class="form-control d-none w-auto" value="{{ user.prenom }}" data-editable-field-target="input">
+                </div>
+                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
+                <div class="d-flex align-items-center w-100">
+                    <span class="fs-6 fw-bold me-2">Adresse postale :</span>
+                    <span class="fs-6" data-editable-field-target="display">{{ user.adresse }}</span>
+                    <input type="text" name="adresse" class="form-control d-none w-auto" value="{{ user.adresse }}" data-editable-field-target="input">
+                </div>
+                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
+                <div class="d-flex align-items-center w-100">
+                    <span class="fs-6 fw-bold me-2">Téléphone :</span>
+                    <span class="fs-6" data-editable-field-target="display">{{ user.telephone }}</span>
+                    <input type="text" name="telephone" class="form-control d-none w-auto" value="{{ user.telephone }}" data-editable-field-target="input">
+                </div>
+                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
+            </li>
+        </ul>
+    </div>
+
+    {# Sécurité #}
+    <div class="card border-0 shadow-sm mb-4 rounded-3 overflow-hidden">
+        <div class="card-header text-white px-4 py-3 bg-primary-pressed">
+             <i class="bi bi-shield-lock me-2 fs-4"></i> <span class="fw-bold fs-5">Sécurité</span>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
+                <div class="d-flex align-items-center w-100">
+                    <span class="fs-6 me-2">Adresse email :</span>
+                    <span class="fs-6" data-editable-field-target="display">{{ user.email }}</span>
+                    <input type="email" name="email" class="form-control d-none w-auto" value="{{ user.email }}" data-editable-field-target="input">
+                </div>
+                <a href="#" class="text-primary fs-5" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></a>
+            </li>
+{#             <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom">
+                <span class="fs-6">Mot de passe: ********************</span>
+                <a href="#" class="text-primary fs-5"><i class="bi bi-pencil-fill"></i></a>
+            </li> #}
+            <li class="list-group-item text-center py-4">
+                <button class="btn text-danger bg-transparent border-0 px-4 py-2 fw-bold"><i class="bi bi-archive-fill me-2"></i> Archiver mes informations</button>
+            </li>
+        </ul>
+    </div>
+
+    {# Données #}
+    <div class="card border-0 shadow-sm mb-5 rounded-3 overflow-hidden">
+         <div class="card-header text-white px-4 py-3 bg-info">
+            <i class="bi bi-file-text me-2 fs-4"></i> <span class="fw-bold fs-5">Données</span>
+        </div>
+        <div class="card-body p-0">
+             <div class="d-flex justify-content-between align-items-center px-4 py-3 border-bottom bg-light bg-opacity-10">
+                <span class="fs-6">J'accepte toutes les <strong>conditions</strong> et les <strong>politiques de confidentialité</strong>.</span>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked style="width: 3em; height: 1.5em; cursor: pointer;">
+                </div>
+            </div>
+            <div class="text-center py-3 border-bottom">
+                 <button class="btn text-info fw-bold bg-transparent border-0 px-4 py-2"><i class="bi bi-download me-2"></i> Télécharger mes données</button>
+            </div>
+            <div class="text-center py-3">
+                <form method="post" action="{{ path('app_user_front_delete', {'id': user.id}) }}" id="deleteAccountForm" style="display: inline;">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+                    <button type="button" class="btn text-danger fw-bold bg-transparent border-0 px-4 py-2" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                        <i class="bi bi-trash me-2"></i> Supprimer mon compte
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {# Modal de confirmation de suppression #}
+    <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header border-0 bg-danger-bg pt-4 px-4">
+                    <h5 class="modal-title fw-bold text-danger" id="deleteAccountModalLabel">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>Confirmation de suppression
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4 py-4">
+                    <p class="mb-3 fs-6">Êtes-vous sûr de vouloir supprimer votre compte ?</p>
+                    <p class="text-danger fw-bold mb-0"><i class="bi bi-info-circle me-1"></i> Cette action est irréversible.</p>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-secondary-bg text-neutral-90 rounded-pill px-4 fw-bold" data-bs-dismiss="modal">
+                        Annuler
+                    </button>
+                    <button type="button" class="btn btn-danger text-white rounded-pill px-4 fw-bold" onclick="document.getElementById('deleteAccountForm').submit();">
+                        <i class="bi bi-trash me-2"></i>Supprimer définitivement
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Reset Password Link #}
+    <div class="text-center mb-5">
+        <span class="text-muted">Mot de passe oublié?</span> <a href="#" class="text-danger fw-bold text-decoration-underline ms-1">Réinitialiser mon mot de passe</a>
+    </div>
+
+    {# Action Buttons #}
+    <div class="d-flex justify-content-center gap-4 mb-5 pb-5">
+        <button class="btn btn-success-bg rounded-pill px-5 py-2 fw-bold shadow-sm text-info" data-action="click->profile-form#cancel">Annuler</button>
+        <button class="btn btn-success text-primary-bg rounded-pill px-5 py-2 fw-bold shadow-sm" data-action="click->profile-form#save">Enregistrer mes modifications</button>
+    </div>
+
+    {# Toast Notification Container #}
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="statusToast" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body fw-bold">
+                    Hello, world! This is a toast message.
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
