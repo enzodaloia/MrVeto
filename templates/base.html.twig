@@ -67,22 +67,20 @@
 							<i class="bi bi-bell"></i>
 
 
-							<div class="text-end lh-1">
-								<small class="text-primary d-block mb-1">Bonjour,</small>
-								<span class="fw-bold text-dark">{{ app.user.prenom }}
-									{{ app.user.nom }}</span>
-							</div>
-							<div class="d-flex align-items-center gap-2">
-								<div class="rounded-circle overflow-hidden shadow-sm" style="width: 45px; height: 45px;">
-									<img src="https://ui-avatars.com/api/?name={{ app.user.prenom }}+{{ app.user.nom }}&background=random" class="w-100 h-100 object-fit-cover" alt="Avatar">
-								</div>
-								<a href="#" class="text-decoration-none text-dark dropdown-toggle"></a>
-							</div>
-						</div>
-					{% endif %}
-				</div>
-			</nav>
-		{% endif %}
+                        <div class="text-end lh-1">
+                            <small class="text-primary d-block mb-1">Bonjour,</small>
+                            <span class="fw-bold text-dark">{{ app.user.prenom }} {{ app.user.nom }}</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-circle overflow-hidden shadow-sm" style="width: 45px; height: 45px;">
+                                <img src="https://ui-avatars.com/api/?name={{ app.user.prenom }}+{{ app.user.nom }}&background=random" class="w-100 h-100 object-fit-cover" alt="Avatar">
+                            </div>
+                            <a href="#" class="text-decoration-none text-dark dropdown-toggle"></a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </nav>
 		{% block body %}{% endblock %}
 
 
