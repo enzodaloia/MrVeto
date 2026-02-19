@@ -135,12 +135,12 @@ final class AvailabilityController extends AbstractController
 
             $horairesList[] = $h;
 
-            $form = $this->createForm(DisponibiliteType::class, ['horaires' => $horairesList], [
-                'user' => $user,
-            ]);
 
-            $form->handleRequest($request);
         }
+        $form = $this->createForm(DisponibiliteType::class, ['horaires' => $horairesList], [
+            'user' => $user,
+        ]);
+        $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $workingDayIds = $request->request->all('working_days') ?? [];
             foreach ($daysOfWork as $dow) {
