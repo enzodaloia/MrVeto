@@ -20,7 +20,9 @@ final class Version20260217155055 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE user ADD token VARCHAR(255) DEFAULT NULL, ADD img VARCHAR(255) DEFAULT NULL, ADD longitude VARCHAR(255) DEFAULT NULL, ADD latitude VARCHAR(255) DEFAULT NULL, ADD created_at DATETIME NOT NULL');
+        $this->addSql('ALTER TABLE user ADD token VARCHAR(255) DEFAULT NULL, ADD img VARCHAR(255) DEFAULT NULL, ADD longitude VARCHAR(255) DEFAULT NULL, ADD latitude VARCHAR(255) DEFAULT NULL, ADD created_at DATETIME DEFAULT NULL');
+        $this->addSql('UPDATE user SET created_at = NOW() WHERE created_at IS NULL');
+        $this->addSql('ALTER TABLE user MODIFY created_at DATETIME NOT NULL');
     }
 
     public function down(Schema $schema): void

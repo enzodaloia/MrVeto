@@ -1,0 +1,83 @@
+{% extends 'base.html.twig' %}
+{% set hiddenNavbar = true %}
+
+{% block body %}
+	<div
+		class="d-flex" style="min-height: 100vh;">
+
+		{# Sidebar #}
+		<aside
+			style="width: 250px; min-width: 250px; background:#e8f8f5; min-height:100vh;" class="d-flex flex-column align-items-center py-4 px-3">
+
+
+			{# Logo #}
+			<div class="mb-4">
+				<a href="{{ path('app_home') }}">
+					<img src="{{ asset('assets/img/MrVeto.png') }}" alt="Logo" width="64">
+				</a>
+			</div>
+
+			{# Avatar + infos #}
+			<div class=" mt-5 rounded-circle overflow-hidden mb-3 shadow-sm" style="width:100px; height:100px;">
+				<img src="https://ui-avatars.com/api/?name={{ app.user.prenom }}+{{ app.user.nom }}&background=random" class="w-100 h-100 object-fit-cover">
+			</div>
+			<p class="fw-bold text-dark mb-0">{{ app.user.prenom }}
+				{{ app.user.nom }}</p>
+			<p class="mb-4" style="color:#e67e22;">Vétérinaire</p>
+
+			{# Navigation #}
+			<nav class="w-100 d-flex flex-column gap-4 px-2 mt-3">
+				<a href="{{ path('app_home') }}" class="d-flex align-items-center gap-3 px-3 py-2 rounded-3 text-decoration-none fw-medium text-primary">
+					<i class="bi bi-house text-dark"></i>
+					Accueil
+				</a>
+				<a href="#" class="d-flex align-items-center gap-3 px-3 py-2 rounded-3 text-decoration-none fw-medium text-primary">
+					<i class="bi bi-calendar3 text-dark"></i>
+					Agenda
+				</a>
+				<a href="#" class="d-flex align-items-center gap-3 px-3 py-2 rounded-3 text-decoration-none fw-medium text-primary">
+					<i class="bi bi-heart text-dark"></i>
+					Patients
+				</a>
+				<a href="#" class="d-flex align-items-center gap-3 px-3 py-2 rounded-3 text-decoration-none fw-medium text-primary">
+					<i class="bi bi-plus-circle text-dark"></i>
+					Secrétaire
+				</a>
+
+				{# Paramètres avec sous-menu #}
+				<div>
+					<a href="#parametres-menu" class="d-flex align-items-center gap-3 px-3 py-2 rounded-3 text-decoration-none fw-medium text-white" style="background:#1aab96;" data-bs-toggle="collapse">
+						<i class="bi bi-sliders"></i>
+						Paramètres
+					</a>
+					<div class="collapse show" id="parametres-menu">
+						<div class="d-flex flex-column ps-4 mt-2 gap-2">
+							<a href="#" class="text-decoration-none small" style="color:#1aab96;">
+								<i class="bi bi-circle me-1" style="font-size:8px;"></i>
+								Disponibilités
+							</a>
+							<a href="#" class="text-decoration-none small" style="color:#1aab96;">
+								<i class="bi bi-circle me-1" style="font-size:8px;"></i>
+								Compte
+							</a>
+						</div>
+					</div>
+				</div>
+			</nav>
+			{# Déconnexion en bas #}
+			<div class="mt-auto w-100 px-2">
+				<a href="{{ path('app_logout') }}" class="d-flex align-items-center gap-2 px-3 py-2 text-decoration-none text-muted">
+					Se déconnecter
+					<i class="bi bi-box-arrow-right"></i>
+				</a>
+			</div>
+
+		</aside>
+
+		{# ── Contenu principal ── #}
+		<main class="flex-grow-1 bg-secondary-bg" style="height:100vh; overflow-y:auto;">
+			{% block dashboard_body %}{% endblock %}
+		</main>
+
+	</div>
+{% endblock %}
