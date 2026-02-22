@@ -86,9 +86,17 @@ final class UserFrontController extends AbstractController
         $form = $this->createForm(UserType::class, $user, ['csrf_protection' => false]);
         $form->submit($data, false);
 
-        return $form->isValid()
-            ? new JsonResponse(['status' => 'success'], Response::HTTP_OK, [], true)
-                : new JsonResponse(['error' => (string) $form->getErrors(true, false)], Response::HTTP_BAD_REQUEST);
+       if ($form->isValid()) {
+            $entityManager->flush();
+            return new JsonResponse(['status' => 'success'], Response::HTTP_OK);
+        }
+
+        $errors = [];
+        foreach ($form->getErrors(true, true) as $error) {
+            $errors[] = $error->getMessage();
+        }
+
+        return new JsonResponse(['error' => implode(', ', $errors)], Response::HTTP_BAD_REQUEST);
     }
 
     private function validateUserAuthorization(User $user): ?JsonResponse
@@ -115,9 +123,17 @@ final class UserFrontController extends AbstractController
         $form = $this->createForm(UserType::class, $user, ['csrf_protection' => false]);
         $form->submit($data, false);
 
-        return $form->isValid()
-            ? new JsonResponse(['status' => 'success'], Response::HTTP_OK, [], true)
-                : new JsonResponse(['error' => (string) $form->getErrors(true, false)], Response::HTTP_BAD_REQUEST);
+       if ($form->isValid()) {
+            $entityManager->flush();
+            return new JsonResponse(['status' => 'success'], Response::HTTP_OK);
+        }
+
+        $errors = [];
+        foreach ($form->getErrors(true, true) as $error) {
+            $errors[] = $error->getMessage();
+        }
+
+        return new JsonResponse(['error' => implode(', ', $errors)], Response::HTTP_BAD_REQUEST);
     }
 
     #[Route('/{id}/edit', name: 'app_user_front_edit', methods: ['GET', 'POST'])]
