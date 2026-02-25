@@ -17,11 +17,19 @@ final class SearchVetController extends AbstractController
         $page = $request->query->getInt('page', 1);
         $limit = $request->query->getInt('limit', 10);
 
+        $lat = $request->query->get('lat');
+        $lon = $request->query->get('lon');
+        $distance = $request->query->getInt('distance', 20); // Default 20 km
+
         // Ensure positive values
         $page = max(1, $page);
         $limit = max(1, $limit);
 
-        $vets = $userRepository->findAllVets($page, $limit);
+        // Convert lat/lon to float if present
+        $lat = $lat !== null && $lat !== '' ? (float) $lat : null;
+        $lon = $lon !== null && $lon !== '' ? (float) $lon : null;
+
+        $vets = $userRepository->findAllVets($page, $limit, $lat, $lon, $distance);
         $totalItems = count($vets);
         $totalPages = ceil($totalItems / $limit);
 
@@ -32,6 +40,10 @@ final class SearchVetController extends AbstractController
             'limit' => $limit,
             'totalPages' => $totalPages,
             'totalItems' => $totalItems,
+            'lat' => $lat,
+            'lon' => $lon,
+            'distance' => $distance,
+            'location' => $request->query->get('location'),
         ]);
     }
 }

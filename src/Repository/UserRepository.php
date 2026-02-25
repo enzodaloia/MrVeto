@@ -61,15 +61,37 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     /**
      * @return Paginator Returns a Paginator of User objects with ROLE_VETO
      */
-    public function findAllVets(int $page = 1, int $limit = 10): Paginator
+    public function findAllVets(int $page = 1, int $limit = 10, ?float $lat = null, ?float $lon = null, ?int $distance = null): Paginator
     {
-        $query = $this->createQueryBuilder('u')
+        $qb = $this->createQueryBuilder('u')
             ->andWhere('u.roles LIKE :role')
             ->setParameter('role', '%"ROLE_VETO"%')
             ->orderBy('u.nom', 'ASC')
             ->setFirstResult(($page - 1) * $limit)
-            ->setMaxResults($limit)
-            ->getQuery();
+            ->setMaxResults($limit);
+
+        // Apply Bounding Box filtering if location is provided
+        if ($lat !== null && $lon !== null && $distance !== null && $distance > 0) {
+            $latPerKm = 1 / 111.0;
+            $lonPerKm = 1 / (111.0 * cos(deg2rad($lat)));
+
+            $latMin = $lat - ($distance * $latPerKm);
+            $latMax = $lat + ($distance * $latPerKm);
+            $lonMin = $lon - ($distance * $lonPerKm);
+            $lonMax = $lon + ($distance * $lonPerKm);
+
+            // Adding +0 forces numerical conversion in case the DB stores them as strings
+            $qb->andWhere('(u.latitude + 0) >= :latMin')
+                ->andWhere('(u.latitude + 0) <= :latMax')
+                ->andWhere('(u.longitude + 0) >= :lonMin')
+                ->andWhere('(u.longitude + 0) <= :lonMax')
+                ->setParameter('latMin', $latMin)
+                ->setParameter('latMax', $latMax)
+                ->setParameter('lonMin', $lonMin)
+                ->setParameter('lonMax', $lonMax);
+        }
+
+        $query = $qb->getQuery();
 
         return new Paginator($query, true);
     }

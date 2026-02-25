@@ -15,20 +15,20 @@
 
 		{# Sticky Search Bar #}
 		<div
-			class="sticky-top pt-2 pb-3" style="top: 0; z-index: 1020;">
+			class="sticky-top pt-2 pb-3" style="top: 0; z-index: 1030;">
 			{# Increased z-index to ensure dropdown is above content #}
 			<div class="d-flex justify-content-center">
-				<form action="{{ path('app_search_vet') }}" method="get" class="bg-secondary-bg p-2 ps-4 pe-2 rounded-pill shadow d-flex align-items-center gap-3 w-100" style="max-width: 900px;" data-controller="autocomplete-address">
+				<form action="{{ path('app_search_vet') }}" method="get" class="bg-secondary-bg p-2 ps-4 pe-2 rounded-pill shadow d-flex align-items-center gap-3 w-100" style="max-width: 900px;" data-controller="autocomplete-address" data-action="submit->autocomplete-address#onSubmit">
 
-					<input type="hidden" name="lat" data-autocomplete-address-target="lat">
+					<input type="hidden" name="lat" data-autocomplete-address-target="lat" value="{{ lat }}">
 					<input
-					type="hidden" name="lon" data-autocomplete-address-target="lon">
+					type="hidden" name="lon" data-autocomplete-address-target="lon" value="{{ lon }}">
 
 					{# Location Input #}
 					<div class="d-flex align-items-center flex-grow-1 bg-white rounded-pill px-3 py-2 shadow-sm position-relative">
 						<twig:ux:icon class="text-secondary fs-5 me-2" name="lucide:map-pin"/>
 						<input
-						type="text" name="location" placeholder="Ville ou Code postal" class="form-control bg-transparent border-0 text-dark shadow-none p-0 focus-ring-none" style="outline: none;" data-autocomplete-address-target="input" data-action="input->autocomplete-address#search" autocomplete="off">
+						type="text" name="location" placeholder="Ville ou Code postal" value="{{ location }}" class="form-control bg-transparent border-0 text-dark shadow-none p-0 focus-ring-none" style="outline: none;" data-autocomplete-address-target="input" data-action="input->autocomplete-address#search" autocomplete="off">
 						{# Autocomplete Results Container #}
 						<div data-autocomplete-address-target="results" class="position-absolute start-0 end-0 top-100 z-3"></div>
 					</div>
@@ -41,21 +41,16 @@
 									<twig:ux:icon class="text-secondary fs-5" name="lucide:radar"/>
 									<div
 										class="position-relative d-inline-block">
-										<!-- Invisible spacer to force width to the maximum possible value "Autour de moi" -->
-										<span class="fw-medium text-dark invisible" aria-hidden="true">Autour de moi</span>
+										<!-- Invisible spacer to force width to the maximum possible value "100 km" -->
+										<span class="fw-medium text-dark invisible" aria-hidden="true">100 km</span>
 										<!-- Actual absolute positioned label that updates -->
-										<span class="text-dark fw-medium text-truncate position-absolute start-0 top-0 w-100" id="distanceLabel">Autour de moi</span>
+										<span class="text-dark fw-medium text-truncate position-absolute start-0 top-0 w-100" id="distanceLabel">{{ distance }}
+											km</span>
 									</div>
 								</div>
 								<twig:ux:icon class="text-muted fs-5" name="lucide:chevron-down"/>
 							</button>
 							<ul class="dropdown-menu border-0 shadow-sm rounded-bottom-4 mt-0 p-0 w-100 limit-dropdown-menu">
-								<li>
-									<a class="dropdown-item limit-dropdown-item py-2 fw-medium d-flex align-items-center gap-2" href="#" data-action="click->autocomplete-address#locate" onclick="updateDistance('user_loc', 'Autour de moi', event)">
-									Autour de moi
-									</a>
-								</li>
-								<li><hr class="dropdown-divider m-0"></li>
 								<li>
 									<a class="dropdown-item limit-dropdown-item py-2 fw-medium" href="#" onclick="updateDistance('5', '5 km', event)">5 km</a>
 								</li>
@@ -63,10 +58,16 @@
 									<a class="dropdown-item limit-dropdown-item py-2 fw-medium" href="#" onclick="updateDistance('10', '10 km', event)">10 km</a>
 								</li>
 								<li>
-									<a class="dropdown-item limit-dropdown-item rounded-bottom-4 py-2 fw-medium" href="#" onclick="updateDistance('20', '20 km', event)">20 km</a>
+									<a class="dropdown-item limit-dropdown-item py-2 fw-medium" href="#" onclick="updateDistance('20', '20 km', event)">20 km</a>
+								</li>
+								<li>
+									<a class="dropdown-item limit-dropdown-item py-2 fw-medium" href="#" onclick="updateDistance('50', '50 km', event)">50 km</a>
+								</li>
+								<li>
+									<a class="dropdown-item limit-dropdown-item rounded-bottom-4 py-2 fw-medium" href="#" onclick="updateDistance('100', '100 km', event)">100 km</a>
 								</li>
 							</ul>
-							<input type="hidden" name="distance" id="distanceInput" value="user_loc">
+							<input type="hidden" name="distance" id="distanceInput" value="{{ distance }}">
 						</div>
 					</div>
 
@@ -83,7 +84,7 @@
 			class="row g-4 justify-content-center">
 
 			{# Left Column: Filters #}
-			<div class="col-lg-3 col-xl-2 zindex-moins1">
+			<div class="col-lg-3 col-xl-2">
 				<div class="sticky-top" style="top: 100px; max-height: calc(100vh - 120px); overflow-y: auto;">
 					<div
 						class="card border-0 shadow-sm p-4 h-100">
@@ -183,12 +184,27 @@
 
 					{# Pagination Controls #}
 					{% if totalPages > 1 or totalItems > 0 %}
+						{% set queryParams = [] %}
+						{% if location %}
+							{% set queryParams = queryParams|merge(['location=' ~ location]) %}
+						{% endif %}
+						{% if lat %}
+							{% set queryParams = queryParams|merge(['lat=' ~ lat]) %}
+						{% endif %}
+						{% if lon %}
+							{% set queryParams = queryParams|merge(['lon=' ~ lon]) %}
+						{% endif %}
+						{% if distance %}
+							{% set queryParams = queryParams|merge(['distance=' ~ distance]) %}
+						{% endif %}
+						{% set baseQuery = queryParams|length > 0 ? '&' ~ queryParams|join('&') : '' %}
+
 						<div
 							class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 p-3 bg-white rounded-pill shadow-sm">
 
 							{# Limit Dropdown #}
 							<div class="d-flex align-items-center gap-2 mb-3 mb-md-0 ms-2">
-								<span class="text-muted small fw-medium">Nombre de résultats</span>
+								<span class="text-muted small ms-2">Afficher</span>
 								<div class="dropdown">
 									<button class="btn btn-white rounded-pill d-flex align-items-center justify-content-between gap-2 border px-3 limit-dropdown-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-display="static">
 										<span class="fw-medium text-dark pe-2">{{ limit }}</span>
@@ -196,29 +212,27 @@
 									</button>
 									<ul class="dropdown-menu shadow-sm border rounded-bottom-4 mt-0 p-0 limit-dropdown-menu" style="min-width: 100%;">
 										<li>
-											<a class="dropdown-item limit-dropdown-item {% if limit == 10 %}bg-light fw-bold{% endif %} py-2 text-center text-dark" href="?limit=10&page=1">10</a>
+											<a class="dropdown-item limit-dropdown-item {% if limit == 10 %}bg-light fw-bold{% endif %} py-2 text-center text-dark" href="?limit=10&page=1{{ baseQuery }}">10</a>
 										</li>
 										<li>
-											<a class="dropdown-item limit-dropdown-item {% if limit == 20 %}bg-light fw-bold{% endif %} py-2 text-center text-dark" href="?limit=20&page=1">20</a>
+											<a class="dropdown-item limit-dropdown-item {% if limit == 20 %}bg-light fw-bold{% endif %} py-2 text-center text-dark" href="?limit=20&page=1{{ baseQuery }}">20</a>
 										</li>
 										<li>
-											<a class="dropdown-item limit-dropdown-item rounded-bottom-4 {% if limit == 50 %}bg-light fw-bold{% endif %} py-2 text-center text-dark" href="?limit=50&page=1">50</a>
+											<a class="dropdown-item limit-dropdown-item rounded-bottom-4 {% if limit == 50 %}bg-light fw-bold{% endif %} py-2 text-center text-dark" href="?limit=50&page=1{{ baseQuery }}">50</a>
 										</li>
 									</ul>
 								</div>
-								<span class="text-muted ms-2 small">sur
-									{{ totalItems }}
-									lignes</span>
+								<span class="text-muted ms-2 small">résultats sur {{ totalItems }}</span>
 							</div>
 
 							{# Page Nav Pills #}
 							<div
 								class="d-flex gap-2 pe-2">
 								{# First & Prev #}
-								<a href="?limit={{ limit }}&page=1" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage <= 1 %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;">
+								<a href="?limit={{ limit }}&page=1{{ baseQuery }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage <= 1 %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;">
 									<twig:ux:icon class="fs-6 text-muted" name="lucide:chevrons-left"/>
 								</a>
-								<a href="?limit={{ limit }}&page={{ currentPage - 1 }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage <= 1 %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;">
+								<a href="?limit={{ limit }}&page={{ currentPage - 1 }}{{ baseQuery }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage <= 1 %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;">
 									<twig:ux:icon class="fs-6 text-muted" name="lucide:chevron-left"/>
 								</a>
 
@@ -232,7 +246,7 @@
 								{% endif %}
 
 								{% for i in startPage..endPage %}
-									<a href="?limit={{ limit }}&page={{ i }}" class="btn rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover fw-medium {% if i == currentPage %}bg-dark text-white border-0{% else %}btn-white text-muted{% endif %}" style="width: 40px; height: 40px; {% if i != currentPage %}border: 1px solid #dee2e6;{% endif %}">
+									<a href="?limit={{ limit }}&page={{ i }}{{ baseQuery }}" class="btn rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover fw-medium {% if i == currentPage %}bg-dark text-white border-0{% else %}btn-white text-muted{% endif %}" style="width: 40px; height: 40px; {% if i != currentPage %}border: 1px solid #dee2e6;{% endif %}">
 										{{ i }}
 									</a>
 								{% endfor %}
@@ -240,16 +254,16 @@
 								{# Ellipsis logic #}
 								{% if endPage < totalPages %}
 									<span class="d-flex align-items-center justify-content-center text-muted px-1">...</span>
-									<a href="?limit={{ limit }}&page={{ totalPages }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover text-muted fw-medium" style="width: 40px; height: 40px; border: 1px solid #dee2e6;">
+									<a href="?limit={{ limit }}&page={{ totalPages }}{{ baseQuery }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover text-muted fw-medium" style="width: 40px; height: 40px; border: 1px solid #dee2e6;">
 										{{ totalPages }}
 									</a>
 								{% endif %}
 
 								{# Next & Last #}
-								<a href="?limit={{ limit }}&page={{ currentPage + 1 }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage >= totalPages %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;">
+								<a href="?limit={{ limit }}&page={{ currentPage + 1 }}{{ baseQuery }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage >= totalPages %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;">
 									<twig:ux:icon class="fs-6 text-muted" name="lucide:chevron-right"/>
 								</a>
-								<a href="?limit={{ limit }}&page={{ totalPages }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage >= totalPages %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;">
+								<a href="?limit={{ limit }}&page={{ totalPages }}{{ baseQuery }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage >= totalPages %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;">
 									<twig:ux:icon class="fs-6 text-muted" name="lucide:chevrons-right"/>
 								</a>
 							</div>
@@ -260,7 +274,7 @@
 			</div>
 
 			{# Right Column: Map #}
-			<div class="col-lg-3 d-none d-lg-block interactive-map">
+			<div class="col-lg-3 d-none d-lg-block">
 				<div class="sticky-top" style="top: 100px;">
 					<div class="bg-light rounded-4 d-flex align-items-center justify-content-center text-muted fw-bold shadow-sm position-relative overflow-hidden" style="aspect-ratio: 1/1;">
 						Carte Interactive
