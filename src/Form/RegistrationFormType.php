@@ -15,6 +15,7 @@ use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 
 class RegistrationFormType extends AbstractType
 {
@@ -23,7 +24,7 @@ class RegistrationFormType extends AbstractType
         $type = $options['type'];
 
         $builder
-            ->add('email', EmailType::class,[
+            ->add('email', EmailType::class, [
                 'required' => true,
             ])
             ->add('nom')
@@ -36,7 +37,9 @@ class RegistrationFormType extends AbstractType
                 ->add('codepostal')
                 ->add('telephone')
                 ->add('adressecabinet')
-                ->add('siret');
+                ->add('siret')
+                ->add('latitude', HiddenType::class, ['required' => false])
+                ->add('longitude', HiddenType::class, ['required' => false]);
         }
 
         if ($type === 'utilisateur') {
@@ -64,7 +67,7 @@ class RegistrationFormType extends AbstractType
             ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'mapped' => false,
-                'first_options'  => [
+                'first_options' => [
                     'label' => 'Mot de passe',
                     'attr' => ['autocomplete' => 'new-password']
                 ],
@@ -73,14 +76,14 @@ class RegistrationFormType extends AbstractType
                 ],
                 'invalid_message' => 'Les mots de passe ne correspondent pas.',
                 'constraints' => [
-                    new NotBlank([
-                        'message' => 'Veuillez entrer un mot de passe',
-                    ]),
-                    new Length([
-                        'min' => 6,
-                        'minMessage' => 'Minimum {{ limit }} caractères',
-                        'max' => 4096,
-                    ]),
+                    new NotBlank(
+                        message: 'Veuillez entrer un mot de passe',
+                    ),
+                    new Length(
+                        min: 6,
+                        minMessage: 'Minimum {{ limit }} caractères',
+                        max: 4096,
+                    ),
                 ],
             ]);
     }
@@ -93,7 +96,7 @@ class RegistrationFormType extends AbstractType
             'type' => 'user',
             'csrf_protection' => true,
             'csrf_field_name' => '_token',
-            'csrf_token_id'   => 'registration_item',
+            'csrf_token_id' => 'registration_item',
         ]);
     }
 }

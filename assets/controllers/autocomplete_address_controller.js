@@ -1,16 +1,10 @@
 import { Controller } from '@hotwired/stimulus';
 
-/*
- * This is an example Stimulus controller!
- *
- * Any element with a data-controller="hello" attribute will cause
- * this controller to be executed. The name "hello" comes from the filename:
- * hello_controller.js -> "hello"
- *
- * Delete this file or adapt it for your use!
- */
 export default class extends Controller {
-    static targets = ["input", "results", "lat", "lon"];
+    static targets = ["input", "results", "lat", "lon", "city", "postcode", "street"];
+    static values = {
+        theme: { type: String, default: 'search' } // 'search' or 'form'
+    };
 
     connect() {
         console.log('Autocomplete controller connected!');
@@ -23,9 +17,59 @@ export default class extends Controller {
         });
     }
 
+    onSubmit(event) {
+        // Only handle search mode (which uses form submission)
+        if (this.themeValue !== 'search') return;
+
+        // If the user hasn't typed anything in the location field...
+        if (this.inputTarget.value.trim() === '') {
+            event.preventDefault(); // Pause submission
+
+            if ("geolocation" in navigator) {
+                // To avoid multiple clicks, maybe disable the submit button visually, or add a loading state if we had one
+                this.inputTarget.placeholder = "Localisation en cours...";
+
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        // Success!
+                        if (this.hasLatTarget) this.latTarget.value = position.coords.latitude;
+                        if (this.hasLonTarget) this.lonTarget.value = position.coords.longitude;
+
+                        // Give some visual feedback that we are using their location
+                        this.inputTarget.value = "Ma position";
+
+                        // Proceed with submitting the form programmatically
+                        this.element.submit();
+                    },
+                    (error) => {
+                        console.error("Geolocation error:", error);
+                        // Fallback: If they deny or it fails, just submit empty or alert
+                        this.inputTarget.placeholder = "Position non trouvée";
+                        setTimeout(() => {
+                            this.element.submit(); // Force submission anyway (will just ignore distance filter)
+                        }, 500);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 5000,
+                        maximumAge: 0
+                    }
+                );
+            } else {
+                // Browser doesn't support geolocation, just submit
+                this.element.submit();
+            }
+        }
+    }
+
     async search() {
         const query = this.inputTarget.value;
         const inputWrapper = this.inputTarget.parentElement;
+
+        // Clear previous timeout if user is still typing
+        if (this.timeout) {
+            clearTimeout(this.timeout);
+        }
 
         if (query.length < 3) {
             this.resultsTarget.innerHTML = '';
@@ -33,100 +77,128 @@ export default class extends Controller {
             return;
         }
 
-        try {
-            const response = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=10`);
-            const data = await response.json();
+        // Set a new timeout for 1 second (1000ms)
+        this.timeout = setTimeout(async () => {
+            try {
+                let url = `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=10`;
+                if (this.themeValue === 'search') {
+                    url += `&type=municipality`;
+                }
+                const response = await fetch(url);
+                const data = await response.json();
 
-            this.resultsTarget.innerHTML = '';
-
-            if (data.features && data.features.length > 0) {
-                // Show results dropdown
-                this.resultsTarget.classList.remove('d-none');
-
-                // Style input wrapper to look merged
-                inputWrapper.classList.remove('rounded-pill');
-                inputWrapper.classList.add('rounded-top-4', 'rounded-bottom-0');
-
-                // Create a Wrapper to hold the list and the overlay
                 this.resultsTarget.innerHTML = '';
 
-                const wrapper = document.createElement('div');
-                wrapper.className = 'position-absolute w-100 z-3 mt-0 rounded-bottom-4 shadow-sm overflow-hidden bg-white';
-                wrapper.style.top = '100%';
-                wrapper.style.marginTop = '-1px';
+                if (data.features && data.features.length > 0) {
+                    // Show results dropdown
+                    this.resultsTarget.classList.remove('d-none');
 
-                const ul = document.createElement('ul');
-                // Removed position-absolute, top, etc. just standard list inside wrapper
-                ul.className = 'list-group list-group-flush section-scroll hidden-scrollbar overflow-auto';
-                ul.style.maxHeight = '300px';
-                ul.style.marginBottom = '0'; // Bootstrap reset
-
-                data.features.forEach(feature => {
-                    const li = document.createElement('li');
-                    li.className = 'list-group-item bg-white list-group-item-action border-0';
-                    li.style.cursor = 'pointer';
-
-                    // Format label with commas as requested
-                    let displayedLabel = feature.properties.label;
-                    if (feature.properties.type === 'housenumber' || feature.properties.type === 'street') {
-                        displayedLabel = `${feature.properties.name}, ${feature.properties.postcode}, ${feature.properties.city}`;
-                    } else if (feature.properties.type === 'municipality') {
-                        displayedLabel = `${feature.properties.city}, ${feature.properties.postcode}`;
+                    if (this.themeValue === 'search') {
+                        // Style input wrapper to look merged
+                        inputWrapper.classList.remove('rounded-pill');
+                        inputWrapper.classList.add('rounded-top-4', 'rounded-bottom-0');
                     }
 
-                    li.textContent = displayedLabel;
-                    li.dataset.lat = feature.geometry.coordinates[1];
-                    li.dataset.lon = feature.geometry.coordinates[0];
-                    li.dataset.label = displayedLabel;
+                    // Create a Wrapper to hold the list and the overlay
+                    this.resultsTarget.innerHTML = '';
 
-                    li.addEventListener('click', () => {
-                        this.selectAddress(feature, displayedLabel);
+                    const wrapper = document.createElement('div');
+                    if (this.themeValue === 'search') {
+                        wrapper.className = 'position-absolute w-100 z-3 mt-0 rounded-bottom-4 shadow-sm overflow-hidden bg-white  border-top-0';
+                        wrapper.style.top = '100%';
+                        wrapper.style.marginTop = '-1px';
+                    } else {
+                        wrapper.className = 'position-absolute w-100 z-3 mt-1 rounded shadow overflow-hidden bg-white border';
+                        wrapper.style.top = '100%';
+                    }
+
+                    const ul = document.createElement('ul');
+                    ul.className = 'list-group list-group-flush section-scroll hidden-scrollbar overflow-auto';
+                    ul.style.maxHeight = '300px';
+                    ul.style.marginBottom = '0'; // Bootstrap reset
+
+                    data.features.forEach(feature => {
+                        const li = document.createElement('li');
+                        li.className = 'list-group-item bg-white list-group-item-action border-0';
+                        li.style.cursor = 'pointer';
+
+                        // Format label with commas as requested
+                        let displayedLabel = feature.properties.label;
+                        if (feature.properties.type === 'housenumber' || feature.properties.type === 'street') {
+                            displayedLabel = `${feature.properties.name}, ${feature.properties.postcode}, ${feature.properties.city}`;
+                        } else if (feature.properties.type === 'municipality') {
+                            displayedLabel = `${feature.properties.city}, ${feature.properties.postcode}`;
+                        }
+
+                        li.textContent = displayedLabel;
+                        li.dataset.lat = feature.geometry.coordinates[1];
+                        li.dataset.lon = feature.geometry.coordinates[0];
+                        li.dataset.label = displayedLabel;
+
+                        li.addEventListener('mousedown', (e) => {
+                            e.preventDefault(); // Prevent focus loss on input
+                            this.selectAddress(feature, displayedLabel);
+                        });
+
+                        ul.appendChild(li);
                     });
 
-                    ul.appendChild(li);
-                });
+                    wrapper.appendChild(ul);
 
-                wrapper.appendChild(ul);
-
-                // Create Overlay
-                const overlay = document.createElement('div');
-                overlay.className = 'scroll-indicator hidden'; // Default hidden
-                wrapper.appendChild(overlay);
-
-                this.resultsTarget.appendChild(wrapper);
-
-                // Scroll Logic
-                const checkScroll = () => {
-                    // Check if scrollable
-                    const isScrollable = ul.scrollHeight > ul.clientHeight;
-                    // Check if at bottom (with small threshold)
-                    const isAtBottom = Math.ceil(ul.scrollTop + ul.clientHeight) >= ul.scrollHeight - 5;
-
-                    if (isScrollable && !isAtBottom) {
-                        overlay.classList.remove('hidden');
-                    } else {
-                        overlay.classList.add('hidden');
+                    // Create Overlay
+                    const overlay = document.createElement('div');
+                    let overlayClasses = 'scroll-indicator hidden';
+                    if (this.themeValue === 'search') {
+                        overlayClasses += ' rounded-bottom-4';
                     }
-                };
+                    overlay.className = overlayClasses;
+                    wrapper.appendChild(overlay);
 
-                // Attach listener
-                ul.addEventListener('scroll', checkScroll);
-                // Initial check after render
-                setTimeout(checkScroll, 0);
-            } else {
-                this.resultsTarget.classList.add('d-none');
+                    this.resultsTarget.appendChild(wrapper);
+
+                    // Scroll Logic
+                    const checkScroll = () => {
+                        // Check if scrollable
+                        const isScrollable = ul.scrollHeight > ul.clientHeight;
+                        // Check if at bottom (with small threshold)
+                        const isAtBottom = Math.ceil(ul.scrollTop + ul.clientHeight) >= ul.scrollHeight - 5;
+
+                        if (isScrollable && !isAtBottom) {
+                            overlay.classList.remove('hidden');
+                        } else {
+                            overlay.classList.add('hidden');
+                        }
+                    };
+
+                    // Attach listener
+                    ul.addEventListener('scroll', checkScroll);
+                    // Initial check after render
+                    setTimeout(checkScroll, 0);
+                } else {
+                    this.resultsTarget.classList.add('d-none');
+                    this.resetStyles(inputWrapper);
+                }
+            } catch (error) {
+                console.error('Error fetching address:', error);
                 this.resetStyles(inputWrapper);
             }
-        } catch (error) {
-            console.error('Error fetching address:', error);
-            this.resetStyles(inputWrapper);
-        }
+        }, 250);
     }
 
     selectAddress(feature, label) {
         this.inputTarget.value = label || feature.properties.label;
-        this.latTarget.value = feature.geometry.coordinates[1];
-        this.lonTarget.value = feature.geometry.coordinates[0];
+        if (this.hasLatTarget) this.latTarget.value = feature.geometry.coordinates[1];
+        if (this.hasLonTarget) this.lonTarget.value = feature.geometry.coordinates[0];
+
+        if (this.hasCityTarget) this.cityTarget.value = feature.properties.city || '';
+        if (this.hasPostcodeTarget) this.postcodeTarget.value = feature.properties.postcode || '';
+        if (this.hasStreetTarget) {
+            if (feature.properties.type === 'housenumber' || feature.properties.type === 'street') {
+                this.streetTarget.value = feature.properties.name || '';
+            } else {
+                this.streetTarget.value = ''; // Don't put city name in street field
+            }
+        }
 
         // Clear results
         this.resultsTarget.innerHTML = '';
@@ -151,8 +223,8 @@ export default class extends Controller {
                 const lat = position.coords.latitude;
                 const lon = position.coords.longitude;
 
-                this.latTarget.value = lat;
-                this.lonTarget.value = lon;
+                if (this.hasLatTarget) this.latTarget.value = lat;
+                if (this.hasLonTarget) this.lonTarget.value = lon;
 
                 // Reverse geocoding to get address name (optional but nice)
                 fetch(`https://api-adresse.data.gouv.fr/reverse/?lon=${lon}&lat=${lat}`)
