@@ -36,29 +36,34 @@
 					{# Distance Dropdown (Custom Design) #}
 					<div class="d-none d-md-block position-relative">
 						<div class="dropdown">
-							<button class="btn bg-white rounded-pill px-3 py-2 d-flex align-items-center justify-content-between gap-2 shadow-sm border-0 dropdown-toggle remove-caret" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 11rem;">
+							<button class="btn bg-white rounded-pill px-3 py-2 d-flex align-items-center justify-content-between gap-2 shadow-sm border-0 dropdown-toggle remove-caret limit-dropdown-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-display="static" style="min-width: 11rem;">
 								<div class="d-flex align-items-center gap-2">
 									<twig:ux:icon class="text-secondary fs-5" name="lucide:radar"/>
-									<span class="text-dark fw-medium text-truncate" id="distanceLabel">Autour de moi</span>
+									<div
+										class="position-relative d-inline-block">
+										<!-- Invisible spacer to force width to the maximum possible value "Autour de moi" -->
+										<span class="fw-medium text-dark invisible" aria-hidden="true">Autour de moi</span>
+										<!-- Actual absolute positioned label that updates -->
+										<span class="text-dark fw-medium text-truncate position-absolute start-0 top-0 w-100" id="distanceLabel">Autour de moi</span>
+									</div>
 								</div>
 								<twig:ux:icon class="text-muted fs-5" name="lucide:chevron-down"/>
 							</button>
-							<ul class="dropdown-menu border-0 shadow-lg rounded-4 mt-2 p-2 w-100 animate slide-in">
+							<ul class="dropdown-menu border-0 shadow-sm rounded-bottom-4 mt-0 p-0 w-100 limit-dropdown-menu">
 								<li>
-									<a class="dropdown-item rounded-3 mb-1 py-2 fw-medium d-flex align-items-center gap-2" href="#" data-action="click->autocomplete-address#locate" onclick="updateDistance('user_loc', 'Autour de moi', event)">
-										<twig:ux:icon class="fs-5 text-secondary" name="lucide:radar"/>
-										Autour de moi
+									<a class="dropdown-item limit-dropdown-item py-2 fw-medium d-flex align-items-center gap-2" href="#" data-action="click->autocomplete-address#locate" onclick="updateDistance('user_loc', 'Autour de moi', event)">
+									Autour de moi
 									</a>
 								</li>
-								<li><hr class="dropdown-divider my-1"></li>
+								<li><hr class="dropdown-divider m-0"></li>
 								<li>
-									<a class="dropdown-item rounded-3 mb-1 py-2 fw-medium" href="#" onclick="updateDistance('5', '5 km', event)">5 km</a>
+									<a class="dropdown-item limit-dropdown-item py-2 fw-medium" href="#" onclick="updateDistance('5', '5 km', event)">5 km</a>
 								</li>
 								<li>
-									<a class="dropdown-item rounded-3 mb-1 py-2 fw-medium" href="#" onclick="updateDistance('10', '10 km', event)">10 km</a>
+									<a class="dropdown-item limit-dropdown-item py-2 fw-medium" href="#" onclick="updateDistance('10', '10 km', event)">10 km</a>
 								</li>
 								<li>
-									<a class="dropdown-item rounded-3 mb-1 py-2 fw-medium" href="#" onclick="updateDistance('20', '20 km', event)">20 km</a>
+									<a class="dropdown-item limit-dropdown-item rounded-bottom-4 py-2 fw-medium" href="#" onclick="updateDistance('20', '20 km', event)">20 km</a>
 								</li>
 							</ul>
 							<input type="hidden" name="distance" id="distanceInput" value="user_loc">
@@ -271,10 +276,10 @@
 
 	<script>
 		function updateDistance(value, label, event) {
-			event.preventDefault();
-			document.getElementById('distanceInput').value = value;
-			document.getElementById('distanceLabel').textContent = label;
-		}
+event.preventDefault();
+document.getElementById('distanceInput').value = value;
+document.getElementById('distanceLabel').textContent = label;
+}
 	</script>
 
 	<style>
