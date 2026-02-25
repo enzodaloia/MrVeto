@@ -1,16 +1,10 @@
 import { Controller } from '@hotwired/stimulus';
 
-/*
- * This is an example Stimulus controller!
- *
- * Any element with a data-controller="hello" attribute will cause
- * this controller to be executed. The name "hello" comes from the filename:
- * hello_controller.js -> "hello"
- *
- * Delete this file or adapt it for your use!
- */
 export default class extends Controller {
-    static targets = ["input", "results", "lat", "lon"];
+    static targets = ["input", "results", "lat", "lon", "city", "postcode", "street"];
+    static values = {
+        theme: { type: String, default: 'search' } // 'search' or 'form'
+    };
 
     connect() {
         console.log('Autocomplete controller connected!');
@@ -43,20 +37,26 @@ export default class extends Controller {
                 // Show results dropdown
                 this.resultsTarget.classList.remove('d-none');
 
-                // Style input wrapper to look merged
-                inputWrapper.classList.remove('rounded-pill');
-                inputWrapper.classList.add('rounded-top-4', 'rounded-bottom-0');
+                if (this.themeValue === 'search') {
+                    // Style input wrapper to look merged
+                    inputWrapper.classList.remove('rounded-pill');
+                    inputWrapper.classList.add('rounded-top-4', 'rounded-bottom-0');
+                }
 
                 // Create a Wrapper to hold the list and the overlay
                 this.resultsTarget.innerHTML = '';
 
                 const wrapper = document.createElement('div');
-                wrapper.className = 'position-absolute w-100 z-3 mt-0 rounded-bottom-4 shadow-sm overflow-hidden bg-white';
-                wrapper.style.top = '100%';
-                wrapper.style.marginTop = '-1px';
+                if (this.themeValue === 'search') {
+                    wrapper.className = 'position-absolute w-100 z-3 mt-0 rounded-bottom-4 shadow-sm overflow-hidden bg-white  border-top-0';
+                    wrapper.style.top = '100%';
+                    wrapper.style.marginTop = '-1px';
+                } else {
+                    wrapper.className = 'position-absolute w-100 z-3 mt-1 rounded shadow overflow-hidden bg-white border';
+                    wrapper.style.top = '100%';
+                }
 
                 const ul = document.createElement('ul');
-                // Removed position-absolute, top, etc. just standard list inside wrapper
                 ul.className = 'list-group list-group-flush section-scroll hidden-scrollbar overflow-auto';
                 ul.style.maxHeight = '300px';
                 ul.style.marginBottom = '0'; // Bootstrap reset
@@ -79,7 +79,8 @@ export default class extends Controller {
                     li.dataset.lon = feature.geometry.coordinates[0];
                     li.dataset.label = displayedLabel;
 
-                    li.addEventListener('click', () => {
+                    li.addEventListener('mousedown', (e) => {
+                        e.preventDefault(); // Prevent focus loss on input
                         this.selectAddress(feature, displayedLabel);
                     });
 
@@ -90,7 +91,11 @@ export default class extends Controller {
 
                 // Create Overlay
                 const overlay = document.createElement('div');
-                overlay.className = 'scroll-indicator hidden'; // Default hidden
+                let overlayClasses = 'scroll-indicator hidden';
+                if (this.themeValue === 'search') {
+                    overlayClasses += ' rounded-bottom-4';
+                }
+                overlay.className = overlayClasses;
                 wrapper.appendChild(overlay);
 
                 this.resultsTarget.appendChild(wrapper);
@@ -125,8 +130,18 @@ export default class extends Controller {
 
     selectAddress(feature, label) {
         this.inputTarget.value = label || feature.properties.label;
-        this.latTarget.value = feature.geometry.coordinates[1];
-        this.lonTarget.value = feature.geometry.coordinates[0];
+        if (this.hasLatTarget) this.latTarget.value = feature.geometry.coordinates[1];
+        if (this.hasLonTarget) this.lonTarget.value = feature.geometry.coordinates[0];
+
+        if (this.hasCityTarget) this.cityTarget.value = feature.properties.city || '';
+        if (this.hasPostcodeTarget) this.postcodeTarget.value = feature.properties.postcode || '';
+        if (this.hasStreetTarget) {
+            if (feature.properties.type === 'housenumber' || feature.properties.type === 'street') {
+                this.streetTarget.value = feature.properties.name || '';
+            } else {
+                this.streetTarget.value = ''; // Don't put city name in street field
+            }
+        }
 
         // Clear results
         this.resultsTarget.innerHTML = '';
@@ -151,8 +166,8 @@ export default class extends Controller {
                 const lat = position.coords.latitude;
                 const lon = position.coords.longitude;
 
-                this.latTarget.value = lat;
-                this.lonTarget.value = lon;
+                if (this.hasLatTarget) this.latTarget.value = lat;
+                if (this.hasLonTarget) this.lonTarget.value = lon;
 
                 // Reverse geocoding to get address name (optional but nice)
                 fetch(`https://api-adresse.data.gouv.fr/reverse/?lon=${lon}&lat=${lat}`)
