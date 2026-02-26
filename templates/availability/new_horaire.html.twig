@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="container py-4" style="max-width: 680px;">
+  <h1 class="h4 mb-3">Ajouter un créneau</h1>
+
+  {{ form_start(form) }}
+    {{ form_row(form.dayOfWork) }}
+    <div class="row">
+      <div class="col-md-6">{{ form_row(form.startTime) }}</div>
+      <div class="col-md-6">{{ form_row(form.endTime) }}</div>
+    </div>
+    <button class="btn btn-primary">Enregistrer</button>
+    <a class="btn btn-link" href="{{ path('app_availability') }}">Retour</a>
+  {{ form_end(form) }}
+</div>
+{% endblock %}

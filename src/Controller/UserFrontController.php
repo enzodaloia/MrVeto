@@ -73,82 +73,67 @@ final class UserFrontController extends AbstractController
     #[Route('/{id}/update_vet', name: 'app_user_front_update_vet', methods: ['POST'])]
     public function updateVet(Request $request, User $user, EntityManagerInterface $entityManager): JsonResponse
     {
-        if ($this->getUser() !== $user && !$this->isGranted('ROLE_ADMIN')) {
-             return new JsonResponse(['error' => 'Access Denied'], Response::HTTP_FORBIDDEN);
+        $authorizationError = $this->validateUserAuthorization($user);
+        if ($authorizationError !== null) {
+            return $authorizationError;
         }
 
         $data = json_decode($request->getContent(), true);
-
         if (!$data) {
              return new JsonResponse(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
         }
 
-        if (isset($data['nom'])) {
-            $user->setNom($data['nom']);
-        }
-        if (isset($data['prenom'])) {
-            $user->setPrenom($data['prenom']);
-        }
-        if (isset($data['adresse'])) {
-            $user->setAdresse($data['adresse']);
-        }
-        if (isset($data['telephone'])) {
-            $user->setTelephone($data['telephone']);
-        }
-        if (isset($data['siret'])) {
-            $user->setSiret($data['siret']);
-        }
-        if (isset($data['adressecabinet'])) {
-            $user->setAdressecabinet($data['adressecabinet']);
-        }
-        if (isset($data['ville'])) {
-            $user->setVille($data['ville']);
-        }
-        if (isset($data['codepostal'])) {
-            $user->setCodepostal($data['codepostal']);
-        }
-        if (isset($data['email'])) {
-            $user->setEmail($data['email']);
+        $form = $this->createForm(UserType::class, $user, ['csrf_protection' => false]);
+        $form->submit($data, false);
+
+       if ($form->isValid()) {
+            $entityManager->flush();
+            return new JsonResponse(['status' => 'success'], Response::HTTP_OK);
         }
 
-        $entityManager->flush();
+        $errors = [];
+        foreach ($form->getErrors(true, true) as $error) {
+            $errors[] = $error->getMessage();
+        }
 
-        return new JsonResponse(['status' => 'success']);
+        return new JsonResponse(['error' => implode(', ', $errors)], Response::HTTP_BAD_REQUEST);
+    }
+
+    private function validateUserAuthorization(User $user): ?JsonResponse
+    {
+        if ($this->getUser() !== $user && !$this->isGranted('ROLE_ADMIN')) {
+             return new JsonResponse(['error' => 'Access Denied'], Response::HTTP_FORBIDDEN);
+        }
+        return null;
     }
 
     #[Route('/{id}/update_user', name: 'app_user_front_update_user', methods: ['POST'])]
     public function updateUser(Request $request, User $user, EntityManagerInterface $entityManager): JsonResponse
     {
-        // Check if the current user is allowed to edit this profile
-        if ($this->getUser() !== $user && !$this->isGranted('ROLE_ADMIN')) {
-             return new JsonResponse(['error' => 'Access Denied'], Response::HTTP_FORBIDDEN);
+        $authorizationError = $this->validateUserAuthorization($user);
+        if ($authorizationError !== null) {
+            return $authorizationError;
         }
 
         $data = json_decode($request->getContent(), true);
-
         if (!$data) {
              return new JsonResponse(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
         }
 
-        if (isset($data['nom'])) {
-            $user->setNom($data['nom']);
-        }
-        if (isset($data['prenom'])) {
-            $user->setPrenom($data['prenom']);
-        }
-        if (isset($data['adresse'])) {
-            $user->setAdresse($data['adresse']);
-        }
-        if (isset($data['telephone'])) {
-            $user->setTelephone($data['telephone']);
-        }
-        if (isset($data['email'])) {
-            $user->setEmail($data['email']);
+        $form = $this->createForm(UserType::class, $user, ['csrf_protection' => false]);
+        $form->submit($data, false);
+
+       if ($form->isValid()) {
+            $entityManager->flush();
+            return new JsonResponse(['status' => 'success'], Response::HTTP_OK);
         }
 
-        $entityManager->flush();
+        $errors = [];
+        foreach ($form->getErrors(true, true) as $error) {
+            $errors[] = $error->getMessage();
+        }
 
-        return new JsonResponse(['status' => 'success']);
+        return new JsonResponse(['error' => implode(', ', $errors)], Response::HTTP_BAD_REQUEST);
     }
 
     #[Route('/{id}/edit', name: 'app_user_front_edit', methods: ['GET', 'POST'])]
