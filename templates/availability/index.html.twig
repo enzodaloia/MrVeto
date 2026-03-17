@@ -2,21 +2,7 @@
 
 {% block dashboard_body %}
 	<style>
-		input.time-no-icon[type="time"] {
-			appearance: textfield;
-			-webkit-appearance: none;
-			-moz-appearance: textfield;
-			background-image: none !important;
-		}
-		input.time-no-icon[type="time"]::-webkit-calendar-picker-indicator,
-		input.time-no-icon[type="time"]::-webkit-clear-button,
-		input.time-no-icon[type="time"]::-webkit-inner-spin-button {
-			display: none !important;
-			opacity: 0 !important;
-			pointer-events: none !important;
-			width: 0 !important;
-			margin: 0 !important;
-		}
+
 		.fc-toolbar-title {
 			font-size: 1.25rem !important;
 			font-weight: 500 !important;
@@ -43,6 +29,10 @@
 
 		}
 
+		.day-row.day-closed td:first-child {
+			color: var(--bs-neutral-50);
+		}
+
 		.status-label {
 			white-space: nowrap;
 			min-width: 52px;
@@ -65,12 +55,30 @@
 			background-color: transparent !important;
 
 		}
-		.tw .ampm-badge {
+		input[type="time"]::-webkit-calendar-picker-indicator {
+			opacity: 0;
 			position: absolute;
 			right: 8px;
+			width: 16px;
+			height: 16px;
+			cursor: pointer;
+		}
+		.tw .ampm-badge {
+			position: absolute;
+			left: 68px;
 			font-size: 0.72rem;
 			color: #6c757d;
 			pointer-events: none;
+			margin-left: 4px;
+		}
+		.tw .time-icon {
+			position: absolute;
+			right: 8px;
+			color: #6c757d;
+			pointer-events: none;
+		}
+		.tw.is-invalid input {
+			border-color: var(--bs-danger) !important;
 		}
 		.add-afternoon-btn svg {
 			width: 20px !important;
@@ -86,24 +94,25 @@
 		}
 		.closed-text {
 			display: none;
+			font-size: 0.9rem;
+
 		}
 
 		.availability-table tbody td {
-    vertical-align: top;
-    padding-top: 1.25rem;
-}
+			vertical-align: top;
+			padding-top: 1.25rem;
+		}
 	</style>
 
 	<div class="container-fluid py-4 px-4">
 
-		
 
 		{% for message in app.flashes('success') %}
 			<div class="alert alert-success rounded-3 border-0 shadow-sm">{{ message }}</div>
 		{% endfor %}
 
 		<div id="calendar-view">
-					<h1 class="h4 fw-bold text-primary my-3">Mes disponibilités</h1>
+			<h1 class="h4 fw-bold text-primary my-3">Mes disponibilités</h1>
 			<div class="d-flex align-items-center gap-2 mb-4 p-3 rounded-3 bg-primary-bg">
 				<button class="btn btn-sm rounded-pill px-3 bg-white text-info" type="button" onclick="document.getElementById('calendar-date-picker').showPicker()">
 					<i class="bi bi-calendar3 me-1"></i>
@@ -174,9 +183,13 @@
 										<div class="open-fields">
 											<div class="d-flex align-items-center flex-wrap gap-2">
 												<div class="tw">{{ form_widget(horaire.morningStart, { attr: { class: 'form-control time-no-icon morning-start' } }) }}<span class="ampm-badge"></span>
+													<i data-lucide="clock" class="time-icon" style="width:20px;height:20px;"></i>
+
 												</div>
 												<span class="text-neutral-60">à</span>
 												<div class="tw">{{ form_widget(horaire.morningEnd, { attr: { class: 'form-control time-no-icon morning-end' } }) }}<span class="ampm-badge"></span>
+													<i data-lucide="clock" class="time-icon" style="width:20px;height:20px;"></i>
+
 												</div>
 												<button type="button" class="btn btn-light rounded-circle slot-btn add-afternoon-btn d-flex align-items-center justify-content-center">
 													<i data-lucide="plus"></i>
@@ -185,9 +198,13 @@
 
 											<div class="afternoon-row mt-2 align-items-center flex-wrap gap-2">
 												<div class="tw">{{ form_widget(horaire.afternoonStart, { attr: { class: 'form-control time-no-icon afternoon-start' } }) }}<span class="ampm-badge"></span>
+													<i data-lucide="clock" class="time-icon" style="width:20px;height:20px;"></i>
+
 												</div>
 												<span class="text-neutral-60">à</span>
 												<div class="tw">{{ form_widget(horaire.afternoonEnd, { attr: { class: 'form-control time-no-icon afternoon-end' } }) }}<span class="ampm-badge"></span>
+													<i data-lucide="clock" class="time-icon" style="width:20px;height:20px;"></i>
+
 												</div>
 												<button type="button" class="btn btn-light rounded-circle slot-btn remove-afternoon-btn d-flex align-items-center justify-content-center">
 													<i data-lucide="x" style="width:18px;height:18px;"></i>
@@ -229,7 +246,7 @@
 					</p>
 					<p class="mb-0 text-muted">
 						Les modifications apportées ici s'appliquent immédiatement à votre calendrier de prise de rendez-vous en ligne.
-																																																																																																																								Pour des exceptions ponctuelles (vacances, urgences), veuillez utiliser l'onglet "Calendrier".
+																																																																																																																																																																		Pour des exceptions ponctuelles (vacances, urgences), veuillez utiliser l'onglet "Calendrier".
 					</p>
 				</div>
 			</div>
@@ -252,208 +269,230 @@
 	 <script src="https://unpkg.com/lucide@latest"></script>
 
 	 <script>
-													document.addEventListener('DOMContentLoaded', function () {
-									    const calendarView    = document.getElementById('calendar-view');
-									    const formView        = document.getElementById('form-view');
-									    const btnShowForm     = document.getElementById('btn-show-form');
-									    const btnBackCalendar = document.getElementById('btn-back-calendar');
-									    const btnApplyWeek    = document.getElementById('btn-apply-week');
-									    const datePicker      = document.getElementById('calendar-date-picker');
-									    const formEl          = document.getElementById('disponibilite-form');
-									
-									    // ── AM/PM ─────────────────────────────────────────────────────────────
-									    function updateAmPm(row) {
-									        row.querySelectorAll('.ampm-badge').forEach(function (badge, i) {
-									            const inputs = row.querySelectorAll('input[type="time"]');
-									            const input  = inputs[i];
-									            if (!input) return;
-									            const val = input.value;
-									            badge.textContent = (!val || val === '00:00') ? '' : (parseInt(val.split(':')[0], 10) < 12 ? 'AM' : 'PM');
-									        });
-									    }
-									
-									    // ── Calendrier ────────────────────────────────────────────────────────
-									    const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
-									        locale: 'fr',
-									        initialView: 'timeGridWeek',
-									        headerToolbar: {
-									            left:   'prev,next today',
-									            center: 'title',
-									            right:  'timeGridWeek,timeGridDay'
-									        },
-									        slotMinTime:  '07:00:00',
-									        slotMaxTime:  '23:59:00',
-									        slotDuration: '00:30:00',
-									        allDaySlot:   false,
-									        nowIndicator: true,
-									        height: 'auto',
-									        eventSources: [{ url: '{{ path("api_availability") }}' }],
-									        buttonText: {
-									            today: "Aujourd'hui",
-									            week:  'Semaine',
-									            day:   'Jour'
-									        }
-									    });
-									
-									    calendar.render();
-									
-									    datePicker?.addEventListener('change', function () {
-									        if (this.value) {
-									            calendar.gotoDate(this.value);
-									            this.value = '';
-									        }
-									    });
-									
-									    btnShowForm?.addEventListener('click', function () {
-									        calendarView.style.display = 'none';
-									        formView.style.display = 'block';
-									    });
-									
-									    btnBackCalendar?.addEventListener('click', function () {
-									        formView.style.display = 'none';
-									        calendarView.style.display = 'block';
-									    });
-									
-									    // ── Mise à jour visuelle d'une ligne ──────────────────────────────────
-									    function updateRow(row) {
-									        const checkbox       = row.querySelector('.day-checkbox');
-									        const status         = row.querySelector('.status-label');
-									        const openFields     = row.querySelector('.open-fields');
-									        const closedText     = row.querySelector('.closed-text');
-									        const afternoon      = row.querySelector('.afternoon-row');
-									        const isOpen         = checkbox.checked;
-									        const hasAfternoon   = row.dataset.afternoonVisible === '1';
-									
-									        status.textContent = isOpen ? 'OUVERT' : 'FERMÉ';
-											status.classList.toggle('text-primary', isOpen);
-											status.classList.toggle('text-neutral-50', !isOpen);
-											if (hasAfternoon) {
-    afternoon.classList.remove('d-none');
-} else {
-    afternoon.classList.add('d-none');
-}
-									
-									        if (isOpen) {
-									            row.classList.remove('day-closed');
-									            openFields.style.display = 'block';
-									            closedText.style.display = 'none';
-									            afternoon.style.display  = hasAfternoon ? 'flex' : 'none';
-									        } else {
-									            row.classList.add('day-closed');
-									            openFields.style.display = 'none';
-									            closedText.style.display = 'block';
-									            afternoon.style.display  = 'none';
-									        }
-									    }
-									
-									    // ── Listeners par ligne ───────────────────────────────────────────────
-									    document.querySelectorAll('.day-row').forEach(function (row) {
-									        const checkbox       = row.querySelector('.day-checkbox');
-									        const addBtn         = row.querySelector('.add-afternoon-btn');
-									        const removeBtn      = row.querySelector('.remove-afternoon-btn');
-									        const resetBtn       = row.querySelector('.reset-day-btn');
-									        const afternoonStart = row.querySelector('.afternoon-start');
-									        const afternoonEnd   = row.querySelector('.afternoon-end');
-									        const morningStart   = row.querySelector('.morning-start');
-									        const morningEnd     = row.querySelector('.morning-end');
-									
-									        updateRow(row);
-									        updateAmPm(row);
-									
-									        checkbox.addEventListener('change', () => { updateRow(row); updateAmPm(row); });
-									
-									        addBtn.addEventListener('click', function () {
-									            checkbox.checked = true;
-									            row.dataset.afternoonVisible = '1';
-												row.querySelector('.afternoon-row').style.display = 'flex';
-									            if (!afternoonStart.value || afternoonStart.value === '00:00') afternoonStart.value = '14:00';
-									            if (!afternoonEnd.value   || afternoonEnd.value   === '00:00') afternoonEnd.value   = '18:00';
-									            updateRow(row);
-									            updateAmPm(row);
-									        });
-									
-									        removeBtn.addEventListener('click', function () {
-												row.dataset.afternoonVisible = '0';
-												afternoonStart.value = '';
-												afternoonEnd.value   = '';
-    row.querySelector('.afternoon-row').classList.add('d-none');
-												updateRow(row);
-												updateAmPm(row);
-											});
-									
-									        resetBtn.addEventListener('click', function () {
-									            checkbox.checked             = false;
-									            row.dataset.afternoonVisible = '0';
-									            morningStart.value           = '';
-									            morningEnd.value             = '';
-									            afternoonStart.value         = '';
-									            afternoonEnd.value           = '';
-									            updateRow(row);
-									            updateAmPm(row);
-									        });
-									
-									        row.querySelectorAll('input[type="time"]').forEach(function (input) {
-									            input.addEventListener('change', () => updateAmPm(row));
-									        });
-									    });
-									
-									    // ── Appliquer à toute la semaine ──────────────────────────────────────
-									    btnApplyWeek?.addEventListener('click', function () {
-									        const rows   = document.querySelectorAll('.day-row');
-									        const monday = rows[0];
-									        if (!monday) return;
-									
-									        const srcOpen           = monday.querySelector('.day-checkbox').checked;
-									        const srcMorningStart   = monday.querySelector('.morning-start').value;
-									        const srcMorningEnd     = monday.querySelector('.morning-end').value;
-									        const srcAfternoonStart = monday.querySelector('.afternoon-start').value;
-									        const srcAfternoonEnd   = monday.querySelector('.afternoon-end').value;
-									        const srcAfternoon      = monday.dataset.afternoonVisible;
-									
-									        rows.forEach(function (row, index) {
-									            if (index === 0) return;
-									            row.querySelector('.day-checkbox').checked      = srcOpen;
-									            row.querySelector('.morning-start').value       = srcMorningStart;
-									            row.querySelector('.morning-end').value         = srcMorningEnd;
-									            row.querySelector('.afternoon-start').value     = srcAfternoonStart;
-									            row.querySelector('.afternoon-end').value       = srcAfternoonEnd;
-									            row.dataset.afternoonVisible                    = srcAfternoon;
-									            updateRow(row);
-									            updateAmPm(row);
-									        });
-									    });
-									
-									    // ── Soumission AJAX ───────────────────────────────────────────────────
-									    formEl?.addEventListener('submit', function (e) {
-									        e.preventDefault();
-									
-									        document.querySelectorAll('.day-row').forEach(function (row) {
-									            const checkbox = row.querySelector('.day-checkbox');
-									            if (!checkbox.checked) {
-									                row.querySelector('.morning-start').value   = '';
-									                row.querySelector('.morning-end').value     = '';
-									                row.querySelector('.afternoon-start').value = '';
-									                row.querySelector('.afternoon-end').value   = '';
-									            }
-									        });
-									
-									        fetch(window.location.href, {
-									            method:  'POST',
-									            body:    new FormData(formEl),
-									            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-									        })
-									        .then(res => res.json())
-									        .then(data => {
-									            if (data.success) {
-									                formView.style.display     = 'none';
-									                calendarView.style.display = 'block';
-									                calendar.refetchEvents();
-									            }
-									        })
-									        .catch(() => alert('Une erreur est survenue.'));
-									    });
-									
-									    if (window.lucide) lucide.createIcons();
-									});
-																				</script>
+																				document.addEventListener('DOMContentLoaded', function () {
+																    const calendarView    = document.getElementById('calendar-view');
+																    const formView        = document.getElementById('form-view');
+																    const btnShowForm     = document.getElementById('btn-show-form');
+																    const btnBackCalendar = document.getElementById('btn-back-calendar');
+																    const btnApplyWeek    = document.getElementById('btn-apply-week');
+																    const datePicker      = document.getElementById('calendar-date-picker');
+																    const formEl          = document.getElementById('disponibilite-form');
+																
+																    // ── AM/PM ─────────────────────────────────────────────────────────────
+																    function updateAmPm(row) {
+																        row.querySelectorAll('.ampm-badge').forEach(function (badge, i) {
+																            const inputs = row.querySelectorAll('input[type="time"]');
+																            const input  = inputs[i];
+																            if (!input) return;
+																            const val = input.value;
+																            badge.textContent = (!val || val === '00:00') ? '' : (parseInt(val.split(':')[0], 10) < 12 ? 'AM' : 'PM');
+																        });
+																    }
+																
+																    // ── Calendrier ────────────────────────────────────────────────────────
+																    const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+																        locale: 'fr',
+																        initialView: 'timeGridWeek',
+																        headerToolbar: {
+																            left:   'prev,next today',
+																            center: 'title',
+																            right:  'timeGridWeek,timeGridDay'
+																        },
+																        slotMinTime:  '07:00:00',
+																        slotMaxTime:  '23:59:00',
+																        slotDuration: '00:30:00',
+																        allDaySlot:   false,
+																        nowIndicator: true,
+																        height: 'auto',
+																        eventSources: [{ url: '{{ path("api_availability") }}' }],
+																        buttonText: {
+																            today: "Aujourd'hui",
+																            week:  'Semaine',
+																            day:   'Jour'
+																        }
+																    });
+																
+																    calendar.render();
+																
+																    datePicker?.addEventListener('change', function () {
+																        if (this.value) {
+																            calendar.gotoDate(this.value);
+																            this.value = '';
+																        }
+																    });
+																
+																    btnShowForm?.addEventListener('click', function () {
+																        calendarView.style.display = 'none';
+																        formView.style.display = 'block';
+																    });
+																
+																    btnBackCalendar?.addEventListener('click', function () {
+																        formView.style.display = 'none';
+																        calendarView.style.display = 'block';
+																    });
+																
+																    // ── Mise à jour visuelle d'une ligne ──────────────────────────────────
+																    function updateRow(row) {
+																        const checkbox       = row.querySelector('.day-checkbox');
+																        const status         = row.querySelector('.status-label');
+																        const openFields     = row.querySelector('.open-fields');
+																        const closedText     = row.querySelector('.closed-text');
+																        const afternoon      = row.querySelector('.afternoon-row');
+																        const isOpen         = checkbox.checked;
+																        const hasAfternoon   = row.dataset.afternoonVisible === '1';
+																
+																        status.textContent = isOpen ? 'OUVERT' : 'FERMÉ';
+																		status.classList.toggle('text-primary', isOpen);
+																		status.classList.toggle('text-neutral-50', !isOpen);
+																		if (hasAfternoon) {
+							    afternoon.classList.remove('d-none');
+							} else {
+							    afternoon.classList.add('d-none');
+							}
+																
+																        if (isOpen) {
+																            row.classList.remove('day-closed');
+																            openFields.style.display = 'block';
+																            closedText.style.display = 'none';
+																            afternoon.style.display  = hasAfternoon ? 'flex' : 'none';
+																        } else {
+																            row.classList.add('day-closed');
+																            openFields.style.display = 'none';
+																            closedText.style.display = 'block';
+																            afternoon.style.display  = 'none';
+																        }
+																    }
+																
+																    // ── Listeners par ligne ───────────────────────────────────────────────
+																    document.querySelectorAll('.day-row').forEach(function (row) {
+																        const checkbox       = row.querySelector('.day-checkbox');
+																        const addBtn         = row.querySelector('.add-afternoon-btn');
+																        const removeBtn      = row.querySelector('.remove-afternoon-btn');
+																        const resetBtn       = row.querySelector('.reset-day-btn');
+																        const afternoonStart = row.querySelector('.afternoon-start');
+																        const afternoonEnd   = row.querySelector('.afternoon-end');
+																        const morningStart   = row.querySelector('.morning-start');
+																        const morningEnd     = row.querySelector('.morning-end');
+																
+																        updateRow(row);
+																        updateAmPm(row);
+																
+																        checkbox.addEventListener('change', () => { updateRow(row); updateAmPm(row); });
+																
+																        addBtn.addEventListener('click', function () {
+																            checkbox.checked = true;
+																            row.dataset.afternoonVisible = '1';
+																			row.querySelector('.afternoon-row').style.display = 'flex';
+																            if (!afternoonStart.value || afternoonStart.value === '00:00') afternoonStart.value = '14:00';
+																            if (!afternoonEnd.value   || afternoonEnd.value   === '00:00') afternoonEnd.value   = '18:00';
+																            updateRow(row);
+																            updateAmPm(row);
+																        });
+																
+																        removeBtn.addEventListener('click', function () {
+																			row.dataset.afternoonVisible = '0';
+																			afternoonStart.value = '';
+																			afternoonEnd.value   = '';
+							    row.querySelector('.afternoon-row').classList.add('d-none');
+																			updateRow(row);
+																			updateAmPm(row);
+																		});
+																
+																        resetBtn.addEventListener('click', function () {
+																            checkbox.checked             = false;
+																            row.dataset.afternoonVisible = '0';
+																            morningStart.value           = '';
+																            morningEnd.value             = '';
+																            afternoonStart.value         = '';
+																            afternoonEnd.value           = '';
+																            updateRow(row);
+																            updateAmPm(row);
+																        });
+																
+																        row.querySelectorAll('input[type="time"]').forEach(function (input) {
+																            input.addEventListener('change', () => updateAmPm(row));
+																        });
+																    });
+																
+																    // ── Appliquer à toute la semaine ──────────────────────────────────────
+																    btnApplyWeek?.addEventListener('click', function () {
+																        const rows   = document.querySelectorAll('.day-row');
+																        const monday = rows[0];
+																        if (!monday) return;
+																
+																        const srcOpen           = monday.querySelector('.day-checkbox').checked;
+																        const srcMorningStart   = monday.querySelector('.morning-start').value;
+																        const srcMorningEnd     = monday.querySelector('.morning-end').value;
+																        const srcAfternoonStart = monday.querySelector('.afternoon-start').value;
+																        const srcAfternoonEnd   = monday.querySelector('.afternoon-end').value;
+																        const srcAfternoon      = monday.dataset.afternoonVisible;
+																
+																        rows.forEach(function (row, index) {
+																            if (index === 0) return;
+																            row.querySelector('.day-checkbox').checked      = srcOpen;
+																            row.querySelector('.morning-start').value       = srcMorningStart;
+																            row.querySelector('.morning-end').value         = srcMorningEnd;
+																            row.querySelector('.afternoon-start').value     = srcAfternoonStart;
+																            row.querySelector('.afternoon-end').value       = srcAfternoonEnd;
+																            row.dataset.afternoonVisible                    = srcAfternoon;
+																            updateRow(row);
+																            updateAmPm(row);
+																        });
+																    });
+																
+																    // ── Soumission AJAX ───────────────────────────────────────────────────
+																    formEl?.addEventListener('submit', function (e) {
+			    e.preventDefault();
+			
+			    let hasError = false;
+			
+			    document.querySelectorAll('.day-row').forEach(function (row) {
+			        const checkbox = row.querySelector('.day-checkbox');
+			        if (!checkbox.checked) {
+			            row.querySelector('.morning-start').value   = '';
+			            row.querySelector('.morning-end').value     = '';
+			            row.querySelector('.afternoon-start').value = '';
+			            row.querySelector('.afternoon-end').value   = '';
+			            return;
+			        }
+			
+			        const morningEnd     = row.querySelector('.morning-end').value;
+			        const afternoonStart = row.querySelector('.afternoon-start').value;
+			
+			        if (row.dataset.afternoonVisible === '1' && morningEnd && afternoonStart) {
+			            if (afternoonStart <= morningEnd) {
+			                hasError = true;
+			                row.querySelector('.morning-end').closest('.tw').classList.add('is-invalid');
+		row.querySelector('.afternoon-start').closest('.tw').classList.add('is-invalid');
+			            } else {
+			                row.querySelector('.morning-end').closest('.tw').classList.remove('is-invalid');
+		row.querySelector('.afternoon-start').closest('.tw').classList.remove('is-invalid');
+			            }
+			        }
+			    });
+			
+			    if (hasError) {
+			        alert('Les plages horaires se chevauchent. L\'heure de début de l\'après-midi doit être après la fin du matin.');
+			        return;
+			    }
+			
+			    fetch(window.location.href, {
+			        method:  'POST',
+			        body:    new FormData(formEl),
+			        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+			    })
+			    .then(res => res.json())
+			    .then(data => {
+			        if (data.success) {
+			            formView.style.display     = 'none';
+			            calendarView.style.display = 'block';
+			            calendar.refetchEvents();
+			        }
+			    })
+			    .catch(() => alert('Une erreur est survenue.'));
+			});
+																
+																    if (window.lucide) lucide.createIcons();
+																});
+																											</script>
 {% endblock %}
