@@ -37,33 +37,33 @@
                 <div class="d-flex align-items-center w-100">
                     <span class="fs-6 fw-bold me-2">Nom :</span>
                     <span class="fs-6" data-editable-field-target="display">{{ user.nom }}</span>
-                    <input type="text" name="nom" class="form-control d-none w-auto" value="{{ user.nom }}" data-editable-field-target="input">
+                    <input type="text" name="nom" class="form-control d-none w-auto" value="{{ user.nom }}" data-editable-field-target="input" aria-label="Nom">
                 </div>
-                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
+                <button class="bg-transparent border-0 text-primary fs-5" aria-label="Modifier le nom" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
                 <div class="d-flex align-items-center w-100">
                     <span class="fs-6 fw-bold me-2">Prénom :</span>
                     <span class="fs-6" data-editable-field-target="display">{{ user.prenom }}</span>
-                    <input type="text" name="prenom" class="form-control d-none w-auto" value="{{ user.prenom }}" data-editable-field-target="input">
+                    <input type="text" name="prenom" class="form-control d-none w-auto" value="{{ user.prenom }}" data-editable-field-target="input" aria-label="Prénom">
                 </div>
-                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
+                <button class="bg-transparent border-0 text-primary fs-5" aria-label="Modifier le prénom" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
                 <div class="d-flex align-items-center w-100">
                     <span class="fs-6 fw-bold me-2">Adresse personnelle :</span>
                     <span class="fs-6" data-editable-field-target="display">{{ user.adresse }}</span>
-                    <input type="text" name="adresse" class="form-control d-none w-auto" value="{{ user.adresse }}" data-editable-field-target="input">
+                    <input type="text" name="adresse" class="form-control d-none w-auto" value="{{ user.adresse }}" data-editable-field-target="input" aria-label="Adresse personnelle">
                 </div>
-                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
+                <button class="bg-transparent border-0 text-primary fs-5" aria-label="Modifier l'adresse personnelle" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
                 <div class="d-flex align-items-center w-100">
                     <span class="fs-6 fw-bold me-2">Téléphone :</span>
                     <span class="fs-6" data-editable-field-target="display">{{ user.telephone }}</span>
-                    <input type="text" name="telephone" class="form-control d-none w-auto" value="{{ user.telephone }}" data-editable-field-target="input">
+                    <input type="text" name="telephone" class="form-control d-none w-auto" value="{{ user.telephone }}" data-editable-field-target="input" aria-label="Téléphone">
                 </div>
-                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
+                <button class="bg-transparent border-0 text-primary fs-5" aria-label="Modifier le téléphone" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
             </li>
         </ul>
     </div>
@@ -78,33 +78,33 @@
                 <div class="d-flex align-items-center w-100">
                     <span class="fs-6 fw-bold me-2">N° de Siret :</span>
                     <span class="fs-6" data-editable-field-target="display">{{ user.siret }}</span>
-                    <input type="text" name="siret" class="form-control d-none w-auto" value="{{ user.siret }}" data-editable-field-target="input">
+                    <input type="text" name="siret" class="form-control d-none w-auto" value="{{ user.siret }}" data-editable-field-target="input" aria-label="Numéro de Siret">
                 </div>
-                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
+                <button class="bg-transparent border-0 text-primary fs-5" aria-label="Modifier le numéro de Siret" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
                 <div class="d-flex align-items-center w-100">
                     <span class="fs-6 fw-bold me-2">Adresse du cabinet :</span>
                     <span class="fs-6" data-editable-field-target="display">{{ user.adressecabinet }}</span>
-                    <input type="text" name="adressecabinet" class="form-control d-none w-auto" value="{{ user.adressecabinet }}" data-editable-field-target="input">
+                    <input type="text" name="adressecabinet" class="form-control d-none w-auto" value="{{ user.adressecabinet }}" data-editable-field-target="input" aria-label="Adresse du cabinet">
                 </div>
-                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
+                <button class="bg-transparent border-0 text-primary fs-5" aria-label="Modifier l'adresse du cabinet" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
                 <div class="d-flex align-items-center w-100">
                     <span class="fs-6 fw-bold me-2">Ville :</span>
                     <span class="fs-6" data-editable-field-target="display">{{ user.ville }}</span>
-                    <input type="text" name="ville" class="form-control d-none w-auto" value="{{ user.ville }}" data-editable-field-target="input">
+                    <input type="text" name="ville" class="form-control d-none w-auto" value="{{ user.ville }}" data-editable-field-target="input" aria-label="Ville">
                 </div>
-                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
+                <button class="bg-transparent border-0 text-primary fs-5" aria-label="Modifier la ville" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
                 <div class="d-flex align-items-center w-100">
                     <span class="fs-6 fw-bold me-2">Code postal :</span>
                     <span class="fs-6" data-editable-field-target="display">{{ user.codepostal }}</span>
-                    <input type="text" name="codepostal" class="form-control d-none w-auto" value="{{ user.codepostal }}" data-editable-field-target="input">
+                    <input type="text" name="codepostal" class="form-control d-none w-auto" value="{{ user.codepostal }}" data-editable-field-target="input" aria-label="Code postal">
                 </div>
-                <button class="bg-transparent border-0 text-primary fs-5" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
+                <button class="bg-transparent border-0 text-primary fs-5" aria-label="Modifier le code postal" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
             </li>
         </ul>
     </div>
@@ -119,9 +119,9 @@
                 <div class="d-flex align-items-center w-100">
                     <span class="fs-6 fw-bold me-2">Adresse email :</span>
                     <span class="fs-6" data-editable-field-target="display">{{ user.email }}</span>
-                    <input type="email" name="email" class="form-control d-none w-auto" value="{{ user.email }}" data-editable-field-target="input">
+                    <input type="email" name="email" class="form-control d-none w-auto" value="{{ user.email }}" data-editable-field-target="input" aria-label="Adresse email">
                 </div>
-                <a href="#" class="text-primary fs-5" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></a>
+                <button class="bg-transparent border-0 text-primary fs-5" aria-label="Modifier l'adresse email" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
             </li>
             <li class="list-group-item text-center py-4">
                 <button class="btn text-danger bg-transparent border-0 px-4 py-2 fw-bold"><i class="bi bi-archive-fill me-2"></i> Archiver mes informations</button>
@@ -138,7 +138,7 @@
              <div class="d-flex justify-content-between align-items-center px-4 py-3 border-bottom bg-light bg-opacity-10">
                 <span class="fs-6">J'accepte toutes les <strong>conditions</strong> et les <strong>politiques de confidentialité</strong>.</span>
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked style="width: 3em; height: 1.5em; cursor: pointer;">
+                    <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked style="width: 3em; height: 1.5em; cursor: pointer;" aria-label="Accepter les conditions et politiques de confidentialité">
                 </div>
             </div>
             <div class="text-center py-3 border-bottom">
