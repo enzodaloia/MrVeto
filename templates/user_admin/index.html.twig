@@ -160,13 +160,16 @@
 
 								<td>
 									{% if 'ROLE_ADMIN' in user.roles %}
-										<span class="badge rounded-pill px-3 py-2">Admin</span>
-									{% elseif 'ROLE_VETERINAIRE' in user.roles %}
-										<span class="fw-medium">Vétérinaire</span>
+										<span class="badge rounded-pill px-3 py-2 bg-primary text-white">Admin</span>
+
+									{% elseif 'ROLE_VETO' in user.roles %}
+										<span class="fw-medium text-info">Vétérinaire</span>
+
 									{% elseif 'ROLE_SECRETAIRE' in user.roles %}
-										<span class="badge rounded-pill px-3 py-2">Secrétaire</span>
+										<span class="badge rounded-pill px-3 py-2 bg-secondary text-white">Secrétaire</span>
+
 									{% else %}
-										<span class="text-muted fw-medium">Utilisateur</span>
+										<span class="fw-medium text-info">Utilisateur</span>
 									{% endif %}
 								</td>
 
@@ -195,11 +198,10 @@
 			</div>
 
 		</div>
-        
+
 	</div>
-{{ include('user_admin/new.html.twig') }}
-	 <script src="https://unpkg.com/lucide@latest"></script>
-     <script>
+	{{ include('user_admin/new.html.twig') }}
+ <script>
 function modalShowForm(role) {
     document.getElementById('modal-step-1').style.display = 'none';
     document.getElementById('modal-step-2').style.display = 'block';
@@ -230,61 +232,60 @@ function modalShowStep1() {
 }
 </script>
 	 <script>
-						document.addEventListener('DOMContentLoaded', function () {
-						    if (window.lucide) lucide.createIcons();
-						
-						    const searchInput = document.getElementById('search-input');
-						    let activeRole   = '';
-						    let activeStatus = '';
-						
-						    function filterRows() {
-						        const search = searchInput.value.toLowerCase();
-						
-						        document.querySelectorAll('.user-row').forEach(function (row) {
-						        const matchSearch = (row.dataset.nom + row.dataset.email).includes(search);
-						        const matchRole = !activeRole || (row.dataset.role && row.dataset.role.trim().includes(activeRole));
-					            const matchStatus = activeStatus === '' || row.dataset.verified.trim() === activeStatus;
-						
-						            row.style.display = matchSearch && matchRole && matchStatus ? '' : 'none';
-						        });
-						    }
-						
-						    searchInput?.addEventListener('input', filterRows);
-						
-						    document.querySelectorAll('.filter-role-item').forEach(function (item) {
-						        item.addEventListener('click', function (e) {
-						            e.preventDefault();
-						            activeRole = this.dataset.value;
-						            filterRows();
-						        });
-						    });
-						
-						    document.querySelectorAll('.filter-status-item').forEach(function (item) {
-						        item.addEventListener('click', function (e) {
-						            e.preventDefault();
-						            activeStatus = this.dataset.value;
-						            filterRows();
-						        });
-						    });
-						});
-			            let activeDate = '';
-			
-			            document.querySelectorAll('.filter-date-item').forEach(function (item) {
-			                item.addEventListener('click', function (e) {
-			                    e.preventDefault();
-			                    activeDate = this.dataset.value;
-			
-			                    const tbody = document.querySelector('tbody');
-			                    const rows  = Array.from(document.querySelectorAll('.user-row'));
-			
-			                    rows.sort(function (a, b) {
-			                        const dateA = new Date(a.dataset.date);
-			                        const dateB = new Date(b.dataset.date);
-			                        return activeDate === 'asc' ? dateA - dateB : dateB - dateA;
-			                    });
-			
-			                    rows.forEach(row => tbody.appendChild(row));
-			                });
-			});
-						</script>
+								document.addEventListener('DOMContentLoaded', function () {
+								
+								    const searchInput = document.getElementById('search-input');
+								    let activeRole   = '';
+								    let activeStatus = '';
+								
+								    function filterRows() {
+								        const search = searchInput.value.toLowerCase();
+								
+								        document.querySelectorAll('.user-row').forEach(function (row) {
+								        const matchSearch = (row.dataset.nom + row.dataset.email).includes(search);
+								        const matchRole = !activeRole || (row.dataset.role && row.dataset.role.trim().includes(activeRole));
+							            const matchStatus = activeStatus === '' || row.dataset.verified.trim() === activeStatus;
+								
+								            row.style.display = matchSearch && matchRole && matchStatus ? '' : 'none';
+								        });
+								    }
+								
+								    searchInput?.addEventListener('input', filterRows);
+								
+								    document.querySelectorAll('.filter-role-item').forEach(function (item) {
+								        item.addEventListener('click', function (e) {
+								            e.preventDefault();
+								            activeRole = this.dataset.value;
+								            filterRows();
+								        });
+								    });
+								
+								    document.querySelectorAll('.filter-status-item').forEach(function (item) {
+								        item.addEventListener('click', function (e) {
+								            e.preventDefault();
+								            activeStatus = this.dataset.value;
+								            filterRows();
+								        });
+								    });
+								});
+					            let activeDate = '';
+					
+					            document.querySelectorAll('.filter-date-item').forEach(function (item) {
+					                item.addEventListener('click', function (e) {
+					                    e.preventDefault();
+					                    activeDate = this.dataset.value;
+					
+					                    const tbody = document.querySelector('tbody');
+					                    const rows  = Array.from(document.querySelectorAll('.user-row'));
+					
+					                    rows.sort(function (a, b) {
+					                        const dateA = new Date(a.dataset.date);
+					                        const dateB = new Date(b.dataset.date);
+					                        return activeDate === 'asc' ? dateA - dateB : dateB - dateA;
+					                    });
+					
+					                    rows.forEach(row => tbody.appendChild(row));
+					                });
+					});
+								</script>
 {% endblock %}
