@@ -1,59 +1,290 @@
-{% extends 'base.html.twig' %}
+{% extends 'base_dashboard.html.twig' %}
 
-{% block title %}User index{% endblock %}
+{% block title %}Gestion des utilisateurs
+{% endblock %}
 
-{% block body %}
-    <h1>User index</h1>
+{% block dashboard_body %}
+	<style>
+		.sort-icon {
+			font-size: 0.85rem;
+			opacity: 0.5;
+			margin-left: 4px;
+		}
+		.action-btn {
+			color: var(--bs-primary);
+			text-decoration: none;
+		}
+		.action-btn svg {
+			width: 16px;
+			height: 16px;
+		}
+		#search-input::placeholder {
+			color: var(--bs-info);
+			opacity: 1;
+		}
+	</style>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Email</th>
-                <th>Roles</th>
-                <th>Password</th>
-                <th>IsVerified</th>
-                <th>Nom</th>
-                <th>Prenom</th>
-                <th>Datenaissance</th>
-                <th>Adresse</th>
-                <th>Telephone</th>
-                <th>Ville</th>
-                <th>Codepostal</th>
-                <th>Siret</th>
-                <th>Adressecabinet</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for user in users %}
-            <tr>
-                <td>{{ user.id }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.roles ? user.roles|json_encode : '' }}</td>
-                <td>{{ user.password }}</td>
-                <td>{{ user.isVerified ? 'Yes' : 'No' }}</td>
-                <td>{{ user.nom }}</td>
-                <td>{{ user.prenom }}</td>
-                <td>{{ user.datenaissance ? user.datenaissance|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ user.adresse }}</td>
-                <td>{{ user.telephone }}</td>
-                <td>{{ user.ville }}</td>
-                <td>{{ user.codepostal }}</td>
-                <td>{{ user.siret }}</td>
-                <td>{{ user.adressecabinet }}</td>
-                <td>
-                    <a href="{{ path('app_user_admin_show', {'id': user.id}) }}">show</a>
-                    <a href="{{ path('app_user_admin_edit', {'id': user.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="15">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+	<div class="container-fluid py-4 px-4 bg-primary-bg min-vh-100">
+		<div class="mx-auto" style="max-width: 1200px;">
 
-    <a href="{{ path('app_user_admin_new') }}">Create new</a>
+			{% for message in app.flashes('success') %}
+				<div class="alert alert-success rounded-3 border-0 shadow-sm mb-3">{{ message }}</div>
+			{% endfor %}
+
+			<div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
+				<div class="input-group rounded-pill overflow-hidden border border-info bg-white" style="max-width:320px;">
+					<span class="input-group-text bg-white border-0">
+						<i data-lucide="search" style="width:15px;height:15px;" class="text-info"></i>
+					</span>
+					<input type="text" id="search-input" class="form-control border-0 shadow-none text-info" placeholder="Rechercher par mail/ nom">
+				</div>
+
+				<div class="dropdown">
+					<button class="btn btn-outline-info rounded-pill px-3 d-inline-flex align-items-center gap-2 bg-white dropdown-toggle" data-bs-toggle="dropdown">
+						<i data-lucide="user" style="width:14px;height:14px;"></i>
+						Rôle
+					</button>
+					<ul class="dropdown-menu">
+						<li>
+							<a class="dropdown-item filter-role-item" href="#" data-value="">Tous</a>
+						</li>
+						<li>
+							<a class="dropdown-item filter-role-item" href="#" data-value="role_admin">Admin</a>
+						</li>
+						<li>
+							<a class="dropdown-item filter-role-item" href="#" data-value="role_veterinaire">Vétérinaire</a>
+						</li>
+						<li>
+							<a class="dropdown-item filter-role-item" href="#" data-value="role_secretaire">Secrétaire</a>
+						</li>
+						<li>
+							<a class="dropdown-item filter-role-item" href="#" data-value="role_user">Utilisateur</a>
+						</li>
+					</ul>
+				</div>
+
+				<div class="dropdown">
+					<button class="btn btn-outline-info rounded-pill px-3 d-inline-flex align-items-center gap-2 bg-white dropdown-toggle" data-bs-toggle="dropdown">
+						<i data-lucide="award" style="width:14px;height:14px;"></i>
+						Status
+					</button>
+					<ul class="dropdown-menu">
+						<li>
+							<a class="dropdown-item filter-status-item" href="#" data-value="">Tous</a>
+						</li>
+						<li>
+							<a class="dropdown-item filter-status-item" href="#" data-value="1">Validé</a>
+						</li>
+						<li>
+							<a class="dropdown-item filter-status-item" href="#" data-value="0">En attente</a>
+						</li>
+					</ul>
+				</div>
+				<div class="dropdown">
+					<button class="btn btn-outline-info rounded-pill px-3 d-inline-flex align-items-center gap-2 bg-white dropdown-toggle" data-bs-toggle="dropdown">
+						<i data-lucide="calendar" style="width:14px;height:14px;"></i>
+						Date d'inscription
+					</button>
+					<ul class="dropdown-menu">
+						<li>
+							<a class="dropdown-item filter-date-item" href="#" data-value="">Tous</a>
+						</li>
+						<li>
+							<a class="dropdown-item filter-date-item" href="#" data-value="asc">Plus ancien</a>
+						</li>
+						<li>
+							<a class="dropdown-item filter-date-item" href="#" data-value="desc">Plus récent</a>
+						</li>
+					</ul>
+				</div>
+
+				<button type="button" class="btn btn-primary text-white rounded-pill px-4 fw-semibold ms-auto d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createUserModal">
+					<i data-lucide="plus" style="width:15px;height:15px;"></i>
+					Créer un utilisateur
+				</button>
+			</div>
+
+			<div class="bg-white rounded-4 shadow-sm overflow-hidden">
+				<table class="table align-middle mb-0" style="--bs-table-bg: transparent;">
+					<thead class="border-bottom">
+						<tr class="text-primary fw-bold small">
+							<th class="ps-4 py-3" style="width:40px;">
+								<input type="checkbox" class="form-check-input">
+							</th>
+							<th class="py-3" style="width:250px">Nom
+								<span class="sort-icon">⇅</span>
+							</th>
+							<th class="py-3">Adresse email
+								<span class="sort-icon">⇅</span>
+							</th>
+							<th class="py-3">Status
+								<span class="sort-icon">⇅</span>
+							</th>
+							<th class="py-3">Role
+								<span class="sort-icon">⇅</span>
+							</th>
+							<th class="py-3">Date inscription
+								<span class="sort-icon">⇅</span>
+							</th>
+							<th class="py-3 text-center pe-4">Actions
+								<span class="sort-icon">⇅</span>
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for user in users %}
+							<tr class="user-row border-bottom" data-nom="{{ user.nom|lower }} {{ user.prenom|lower }}" data-email="{{ user.email|lower }}" data-role="{{ user.roles|json_encode|lower }}" data-verified="{{ user.isVerified ? '1' : '0' }}" data-date="{{ user.createdAt ? user.createdAt|date('Y-m-d') : '' }}">
+								<td class="ps-4">
+									<input type="checkbox" class="form-check-input">
+								</td>
+
+								<td>
+									<div class="d-flex align-items-center gap-3">
+										<div style="width:38px;height:38px;border-radius:50%;background:var(--bs-primary-bg);color:var(--bs-primary);font-weight:700;font-size:0.8rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+											{{ user.prenom|first|upper }}{{ user.nom|first|upper }}
+										</div>
+										<span class="fw-medium">{{ user.prenom }}
+											{{ user.nom }}</span>
+									</div>
+								</td>
+
+								<td class="text-muted">{{ user.email }}</td>
+
+								<td>
+									{% if user.isVerified %}
+										<span class="badge rounded-pill px-3 py-2 bg-primary text-white" style="font-size:0.72rem;">Validé</span>
+									{% else %}
+										<span class="badge rounded-pill px-3 py-2 bg-warning text-white" style="font-size:0.72rem;">En attente</span>
+									{% endif %}
+								</td>
+
+								<td>
+									{% if 'ROLE_ADMIN' in user.roles %}
+										<span class="badge rounded-pill px-3 py-2">Admin</span>
+									{% elseif 'ROLE_VETERINAIRE' in user.roles %}
+										<span class="fw-medium">Vétérinaire</span>
+									{% elseif 'ROLE_SECRETAIRE' in user.roles %}
+										<span class="badge rounded-pill px-3 py-2">Secrétaire</span>
+									{% else %}
+										<span class="text-muted fw-medium">Utilisateur</span>
+									{% endif %}
+								</td>
+
+								<td class="text-muted">
+									{{ user.createdAt ? user.createdAt|date('d M Y') : '—' }}
+								</td>
+
+								<td class="text-center pe-4">
+									<a href="{{ path('app_user_admin_show', {'id': user.id}) }}" class="action-btn btn btn-link p-1">
+										<i data-lucide="eye"></i>
+									</a>
+									<a href="{{ path('app_user_admin_edit', {'id': user.id}) }}" class="action-btn btn btn-link p-1 text-info">
+										<i data-lucide="pencil"></i>
+									</a>
+
+									{{ include('user_admin/_delete_form.html.twig') }}
+								</td>
+							</tr>
+						{% else %}
+							<tr>
+								<td colspan="7" class="text-center text-muted py-5">Aucun utilisateur trouvé</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+
+		</div>
+        
+	</div>
+{{ include('user_admin/new.html.twig') }}
+	 <script src="https://unpkg.com/lucide@latest"></script>
+     <script>
+function modalShowForm(role) {
+    document.getElementById('modal-step-1').style.display = 'none';
+    document.getElementById('modal-step-2').style.display = 'block';
+    document.getElementById('modal-selected-role').value = role;
+    document.querySelector('#createUserModal .modal-dialog').classList.add('modal-lg');
+
+
+    const titles = {
+        'ROLE_VETO':  'Créer un compte vétérinaire',
+        'ROLE_ADMIN': 'Créer un compte administrateur',
+        'ROLE_USER':  'Créer un compte utilisateur'
+    };
+    document.getElementById('modal-title').textContent = titles[role] || 'Créer un compte';
+    document.getElementById('modal-fields-veto').style.display = role === 'ROLE_VETO' ? 'block' : 'none';
+
+    const rolesSelect = document.getElementById('modal-roles-select');
+    Array.from(rolesSelect.options).forEach(opt => {
+        opt.selected = opt.value === role;
+    });
+}
+
+function modalShowStep1() {
+    document.getElementById('modal-step-1').style.display = 'block';
+    document.getElementById('modal-step-2').style.display = 'none';
+    document.getElementById('modal-title').textContent = 'Créer un compte';
+    document.querySelector('#createUserModal .modal-dialog').classList.remove('modal-lg');
+
+}
+</script>
+	 <script>
+						document.addEventListener('DOMContentLoaded', function () {
+						    if (window.lucide) lucide.createIcons();
+						
+						    const searchInput = document.getElementById('search-input');
+						    let activeRole   = '';
+						    let activeStatus = '';
+						
+						    function filterRows() {
+						        const search = searchInput.value.toLowerCase();
+						
+						        document.querySelectorAll('.user-row').forEach(function (row) {
+						        const matchSearch = (row.dataset.nom + row.dataset.email).includes(search);
+						        const matchRole = !activeRole || (row.dataset.role && row.dataset.role.trim().includes(activeRole));
+					            const matchStatus = activeStatus === '' || row.dataset.verified.trim() === activeStatus;
+						
+						            row.style.display = matchSearch && matchRole && matchStatus ? '' : 'none';
+						        });
+						    }
+						
+						    searchInput?.addEventListener('input', filterRows);
+						
+						    document.querySelectorAll('.filter-role-item').forEach(function (item) {
+						        item.addEventListener('click', function (e) {
+						            e.preventDefault();
+						            activeRole = this.dataset.value;
+						            filterRows();
+						        });
+						    });
+						
+						    document.querySelectorAll('.filter-status-item').forEach(function (item) {
+						        item.addEventListener('click', function (e) {
+						            e.preventDefault();
+						            activeStatus = this.dataset.value;
+						            filterRows();
+						        });
+						    });
+						});
+			            let activeDate = '';
+			
+			            document.querySelectorAll('.filter-date-item').forEach(function (item) {
+			                item.addEventListener('click', function (e) {
+			                    e.preventDefault();
+			                    activeDate = this.dataset.value;
+			
+			                    const tbody = document.querySelector('tbody');
+			                    const rows  = Array.from(document.querySelectorAll('.user-row'));
+			
+			                    rows.sort(function (a, b) {
+			                        const dateA = new Date(a.dataset.date);
+			                        const dateB = new Date(b.dataset.date);
+			                        return activeDate === 'asc' ? dateA - dateB : dateB - dateA;
+			                    });
+			
+			                    rows.forEach(row => tbody.appendChild(row));
+			                });
+			});
+						</script>
 {% endblock %}
