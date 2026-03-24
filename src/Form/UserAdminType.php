@@ -13,7 +13,15 @@ class UserAdminType extends AbstractType
     {
         $builder
             ->add('email')
-            ->add('roles')
+            ->add('roles', \Symfony\Component\Form\Extension\Core\Type\ChoiceType::class, [
+                'choices' => [
+                    'Utilisateur' => 'ROLE_USER',
+                    'Vétérinaire' => 'ROLE_VETO',
+                    'Administrateur' => 'ROLE_ADMIN',
+                ],
+                'expanded' => true,
+                'multiple' => true,
+            ])
             ->add('password')
             ->add('isVerified')
             ->add('nom')
