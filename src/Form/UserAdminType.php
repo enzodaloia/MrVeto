@@ -17,12 +17,13 @@ class UserAdminType extends AbstractType
             ->add('roles', ChoiceType::class, [
                 'choices' => [
                     'Utilisateur' => 'ROLE_USER',
-                    'Admin' => 'ROLE_ADMIN',
                     'Vétérinaire' => 'ROLE_VETO',
+                    'Administrateur' => 'ROLE_ADMIN',
                 ],
+                'expanded' => true,
                 'multiple' => true,
-                'expanded' => false,
             ])
+
             ->add('password')
             ->add('isVerified')
             ->add('nom')
