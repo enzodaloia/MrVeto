@@ -30,7 +30,7 @@ class VetInfoController extends AbstractController
     }
 
     #[Route('/vet/{id}/book', name: 'app_vet_book')]
-    public function book(Request $request, User $vet = null, DayOfWorkRepository $dayOfWorkRepository): Response
+    public function book(Request $request, User $vet = null, DayOfWorkRepository $dayOfWorkRepository, AnimalRepository $animalRepository, EntityManagerInterface $em): Response
     {
         if (!$vet || !in_array('ROLE_VETO', $vet->getRoles())) {
             throw new NotFoundHttpException('Vétérinaire non trouvé.');
@@ -138,14 +138,37 @@ class VetInfoController extends AbstractController
             if (isset($workingDays[$selectedDayOfWeek]) && $selectedDate >= $today) {
                 $dayData = $workingDays[$selectedDayOfWeek];
 
+                // Fetch existing appointments for this day to disable taken slots
+                $startOfDay = clone $selectedDate;
+                $startOfDay->setTime(0, 0, 0);
+                $endOfDay = clone $selectedDate;
+                $endOfDay->setTime(23, 59, 59);
+
+                $appointments = $em->getRepository(RendezVous::class)->createQueryBuilder('r')
+                    ->where('r.veterinaire = :vet')
+                    ->andWhere('r.dateHeure >= :start')
+                    ->andWhere('r.dateHeure <= :end')
+                    ->andWhere('r.statut != :cancelled')
+                    ->setParameter('vet', $vet)
+                    ->setParameter('start', $startOfDay)
+                    ->setParameter('end', $endOfDay)
+                    ->setParameter('cancelled', 'annule')
+                    ->getQuery()
+                    ->getResult();
+
+                $bookedSlots = [];
+                foreach ($appointments as $appt) {
+                    $bookedSlots[] = $appt->getDateHeure()->format('H:i');
+                }
+
                 // Generate 30-min slots for morning
                 if ($dayData['morningStart'] && $dayData['morningEnd']) {
-                    $morningSlots = $this->generateTimeSlots($dayData['morningStart'], $dayData['morningEnd'], 30);
+                    $morningSlots = $this->generateTimeSlots($dayData['morningStart'], $dayData['morningEnd'], 30, $bookedSlots);
                 }
 
                 // Generate 30-min slots for afternoon
                 if ($dayData['afternoonStart'] && $dayData['afternoonEnd']) {
-                    $afternoonSlots = $this->generateTimeSlots($dayData['afternoonStart'], $dayData['afternoonEnd'], 30);
+                    $afternoonSlots = $this->generateTimeSlots($dayData['afternoonStart'], $dayData['afternoonEnd'], 30, $bookedSlots);
                 }
             }
         }
@@ -154,8 +177,8 @@ class VetInfoController extends AbstractController
         $user = $this->getUser();
         $animals = [];
         $animalsJson = '[]';
-        if ($user) {
-            $animals = $user->getAnimals()->toArray();
+        if ($user instanceof User) {
+            $animals = $animalRepository->findBy(['proprietaire' => $user]);
             $animalsData = [];
             foreach ($animals as $animal) {
                 $animalsData[] = [
@@ -241,7 +264,7 @@ class VetInfoController extends AbstractController
                 // Ignore invalid date
             }
         } else {
-            $animal->setDateNaissance(null);
+            $animal->setDateNaissance(null);    
         }
 
         $em->flush();
@@ -323,6 +346,18 @@ class VetInfoController extends AbstractController
         // Build dateHeure
         $dateHeure = new \DateTime($selectedDate . ' ' . $selectedSlot);
 
+        // Check backend if slot is already taken
+        $existingRdv = $em->getRepository(RendezVous::class)->findOneBy([
+            'veterinaire' => $vet,
+            'dateHeure' => $dateHeure
+        ]);
+
+        // Optionnel : ne pas compter les annulés
+        if ($existingRdv && $existingRdv->getStatut() !== 'annule') {
+            $this->addFlash('error', 'Désolé, ce créneau a déjà été réservé entre temps.');
+            return $this->redirectToRoute('app_vet_book', ['id' => $vet->getId()]);
+        }
+
         // Find animal
         $animal = null;
         if ($animalId) {
@@ -354,13 +389,17 @@ class VetInfoController extends AbstractController
     /**
      * Generate time slots between start and end with given interval in minutes.
      */
-    private function generateTimeSlots(\DateTime $start, \DateTime $end, int $intervalMinutes): array
+    private function generateTimeSlots(\DateTime $start, \DateTime $end, int $intervalMinutes, array $bookedSlots = []): array
     {
         $slots = [];
         $current = clone $start;
 
         while ($current < $end) {
-            $slots[] = $current->format('H:i');
+            $timeString = $current->format('H:i');
+            $slots[] = [
+                'time' => $timeString,
+                'available' => !in_array($timeString, $bookedSlots)
+            ];
             $current->modify("+{$intervalMinutes} minutes");
         }
 

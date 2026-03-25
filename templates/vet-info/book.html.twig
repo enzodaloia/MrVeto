@@ -117,9 +117,15 @@
                             <h4 class="h6 fw-bold mb-3 text-start ps-3">Matin</h4>
                             <div class="d-flex flex-wrap gap-2 justify-content-start ps-3">
                                 {% for slot in morningSlots %}
-                                    <button type="button" class="btn btn-outline-secondary px-3 py-1 rounded-3 slot-btn" data-slot="{{ slot }}">
-                                        {{ slot }}
-                                    </button>
+                                    {% if slot.available %}
+                                        <button type="button" class="btn btn-outline-secondary px-3 py-1 rounded-3 slot-btn" data-slot="{{ slot.time }}">
+                                            {{ slot.time }}
+                                        </button>
+                                    {% else %}
+                                        <button type="button" class="btn btn-outline-secondary px-3 py-1 rounded-3" disabled style="opacity: 0.5; text-decoration: line-through;">
+                                            {{ slot.time }}
+                                        </button>
+                                    {% endif %}
                                 {% endfor %}
                             </div>
                         </div>
@@ -129,9 +135,15 @@
                             <h4 class="h6 fw-bold mb-3 text-start ps-3">Après-midi</h4>
                             <div class="d-flex flex-wrap gap-2 justify-content-start ps-3">
                                 {% for slot in afternoonSlots %}
-                                    <button type="button" class="btn btn-outline-secondary px-3 py-1 rounded-3 slot-btn" data-slot="{{ slot }}">
-                                        {{ slot }}
-                                    </button>
+                                    {% if slot.available %}
+                                        <button type="button" class="btn btn-outline-secondary px-3 py-1 rounded-3 slot-btn" data-slot="{{ slot.time }}">
+                                            {{ slot.time }}
+                                        </button>
+                                    {% else %}
+                                        <button type="button" class="btn btn-outline-secondary px-3 py-1 rounded-3" disabled style="opacity: 0.5; text-decoration: line-through;">
+                                            {{ slot.time }}
+                                        </button>
+                                    {% endif %}
                                 {% endfor %}
                             </div>
                         </div>
@@ -164,6 +176,12 @@
 
         {% for message in app.flashes('success') %}
             <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 {{ message }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
