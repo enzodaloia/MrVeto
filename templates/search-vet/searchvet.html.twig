@@ -151,6 +151,7 @@
 
 								{# Info #}
 								<div class="flex-grow-1">
+									{% set availability = vetAvailability[vet.id]|default({'isOpen': false, 'label': 'Ferme', 'detail': 'Aucun horaire renseigne'}) %}
 									<h3 class="h5 text-primary fw-bold mb-2">Dr.
 										{{ vet.prenom }}
 										{{ vet.nom }}</h3>
@@ -161,8 +162,8 @@
 										</span>
 										<span class="d-flex align-items-center gap-2">
 											<twig:ux:icon class="fs-6 text-primary" name="lucide:clock"/>
-											<span class="text-primary fw-medium">Ouvert (à voir)</span>
-											• besoin des dispos véto
+											<span class="fw-medium {{ availability.isOpen ? 'text-primary' : 'text-danger' }}">{{ availability.label }}</span>
+											<span class="">{{ availability.detail }}</span>
 										</span>
 									</div>
 								</div>
