@@ -62,7 +62,10 @@ jobs:
       - name: Rsync project to server
         run: |
           set -euo pipefail
-          rsync -az --delete \
+          rsync -rlz --delete \
+            --no-perms \
+            --no-owner \
+            --no-group \
             --exclude ".git/" \
             --exclude ".github/" \
             --exclude "node_modules/" \
