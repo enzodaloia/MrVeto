@@ -81,11 +81,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: DayOfWork::class, mappedBy: 'user')]
     private Collection $dayOfWorks;
 
+    /**
+     * @var Collection<int, Animal>
+     */
+    #[ORM\OneToMany(targetEntity: Animal::class, mappedBy: 'proprietaire', orphanRemoval: true)]
+    private Collection $animals;
+
     public function __construct()
     {
         $this->createdAt = new \DateTime();
         $this->token = bin2hex(random_bytes(32));
         $this->dayOfWorks = new ArrayCollection();
+        $this->animals = new ArrayCollection();
     }
 
     public function getId(): ?int { return $this->id; }
@@ -280,5 +287,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    
+    // Animals
+    /**
+     * @return Collection<int, Animal>
+     */
+    public function getAnimals(): Collection
+    {
+        return $this->animals;
+    }
+
+    public function addAnimal(Animal $animal): static
+    {
+        if (!$this->animals->contains($animal)) {
+            $this->animals->add($animal);
+            $animal->setProprietaire($this);
+        }
+        return $this;
+    }
+
+    public function removeAnimal(Animal $animal): static
+    {
+        if ($this->animals->removeElement($animal)) {
+            if ($animal->getProprietaire() === $this) {
+                $animal->setProprietaire(null);
+            }
+        }
+        return $this;
+    }
 }

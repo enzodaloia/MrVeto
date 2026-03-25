@@ -1,7 +1,10 @@
-// assets/lucide.js
-import { createIcons } from 'lucide';
+import { createIcons, icons } from 'lucide';
 
-document.addEventListener('DOMContentLoaded', () => {
-    createIcons();
-    console.log('Lucide icons initialized');
-});
+function initLucide() {
+    console.log('init lucide');
+    createIcons({ icons });
+}
+
+document.addEventListener('DOMContentLoaded', initLucide);
+document.addEventListener('turbo:load', initLucide);
+window.addEventListener('load', initLucide);
