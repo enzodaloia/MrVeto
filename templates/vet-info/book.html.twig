@@ -3,7 +3,7 @@
 {% block title %}Prendre RDV - Dr. {{ vet.prenom }} {{ vet.nom }}{% endblock %}
 
 {% block body %}
-<div class="container my-5 px-3">
+<div class="container my-5 px-3" data-controller="book" data-book-animals-value="{{ animalsJson|e('html_attr') }}">
 
     <!-- STEPPER -->
     <div class="d-flex justify-content-center align-items-center mb-4 pt-3 gap-2">
@@ -234,149 +234,15 @@
 
     <!-- SUBMIT BUTTON -->
     <div class="text-center mt-5 mb-5">
-        <button class="btn btn-success rounded-pill px-5 py-3 fw-bold shadow-sm fs-6">
-            Confirmer mon Rendez-vous
-        </button>
+        <form method="POST" action="{{ path('app_vet_book_confirm', {id: vet.id}) }}" id="confirmBookingForm" data-turbo="false">
+            <input type="hidden" name="selectedDate" value="{{ selectedDate ?? '' }}">
+            <input type="hidden" name="selectedSlot" id="confirmSlotInput" value="">
+            <input type="hidden" name="animalId" id="confirmAnimalInput" value="">
+            <button type="submit" class="btn btn-success rounded-pill px-5 py-3 fw-bold shadow-sm fs-6">
+                Confirmer mon Rendez-vous
+            </button>
+        </form>
     </div>
 
 </div>
-
-<script>
-    var animalsData = {{ animalsJson|raw }};
-
-    function setupCalendarSlots() {
-        var slotBtns = document.querySelectorAll('.slot-btn');
-        var hiddenInput = document.getElementById('selectedSlotInput');
-
-        // Restore previously selected slot from URL
-        var params = new URLSearchParams(window.location.search);
-        var savedSlot = params.get('slot');
-        
-        // Reset all buttons first to avoid duplicates
-        slotBtns.forEach(function(b) {
-            b.classList.remove('btn-warning', 'text-white');
-            b.classList.add('btn-outline-secondary');
-        });
-
-        if (savedSlot) {
-            slotBtns.forEach(function(b) {
-                if (b.getAttribute('data-slot') === savedSlot) {
-                    b.classList.remove('btn-outline-secondary');
-                    b.classList.add('btn-warning', 'text-white');
-                    if (hiddenInput) hiddenInput.value = savedSlot;
-                }
-            });
-        }
-
-        // Handle slot click
-        slotBtns.forEach(function(btn) {
-            btn.replaceWith(btn.cloneNode(true));
-        });
-        slotBtns = document.querySelectorAll('.slot-btn');
-        
-        slotBtns.forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                slotBtns.forEach(function(b) {
-                    b.classList.remove('btn-warning', 'text-white');
-                    b.classList.add('btn-outline-secondary');
-                });
-                btn.classList.remove('btn-outline-secondary');
-                btn.classList.add('btn-warning', 'text-white');
-
-                var slot = btn.getAttribute('data-slot');
-                if (hiddenInput) hiddenInput.value = slot;
-
-                var url = new URL(window.location);
-                url.searchParams.set('slot', slot);
-                url.hash = 'horaires';
-                window.history.replaceState({}, '', url);
-            });
-        });
-    }
-
-    function setupAnimalSelector() {
-        var selectorBtns = document.querySelectorAll('.animal-selector-btn');
-        var newAnimalBtn = document.getElementById('newAnimalBtn');
-        var clearBtn = document.getElementById('clearAnimalFormBtn');
-
-        function fillForm(animal) {
-            var el = function(id) { return document.getElementById(id); };
-            el('selectedAnimalId').value = animal ? animal.id : '';
-            el('animalNom').value = animal ? animal.nom : '';
-            el('animalEspece').value = animal ? (animal.espece || '') : '';
-            el('animalRace').value = animal ? (animal.race || '') : '';
-            el('animalDateNaissance').value = animal ? (animal.dateNaissance || '') : '';
-            el('animalPoids').value = animal ? (animal.poids || '') : '';
-            el('animalRemarque').value = animal ? (animal.remarque || '') : '';
-            if (animal && animal.vaccinAJour) {
-                el('vaccinOui').checked = true;
-            } else {
-                el('vaccinNon').checked = true;
-            }
-        }
-
-        function setActiveBtn(activeBtn) {
-            selectorBtns.forEach(function(b) {
-                b.classList.remove('btn-success', 'text-white');
-                b.classList.add('btn-outline-secondary');
-            });
-            if (activeBtn) {
-                activeBtn.classList.remove('btn-outline-secondary');
-                activeBtn.classList.add('btn-success', 'text-white');
-            }
-        }
-
-        selectorBtns.forEach(function(btn) {
-            btn.replaceWith(btn.cloneNode(true));
-        });
-        selectorBtns = document.querySelectorAll('.animal-selector-btn');
-
-        selectorBtns.forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                var animalId = parseInt(btn.getAttribute('data-animal-id'));
-                var animal = animalsData.find(function(a) { return a.id === animalId; });
-                setActiveBtn(btn);
-                fillForm(animal);
-            });
-        });
-
-        if (newAnimalBtn) {
-            newAnimalBtn.addEventListener('click', function() {
-                setActiveBtn(null);
-                fillForm(null);
-            });
-        }
-
-        if (clearBtn) {
-            clearBtn.addEventListener('click', function() {
-                setActiveBtn(null);
-                fillForm(null);
-            });
-        }
-    }
-
-    function setupAll() {
-        setupCalendarSlots();
-        setupAnimalSelector();
-
-        // Sync selected slot into the form hidden field before submit
-        var form = document.querySelector('form[action*="save-animal"]');
-        if (form) {
-            form.addEventListener('submit', function() {
-                var slotInput = form.querySelector('input[name="_slot"]');
-                var selectedSlotInput = document.getElementById('selectedSlotInput');
-                if (slotInput && selectedSlotInput) {
-                    slotInput.value = selectedSlotInput.value;
-                }
-            });
-        }
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', setupAll);
-    } else {
-        setupAll();
-    }
-    document.addEventListener('turbo:load', setupAll);
-</script>
 {% endblock %}

@@ -5,9 +5,11 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Entity\User;
 use App\Entity\Animal;
+use App\Entity\RendezVous;
 use App\Repository\AnimalRepository;
 use App\Repository\DayOfWorkRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -253,6 +255,100 @@ class VetInfoController extends AbstractController
             'date' => $request->request->get('_date'),
             'slot' => $request->request->get('_slot'),
         ]);
+    }
+
+    #[Route('/vet/{id}/book/confirm', name: 'app_vet_book_confirm', methods: ['POST'])]
+    public function confirmBooking(Request $request, User $vet = null, AnimalRepository $animalRepository): Response
+    {
+        if (!$vet || !in_array('ROLE_VETO', $vet->getRoles())) {
+            throw new NotFoundHttpException('Vétérinaire non trouvé.');
+        }
+
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $selectedDate = $request->request->get('selectedDate');
+        $selectedSlot = $request->request->get('selectedSlot');
+        $animalId = $request->request->get('animalId');
+
+        // Format date for display
+        $dateDisplay = '';
+        if ($selectedDate && $selectedSlot) {
+            try {
+                $dt = new \DateTime($selectedDate . ' ' . $selectedSlot);
+                $monthsFr = [1=>'janvier',2=>'février',3=>'mars',4=>'avril',5=>'mai',6=>'juin',7=>'juillet',8=>'août',9=>'septembre',10=>'octobre',11=>'novembre',12=>'décembre'];
+                $dateDisplay = $dt->format('d') . ' ' . $monthsFr[(int)$dt->format('m')] . ' ' . $dt->format('Y') . ' à ' . $dt->format('H:i');
+            } catch (\Exception $e) {
+                $dateDisplay = $selectedDate . ' ' . $selectedSlot;
+            }
+        }
+
+        // Get animal name
+        $animalName = 'Non sélectionné';
+        if ($animalId) {
+            $animal = $animalRepository->find($animalId);
+            if ($animal && $animal->getProprietaire() === $user) {
+                $animalName = $animal->getNom() . ($animal->getEspece() ? ' (' . $animal->getEspece() . ')' : '');
+            }
+        }
+
+        return $this->render('vet-info/book_confirmation.html.twig', [
+            'vet' => $vet,
+            'dateDisplay' => $dateDisplay,
+            'selectedDate' => $selectedDate,
+            'selectedSlot' => $selectedSlot,
+            'animalId' => $animalId,
+            'animalName' => $animalName,
+        ]);
+    }
+
+    #[Route('/vet/{id}/book/save', name: 'app_vet_book_save', methods: ['POST'])]
+    public function saveRendezVous(Request $request, User $vet = null, EntityManagerInterface $em, AnimalRepository $animalRepository): Response
+    {
+        if (!$vet || !in_array('ROLE_VETO', $vet->getRoles())) {
+            throw new NotFoundHttpException('Vétérinaire non trouvé.');
+        }
+
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $selectedDate = $request->request->get('selectedDate');
+        $selectedSlot = $request->request->get('selectedSlot');
+        $animalId = $request->request->get('animalId');
+
+        // Build dateHeure
+        $dateHeure = new \DateTime($selectedDate . ' ' . $selectedSlot);
+
+        // Find animal
+        $animal = null;
+        if ($animalId) {
+            $animal = $animalRepository->find($animalId);
+            if ($animal && $animal->getProprietaire() !== $user) {
+                $animal = null;
+            }
+        }
+
+        $rdv = new RendezVous();
+        $rdv->setClient($user);
+        $rdv->setVeterinaire($vet);
+        $rdv->setAnimal($animal);
+        $rdv->setDateHeure($dateHeure);
+        $rdv->setStatut('en_attente');
+
+        $em->persist($rdv);
+        $em->flush();
+
+        if ($request->isXmlHttpRequest() || in_array('application/json', $request->getAcceptableContentTypes())) {
+            return new JsonResponse(['success' => true]);
+        }
+
+        $this->addFlash('success', 'Votre rendez-vous a été confirmé avec succès !');
+
+        return $this->redirectToRoute('app_vet_info', ['id' => $vet->getId()]);
     }
 
     /**

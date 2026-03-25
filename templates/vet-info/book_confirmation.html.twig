@@ -1,0 +1,120 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Confirmation RDV - Dr. {{ vet.prenom }} {{ vet.nom }}{% endblock %}
+
+{% block body %}
+<div class="container my-5 px-3" data-controller="book-confirmation">
+
+    <!-- STEPPER (step 2 active) -->
+    <div class="d-flex justify-content-center align-items-center mb-4 pt-3 gap-2">
+        <div class="rounded-circle bg-success p-1"></div>
+        <div class="bg-success rounded" style="height:2px;width:40px;"></div>
+        <div class="rounded-circle bg-success p-1"></div>
+        <div class="bg-secondary-subtle rounded" style="height:2px;width:40px;"></div>
+        <div class="rounded-circle bg-secondary p-1"></div>
+    </div>
+
+    <!-- VET SUMMARY CARD -->
+    <div class="card border border-warning shadow-sm rounded-4 mb-4 bg-white">
+        <div class="card-body p-4 d-flex align-items-center gap-4">
+            <img src="https://ui-avatars.com/api/?name={{ vet.prenom }}+{{ vet.nom }}&background=random" alt="Dr. {{ vet.prenom }} {{ vet.nom }}" class="rounded-circle shadow-sm object-fit-cover" width="80" height="80">
+
+            <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h2 class="h5 fw-bold mb-1 text-dark">Dr. {{ vet.prenom }} {{ vet.nom }}</h2>
+                        <p class="text-muted mb-1 small">Vétérinaire Généraliste</p>
+                        <p class="text-primary small mb-2"><a href="#" class="text-decoration-none">{{ vet.adressecabinet|default('123 Rue de la Santé, 75000 ville') }}</a> • A 1.2 km</p>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <span class="badge bg-light text-dark fw-normal border">Urgence</span>
+                            <span class="badge bg-light text-dark fw-normal border">Parking</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline-success rounded-pill btn-sm d-flex align-items-center gap-2">
+                        <twig:ux:icon name="lucide:heart" class="m-0" />
+                        Ajouter aux favoris
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RECAP CARD -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4 p-4 p-md-5 bg-white">
+        <h3 class="h5 fw-bold mb-4 text-dark">Récapitulatif du Rendez-vous</h3>
+
+        <!-- Date et heure -->
+        <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
+            <div>
+                <p class="fw-bold mb-1">Date et heure</p>
+                <p class="text-muted mb-0">{{ dateDisplay|default('Non sélectionné') }}</p>
+            </div>
+            <a href="{{ path('app_vet_book', {id: vet.id, date: selectedDate, slot: selectedSlot}) }}" class="btn btn-outline-secondary rounded-pill px-3 py-1">Modifier</a>
+        </div>
+
+        <!-- Animal -->
+        <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
+            <div>
+                <p class="fw-bold mb-1">Animal</p>
+                <p class="text-muted mb-0">{{ animalName }}</p>
+            </div>
+            <a href="{{ path('app_vet_book', {id: vet.id, date: selectedDate, slot: selectedSlot}) }}" class="btn btn-outline-secondary rounded-pill px-3 py-1">Modifier</a>
+        </div>
+
+        <!-- Cabinet -->
+        <div class="d-flex justify-content-between align-items-center py-3">
+            <div>
+                <p class="fw-bold mb-1">Cabinet</p>
+                <p class="text-primary mb-0">{{ vet.adressecabinet|default('123 Rue de la Santé, 75000 ville') }}</p>
+            </div>
+            <a href="{{ path('app_vet_info', {id: vet.id}) }}" class="btn btn-outline-secondary rounded-pill px-3 py-1">Modifier</a>
+        </div>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="d-flex justify-content-center gap-3 mt-5 mb-5">
+        <a href="{{ path('app_vet_book', {id: vet.id}) }}" class="btn btn-danger rounded-pill px-5 py-3 fw-bold shadow-sm fs-6">
+            Annuler
+        </a>
+        <form id="confirmSaveForm" data-action="{{ path('app_vet_book_save', {id: vet.id}) }}">
+            <input type="hidden" name="selectedDate" value="{{ selectedDate }}">
+            <input type="hidden" name="selectedSlot" value="{{ selectedSlot }}">
+            <input type="hidden" name="animalId" value="{{ animalId }}">
+            <button type="button" id="confirmAjaxBtn" data-action="click->book-confirmation#submit" class="btn btn-success rounded-pill px-5 py-3 fw-bold shadow-sm fs-6">
+                Confirmer mon Rendez-vous
+            </button>
+        </form>
+    </div>
+
+</div>
+
+<!-- SUCCESS MODAL -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg px-4 py-5 text-center">
+            
+            <div class="mb-4">
+                <div class="rounded-circle bg-success d-inline-flex justify-content-center align-items-center" style="width: 80px; height: 80px;">
+                    <i class="bi bi-check2 text-white" style="font-size: 3rem;"></i>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-center align-items-center gap-4 mb-4 fw-medium text-dark">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-calendar text-warning fs-5"></i>
+                    <span>{{ dateDisplay|split(' à ')[0] | default('') }}</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-alarm text-warning fs-5"></i>
+                    <span>{{ selectedSlot }}</span>
+                </div>
+            </div>
+
+            <h4 class="h5 fw-bold text-dark text-primary-emphasis mb-2">Votre rendez-vous est confirmée !</h4>
+            <p class="text-primary-emphasis fw-medium mb-4">Un e-mail contenant les détails de votre<br>réservation vous a été envoyé.</p>
+
+            <a href="{{ path('app_home') }}" class="btn btn-success rounded-pill px-5 py-3 fw-bold w-100 fs-6">Acceptez</a>
+        </div>
+<button type="button" class="d-none" id="triggerSuccessModalBtn" data-bs-toggle="modal" data-bs-target="#successModal"></button>
+
+{% endblock %}
