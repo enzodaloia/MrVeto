@@ -1,11 +1,146 @@
-{% extends 'base.html.twig' %}
+<style>
+	#modal-step-1 .btn-outline-primary:hover {
+		background-color: var(--bs-primary-hover);
+		border-color: var(--bs-primary-hover);
+		color: white;
+	}
+	#modal-step-1 .btn-outline-primary:focus {
+		background-color: var(--bs-primary-focus);
+		border-color: var(--bs-primary-focus);
+		color: white;
+		box-shadow: 0 0 0 0.25rem var(--bs-primary-focus);
+	}
+	#modal-step-1 .btn-outline-primary:active {
+		background-color: var(--bs-primary-pressed);
+		border-color: var(--bs-primary-pressed);
+		color: white;
+	}
+</style>
+<div class="modal fade" id="createUserModal" tabindex="-1">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content rounded-4 border-0 shadow">
+			<div class="modal-header border-0 pb-0">
+				<h5 class="modal-title fw-bold text-primary text-center w-100" id="modal-title">Créer un compte</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div
+				class="modal-body p-4">
 
-{% block title %}New User{% endblock %}
+				{# Étape 1 #}
+				<div id="modal-step-1" class="text-center">
+					<p class="text-muted mb-4">Quel type de compte souhaitez-vous créer ?</p>
+					<div class="d-flex flex-column gap-3 mx-auto" style="max-width:300px;">
+						<button type="button" class="btn btn-outline-primary rounded-3 p-3 text-center fw-semibold" onclick="modalShowForm('ROLE_VETO')">
+							Vétérinaire
+						</button>
+						<button type="button" class="btn btn-outline-primary rounded-3 p-3 text-center fw-semibold" onclick="modalShowForm('ROLE_ADMIN')">
+							Administrateur
+						</button>
+						<button type="button" class="btn btn-outline-primary rounded-3 p-3 text-center fw-semibold" onclick="modalShowForm('ROLE_USER')">
+							Utilisateur
+						</button>
+					</div>
+				</div>
 
-{% block body %}
-    <h1>Create new User</h1>
+				{# Étape 2 #}
+				<div id="modal-step-2" style="display:none;">
+					<button type="button" class="btn btn-link text-muted p-0 mb-3" onclick="modalShowStep1()">
+						← Retour
+					</button>
 
-    {{ include('user_admin/_form.html.twig') }}
+					{{ form_start(form, {'action': path('app_user_admin_new'), 'attr': {'data-turbo': 'false'}}) }}
+					<input type="hidden" name="selected_role" id="modal-selected-role">
 
-    <a href="{{ path('app_user_admin_index') }}">back to list</a>
-{% endblock %}
+					<h6 class="fw-semibold text-primary mb-3">Informations personnelles</h6>
+					<div class="row g-3 mb-3">
+						<div class="col-md-6">
+							<label class="form-label text-muted small">Nom</label>
+							<input type="text" name="user_admin[nom]" class="form-control rounded-3">
+						</div>
+						<div class="col-md-6">
+							<label class="form-label text-muted small">Prénom</label>
+							<input type="text" name="user_admin[prenom]" class="form-control rounded-3">
+						</div>
+						<div class="col-md-6">
+							<label class="form-label text-muted small">Adresse postale</label>
+							<input type="text" name="user_admin[adresse]" class="form-control rounded-3">
+						</div>
+						<div class="col-md-6">
+							<label class="form-label text-muted small">Ville</label>
+							<input type="text" name="user_admin[ville]" class="form-control rounded-3">
+						</div>
+						<div class="col-md-6">
+							<label class="form-label text-muted small">Téléphone</label>
+							<input type="text" name="user_admin[telephone]" class="form-control rounded-3">
+						</div>
+						<div class="col-md-6">
+							<label class="form-label text-muted small">Date de naissance</label>
+							<input type="date" name="user_admin[datenaissance]" class="form-control rounded-3">
+						</div>
+						<div class="col-12">
+							<label class="form-label text-muted small">Adresse email</label>
+							<input type="email" name="user_admin[email]" class="form-control rounded-3" placeholder="john.doe@gmail.com">
+						</div>
+					</div>
+
+					<hr class="my-3">
+
+					<div id="modal-fields-veto" style="display:none;">
+						<h6 class="fw-semibold text-primary mb-3">Informations professionnelles</h6>
+						<div class="row g-3 mb-3">
+							<div class="col-12">
+								<label class="form-label text-muted small">N° de Siret</label>
+								<input type="text" name="user_admin[siret]" class="form-control rounded-3">
+							</div>
+							<div class="col-md-6">
+								<label class="form-label text-muted small">Code postal</label>
+								<input type="text" name="user_admin[codepostal]" class="form-control rounded-3">
+							</div>
+							<div class="col-md-6">
+								<label class="form-label text-muted small">Adresse cabinet</label>
+								<input type="text" name="user_admin[adressecabinet]" class="form-control rounded-3">
+							</div>
+						</div>
+						<hr class="my-3">
+					</div>
+
+					<h6 class="fw-semibold text-primary mb-3">Accès</h6>
+					<div class="row g-3 mb-3">
+						<div class="col-md-6">
+							<label class="form-label text-muted small">Mot de passe</label>
+							<input type="password" name="user_admin[password]" class="form-control rounded-3">
+						</div>
+						<div class="col-md-6">
+							<label class="form-label text-muted small">Confirmation mot de passe</label>
+							<input type="password" class="form-control rounded-3">
+						</div>
+						<div class="col-12">
+							<div class="form-check">
+								<input type="checkbox" name="user_admin[isVerified]" class="form-check-input" value="1">
+								<label class="form-check-label">Compte vérifié</label>
+							</div>
+						</div>
+					</div>
+
+					<select name="user_admin[roles][]" id="modal-roles-select" class="d-none">
+						<option value="ROLE_USER">Utilisateur</option>
+						<option value="ROLE_VETO">Vétérinaire</option>
+						<option value="ROLE_ADMIN">Admin</option>
+					</select>
+
+					<div class="d-flex justify-content-center gap-3 mt-4">
+						<button type="button" class="btn btn-danger rounded-pill px-5 fw-semibold" data-bs-dismiss="modal">
+							Annuler
+						</button>
+						<button type="submit" class="btn btn-primary rounded-pill px-5 fw-semibold text-white">
+							Créer le compte
+						</button>
+					</div>
+					{{ form_widget(form._token) }}
+{{ form_end(form, { render_rest: false }) }}
+				</div>
+
+			</div>
+		</div>
+	</div>
+</div>
