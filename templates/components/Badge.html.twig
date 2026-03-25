@@ -1,0 +1,14 @@
+{% props text, type = 'primary', customClass = '' %}
+{% set baseClasses = 'badge rounded-pill fw-medium px-4 py-2 border user-select-none' %}
+{% set typeStyles = {
+    'primary': 'border-primary-border bg-primary-bg text-primary',
+    'secondary': 'border-secondary-border bg-secondary-bg text-secondary',
+    'success': 'border-success-border bg-success-bg text-success',
+    'info':    'border-info-border bg-info-bg text-info',
+    'warning': 'border-warning-border bg-warning-bg text-warning',
+    'danger':  'border-danger-border bg-danger-bg text-danger'
+} %}
+
+<span class="{{ baseClasses }} {{ typeStyles[type]|default(typeStyles['primary']) }} {{ customClass }}">
+    {{ text }}
+</span>

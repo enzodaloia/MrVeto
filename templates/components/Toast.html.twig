@@ -1,0 +1,48 @@
+{% props message, type = 'info', title = null, delay = 4500, autohide = true, customClass = '' %}
+
+{% set baseClasses = 'toast show border shadow rounded-4 overflow-hidden' %}
+{% set typeStyles = {
+    'success': 'border-success-border bg-success-bg text-success',
+    'info':    'border-info-border bg-info-bg text-info',
+    'warning': 'border-warning-border bg-warning-bg text-warning',
+    'danger':  'border-danger-border bg-danger-bg text-danger'
+} %}
+{% set iconClasses = {
+    'success': 'bi bi-check-circle-fill',
+    'info': 'bi bi-info-circle-fill',
+    'warning': 'bi bi-exclamation-triangle-fill',
+    'danger': 'bi bi-x-octagon-fill'
+} %}
+{% set resolvedType = typeStyles[type] is defined ? type : 'info' %}
+
+<div
+    class="{{ baseClasses }} {{ typeStyles[resolvedType] }} {{ customClass }}"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    data-auto-init="toast"
+    data-bs-delay="{{ delay }}"
+    data-bs-autohide="{{ autohide ? 'true' : 'false' }}"
+    style="backdrop-filter: blur(3px); min-width: 23rem;"
+>
+    <div class="d-flex align-items-start" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.25));">
+        <div class="toast-body d-flex align-items-center gap-2 py-3" style="font-size: 1.02rem;">
+            <i class="{{ iconClasses[resolvedType] }}" style="font-size: 1.05rem;"></i>
+            <div>
+                {% if title %}
+                    <div class="fw-bold mb-1">{{ title }}</div>
+                {% endif %}
+                <div>{{ message }}</div>
+            </div>
+        </div>
+        <button
+            type="button"
+            class="btn border-0 bg-transparent p-0 me-2 mt-2 d-inline-flex align-items-center justify-content-center"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+            style="color: currentColor; width: 1.75rem; height: 1.75rem; line-height: 1;"
+        >
+            <i class="bi bi-x-lg" aria-hidden="true" style="font-size: .95rem;"></i>
+        </button>
+    </div>
+</div>

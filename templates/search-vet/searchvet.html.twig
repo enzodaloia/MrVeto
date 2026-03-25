@@ -142,7 +142,7 @@
 			<div class="col-lg-6 col-xl-7">
 				<div class="d-flex flex-column gap-4">
 					{% for vet in vets %}
-						<div class="card border-0 shadow-sm p-4 transition-hover cursor-pointer">
+						<div class="card border-0 shadow-sm p-4 transition-hover cursor-pointer" onclick="window.location.href='{{ path('app_vet_info', {id: vet.id}) }}'">
 							<div
 								class="d-flex flex-column flex-sm-row gap-4 align-items-start align-items-sm-center">
 								{# Avatar #}
@@ -151,25 +151,26 @@
 
 								{# Info #}
 								<div class="flex-grow-1">
+									{% set availability = vetAvailability[vet.id]|default({'isOpen': false, 'label': 'Ferme', 'detail': 'Aucun horaire renseigne'}) %}
 									<h3 class="h5 text-primary fw-bold mb-2">Dr.
 										{{ vet.prenom }}
 										{{ vet.nom }}</h3>
 									<div class="d-flex flex-column gap-1 text-muted small">
 										<span class="d-flex align-items-center gap-2">
 											<twig:ux:icon class="fs-6 text-primary" name="lucide:map-pin"/>
-											{{ vet.adresse }}
+											{{ vet.adressecabinet }}
 										</span>
 										<span class="d-flex align-items-center gap-2">
 											<twig:ux:icon class="fs-6 text-primary" name="lucide:clock"/>
-											<span class="text-primary fw-medium">Ouvert (à voir)</span>
-											• besoin des dispos véto
+											<span class="fw-medium {{ availability.isOpen ? 'text-primary' : 'text-danger' }}">{{ availability.label }}</span>
+											<span class="">{{ availability.detail }}</span>
 										</span>
 									</div>
 								</div>
 
 								{# Actions #}
-								<div class="mt-3 mt-sm-0 ms-sm-auto align-self-sm-center">
-									<a href="#" class="btn btn-primary rounded-pill hover-bg-secondary px-4 py-2 fw-medium shadow-sm custom-hover-lift text-light">
+								<div class="mt-3 mt-sm-0 ms-sm-auto align-self-sm-center" onclick="event.stopPropagation();">
+									<a href="{{ path('app_vet_info', {id: vet.id}) }}" class="btn btn-primary rounded-pill hover-bg-secondary px-4 py-2 fw-medium shadow-sm custom-hover-lift text-light">
 										Voir / Prendre RDV
 									</a>
 								</div>
@@ -222,7 +223,8 @@
 										</li>
 									</ul>
 								</div>
-								<span class="text-muted ms-2 small">résultats sur {{ totalItems }}</span>
+								<span class="text-muted ms-2 small">résultats sur
+									{{ totalItems }}</span>
 							</div>
 
 							{# Page Nav Pills #}

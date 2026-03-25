@@ -1,62 +1,60 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}MrVeto -
-	{{ vet.name }}
+								Dr.
+	{{ vet.prenom }}
+	{{ vet.nom }}
 {% endblock %}
 
 {% block body %}
-	<div class="container my-5">
+	<div
+		class="container my-5">
 
 		<!-- HEADER CARD -->
-		<!-- Centered, ~70% width -->
-			<div class="row justify-content-center"> <div
-				class="col-lg-9">
-				<!-- Border secondary (yellow) as per mockup -->
-				<div class="card border border-secondary shadow-sm mb-5 rounded-4 overflow-hidden position-relative bg-white">
+		<div class="row justify-content-center">
+			<div class="col-lg-9">
+				<div class="card border border-secondary shadow-sm mb-5 rounded-4 bg-white" style="border-width: 1.5px !important;">
 					<div
-						class="card-body p-4 p-lg-5 d-flex flex-column flex-md-row align-items-center gap-4">
+						class="card-body p-4 p-md-5 d-flex flex-column flex-md-row gap-4">
 
 						<!-- VET PHOTO -->
-						<div class="flex-shrink-0">
-							<img src="{{ vet.image }}" alt="{{ vet.name }}" class="rounded-circle shadow-sm" style="width: 120px; height: 120px; object-fit: cover;">
+						<div class="flex-shrink-0 text-center text-md-start">
+							<img src="https://ui-avatars.com/api/?name={{ vet.prenom }}+{{ vet.nom }}&background=random" alt="Dr. {{ vet.prenom }} {{ vet.nom }}" class="rounded-circle shadow-sm" style="width: 100px; height: 100px; object-fit: cover;">
 						</div>
 
 						<!-- VET INFO (Middle) -->
-						<div class="flex-grow-1 text-center text-md-start">
-							<h1 class="h2 fw-bold mb-1 text-dark">{{ vet.name }}</h1>
-							<p class="h5 text-muted mb-2 fw-normal">{{ vet.title }}</p>
-							<a href="#" class="text-decoration-none text-info fw-medium d-inline-block mb-3">
-								<i class="bi bi-geo-alt me-1"></i>
-								{{ vet.address }}
-								•
-								{{ vet.distance }}
-							</a>
+						<div class="flex-grow-1 d-flex flex-column justify-content-between text-center text-md-start gap-3">
+							<div>
+								<h1 class="h3 fw-medium mb-1 text-dark" style="letter-spacing: -0.5px;">Dr.
+									{{ vet.prenom }}
+									{{ vet.nom }}</h1>
+								<p class="fs-5 text-muted mb-1 fw-normal">Vétérinaire Généraliste</p>
+								<div class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-2 mb-3 mb-md-0">
+									<a href="#" class="text-decoration-none fw-medium text-primary">
+										{{ vet.adressecabinet }}
+									</a>
+								</div>
+							</div>
 
-							<div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-2 mt-2">
-								<span class="badge rounded-pill bg-primary-bg text-primary-pressed fw-medium px-3 py-2 border border-primary-bg">
-									Prochain RDV : Demain à 14H30
-								</span>
-								<span class="badge rounded-pill bg-info-bg text-info-pressed fw-medium px-3 py-2 border border-info-bg">
-									Urgence
-								</span>
-								<span class="badge rounded-pill bg-neutral-20 text-muted fw-medium px-3 py-2 border border-neutral-20">
-									Parking
-								</span>
+							<!-- Badges -->
+							<div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-2 mt-4 mt-md-0">
+								<twig:Badge type="info" text="Urgence"/>
+								<twig:Badge type="info" text="Parking"/>
 							</div>
 						</div>
 
 						<!-- VET ACTIONS (Right) -->
 						<div
-							class="d-flex flex-column align-items-center align-items-md-end gap-3 w-100 w-md-auto mt-3 mt-md-0">
-							<!-- Fav Button: Border gray200 (using neutral-40 for visible gray border as per mockup request if neutral-20 too light, sticking to gray200 roughly) -->
-							<button class="btn btn-link text-decoration-none text-info fw-medium d-flex align-items-center gap-2 px-3 py-2 rounded-pill border border-neutral-40 bg-white">
-								<i class="bi bi-heart"></i>
+							class="d-flex flex-column align-items-center align-items-md-end justify-content-center gap-3 flex-shrink-0 mt-3 mt-md-0">
+							<!-- Fav Button -->
+							<button class="btn btn-white btn-fav-hover rounded-pill border border-light fw-medium px-4 py-2 d-flex align-items-center gap-2 shadow-sm transition-hover hover-scale" style="color: #40A8A4;">
+								<twig:ux:icon class="fs-5" name="lucide:heart"/>
 								Ajouter aux favoris
 							</button>
 
-							<!-- Main Button: Primary + White text -->
-							<a href="#" class="btn btn-primary bg-primary text-white fw-bold rounded-pill px-5 py-3 shadow-sm mt-2">
-								Voir / Prendre RDV
+							<!-- Main Button -->
+							<a href="{{ path('app_vet_book', {'id': vet.id}) }}" class="btn rounded-pill text-white fw-bold px-4 py-2 shadow-sm w-100 transition-hover hover-scale" style="background-color: #3ABBAC; border: none;">
+								Prendre RDV
 							</a>
 						</div>
 
@@ -72,51 +70,46 @@
 			<!-- LEFT COLUMN (Main Info) -->
 			<div class="col-lg-7">
 				<div
-					class="card border-0 shadow-sm p-4 p-lg-5 h-100 rounded-4 bg-white">
+					class="card border-0 shadow-sm p-4 p-md-5 h-100 rounded-4 bg-white">
 
 					<!-- A PROPOS -->
 					<div class="mb-5">
-						<h2 class="h4 fw-bold mb-3 text-dark">A propos</h2>
-						<p class="text-secondary lh-lg mb-0 text-muted">
+						<h2 class="h4 fw-medium mb-4 text-dark" style="letter-spacing: -0.5px;">A propos</h2>
+						<p class="text-dark lh-lg mb-0" style="font-size: 1.05rem;">
 							Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
 						</p>
 					</div>
 
 					<!-- SPECIALITES -->
 					<div class="mb-5">
-						<h2 class="h4 fw-bold mb-3 text-dark">Spécialités</h2>
-						<div class="d-flex flex-wrap gap-2">
-							{% for spec in vet.specialties %}
-								<span class="badge rounded-pill bg-warning-bg text-warning-pressed fw-normal px-3 py-2 border border-warning-bg fs-6">
-									{{ spec }}
-								</span>
-							{% endfor %}
-							<span class="badge rounded-pill bg-warning-bg text-warning-pressed fw-normal px-3 py-2 border border-warning-bg fs-6">
-								Lorem
-							</span>
+						<h2 class="h4 fw-medium mb-4 text-dark" style="letter-spacing: -0.5px;">Spécialités</h2>
+						<div class="d-flex flex-wrap gap-3">
+							<twig:Badge type="primary" text="Dermatologie"/>
+							<twig:Badge type="primary" text="Gastroentérologie"/>
+							<twig:Badge type="primary" text="Lorem"/>
 						</div>
 					</div>
 
 					<!-- DETAILS (List) -->
 					<div class="vstack gap-4">
 						<div>
-							<span class="d-block h5 fw-bold mb-1 text-dark">Moyens de paiement</span>
-							<span class="text-info fw-medium">{{ vet.payment_methods }}</span>
+							<span class="d-block h5 fw-medium mb-2 text-dark" style="letter-spacing: -0.3px;">Moyens de paiement</span>
+							<span class="fw-normal" style="color: #40A8A4; font-size: 1.05rem;">CB / espèces / mutuelle animale</span>
 						</div>
 
 						<div>
-							<span class="d-block h5 fw-bold mb-1 text-dark">Types d'animaux acceptés</span>
-							<span class="text-info fw-medium">{{ vet.animal_types }}</span>
+							<span class="d-block h5 fw-medium mb-2 text-dark" style="letter-spacing: -0.3px;">Types d'animaux acceptés</span>
+							<span class="fw-normal" style="color: #40A8A4; font-size: 1.05rem;">Chiens / Chats / NAC / Chevaux</span>
 						</div>
 
 						<div>
-							<span class="d-block h5 fw-bold mb-1 text-dark">Durée moyenne de consultation</span>
-							<span class="text-info fw-medium">{{ vet.consultation_duration }}</span>
+							<span class="d-block h5 fw-medium mb-2 text-dark" style="letter-spacing: -0.3px;">Durée moyenne de consultation</span>
+							<span class="fw-normal" style="color: #40A8A4; font-size: 1.05rem;">20 minutes</span>
 						</div>
 
 						<div>
-							<span class="d-block h5 fw-bold mb-1 text-dark">Langues parlées</span>
-							<span class="text-info fw-medium">{{ vet.languages }}</span>
+							<span class="d-block h5 fw-medium mb-2 text-dark" style="letter-spacing: -0.3px;">Langues parlées</span>
+							<span class="fw-normal" style="color: #40A8A4; font-size: 1.05rem;">FR / ENG</span>
 						</div>
 					</div>
 				</div>
@@ -129,98 +122,78 @@
 
 					<!-- 1. CALENDAR CARD -->
 					<div class="card border-0 shadow-sm p-4 rounded-4 bg-white">
-						<h2 class="h4 fw-bold mb-4 text-dark">Prochaines disponibilités</h2>
+						<h2 class="h5 fw-medium mb-4 text-dark" style="letter-spacing: -0.3px;">Prochaines disponibilités</h2>
+						<p class="small mb-3 {{ status.isOpen ? 'text-success' : 'text-danger' }}">
+							{{ status.label }}
+							•
+							{{ status.detail }}
+						</p>
 
-						<div class="d-flex justify-content-between align-items-center mb-2">
-							<button class="btn btn-link text-warning p-0 text-decoration-none">
-								<i class="bi bi-chevron-left fs-5 fw-bold"></i>
-							</button>
-
-							<div class="d-flex justify-content-between flex-grow-1 mx-3 text-center">
-								<div class="d-flex flex-column align-items-center" style="width: 38px;">
-									<span class="fw-bold small text-dark mb-1">Lun</span>
-									<span class="text-muted small">1</span>
-								</div>
-								<div class="d-flex flex-column align-items-center" style="width: 38px;">
-									<span class="fw-bold small text-dark mb-1">Mar</span>
-									<span class="text-muted small">2</span>
-								</div>
-								<!-- Active Day (Yellow) -->
-								<div class="d-flex flex-column align-items-center bg-warning rounded-3 shadow-sm pt-1 pb-1" style="width: 38px;">
-									<span class="fw-bold small text-dark mb-1">Mer</span>
-									<span class="fw-bold small text-dark">3</span>
-								</div>
-								<div class="d-flex flex-column align-items-center" style="width: 38px;">
-									<span class="fw-bold small text-dark mb-1">Jeu</span>
-									<span class="text-muted small">4</span>
-								</div>
-								<div class="d-flex flex-column align-items-center" style="width: 38px;">
-									<span class="fw-bold small text-dark mb-1">Ven</span>
-									<span class="text-muted small">5</span>
-								</div>
-								<div class="d-flex flex-column align-items-center" style="width: 38px;">
-									<span class="fw-bold small text-dark mb-1">Sam</span>
-									<span class="text-muted small text-info">6</span>
-								</div>
-								<div class="d-flex flex-column align-items-center" style="width: 38px;">
-									<span class="fw-bold small text-dark mb-1">Dim</span>
-									<span class="text-muted small text-info">7</span>
-								</div>
-							</div>
-
-							<button class="btn btn-link text-warning p-0 text-decoration-none">
-								<i class="bi bi-chevron-right fs-5 fw-bold"></i>
-							</button>
+						<div class="d-flex justify-content-between flex-grow-1 text-center gap-2">
+							{% for day in weekAvailability %}
+								{% if day.isAvailable %}
+									<button
+										type="button"
+										data-day-offset="{{ day.dayOffset }}"
+										class="day-availability-btn day-chip day-chip--available d-flex flex-column align-items-center rounded-3 px-2 py-2 border-0 text-decoration-none {{ day.isSelected ? 'day-chip--selected' : '' }}"
+										style="min-width: 36px;"
+									>
+										<span class="day-chip__day fw-bold small mb-1" style="font-size: 0.8rem;">{{ day.shortDay }}</span>
+										<span class="day-chip__number small fw-medium" style="font-size: 0.8rem;">{{ day.dayNumber }}</span>
+									</button>
+								{% else %}
+									<button
+										type="button"
+										disabled
+										class="day-chip day-chip--unavailable d-flex flex-column align-items-center rounded-3 px-2 py-2 border-0"
+										style="min-width: 36px;"
+									>
+										<span class="day-chip__day fw-bold small mb-1" style="font-size: 0.8rem;">{{ day.shortDay }}</span>
+										<span class="day-chip__number small fw-medium" style="font-size: 0.8rem;">{{ day.dayNumber }}</span>
+									</button>
+								{% endif %}
+							{% endfor %}
 						</div>
 					</div>
 
 					<!-- 2. HOURS CARD -->
 					<div class="card border-0 shadow-sm p-4 rounded-4 bg-white">
-						<h2 class="h4 fw-bold mb-4 text-dark">Horaire</h2>
-						<div class="row row-cols-4 g-3">
-							<div class="col">
-								<div class="border border-neutral-40 rounded-3 text-center py-2 text-dark small fw-medium">6:00</div>
-							</div>
-							<div class="col">
-								<div class="border border-neutral-40 rounded-3 text-center py-2 text-dark small fw-medium">13:00</div>
-							</div>
-							<div class="col">
-								<div class="border border-neutral-40 rounded-3 text-center py-2 text-dark small fw-medium">14:00</div>
-							</div>
-							<div class="col">
-								<div class="border border-neutral-40 rounded-3 text-center py-2 text-dark small fw-medium">15:30</div>
-							</div>
-							<div class="col">
-								<div class="border border-neutral-40 rounded-3 text-center py-2 text-dark small fw-medium">18:00</div>
-							</div>
-							<div class="col">
-								<div class="border border-neutral-40 rounded-3 text-center py-2 text-dark small fw-medium">19:00</div>
-							</div>
+						<h2 id="hours-title" class="h5 fw-medium mb-4 text-dark" style="letter-spacing: -0.3px;">Horaires ({{ selectedDayDisplay|capitalize }})</h2>
+						<div id="hours-slots" class="row row-cols-3 row-cols-sm-4 g-3">
+							{% for slot in todaySlots %}
+								<div class="col">
+									<div class="hours-slot border rounded-3 text-center py-2 text-dark small fw-normal" style="border-color: #D1D5DB !important;">{{ slot.start }}</div>
+								</div>
+							{% else %}
+								<div class="col-12">
+									<div class="hours-slot border rounded-3 text-center py-2 text-muted small fw-normal" style="border-color: #D1D5DB !important;">Aucun creneau disponible aujourd'hui</div>
+								</div>
+							{% endfor %}
 						</div>
 					</div>
 
 					<!-- 3. CONTACT CARD -->
 					<div class="card border-0 shadow-sm p-4 rounded-4 position-relative bg-white">
 						<div class="d-flex justify-content-between align-items-center mb-4">
-							<h2 class="h4 fw-bold mb-0 text-dark">Contact</h2>
+							<h2 class="h5 fw-medium mb-0 text-dark" style="letter-spacing: -0.3px;">Contact</h2>
 							<button class="btn btn-link text-muted p-0 text-decoration-none">
 								<i class="bi bi-three-dots-vertical"></i>
 							</button>
 						</div>
 
-						<div class="vstack gap-3">
+						<div class="vstack gap-4">
 							<div class="d-flex align-items-center gap-3">
-								<div class="bg-info-bg rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 40px; height: 40px;">
-									<i class="bi bi-telephone text-info fs-5"></i>
+								<div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px; background-color: #EBF7F2;">
+									<twig:ux:icon class="fs-6" name="lucide:phone" style="color: #40A8A4;"/>
 								</div>
-								<a href="tel:{{ vet.phone }}" class="text-info fw-medium text-decoration-none">{{ vet.phone }}</a>
+								<a href="tel:0123456789" class="fw-normal text-decoration-none" style="color: #40A8A4;">+12 345 6789 0</a>
 							</div>
 
 							<div class="d-flex align-items-center gap-3">
-								<div class="bg-info-bg rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 40px; height: 40px;">
-									<i class="bi bi-envelope text-info fs-5"></i>
+								<div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px; background-color: #EBF7F2;">
+									<twig:ux:icon class="fs-6" name="lucide:mail" style="color: #40A8A4;"/>
 								</div>
-								<a href="mailto:{{ vet.email }}" class="text-info fw-medium text-decoration-none">{{ vet.email }}</a>
+								<a href="mailto:{{ vet.email }}" class="fw-normal text-decoration-none" style="color: #40A8A4;">{{ vet.email }}</a>
 							</div>
 						</div>
 					</div>
@@ -229,4 +202,142 @@
 			</div>
 		</div>
 	</div>
+
+	<style>
+		/* Animations and Hover Effects from searchvet */
+		.transition-hover {
+			transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s, background-color 0.2s;
+		}
+		.transition-hover:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1) !important;
+		}
+
+		/*.hover-scale {
+			transition: transform 0.2s;
+		}
+		.hover-scale:hover {
+			transform: scale(1.05);
+		}*/
+
+		.btn-fav-hover {
+			transition: background-color 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s;
+		}
+		.btn-fav-hover:hover {
+			background-color: var(--bs-primary) !important;
+			color: white !important;
+			border-color: var(--bs-primary) !important;
+		}
+
+		.day-chip {
+			transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
+			border: 1px solid transparent;
+		}
+
+		.day-chip__day,
+		.day-chip__number {
+			transition: color 0.18s ease;
+		}
+
+		.day-chip--available {
+			background-color: var(--bs-primary-bg);
+			border-color: var(--bs-primary-border);
+			cursor: pointer;
+		}
+
+		.day-chip--available .day-chip__day {
+			color: var(--bs-primary-pressed);
+		}
+
+		.day-chip--available .day-chip__number {
+			color: var(--bs-primary);
+		}
+
+		.day-chip--available:not(.day-chip--selected):hover {
+			background-color: var(--bs-primary-focus);
+			border-color: var(--bs-primary-hover);
+			transform: translateY(-1px);
+			box-shadow: 0 6px 16px rgba(var(--bs-primary-rgb), 0.2);
+		}
+
+		.day-chip--selected {
+			background-color: var(--bs-primary);
+			border-color: var(--bs-primary);
+			box-shadow: 0 8px 18px rgba(var(--bs-primary-rgb), 0.32);
+		}
+
+		.day-chip--selected .day-chip__day,
+		.day-chip--selected .day-chip__number {
+			color: #FFFFFF;
+		}
+
+		.day-chip--unavailable {
+			background-color: var(--bs-neutral-20);
+			border-color: var(--bs-neutral-40);
+			cursor: not-allowed;
+			opacity: 0.65;
+		}
+
+		.day-chip--unavailable .day-chip__day,
+		.day-chip--unavailable .day-chip__number {
+			color: var(--bs-neutral-60);
+		}
+
+		.hours-slot {
+			cursor: default;
+			user-select: none;
+			-webkit-user-select: none;
+		}
+	</style>
+
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			const slotsByOffset = {{ daySlotsByOffset|json_encode|raw }};
+			const displaysByOffset = {{ dayDisplaysByOffset|json_encode|raw }};
+			const dayButtons = Array.from(document.querySelectorAll('.day-availability-btn'));
+			const slotsContainer = document.getElementById('hours-slots');
+			const hoursTitle = document.getElementById('hours-title');
+
+			if (!slotsContainer || !hoursTitle || dayButtons.length === 0) {
+				return;
+			}
+
+			const renderSlots = (offset) => {
+				const slots = slotsByOffset[offset] ?? [];
+				const display = displaysByOffset[offset] ?? '';
+
+				hoursTitle.textContent = `Horaires (${display.charAt(0).toUpperCase() + display.slice(1)})`;
+
+				if (slots.length === 0) {
+					slotsContainer.innerHTML = `
+						<div class="col-12">
+							<div class="hours-slot border rounded-3 text-center py-2 text-muted small fw-normal" style="border-color: #D1D5DB !important;">Aucun creneau disponible aujourd'hui</div>
+						</div>
+					`;
+					return;
+				}
+
+				slotsContainer.innerHTML = slots.map((slot) => `
+					<div class="col">
+						<div class="hours-slot border rounded-3 text-center py-2 text-dark small fw-normal" style="border-color: #D1D5DB !important;">${slot.start}</div>
+					</div>
+				`).join('');
+			};
+
+			const setSelected = (selectedBtn) => {
+				dayButtons.forEach((btn) => {
+					btn.classList.remove('day-chip--selected');
+				});
+				selectedBtn.classList.add('day-chip--selected');
+			};
+
+			dayButtons.forEach((btn) => {
+				btn.addEventListener('click', function () {
+					const offset = this.dataset.dayOffset;
+					setSelected(this);
+					renderSlots(offset);
+				});
+			});
+		});
+	</script>
 {% endblock %}

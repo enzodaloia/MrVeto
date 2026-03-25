@@ -1,74 +1,95 @@
-{% extends 'base.html.twig' %}
+{% extends app.request.get('modal') == '1' ? 'base.html.twig' : 'base_dashboard.html.twig' %}
 
-{% block title %}User{% endblock %}
+{% block title %}{{ user.prenom }} {{ user.nom }}{% endblock %}
 
-{% block body %}
-    <h1>User</h1>
+{% block dashboard_body %}
+<div class="container-fluid py-4 px-4 bg-primary-bg min-vh-100">
+    <div class="mx-auto" style="max-width: 800px;">
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ user.id }}</td>
-            </tr>
-            <tr>
-                <th>Email</th>
-                <td>{{ user.email }}</td>
-            </tr>
-            <tr>
-                <th>Roles</th>
-                <td>{{ user.roles ? user.roles|json_encode : '' }}</td>
-            </tr>
-            <tr>
-                <th>Password</th>
-                <td>{{ user.password }}</td>
-            </tr>
-            <tr>
-                <th>IsVerified</th>
-                <td>{{ user.isVerified ? 'Yes' : 'No' }}</td>
-            </tr>
-            <tr>
-                <th>Nom</th>
-                <td>{{ user.nom }}</td>
-            </tr>
-            <tr>
-                <th>Prenom</th>
-                <td>{{ user.prenom }}</td>
-            </tr>
-            <tr>
-                <th>Datenaissance</th>
-                <td>{{ user.datenaissance ? user.datenaissance|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Adresse</th>
-                <td>{{ user.adresse }}</td>
-            </tr>
-            <tr>
-                <th>Telephone</th>
-                <td>{{ user.telephone }}</td>
-            </tr>
-            <tr>
-                <th>Ville</th>
-                <td>{{ user.ville }}</td>
-            </tr>
-            <tr>
-                <th>Codepostal</th>
-                <td>{{ user.codepostal }}</td>
-            </tr>
-            <tr>
-                <th>Siret</th>
-                <td>{{ user.siret }}</td>
-            </tr>
-            <tr>
-                <th>Adressecabinet</th>
-                <td>{{ user.adressecabinet }}</td>
-            </tr>
-        </tbody>
-    </table>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 fw-bold text-dark mb-1">{{ user.prenom }} {{ user.nom }}</h1>
+                <p class="text-muted mb-0">ID: #MV-{{ user.id }}</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{{ path('app_user_admin_edit', {'id': user.id}) }}" class="btn btn-primary rounded-3 px-4 fw-semibold">
+                    <i data-lucide="pencil" style="width:15px;height:15px;"></i>
+                    Modifier
+                </a>
+                <a href="{{ path('app_user_admin_index') }}" class="btn btn-light rounded-3 px-4 fw-semibold">
+                    Retour à la liste
+                </a>
+            </div>
+        </div>
 
-    <a href="{{ path('app_user_admin_index') }}">back to list</a>
+        <div class="bg-white rounded-4 shadow-sm p-4 p-lg-5">
 
-    <a href="{{ path('app_user_admin_edit', {'id': user.id}) }}">edit</a>
+            <div class="d-flex align-items-center gap-4 mb-4 pb-4 border-bottom">
+                <div class="avatar-initials" style="width:64px;height:64px;border-radius:14px;background:var(--bs-primary-bg,#e6f7f5);color:var(--bs-primary);font-weight:700;font-size:1.2rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    {{ user.prenom|first|upper }}{{ user.nom|first|upper }}
+                </div>
+                <div>
+                    <div class="fw-bold fs-5">{{ user.prenom }} {{ user.nom }}</div>
+                    <div class="text-muted">{{ user.email }}</div>
+                    <div class="mt-1">
+                        {% for role in user.roles %}
+                            {% if role == 'ROLE_ADMIN' %}
+                                <span class="badge" style="background:#e8e4ff;color:#5b3fcf;font-size:0.7rem;">Admin</span>
+                            {% elseif role == 'ROLE_VETERINAIRE' %}
+                                <span class="badge" style="background:#e4f0ff;color:#2563eb;font-size:0.7rem;">Vétérinaire</span>
+                            {% elseif role == 'ROLE_SECRETAIRE' %}
+                                <span class="badge" style="background:#fff4e0;color:#d97706;font-size:0.7rem;">Secrétaire</span>
+                            {% elseif role != 'ROLE_USER' %}
+                                <span class="badge bg-light text-muted" style="font-size:0.7rem;">{{ role }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
 
-    {{ include('user_admin/_delete_form.html.twig') }}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="text-muted small mb-1">Téléphone</div>
+                    <div class="fw-medium">{{ user.telephone ?: '—' }}</div>
+                </div>
+                <div class="col-md-6">
+                    <div class="text-muted small mb-1">Date de naissance</div>
+                    <div class="fw-medium">{{ user.datenaissance ? user.datenaissance|date('d/m/Y') : '—' }}</div>
+                </div>
+                <div class="col-md-6">
+                    <div class="text-muted small mb-1">Adresse</div>
+                    <div class="fw-medium">{{ user.adresse ?: '—' }}</div>
+                </div>
+                <div class="col-md-6">
+                    <div class="text-muted small mb-1">Ville</div>
+                    <div class="fw-medium">{{ user.ville ?: '—' }}</div>
+                </div>
+                <div class="col-md-6">
+                    <div class="text-muted small mb-1">Code postal</div>
+                    <div class="fw-medium">{{ user.codepostal ?: '—' }}</div>
+                </div>
+                <div class="col-md-6">
+                    <div class="text-muted small mb-1">SIRET</div>
+                    <div class="fw-medium">{{ user.siret ?: '—' }}</div>
+                </div>
+                <div class="col-12">
+                    <div class="text-muted small mb-1">Adresse cabinet</div>
+                    <div class="fw-medium">{{ user.adressecabinet ?: '—' }}</div>
+                </div>
+                <div class="col-md-6">
+                    <div class="text-muted small mb-1">Compte vérifié</div>
+                    <div class="fw-medium">{{ user.isVerified ? 'Oui' : 'Non' }}</div>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-4 border-top d-flex justify-content-end">
+                {{ include('user_admin/_delete_form.html.twig') }}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>if (window.lucide) lucide.createIcons();</script>
 {% endblock %}
