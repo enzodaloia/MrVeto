@@ -1,4 +1,4 @@
-name: Deploy (Symfony)
+name: Deploy Staging
 
 on:
   push:
