@@ -224,6 +224,24 @@
 		
 		{% block body %}{% endblock %}
 
+		<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 2000;">
+			{% for flash in app.flashes('success') %}
+				<twig:Toast type="success" message="{{ flash }}"/>
+			{% endfor %}
+			{% for flash in app.flashes('info') %}
+				<twig:Toast type="info" message="{{ flash }}"/>
+			{% endfor %}
+			{% for flash in app.flashes('warning') %}
+				<twig:Toast type="warning" message="{{ flash }}"/>
+			{% endfor %}
+			{% for flash in app.flashes('danger') %}
+				<twig:Toast type="danger" message="{{ flash }}"/>
+			{% endfor %}
+			{% for flash in app.flashes('error') %}
+				<twig:Toast type="danger" message="{{ flash }}"/>
+			{% endfor %}
+		</div>
+
 		{% if not hiddenNavbar is defined and app.user %}
 					</main>
 				</div>
