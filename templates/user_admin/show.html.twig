@@ -1,4 +1,4 @@
-{% extends 'base_dashboard.html.twig' %}
+{% extends app.request.get('modal') == '1' ? 'base.html.twig' : 'base_dashboard.html.twig' %}
 
 {% block title %}{{ user.prenom }} {{ user.nom }}{% endblock %}
 
