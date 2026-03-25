@@ -12,7 +12,6 @@ use App\Entity\Animal;
 use App\Repository\AnimalRepository;
 use App\Repository\DayOfWorkRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Repository\DayOfWorkRepository;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class VetInfoController extends AbstractController
