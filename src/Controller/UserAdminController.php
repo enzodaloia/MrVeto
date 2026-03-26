@@ -105,7 +105,7 @@ final class UserAdminController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-        
+
             if ($form->has('password')) {
                 $plainPassword = $form->get('password')->getData();
 
@@ -120,7 +120,7 @@ final class UserAdminController extends AbstractController
             $this->addFlash('success', 'Utilisateur mis à jour.');
             return $this->redirectToRoute('app_user_admin_index', [], Response::HTTP_SEE_OTHER);
         }
-      
+
         return $this->render('user_admin/edit.html.twig', [
             'user' => $user,
             'form' => $form->createView(),
@@ -153,8 +153,14 @@ final class UserAdminController extends AbstractController
 
 
     #[Route('/{id}', name: 'app_user_admin_show', methods: ['GET'])]
-    public function show(User $user): Response
+    public function show(Request $request, User $user): Response
     {
+        if ($request->query->get('modal') === '1') {
+            return $this->render('user_admin/_show_content.html.twig', [
+                'user' => $user,
+            ]);
+        }
+
         return $this->render('user_admin/show.html.twig', [
             'user' => $user,
         ]);
