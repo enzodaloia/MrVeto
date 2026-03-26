@@ -1,0 +1,93 @@
+name: Deploy Staging
+
+on:
+  push:
+    branches: ["staging"]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        if: hashFiles('package.json') != ''
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install JS deps
+        if: hashFiles('package.json') != ''
+        run: |
+          set -euo pipefail
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Build assets
+        if: hashFiles('package.json') != ''
+        run: npm run build --if-present
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          tools: composer:v2
+          coverage: none
+
+      - name: Validate composer
+        run: composer validate --no-check-publish
+
+      - name: Setup SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add known hosts
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          ssh-keyscan -p "${{ secrets.SSH_PORT }}" -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Rsync project to server
+        run: |
+          set -euo pipefail
+          rsync -rlz --delete \
+            --no-perms \
+            --no-owner \
+            --no-group \
+            --exclude ".git/" \
+            --exclude ".github/" \
+            --exclude "node_modules/" \
+            --exclude "vendor/" \
+            --exclude "var/" \
+            --exclude ".env" \
+            -e "ssh -p ${{ secrets.SSH_PORT }}" \
+            ./ "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}"
+
+      - name: Post-deploy commands
+        run: |
+          set -euo pipefail
+          ssh -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
+            "DEPLOY_PATH='${{ secrets.DEPLOY_PATH }}' bash -s" << 'EOF'
+              set -euo pipefail
+              cd "$DEPLOY_PATH"
+
+              APP_ENV=prod APP_DEBUG=0 composer install --no-interaction --prefer-dist --no-dev --optimize-autoloader
+
+              if [ -f bin/console ]; then
+                APP_ENV=prod APP_DEBUG=0 php bin/console doctrine:migrations:migrate --no-interaction
+                APP_ENV=prod APP_DEBUG=0 php bin/console cache:clear --env=prod --no-debug
+                APP_ENV=prod APP_DEBUG=0 php bin/console cache:warmup --env=prod --no-debug
+              fi
+          EOF
