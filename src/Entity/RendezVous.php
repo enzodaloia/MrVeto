@@ -32,6 +32,12 @@ class RendezVous
     #[ORM\Column(length: 50)]
     private string $statut = 'en_attente';
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $motif = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $remarque = null;
+
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTime $createdAt = null;
 
@@ -81,6 +87,20 @@ class RendezVous
     public function setCreatedAt(\DateTime $createdAt): static
     {
         $this->createdAt = $createdAt;
+        return $this;
+    }
+
+    public function getMotif(): ?string { return $this->motif; }
+    public function setMotif(?string $motif): static
+    {
+        $this->motif = $motif;
+        return $this;
+    }
+
+    public function getRemarque(): ?string { return $this->remarque; }
+    public function setRemarque(?string $remarque): static
+    {
+        $this->remarque = $remarque;
         return $this;
     }
 }

@@ -426,10 +426,9 @@ class VetInfoController extends AbstractController
                     'nom' => $animal->getNom(),
                     'espece' => $animal->getEspece(),
                     'race' => $animal->getRace(),
-                    'dateNaissance' => $animal->getDateNaissance() ? $animal->getDateNaissance()->format('Y-m-d') : '',
+                    'age' => $animal->getAge() ?? '',
                     'vaccinAJour' => $animal->isVaccinAJour(),
                     'poids' => $animal->getPoids() ?? '',
-                    'remarque' => $animal->getRemarque() ?? '',
                 ];
             }
             $animalsJson = json_encode($animalsData);
@@ -493,19 +492,10 @@ class VetInfoController extends AbstractController
         $animal->setEspece($request->request->get('animalEspece'));
         $animal->setRace($request->request->get('animalRace'));
         $animal->setPoids($request->request->get('animalPoids'));
-        $animal->setRemarque($request->request->get('animalRemarque'));
         $animal->setVaccinAJour($request->request->get('vaccin') === 'oui');
 
-        $dateNaissance = $request->request->get('animalDateNaissance');
-        if ($dateNaissance) {
-            try {
-                $animal->setDateNaissance(new \DateTime($dateNaissance));
-            } catch (\Exception $e) {
-                // Ignore invalid date
-            }
-        } else {
-            $animal->setDateNaissance(null);    
-        }
+        $age = $request->request->get('animalAge');
+        $animal->setAge(empty($age) ? null : $age);
 
         $em->flush();
 
@@ -535,6 +525,9 @@ class VetInfoController extends AbstractController
         $selectedDate = $request->request->get('selectedDate');
         $selectedSlot = $request->request->get('selectedSlot');
         $animalId = $request->request->get('animalId');
+        
+        $rdvMotif = $request->request->get('rdvMotif');
+        $rdvRemarque = $request->request->get('rdvRemarque');
 
         // Format date for display
         $dateDisplay = '';
@@ -564,6 +557,8 @@ class VetInfoController extends AbstractController
             'selectedSlot' => $selectedSlot,
             'animalId' => $animalId,
             'animalName' => $animalName,
+            'rdvMotif' => $rdvMotif,
+            'rdvRemarque' => $rdvRemarque,
         ]);
     }
 
@@ -613,6 +608,16 @@ class VetInfoController extends AbstractController
         $rdv->setAnimal($animal);
         $rdv->setDateHeure($dateHeure);
         $rdv->setStatut('en_attente');
+        
+        $rdvMotif = $request->request->get('rdvMotif');
+        if ($rdvMotif) {
+            $rdv->setMotif($rdvMotif);
+        }
+        
+        $rdvRemarque = $request->request->get('rdvRemarque');
+        if ($rdvRemarque) {
+            $rdv->setRemarque($rdvRemarque);
+        }
 
         $em->persist($rdv);
         $em->flush();

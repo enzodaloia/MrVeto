@@ -27,17 +27,14 @@ class Animal
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $race = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
-    private ?\DateTime $dateNaissance = null;
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $age = null;
 
     #[ORM\Column(nullable: true)]
     private ?bool $vaccinAJour = false;
 
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $poids = null;
-
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $remarque = null;
 
     public function getId(): ?int { return $this->id; }
 
@@ -69,10 +66,10 @@ class Animal
         return $this;
     }
 
-    public function getDateNaissance(): ?\DateTime { return $this->dateNaissance; }
-    public function setDateNaissance(?\DateTime $dateNaissance): static
+    public function getAge(): ?string { return $this->age; }
+    public function setAge(?string $age): static
     {
-        $this->dateNaissance = $dateNaissance;
+        $this->age = $age;
         return $this;
     }
 
@@ -87,13 +84,6 @@ class Animal
     public function setPoids(?string $poids): static
     {
         $this->poids = $poids;
-        return $this;
-    }
-
-    public function getRemarque(): ?string { return $this->remarque; }
-    public function setRemarque(?string $remarque): static
-    {
-        $this->remarque = $remarque;
         return $this;
     }
 }
