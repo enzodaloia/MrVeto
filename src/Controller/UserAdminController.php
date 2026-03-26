@@ -17,8 +17,11 @@ final class UserAdminController extends AbstractController
     #[Route(name: 'app_user_admin_index', methods: ['GET'])]
     public function index(UserRepository $userRepository): Response
     {
+        $user = new User();
+        $form = $this->createForm(UserAdminType::class, $user);
         return $this->render('user_admin/index.html.twig', [
             'users' => $userRepository->findAll(),
+            'form' => $form->createView(),
         ]);
     }
 
@@ -29,6 +32,10 @@ final class UserAdminController extends AbstractController
         $form = $this->createForm(UserAdminType::class, $user);
         $form->handleRequest($request);
 
+        if ($form->isSubmitted() && !$form->isValid()) {
+            dd($form->getErrors(true, true));
+        }
+
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($user);
             $entityManager->flush();
@@ -38,8 +45,9 @@ final class UserAdminController extends AbstractController
 
         return $this->render('user_admin/new.html.twig', [
             'user' => $user,
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
+
     }
 
     #[Route('/{id}', name: 'app_user_admin_show', methods: ['GET'])]
@@ -71,7 +79,7 @@ final class UserAdminController extends AbstractController
     #[Route('/{id}', name: 'app_user_admin_delete', methods: ['POST'])]
     public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $user->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($user);
             $entityManager->flush();
         }

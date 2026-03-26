@@ -123,72 +123,52 @@
 					<!-- 1. CALENDAR CARD -->
 					<div class="card border-0 shadow-sm p-4 rounded-4 bg-white">
 						<h2 class="h5 fw-medium mb-4 text-dark" style="letter-spacing: -0.3px;">Prochaines disponibilités</h2>
+						<p class="small mb-3 {{ status.isOpen ? 'text-success' : 'text-danger' }}">
+							{{ status.label }}
+							•
+							{{ status.detail }}
+						</p>
 
-						<div class="d-flex justify-content-between align-items-center mb-2">
-							<button class="btn btn-link p-0 text-decoration-none" style="color: #FFC107;">
-								<i class="bi bi-chevron-left fs-6 fw-bold"></i>
-							</button>
-
-							<div class="d-flex justify-content-between flex-grow-1 mx-2 mx-md-3 text-center">
-								<div class="d-flex flex-column align-items-center" style="width: 32px;">
-									<span class="fw-bold small text-dark mb-1" style="font-size: 0.8rem;">Lun</span>
-									<span class="text-dark small" style="font-size: 0.8rem;">1</span>
-								</div>
-								<div class="d-flex flex-column align-items-center" style="width: 32px;">
-									<span class="fw-bold small text-dark mb-1" style="font-size: 0.8rem;">Mar</span>
-									<span class="text-dark small" style="font-size: 0.8rem;">2</span>
-								</div>
-								<!-- Active Day (Yellow Pill) -->
-								<div class="d-flex flex-column align-items-center bg-secondary rounded-pill shadow-sm pt-2 pb-2" style="width: 36px;">
-									<span class="fw-bold small text-white mb-1" style="font-size: 0.8rem;">Mer</span>
-									<span class="fw-bold small text-white" style="font-size: 0.8rem;">3</span>
-								</div>
-								<div class="d-flex flex-column align-items-center" style="width: 32px;">
-									<span class="fw-bold small text-dark mb-1" style="font-size: 0.8rem;">Jeu</span>
-									<span class="text-dark small" style="font-size: 0.8rem;">4</span>
-								</div>
-								<div class="d-flex flex-column align-items-center" style="width: 32px;">
-									<span class="fw-bold small text-dark mb-1" style="font-size: 0.8rem;">Ven</span>
-									<span class="text-dark small" style="font-size: 0.8rem;">5</span>
-								</div>
-								<div class="d-flex flex-column align-items-center" style="width: 32px;">
-									<span class="fw-bold small text-dark mb-1" style="font-size: 0.8rem;">Sam</span>
-									<span class="small fw-medium" style="color: #40A8A4; font-size: 0.8rem;">6</span>
-								</div>
-								<div class="d-flex flex-column align-items-center" style="width: 32px;">
-									<span class="fw-bold small text-dark mb-1" style="font-size: 0.8rem;">Dim</span>
-									<span class="small fw-medium" style="color: #40A8A4; font-size: 0.8rem;">7</span>
-								</div>
-							</div>
-
-							<button class="btn btn-link p-0 text-decoration-none" style="color: #FFC107;">
-								<i class="bi bi-chevron-right fs-6 fw-bold"></i>
-							</button>
+						<div class="d-flex justify-content-between flex-grow-1 text-center gap-2">
+							{% for day in weekAvailability %}
+								{% if day.isAvailable %}
+									<button
+										type="button"
+										data-day-offset="{{ day.dayOffset }}"
+										class="day-availability-btn day-chip day-chip--available d-flex flex-column align-items-center rounded-3 px-2 py-2 border-0 text-decoration-none {{ day.isSelected ? 'day-chip--selected' : '' }}"
+										style="min-width: 36px;"
+									>
+										<span class="day-chip__day fw-bold small mb-1" style="font-size: 0.8rem;">{{ day.shortDay }}</span>
+										<span class="day-chip__number small fw-medium" style="font-size: 0.8rem;">{{ day.dayNumber }}</span>
+									</button>
+								{% else %}
+									<button
+										type="button"
+										disabled
+										class="day-chip day-chip--unavailable d-flex flex-column align-items-center rounded-3 px-2 py-2 border-0"
+										style="min-width: 36px;"
+									>
+										<span class="day-chip__day fw-bold small mb-1" style="font-size: 0.8rem;">{{ day.shortDay }}</span>
+										<span class="day-chip__number small fw-medium" style="font-size: 0.8rem;">{{ day.dayNumber }}</span>
+									</button>
+								{% endif %}
+							{% endfor %}
 						</div>
 					</div>
 
 					<!-- 2. HOURS CARD -->
 					<div class="card border-0 shadow-sm p-4 rounded-4 bg-white">
-						<h2 class="h5 fw-medium mb-4 text-dark" style="letter-spacing: -0.3px;">Horaire</h2>
-						<div class="row row-cols-3 row-cols-sm-4 g-3">
-							<div class="col">
-								<div class="border rounded-3 text-center py-2 text-dark small fw-normal" style="border-color: #D1D5DB !important;">6:00</div>
-							</div>
-							<div class="col">
-								<div class="border rounded-3 text-center py-2 text-dark small fw-normal" style="border-color: #D1D5DB !important;">13:00</div>
-							</div>
-							<div class="col">
-								<div class="border rounded-3 text-center py-2 text-dark small fw-normal" style="border-color: #D1D5DB !important;">14:00</div>
-							</div>
-							<div class="col">
-								<div class="border rounded-3 text-center py-2 text-dark small fw-normal" style="border-color: #D1D5DB !important;">15:30</div>
-							</div>
-							<div class="col">
-								<div class="border rounded-3 text-center py-2 text-dark small fw-normal" style="border-color: #D1D5DB !important;">18:00</div>
-							</div>
-							<div class="col">
-								<div class="border rounded-3 text-center py-2 text-dark small fw-normal" style="border-color: #D1D5DB !important;">19:00</div>
-							</div>
+						<h2 id="hours-title" class="h5 fw-medium mb-4 text-dark" style="letter-spacing: -0.3px;">Horaires ({{ selectedDayDisplay|capitalize }})</h2>
+						<div id="hours-slots" class="row row-cols-3 row-cols-sm-4 g-3">
+							{% for slot in todaySlots %}
+								<div class="col">
+									<div class="hours-slot border rounded-3 text-center py-2 text-dark small fw-normal" style="border-color: #D1D5DB !important;">{{ slot.start }}</div>
+								</div>
+							{% else %}
+								<div class="col-12">
+									<div class="hours-slot border rounded-3 text-center py-2 text-muted small fw-normal" style="border-color: #D1D5DB !important;">Aucun creneau disponible aujourd'hui</div>
+								</div>
+							{% endfor %}
 						</div>
 					</div>
 
@@ -244,9 +224,120 @@
 			transition: background-color 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s;
 		}
 		.btn-fav-hover:hover {
-			background-color: #3ABBAC !important;
+			background-color: var(--bs-primary) !important;
 			color: white !important;
-			border-color: #3ABBAC !important;
+			border-color: var(--bs-primary) !important;
+		}
+
+		.day-chip {
+			transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
+			border: 1px solid transparent;
+		}
+
+		.day-chip__day,
+		.day-chip__number {
+			transition: color 0.18s ease;
+		}
+
+		.day-chip--available {
+			background-color: var(--bs-primary-bg);
+			border-color: var(--bs-primary-border);
+			cursor: pointer;
+		}
+
+		.day-chip--available .day-chip__day {
+			color: var(--bs-primary-pressed);
+		}
+
+		.day-chip--available .day-chip__number {
+			color: var(--bs-primary);
+		}
+
+		.day-chip--available:not(.day-chip--selected):hover {
+			background-color: var(--bs-primary-focus);
+			border-color: var(--bs-primary-hover);
+			transform: translateY(-1px);
+			box-shadow: 0 6px 16px rgba(var(--bs-primary-rgb), 0.2);
+		}
+
+		.day-chip--selected {
+			background-color: var(--bs-primary);
+			border-color: var(--bs-primary);
+			box-shadow: 0 8px 18px rgba(var(--bs-primary-rgb), 0.32);
+		}
+
+		.day-chip--selected .day-chip__day,
+		.day-chip--selected .day-chip__number {
+			color: #FFFFFF;
+		}
+
+		.day-chip--unavailable {
+			background-color: var(--bs-neutral-20);
+			border-color: var(--bs-neutral-40);
+			cursor: not-allowed;
+			opacity: 0.65;
+		}
+
+		.day-chip--unavailable .day-chip__day,
+		.day-chip--unavailable .day-chip__number {
+			color: var(--bs-neutral-60);
+		}
+
+		.hours-slot {
+			cursor: default;
+			user-select: none;
+			-webkit-user-select: none;
 		}
 	</style>
+
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			const slotsByOffset = {{ daySlotsByOffset|json_encode|raw }};
+			const displaysByOffset = {{ dayDisplaysByOffset|json_encode|raw }};
+			const dayButtons = Array.from(document.querySelectorAll('.day-availability-btn'));
+			const slotsContainer = document.getElementById('hours-slots');
+			const hoursTitle = document.getElementById('hours-title');
+
+			if (!slotsContainer || !hoursTitle || dayButtons.length === 0) {
+				return;
+			}
+
+			const renderSlots = (offset) => {
+				const slots = slotsByOffset[offset] ?? [];
+				const display = displaysByOffset[offset] ?? '';
+
+				hoursTitle.textContent = `Horaires (${display.charAt(0).toUpperCase() + display.slice(1)})`;
+
+				if (slots.length === 0) {
+					slotsContainer.innerHTML = `
+						<div class="col-12">
+							<div class="hours-slot border rounded-3 text-center py-2 text-muted small fw-normal" style="border-color: #D1D5DB !important;">Aucun creneau disponible aujourd'hui</div>
+						</div>
+					`;
+					return;
+				}
+
+				slotsContainer.innerHTML = slots.map((slot) => `
+					<div class="col">
+						<div class="hours-slot border rounded-3 text-center py-2 text-dark small fw-normal" style="border-color: #D1D5DB !important;">${slot.start}</div>
+					</div>
+				`).join('');
+			};
+
+			const setSelected = (selectedBtn) => {
+				dayButtons.forEach((btn) => {
+					btn.classList.remove('day-chip--selected');
+				});
+				selectedBtn.classList.add('day-chip--selected');
+			};
+
+			dayButtons.forEach((btn) => {
+				btn.addEventListener('click', function () {
+					const offset = this.dataset.dayOffset;
+					setSelected(this);
+					renderSlots(offset);
+				});
+			});
+		});
+	</script>
 {% endblock %}
