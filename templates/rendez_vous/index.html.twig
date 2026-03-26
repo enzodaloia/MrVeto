@@ -1,0 +1,176 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Rendez-vous{% endblock %}
+
+{% block body %}
+<div class="container-fluid px-0" data-controller="rendezvous">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+        <div>
+            <h1 class="fw-black text-dark mb-1" style="font-weight: 900;">Mes Rendez-vous</h1>
+            <p class="text-muted mb-0">Gérez vos consultations en quelques clics</p>
+        </div>
+        <div class="mt-3 mt-md-0">
+            <a href="{{ path('app_search_vet') }}" class="btn btn-primary text-white fw-bold rounded-pill px-4 py-2 shadow-sm">
+                + Prendre rendez-vous
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-4 shadow-sm p-4 mb-4">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-4 gap-3">
+            <div class="bg-light rounded-pill p-1 d-inline-flex">
+                <button data-rendezvous-target="btnUpcoming" data-action="click->rendezvous#showUpcoming" class="btn btn-white bg-white text-primary fw-bold rounded-pill px-4 py-2 shadow-sm border-0">
+                    À venir ({{ upcoming|length }})
+                </button>
+                <button data-rendezvous-target="btnHistory" data-action="click->rendezvous#showHistory" class="btn text-muted fw-medium rounded-pill px-4 py-2 border-0 hover-bg-white">
+                    Historique des consultations
+                </button>
+            </div>
+            
+            <div class="d-flex gap-2">
+                <div class="input-group bg-light rounded-pill overflow-hidden">
+                    <span class="input-group-text bg-transparent border-0 ps-3 pe-2 text-muted">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" data-rendezvous-target="searchInput" data-action="keyup->rendezvous#search" class="form-control bg-transparent border-0 shadow-none" placeholder="Rechercher une visite...">
+                </div>
+                <button data-rendezvous-target="btnSort" data-action="click->rendezvous#sort" class="btn btn-light rounded-circle d-flex align-items-center justify-content-center sort-asc" style="width: 40px; height: 40px;">
+                    <i data-rendezvous-target="sortIcon" class="bi bi-sort-down text-muted fs-5"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Upcoming appointments -->
+        <div data-rendezvous-target="sectionUpcoming">
+            <h5 class="fw-bold text-dark d-flex align-items-center gap-2 mb-3 mt-4">
+                <i class="bi bi-calendar-check text-primary"></i> Consultations prévues
+            </h5>
+
+            <div class="d-flex flex-column gap-3 mb-5" data-rendezvous-target="upcomingContainer">
+                {% for rdv in upcoming %}
+                    <div class="card border border-light-subtle rounded-4 shadow-sm" data-rendezvous-target="upcomingItem" data-motif="{{ rdv.motif|default('Consultation classique')|lower }}" data-timestamp="{{ rdv.dateHeure.timestamp }}">
+                    <div class="card-body p-3 d-flex flex-column flex-md-row align-items-md-center gap-3">
+                        <div class="bg-neutral-10 rounded-3 d-flex flex-column align-items-center justify-content-center border" style="min-width: 80px; height: 80px;">
+                            <span class="fs-4 fw-bold text-primary lh-1 mb-1">{{ rdv.dateHeure|date('d') }}</span>
+                            <span class="text-muted fw-semibold" style="font-size: 0.85rem;">{{ rdv.dateHeure|date('M')|upper }}</span>
+                        </div>
+                        
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                {% if rdv.statut == 'confirme' %}
+                                    <span class="badge bg-success-bg text-success rounded-pill px-2 py-1 fw-bold" style="font-size: 0.7rem;">CONFIRMÉ</span>
+                                {% elseif rdv.statut == 'en_attente' %}
+                                    <span class="badge bg-warning-bg text-warning rounded-pill px-2 py-1 fw-bold" style="font-size: 0.7rem;">EN ATTENTE</span>
+                                {% else %}
+                                    <span class="badge bg-light text-muted rounded-pill px-2 py-1 fw-bold" style="font-size: 0.7rem;">{{ rdv.statut|upper }}</span>
+                                {% endif %}
+                                <span class="text-muted" style="font-size: 0.85rem;">
+                                    <i class="bi bi-clock"></i> {{ rdv.dateHeure|date('H:i') }}
+                                </span>
+                            </div>
+                            <h6 class="fw-bold text-dark mb-1 fs-5">{{ rdv.motif|default('Consultation classique') }}</h6>
+                            <div class="text-muted d-flex align-items-center gap-1" style="font-size: 0.9rem;">
+                                <i class="bi bi-person-badge"></i> Dr. {{ rdv.veterinaire.nom }} • Clinique Vétérinaire
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2 mt-3 mt-md-0">
+                            <button class="btn btn-outline-secondary rounded-pill px-4 fw-medium border-light-subtle">Modifier</button>
+                            <button class="btn bg-danger-bg text-danger rounded-pill px-4 fw-medium border-0 hover-bg-danger hover-text-white">Annuler</button>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="text-center py-4 bg-light rounded-4">
+                    <p class="text-muted mb-0">Aucune consultation prévue pour le moment.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- History -->
+        <div data-rendezvous-target="sectionHistory">
+            <div class="d-flex justify-content-between align-items-center mb-3 mt-5">
+                <h5 data-rendezvous-target="historyTitle" class="fw-bold text-dark d-flex align-items-center gap-2 mb-0">
+                    <i class="bi bi-clock-history text-muted"></i> Historique récent
+                </h5>
+                <div class="d-flex gap-2 d-none d-md-flex">
+                <select class="form-select form-select-sm rounded-pill bg-light border-0 shadow-none text-muted px-3" style="width: auto;">
+                    <option>Toutes les dates</option>
+                </select>
+                <select class="form-select form-select-sm rounded-pill bg-light border-0 shadow-none text-muted px-3" style="width: auto;">
+                    <option>Tous les motifs</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-borderless align-middle mb-0">
+                <thead>
+                    <tr class="border-bottom border-light-subtle">
+                        <th class="text-muted fs-7 fw-bold pb-2" style="font-size: 0.75rem;">DATE</th>
+                        <th class="text-muted fs-7 fw-bold pb-2" style="font-size: 0.75rem;">VÉTÉRINAIRE</th>
+                        <th class="text-muted fs-7 fw-bold pb-2" style="font-size: 0.75rem;">MOTIF & STATUT</th>
+                        <th class="text-muted fs-7 fw-bold pb-2 text-end" style="font-size: 0.75rem;">DOCUMENTS</th>
+                    </tr>
+                </thead>
+                <tbody data-rendezvous-target="historyContainer">
+                    {% for rdv in past %}
+                        <tr class="border-bottom border-light-subtle" data-rendezvous-target="historyItem" data-motif="{{ rdv.motif|default('Consultation')|lower }}" data-timestamp="{{ rdv.dateHeure.timestamp }}">
+                            <td class="py-3">
+                                <div class="fw-bold text-dark">{{ rdv.dateHeure|date('d M Y') }}</div>
+                                <div class="text-muted" style="font-size: 0.75rem; text-transform: uppercase;">
+                                    {% if rdv.statut == 'termine' %}VISITE TERMINÉE{% elseif rdv.statut == 'annule' %}ANNULÉ{% else %}{{ rdv.statut }}{% endif %}
+                                </div>
+                            </td>
+                            <td class="py-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="rounded-circle overflow-hidden bg-light" style="width: 35px; height: 35px;">
+                                        <img src="https://ui-avatars.com/api/?name={{ rdv.veterinaire.prenom }}+{{ rdv.veterinaire.nom }}&background=random" class="w-100 h-100 object-fit-cover" alt="Dr. {{ rdv.veterinaire.nom }}">
+                                    </div>
+                                    <span class="fw-bold text-dark text-nowrap">Dr. <br>{{ rdv.veterinaire.nom }}</span>
+                                </div>
+                            </td>
+                            <td class="py-3">
+                                <div class="fw-bold text-dark">{{ rdv.motif|default('Consultation') }}</div>
+                                <div class="text-muted" style="font-size: 0.85rem;">{{ rdv.remarque|default('Aucune remarque')|slice(0, 30) }}</div>
+                            </td>
+                            <td class="py-3 text-end">
+                                <div class="d-flex justify-content-end gap-2 text-muted">
+                                    <button class="btn btn-sm btn-light rounded p-1 text-muted hover-bg-primary-bg hover-text-primary"><i class="bi bi-file-earmark-pdf fs-5 lh-1"></i></button>
+                                    <button class="btn btn-sm btn-light rounded p-1 text-muted hover-bg-primary-bg hover-text-primary"><i class="bi bi-image fs-5 lh-1"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">Aucun historique disponible.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="text-center mt-4" data-rendezvous-target="sectionSeeAll">
+            <a href="#" data-rendezvous-target="btnSeeAll" data-action="click->rendezvous#showHistory" class="text-primary fw-bold text-decoration-none d-inline-flex align-items-center gap-2">
+                Voir tout l'historique médical <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+        
+        </div> 
+    </div>
+</div>
+
+<style>
+    .hover-bg-white:hover {
+        background-color: #ffffff;
+        color: #36BDAF !important;
+    }
+    .hover-bg-danger:hover {
+        background-color: #BD3644 !important;
+    }
+    
+    .fs-7 { font-size: 0.8rem; }
+    .fs-8 { font-size: 0.75rem; }
+</style>
+{% endblock %}
