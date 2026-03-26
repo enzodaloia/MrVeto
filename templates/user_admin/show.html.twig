@@ -9,7 +9,6 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h1 class="h3 fw-bold text-dark mb-1">{{ user.prenom }} {{ user.nom }}</h1>
-                <p class="text-muted mb-0">ID: #MV-{{ user.id }}</p>
             </div>
             <div class="d-flex gap-2">
                 <a href="{{ path('app_user_admin_edit', {'id': user.id}) }}" class="btn btn-primary rounded-3 px-4 fw-semibold">
