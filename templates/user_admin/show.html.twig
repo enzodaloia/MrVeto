@@ -1,8 +1,16 @@
 {% extends app.request.get('modal') == '1' ? 'base.html.twig' : 'base_dashboard.html.twig' %}
 
-{% block title %}{{ user.prenom }} {{ user.nom }}{% endblock %}
+{% block title %}
+	{{ user.prenom }}
+	{{ user.nom }}
+{% endblock %}
+
+{% block body %}
+	{{ block('page_content') }}
+{% endblock %}
 
 {% block dashboard_body %}
+<<<<<<< feature/imrane
 <div class="container-fluid py-4 px-4 bg-primary-bg min-vh-100">
     <div class="mx-auto" style="max-width: 800px;">
 
@@ -93,3 +101,136 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>if (window.lucide) lucide.createIcons();</script>
 {% endblock %}
+=======
+	{{ block('page_content') }}
+{% endblock %}
+
+{% block page_content %}
+	<style>
+		.btn-retour:hover {
+			color: var(--bs-info) !important;
+		}
+	</style>
+
+	<div class="container-fluid py-3 py-md-4 px-3 px-md-4 min-vh-100">
+		<div class="mx-auto" style="max-width: 900px;">
+
+			<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+				<div>
+					<h1 class="h3 fw-bold text-dark mb-1 text-nowrap">{{ user.prenom }}
+						{{ user.nom }}</h1>
+					<p class="text-muted mb-0 text-nowrap">Fiche utilisateur</p>
+				</div>
+
+				<div class="d-flex flex-column flex-sm-row gap-2 w-100 w-md-auto">
+					<a href="{{ path('app_user_admin_edit', {'id': user.id}) }}" class="btn text-danger rounded-3 px-4 fw-semibold d-inline-flex align-items-center justify-content-center gap-2 w-100 w-sm-auto text-white">
+						<i data-lucide="pencil" style="width:15px;height:15px;"></i>
+						Modifier
+					</a>
+
+					<a href="{{ path('app_user_admin_index') }}" class="btn text-neutral-90 border-0 rounded-3 px-4 fw-semibold text-nowrap d-inline-flex align-items-center justify-content-center gap-2 btn-retour w-100 w-sm-auto" data-turbo="false">
+						<i data-lucide="arrow-left" style="width:16px;height:16px;"></i>
+						Retour à la liste
+					</a>
+				</div>
+			</div>
+
+			<div class="bg-white rounded-4 shadow-sm p-3 p-md-4 p-lg-5">
+				<div class="d-flex flex-column flex-sm-row align-items-center align-items-sm-start gap-4 mb-4 pb-4 border-bottom text-center text-sm-start">
+					<div style="width:72px;height:72px;border-radius:50%;background:var(--bs-primary-bg,#e6f7f5);color:var(--bs-primary);font-weight:700;font-size:1.3rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+						{{ user.prenom|default('')|first|upper }}{{ user.nom|default('')|first|upper }}
+					</div>
+
+					<div class="flex-grow-1">
+						<div class="fw-bold fs-4 mb-1">{{ user.prenom }}
+							{{ user.nom }}</div>
+						<div class="text-muted mb-2 text-break">{{ user.email }}</div>
+
+						<div class="d-flex flex-wrap gap-2 justify-content-center justify-content-sm-start">
+							{% if 'ROLE_ADMIN' in user.roles %}
+								<span class="badge rounded-pill px-3 py-2 text-white bg-info">Admin</span>
+							{% elseif 'ROLE_VETO' in user.roles %}
+								<span class="badge rounded-pill px-3 py-2" style="background:#e4f0ff;color:#2563eb;">Vétérinaire</span>
+							{% else %}
+								<span class="badge rounded-pill px-3 py-2" style="background:#e0f2fe;color:#0369a1;">Utilisateur</span>
+							{% endif %}
+
+							{% if 'ROLE_VETO' in user.roles %}
+								{% if user.isVerified %}
+									<span class="badge rounded-pill px-3 py-2" style="background:#e4f9f0;color:#16a34a;">Compte vérifié</span>
+								{% else %}
+									<span class="badge rounded-pill px-3 py-2" style="background:#fde8e8;color:#dc2626;">Non vérifié</span>
+								{% endif %}
+							{% else %}
+								<span class="badge rounded-pill px-3 py-2" style="background:#dcfce7;color:#166534;">Actif</span>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+
+				<div class="row g-3">
+					<div class="col-12 col-md-6">
+						<div class="bg-secondary-bg rounded-4 p-3 h-100">
+							<div class="text-muted small mb-1">Téléphone</div>
+							<div class="fw-medium">{{ user.telephone ?: '—' }}</div>
+						</div>
+					</div>
+
+					<div class="col-12 col-md-6">
+						<div class="bg-secondary-bg rounded-4 p-3 h-100">
+							<div class="text-muted small mb-1">Date de naissance</div>
+							<div class="fw-medium">{{ user.datenaissance ? user.datenaissance|date('d/m/Y') : '—' }}</div>
+						</div>
+					</div>
+
+					<div class="col-12">
+						<div class="bg-secondary-bg rounded-4 p-3 h-100">
+							<div class="text-muted small mb-1">Adresse</div>
+							<div class="fw-medium">{{ user.adresse ?: '—' }}</div>
+						</div>
+					</div>
+
+					<div class="col-12 col-md-6">
+						<div class="bg-secondary-bg rounded-4 p-3 h-100">
+							<div class="text-muted small mb-1">Ville</div>
+							<div class="fw-medium">{{ user.ville ?: '—' }}</div>
+						</div>
+					</div>
+
+					<div class="col-12 col-md-6">
+						<div class="bg-secondary-bg rounded-4 p-3 h-100">
+							<div class="text-muted small mb-1">Code postal</div>
+							<div class="fw-medium">{{ user.codepostal ?: '—' }}</div>
+						</div>
+					</div>
+
+					{% if 'ROLE_VETO' in user.roles %}
+						<div class="col-12 col-md-6">
+							<div class="bg-secondary-bg rounded-4 p-3 h-100">
+								<div class="text-muted small mb-1">SIRET</div>
+								<div class="fw-medium">{{ user.siret ?: '—' }}</div>
+							</div>
+						</div>
+
+						<div class="col-12 col-md-6">
+							<div class="bg-secondary-bg rounded-4 p-3 h-100">
+								<div class="text-muted small mb-1">Adresse cabinet</div>
+								<div class="fw-medium">{{ user.adressecabinet ?: '—' }}</div>
+							</div>
+						</div>
+					{% endif %}
+				</div>
+
+				<div class="mt-4 pt-4 border-top d-flex justify-content-end">
+					{{ include('user_admin/_delete_form.html.twig') }}
+				</div>
+			</div>
+		</div>
+	</div>
+
+	 <script src="https://unpkg.com/lucide@latest"></script>
+	 <script>
+			if (window.lucide) lucide.createIcons();
+		</script>
+{% endblock %}
+>>>>>>> dev

@@ -7,6 +7,8 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\CallbackTransformer;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class UserAdminType extends AbstractType
 {
@@ -22,27 +24,50 @@ class UserAdminType extends AbstractType
                     'Administrateur' => 'ROLE_ADMIN',
                 ],
                 'expanded' => true,
-                'multiple' => true,
+                'multiple' => false,
             ])
-
-            ->add('password')
             ->add('isVerified')
-            ->add('nom')
-            ->add('prenom')
+            ->add('nom', null, [
+                'required' => false,
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Le nom est obligatoire.',
+                    ]),
+                ],
+            ])
+            ->add('prenom', null, [
+                'required' => false,
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Le prénom est obligatoire.',
+                    ]),
+                ],
+            ])
             ->add('datenaissance')
             ->add('adresse')
             ->add('telephone')
             ->add('ville')
             ->add('codepostal')
             ->add('siret')
-            ->add('adressecabinet')
-        ;
+            ->add('adressecabinet');
+
+        if (!$options['is_edit']) {
+            $builder->add('password');
+        }
+
+        $builder->get('roles')->addModelTransformer(
+            new CallbackTransformer(
+                fn($rolesArray) => $rolesArray[0] ?? null,
+                fn($roleString) => $roleString ? [$roleString] : []
+            )
+        );
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => User::class,
+            'is_edit' => false,
         ]);
     }
 }
