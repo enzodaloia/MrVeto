@@ -9,6 +9,7 @@
 {% endblock %}
 
 {% block body %}
+    <html lang="fr">
 	{# Main Container #}
 	<div
 		class="container-xxl min-vh-100 d-flex flex-column gap-4 py-4">
@@ -28,7 +29,7 @@
 					<div class="d-flex align-items-center flex-grow-1 bg-white rounded-pill px-3 py-2 shadow-sm position-relative">
 						<twig:ux:icon class="text-secondary fs-5 me-2" name="lucide:map-pin"/>
 						<input
-						type="text" name="location" placeholder="Ville ou Code postal" value="{{ location }}" class="form-control bg-transparent border-0 text-dark shadow-none p-0 focus-ring-none" style="outline: none;" data-autocomplete-address-target="input" data-action="input->autocomplete-address#search" autocomplete="off">
+						type="text" name="location" placeholder="Ville ou Code postal" aria-label="Ville ou code postal" value="{{ location }}" class="form-control bg-transparent border-0 text-dark shadow-none p-0 focus-ring-none" style="outline: none;" data-autocomplete-address-target="input" data-action="input->autocomplete-address#search" autocomplete="off">
 						{# Autocomplete Results Container #}
 						<div data-autocomplete-address-target="results" class="position-absolute start-0 end-0 top-100 z-3"></div>
 					</div>
@@ -231,10 +232,10 @@
 							<div
 								class="d-flex gap-2 pe-2">
 								{# First & Prev #}
-								<a href="?limit={{ limit }}&page=1{{ baseQuery }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage <= 1 %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;">
+								<a href="?limit={{ limit }}&page=1{{ baseQuery }}" aria-label="Premiers vétérinaires" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage <= 1 %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;">
 									<twig:ux:icon class="fs-6 text-muted" name="lucide:chevrons-left"/>
 								</a>
-								<a href="?limit={{ limit }}&page={{ currentPage - 1 }}{{ baseQuery }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage <= 1 %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;">
+								<a href="?limit={{ limit }}&page={{ currentPage - 1 }}{{ baseQuery }}" aria-label="Vétérinaires précédents" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage <= 1 %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;">
 									<twig:ux:icon class="fs-6 text-muted" name="lucide:chevron-left"/>
 								</a>
 
@@ -262,10 +263,10 @@
 								{% endif %}
 
 								{# Next & Last #}
-								<a href="?limit={{ limit }}&page={{ currentPage + 1 }}{{ baseQuery }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage >= totalPages %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;">
+								<a href="?limit={{ limit }}&page={{ currentPage + 1 }}{{ baseQuery }}" aria-label="Vétérinaires suivants" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage >= totalPages %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;">
 									<twig:ux:icon class="fs-6 text-muted" name="lucide:chevron-right"/>
 								</a>
-								<a href="?limit={{ limit }}&page={{ totalPages }}{{ baseQuery }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage >= totalPages %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;">
+								<a href="?limit={{ limit }}&page={{ totalPages }}{{ baseQuery }}" aria-label="Derniers vétérinaires" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage >= totalPages %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;">
 									<twig:ux:icon class="fs-6 text-muted" name="lucide:chevrons-right"/>
 								</a>
 							</div>
@@ -289,6 +290,7 @@
 
 		</div>
 	</div>
+    </html>
 
 	<script>
 		function updateDistance(value, label, event) {
