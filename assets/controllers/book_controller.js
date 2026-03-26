@@ -49,15 +49,15 @@ export default class extends Controller {
         
         // Reset all buttons first to avoid duplicates
         slotBtns.forEach(b => {
-            b.classList.remove('btn-warning', 'text-white');
-            b.classList.add('btn-outline-secondary');
+            b.classList.remove('bg-secondary', 'text-dark', 'border-secondary');
+            b.classList.add('bg-white', 'border-neutral-40', 'text-dark');
         });
 
         if (savedSlot) {
             slotBtns.forEach(b => {
                 if (b.getAttribute('data-slot') === savedSlot) {
-                    b.classList.remove('btn-outline-secondary');
-                    b.classList.add('btn-warning', 'text-white');
+                    b.classList.remove('bg-white', 'border-neutral-40', 'text-dark');
+                    b.classList.add('bg-secondary', 'text-dark', 'border-secondary');
                     if (hiddenInput) hiddenInput.value = savedSlot;
                 }
             });
@@ -69,11 +69,11 @@ export default class extends Controller {
 
             btn.addEventListener('click', () => {
                 slotBtns.forEach(b => {
-                    b.classList.remove('btn-warning', 'text-white');
-                    b.classList.add('btn-outline-secondary');
+                    b.classList.remove('bg-secondary', 'text-dark', 'border-secondary');
+                    b.classList.add('bg-white', 'border-neutral-40', 'text-dark');
                 });
-                btn.classList.remove('btn-outline-secondary');
-                btn.classList.add('btn-warning', 'text-white');
+                btn.classList.remove('bg-white', 'border-neutral-40', 'text-dark');
+                btn.classList.add('bg-secondary', 'text-dark', 'border-secondary');
 
                 const slot = btn.getAttribute('data-slot');
                 if (hiddenInput) hiddenInput.value = slot;
@@ -98,9 +98,8 @@ export default class extends Controller {
             if(el('animalNom')) el('animalNom').value = animal ? animal.nom : '';
             if(el('animalEspece')) el('animalEspece').value = animal ? (animal.espece || '') : '';
             if(el('animalRace')) el('animalRace').value = animal ? (animal.race || '') : '';
-            if(el('animalDateNaissance')) el('animalDateNaissance').value = animal ? (animal.dateNaissance || '') : '';
+            if(el('animalAge')) el('animalAge').value = animal ? (animal.age || '') : '';
             if(el('animalPoids')) el('animalPoids').value = animal ? (animal.poids || '') : '';
-            if(el('animalRemarque')) el('animalRemarque').value = animal ? (animal.remarque || '') : '';
             if (animal && animal.vaccinAJour) {
                 if(el('vaccinOui')) el('vaccinOui').checked = true;
             } else {
@@ -110,12 +109,12 @@ export default class extends Controller {
 
         const setActiveBtn = (activeBtn) => {
             selectorBtns.forEach(b => {
-                b.classList.remove('btn-success', 'text-white');
-                b.classList.add('btn-outline-secondary');
+                b.classList.remove('btn-primary', 'text-white');
+                b.classList.add('bg-white', 'border-neutral-40', 'text-dark');
             });
             if (activeBtn) {
-                activeBtn.classList.remove('btn-outline-secondary');
-                activeBtn.classList.add('btn-success', 'text-white');
+                activeBtn.classList.remove('bg-white', 'border-neutral-40', 'text-dark');
+                activeBtn.classList.add('btn-primary', 'text-white');
             }
         };
 
