@@ -112,14 +112,45 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getRoles(): array
     {
-        $roles = $this->roles;
-        $roles[] = 'ROLE_USER';
-        return array_unique($roles);
+        $roles = array_values(array_filter(array_map(
+            static fn (mixed $role): string => strtoupper((string) $role),
+            $this->roles
+        )));
+
+        if (in_array('ROLE_SECRETAIRE', $roles, true)) {
+            $roles = array_values(array_diff($roles, ['ROLE_SECRETAIRE']));
+            $roles[] = 'ROLE_SECRETARY';
+        }
+
+        if (in_array('ROLE_SECRETARY', $roles, true)) {
+            $roles = array_values(array_diff($roles, ['ROLE_USER']));
+        } else {
+            $roles[] = 'ROLE_USER';
+        }
+
+        return array_values(array_unique($roles));
     }
 
     public function setRoles(array $roles): static
     {
-        $this->roles = $roles;
+        $normalizedRoles = [];
+        foreach ($roles as $role) {
+            $normalized = strtoupper((string) $role);
+            if ($normalized === 'ROLE_SECRETAIRE') {
+                $normalized = 'ROLE_SECRETARY';
+            }
+
+            if ($normalized !== '') {
+                $normalizedRoles[] = $normalized;
+            }
+        }
+
+        $normalizedRoles = array_values(array_unique($normalizedRoles));
+        if (in_array('ROLE_SECRETARY', $normalizedRoles, true)) {
+            $normalizedRoles = array_values(array_diff($normalizedRoles, ['ROLE_USER']));
+        }
+
+        $this->roles = $normalizedRoles;
         return $this;
     }
 

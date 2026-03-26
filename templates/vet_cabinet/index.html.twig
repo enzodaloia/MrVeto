@@ -1,0 +1,85 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Mon cabinet{% endblock %}
+
+{% block dashboard_body %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Gestion des cabinets</h1>
+    </div>
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                <h2 class="h5 mb-3">Créer un cabinet</h2>
+                {{ form_start(cabinet_form) }}
+                    <div data-controller="autocomplete-address" data-autocomplete-address-theme-value="form">
+                        <div class="row g-3">
+                        <div class="col-md-6 form-floating">
+                            {{ form_widget(cabinet_form.nom, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Nom du cabinet'}}) }}
+                            {{ form_label(cabinet_form.nom, 'Nom du cabinet', {'label_attr': {'class': 'ps-4'}}) }}
+                            {{ form_errors(cabinet_form.nom) }}
+                        </div>
+                        <div class="col-md-6 form-floating">
+                            {{ form_widget(cabinet_form.telephone, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Téléphone'}}) }}
+                            {{ form_label(cabinet_form.telephone, 'Téléphone', {'label_attr': {'class': 'ps-4'}}) }}
+                            {{ form_errors(cabinet_form.telephone) }}
+                        </div>
+                        <div class="col-12 form-floating position-relative">
+                            {{ form_widget(cabinet_form.adresse, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Adresse', 'data-autocomplete-address-target': 'input street', 'data-action': 'input->autocomplete-address#search', 'autocomplete': 'off'}}) }}
+                            {{ form_label(cabinet_form.adresse, 'Adresse', {'label_attr': {'class': 'ps-4'}}) }}
+                            <div data-autocomplete-address-target="results" class="position-absolute start-0 end-0 top-100 z-3"></div>
+                            {{ form_errors(cabinet_form.adresse) }}
+                        </div>
+                        <div class="col-md-6 form-floating">
+                            {{ form_widget(cabinet_form.ville, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Ville', 'data-autocomplete-address-target': 'city'}}) }}
+                            {{ form_label(cabinet_form.ville, 'Ville', {'label_attr': {'class': 'ps-4'}}) }}
+                            {{ form_errors(cabinet_form.ville) }}
+                        </div>
+                        <div class="col-md-6 form-floating">
+                            {{ form_widget(cabinet_form.codePostal, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Code postal', 'data-autocomplete-address-target': 'postcode'}}) }}
+                            {{ form_label(cabinet_form.codePostal, 'Code postal', {'label_attr': {'class': 'ps-4'}}) }}
+                            {{ form_errors(cabinet_form.codePostal) }}
+                        </div>
+                    </div>
+                    </div>
+                    <button class="btn btn-primary px-4 mt-3" style="border-radius: 30px;">Créer</button>
+                {{ form_end(cabinet_form) }}
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                <h2 class="h5 mb-3">Mes cabinets</h2>
+                <div class="d-flex flex-column gap-2">
+                    {% for managed in cabinets %}
+                        <a href="{{ path('app_vet_cabinet_index', {'cabinet': managed.id}) }}"
+                           class="text-decoration-none border rounded p-2 {% if selected_cabinet and selected_cabinet.id == managed.id %}bg-primary-bg border-primary{% endif %}">
+                            <div class="fw-semibold text-dark">{{ managed.nom }}</div>
+                            <small class="text-muted">{{ managed.ville ?: 'Ville non renseignée' }}</small>
+                        </a>
+                    {% else %}
+                        <p class="text-muted mb-0">Aucun cabinet pour le moment.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if selected_cabinet %}
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <h2 class="h5 mb-1">Cabinet sélectionné: {{ selected_cabinet.nom }}</h2>
+                    <p class="text-muted mb-0">
+                        {{ selected_cabinet.adresse ?: 'Adresse non renseignée' }}
+                        {% if selected_cabinet.ville %} - {{ selected_cabinet.ville }}{% endif %}
+                    </p>
+                </div>
+                <a class="btn btn-outline-primary" href="{{ path('app_vet_cabinet_edit', {'id': selected_cabinet.id}) }}">
+                    Gérer ce cabinet (infos + membres)
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

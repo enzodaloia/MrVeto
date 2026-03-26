@@ -18,6 +18,7 @@ class UserAdminType extends AbstractType
                 'choices' => [
                     'Utilisateur' => 'ROLE_USER',
                     'Vétérinaire' => 'ROLE_VETO',
+                    'Secrétaire' => 'ROLE_SECRETARY',
                     'Administrateur' => 'ROLE_ADMIN',
                 ],
                 'expanded' => true,
