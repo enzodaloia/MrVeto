@@ -114,9 +114,9 @@
 							<label class="form-label text-muted small">Confirmation mot de passe</label>
 							<input type="password" class="form-control rounded-3">
 						</div>
-						<div class="col-12">
+						<div class="col-12" id="modal-is-verified-wrapper" style="display:none;">
 							<div class="form-check">
-								<input type="checkbox" name="user_admin[isVerified]" class="form-check-input" value="1">
+								<input type="checkbox" name="user_admin[isVerified]" id="modal-is-verified" class="form-check-input" value="1">
 								<label class="form-check-label">Compte vérifié</label>
 							</div>
 						</div>
@@ -137,7 +137,7 @@
 						</button>
 					</div>
 					{{ form_widget(form._token) }}
-{{ form_end(form, { render_rest: false }) }}
+					{{ form_end(form, { render_rest: false }) }}
 				</div>
 
 			</div>

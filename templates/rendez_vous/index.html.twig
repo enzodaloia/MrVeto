@@ -75,8 +75,22 @@
                         </div>
 
                         <div class="d-flex gap-2 mt-3 mt-md-0">
-                            <button class="btn btn-outline-secondary rounded-pill px-4 fw-medium border-light-subtle">Modifier</button>
-                            <button class="btn bg-danger-bg text-danger rounded-pill px-4 fw-medium border-0 hover-bg-danger hover-text-white">Annuler</button>
+                            <button class="btn btn-outline-secondary rounded-pill px-4 fw-medium border-light-subtle"
+                                    data-action="click->rendezvous#openEditModal"
+                                    data-id="{{ rdv.id }}"
+                                    data-vet="{{ rdv.veterinaire.prenom }} {{ rdv.veterinaire.nom }}"
+                                    data-motif="{{ rdv.motif|default('Consultation générale') }}"
+                                    data-statut="{{ rdv.statut }}"
+                                    data-date="{{ rdv.dateHeure|date('Y-m-d') }}"
+                                    data-time="{{ rdv.dateHeure|date('H:i') }}">
+                                Modifier
+                            </button>
+                            <button class="btn bg-danger-bg text-danger rounded-pill px-4 fw-medium border-0 hover-bg-danger hover-text-white"
+                                    data-action="click->rendezvous#openCancelModal"
+                                    data-id="{{ rdv.id }}"
+                                    data-date="{{ rdv.dateHeure|date('c') }}">
+                                Annuler
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -94,13 +108,6 @@
                 <h5 data-rendezvous-target="historyTitle" class="fw-bold text-dark d-flex align-items-center gap-2 mb-0">
                     <i class="bi bi-clock-history text-muted"></i> Historique récent
                 </h5>
-                <div class="d-flex gap-2 d-none d-md-flex">
-                <select class="form-select form-select-sm rounded-pill bg-light border-0 shadow-none text-muted px-3" style="width: auto;">
-                    <option>Toutes les dates</option>
-                </select>
-                <select class="form-select form-select-sm rounded-pill bg-light border-0 shadow-none text-muted px-3" style="width: auto;">
-                    <option>Tous les motifs</option>
-                </select>
             </div>
         </div>
 
@@ -120,7 +127,7 @@
                             <td class="py-3">
                                 <div class="fw-bold text-dark">{{ rdv.dateHeure|date('d M Y') }}</div>
                                 <div class="text-muted" style="font-size: 0.75rem; text-transform: uppercase;">
-                                    {% if rdv.statut == 'termine' %}VISITE TERMINÉE{% elseif rdv.statut == 'annule' %}ANNULÉ{% else %}{{ rdv.statut }}{% endif %}
+                                    {% if rdv.statut == 'termine' or rdv.dateHeure < date() %}VISITE TERMINÉE{% elseif rdv.statut == 'annule' %}ANNULÉ{% else %}{{ rdv.statut }}{% endif %}
                                 </div>
                             </td>
                             <td class="py-3">
@@ -157,7 +164,95 @@
             </a>
         </div>
         
-        </div> 
+    </div>
+
+    <!-- Cancel Modal -->
+    <div class="modal fade" tabindex="-1" aria-hidden="true" data-rendezvous-target="cancelModal">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-body p-4 p-md-5 text-center">
+                    <div class="mb-4">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-danger text-white rounded-circle mb-3" style="width: 80px; height: 80px; background-color: #dc3545 !important;">
+                            <i class="bi bi-x-circle" style="font-size: 2.5rem;"></i>
+                        </div>
+                    </div>
+                    <h4 class="fw-bold text-dark mb-3">Annuler le rendez-vous</h4>
+                    <p class="text-muted mb-4">Êtes-vous sûr(e) de vouloir annuler ce rendez-vous ? L'annulation libérera le créneau :</p>
+                    
+                    <div class="bg-light rounded-3 p-3 mb-4 d-flex justify-content-center gap-4 align-items-center">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-calendar-event text-primary fs-5"></i>
+                            <span class="fw-bold text-dark" data-rendezvous-target="modalDate"></span>
+                        </div>
+                        <div class="border-start border-2 border-secondary" style="height: 30px; opacity: 0.2;"></div>
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-clock text-primary fs-5"></i>
+                            <span class="fw-bold text-dark" data-rendezvous-target="modalTime"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-column flex-sm-row gap-2">
+                        <button type="button" class="btn btn-light rounded-pill fw-bold w-100 py-3" data-bs-dismiss="modal">
+                            Conserver le rendez-vous
+                        </button>
+                        <button type="button" class="btn btn-danger rounded-pill fw-bold w-100 py-3" data-action="click->rendezvous#confirmCancel" data-rendezvous-target="confirmCancelBtn">
+                            Annuler le rendez-vous
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal fade" tabindex="-1" aria-hidden="true" data-rendezvous-target="editModal">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-body p-4 p-md-5 text-center">
+                    <h3 class="fw-black text-info mb-2" style="font-weight: 800;">Modifier le Rendez-vous</h3>
+                    <p class="text-info opacity-75 mb-4">Votre vétérinaire sera notifié de votre demande de modification</p>
+                    
+                    <div class="d-flex align-items-center justify-content-center gap-4 mb-4 text-start">
+                        <div class="rounded-circle overflow-hidden bg-light" style="width: 80px; height: 80px; flex-shrink: 0;">
+                            <img src="" data-rendezvous-target="editModalVetImg" class="w-100 h-100 object-fit-cover" alt="Vétérinaire">
+                        </div>
+                        <div>
+                            <h5 class="fw-bold text-dark mb-1" data-rendezvous-target="editModalVetName">Nom Vétérinaire</h5>
+                            <p class="text-muted mb-1" style="font-size: 0.9rem;" data-rendezvous-target="editModalVetSubtitle">Vétérinaire</p>
+                            <div class="d-flex align-items-center gap-2 mt-2">
+                                <span class="text-info text-decoration-none" style="font-size: 0.85rem;" data-rendezvous-target="editModalMotif">Consultation</span>
+                                <span class="text-muted">•</span>
+                                <span class="badge bg-warning text-white rounded-pill px-2 py-1 fw-bold" style="font-size: 0.75rem;" data-rendezvous-target="editModalBadge">En attente</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-center gap-4 mb-5">
+                        <div class="position-relative d-flex align-items-center border-bottom border-info pb-1" style="width: 250px;">
+                            <i class="bi bi-calendar-event text-info fs-5 me-2"></i>
+                            <select class="form-select border-0 bg-transparent text-info fw-bold p-0 shadow-none form-select-sm cursor-pointer" data-rendezvous-target="editModalDateSelect" data-action="change->rendezvous#onEditDateChange">
+                                <option value="">Chargement...</option>
+                            </select>
+                        </div>
+                        <div class="position-relative d-flex align-items-center border-bottom border-info pb-1" style="width: 250px;">
+                            <i class="bi bi-clock text-info fs-5 me-2"></i>
+                            <select class="form-select border-0 bg-transparent text-info fw-bold p-0 shadow-none form-select-sm cursor-pointer" data-rendezvous-target="editModalTimeSelect">
+                                <option value="">--:--</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 mt-4">
+                        <button type="button" class="btn btn-info text-white border-0 rounded-3 fw-bold w-50 py-3" data-bs-dismiss="modal">
+                            Retour
+                        </button>
+                        <button type="button" class="btn btn-danger text-white border-0 rounded-3 fw-bold w-50 py-3" data-action="click->rendezvous#confirmEdit" data-rendezvous-target="confirmEditBtn">
+                            Modifier mon rendez-vous
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

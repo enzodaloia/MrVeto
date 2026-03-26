@@ -189,19 +189,6 @@
 		<div class="card border-0 shadow-sm rounded-4 mb-4 p-4 p-md-5 bg-white">
 			<h3 class="h5 fw-bold mb-4 text-info-pressed">Compléter la fiche animal</h3>
 
-			{% for message in app.flashes('success') %}
-				<div class="alert alert-success alert-dismissible fade show" role="alert">
-					{{ message }}
-					<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-				</div>
-			{% endfor %}
-			{% for message in app.flashes('error') %}
-				<div class="alert alert-danger alert-dismissible fade show" role="alert">
-					{{ message }}
-					<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-				</div>
-			{% endfor %}
-
 			<form method="POST" action="{{ path('app_vet_book_save_animal', {id: vet.id}) }}">
 				<input type="hidden" id="selectedAnimalId" name="animalId" value="">
 				<input type="hidden" name="_month" value="{{ currentYear ~ '-' ~ ('%02d'|format(currentMonth)) }}">
