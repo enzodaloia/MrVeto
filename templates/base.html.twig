@@ -236,6 +236,9 @@
 			{% for flash in app.flashes('error') %}
 				<twig:Toast type="danger" message="{{ flash }}"/>
 			{% endfor %}
+			{% for flash in app.flashes('reset_password_error') %}
+				<twig:Toast type="danger" message="{{ flash }}"/>
+			{% endfor %}
 		</div>
 
 		{% if not hiddenNavbar is defined and app.user %}

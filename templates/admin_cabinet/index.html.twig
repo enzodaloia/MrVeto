@@ -1,0 +1,47 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Administration des cabinets{% endblock %}
+
+{% block dashboard_body %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Cabinets</h1>
+        <a class="btn btn-primary px-4" style="border-radius: 30px;" href="{{ path('app_admin_cabinet_new') }}">Nouveau cabinet</a>
+    </div>
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="table-responsive">
+            <table class="table mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Ville</th>
+                        <th>Téléphone</th>
+                        <th>Créé le</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for cabinet in cabinets %}
+                    <tr>
+                        <td>{{ cabinet.id }}</td>
+                        <td>{{ cabinet.nom }}</td>
+                        <td>{{ cabinet.ville ?: '—' }}</td>
+                        <td>{{ cabinet.telephone ?: '—' }}</td>
+                        <td>{{ cabinet.createdAt ? cabinet.createdAt|date('d/m/Y H:i') : '—' }}</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-secondary" href="{{ path('app_admin_cabinet_show', {'id': cabinet.id}) }}">Voir</a>
+                            <a class="btn btn-sm btn-outline-primary" href="{{ path('app_admin_cabinet_edit', {'id': cabinet.id}) }}">Modifier</a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">Aucun cabinet</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -27,6 +27,25 @@
 
 	<div class="container-fluid py-4 px-4 bg-primary-bg min-vh-100">
 		<div class="mx-auto" style="max-width: 1200px;">
+<<<<<<< feature/imrane
+			<div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
+				<a href="{{ path('app_admin_cabinet_index') }}" class="btn btn-outline-primary rounded-pill px-4 fw-semibold d-inline-flex align-items-center gap-2">
+					<i data-lucide="building-2" style="width:15px;height:15px;"></i>
+					Gérer les cabinets
+				</a>
+
+				<div class="input-group rounded-pill overflow-hidden border border-info bg-white" style="max-width:320px;">
+					<span class="input-group-text bg-white border-0">
+						<i data-lucide="search" style="width:15px;height:15px;" class="text-info"></i>
+					</span>
+					<input type="text" id="search-input" class="form-control border-0 shadow-none text-info" placeholder="Rechercher par mail/ nom">
+				</div>
+
+				<div class="dropdown">
+					<button class="btn btn-outline-info rounded-pill px-3 d-inline-flex align-items-center gap-2 bg-white dropdown-toggle" data-bs-toggle="dropdown">
+						<i data-lucide="user" style="width:14px;height:14px;"></i>
+						Rôle
+=======
 
 			{% for message in app.flashes('success') %}
 				<div class="alert alert-success rounded-3 border-0 shadow-sm mb-3">{{ message }}</div>
@@ -101,6 +120,7 @@
 					<button type="button" class="btn btn-primary text-white rounded-pill px-4 fw-semibold ms-auto d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createUserModal">
 						<i data-lucide="plus" style="width:15px;height:15px;"></i>
 						Créer un utilisateur
+>>>>>>> dev
 					</button>
 				</div>
 
@@ -323,6 +343,61 @@
 											<span class="badge rounded-pill px-3 py-2 bg-success text-white" style="font-size:0.72rem;">Actif</span>
 										{% endif %}
 									</div>
+<<<<<<< feature/imrane
+								</td>
+
+								<td class="text-muted">{{ user.email }}</td>
+
+								<td>
+									{% if user.isVerified %}
+										<span class="badge rounded-pill px-3 py-2 bg-primary text-white" style="font-size:0.72rem;">Validé</span>
+									{% else %}
+										<span class="badge rounded-pill px-3 py-2 bg-warning text-white" style="font-size:0.72rem;">En attente</span>
+									{% endif %}
+								</td>
+
+								<td>
+									{% if 'ROLE_ADMIN' in user.roles %}
+										<span class="badge rounded-pill px-3 py-2 bg-primary text-white">Admin</span>
+
+									{% elseif 'ROLE_VETO' in user.roles %}
+										<span class="fw-medium text-info">Vétérinaire</span>
+
+									{% elseif 'ROLE_SECRETARY' in user.roles %}
+										<span class="badge rounded-pill px-3 py-2 bg-secondary text-white">Secrétaire</span>
+
+									{% else %}
+										<span class="fw-medium text-info">Utilisateur</span>
+									{% endif %}
+								</td>
+
+								<td class="text-muted">
+									{{ user.createdAt ? user.createdAt|date('d M Y') : '—' }}
+								</td>
+
+								<td class="text-center pe-4">
+									<button type="button"
+        class="action-btn btn btn-link p-1 btn-show-user"
+        data-bs-toggle="modal"
+        data-bs-target="#userModal"
+        data-url="{{ path('app_user_admin_show', {'id': user.id}) }}">
+	<i data-lucide="eye"></i>
+</button>
+									<a href="{{ path('app_user_admin_edit', {'id': user.id}) }}" class="action-btn btn btn-link p-1 text-info">
+										<i data-lucide="pencil"></i>
+									</a>
+
+									{{ include('user_admin/_delete_form.html.twig') }}
+								</td>
+							</tr>
+						{% else %}
+							<tr>
+								<td colspan="7" class="text-center text-muted py-5">Aucun utilisateur trouvé</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+=======
 								</div>
 
 								<div class="d-flex justify-content-between align-items-center gap-3">
@@ -363,6 +438,7 @@
 						</div>
 					{% endfor %}
 				</div>
+>>>>>>> dev
 			</div>
 
 		</div>
