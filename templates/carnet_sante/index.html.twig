@@ -1,0 +1,419 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Carnet de sante - MrVeto{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('carnet_sante') }}
+{% endblock %}
+
+{% block dashboard_body %}
+    <div class="carnet-sante-page p-3 p-lg-4">
+        <div class="container-fluid p-0">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+                <div>
+                    <h1 class="fw-black text-dark mb-1" style="font-weight: 900;">Carnet de santé</h1>
+                    <p class="text-muted mb-0">Suivez la santé de vos animaux en un clin d'oeil</p>
+                </div>
+            </div>
+
+            {% if animals is empty %}
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body py-5 text-center">
+                        <twig:ux:icon name="lucide:paw-print" class="display-5 text-primary mb-3"/>
+                        <h2 class="h4 text-neutral-90 fw-bold mb-2">Aucun animal trouvé</h2>
+                        <p class="text-muted mb-0">Ajoutez un animal pour commencer votre carnet de santé.</p>
+                        <button
+                            type="button"
+                            class="btn btn-primary rounded-pill px-4 mt-4"
+                            data-bs-toggle="modal"
+                            data-bs-target="#carnetAnimalModal"
+                        >
+                            <i class="bi bi-plus-lg"></i>
+                            Ajouter un animal
+                        </button>
+                    </div>
+                </div>
+            {% else %}
+                <div class="cs-animal-tabs mb-4 d-flex align-items-center gap-2 overflow-auto hidden-scrollbar">
+                    {% for animal in animals %}
+                        {% set isActive = selectedAnimal and selectedAnimal.id == animal.id %}
+                        <a
+                            href="{{ path('app_carnet_sante', {'animal': animal.id}) }}"
+                            class="btn btn-sm rounded-pill px-3 py-2 d-inline-flex align-items-center gap-2 {{ isActive ? 'btn-light border border-primary-subtle text-neutral-100 fw-semibold' : 'btn-white border text-muted' }}"
+                        >
+                            {% if isActive %}
+                                <span class="cs-online-dot"></span>
+                            {% endif %}
+                            {{ animal.nom }}
+                            <span class="text-muted">({{ animal.espece|default('Animal') }})</span>
+                        </a>
+                    {% endfor %}
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-light rounded-circle border text-primary fw-bold"
+                        aria-label="Ajouter un animal"
+                        title="Ajouter un animal"
+                        data-bs-toggle="modal"
+                        data-bs-target="#carnetAnimalModal"
+                    >+</button>
+                </div>
+
+                <div class="row g-4 align-items-start">
+                    <div class="col-12 col-xl-9">
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-body p-3 p-lg-4">
+                                <div class="d-flex flex-column flex-lg-row gap-3 align-items-lg-center justify-content-between">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <img
+                                            src="https://ui-avatars.com/api/?name={{ selectedAnimal.nom|url_encode }}&background=EBF4FC&color=36BDAF&bold=true&size=128"
+                                            alt="{{ selectedAnimal.nom }}"
+                                            class="rounded-circle border border-2 border-white shadow-sm"
+                                            width="84"
+                                            height="84"
+                                        >
+                                        <div>
+                                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                                <h1 class="h4 fw-bold mb-0 text-neutral-100">{{ selectedAnimal.nom }}</h1>
+                                                <span class="badge rounded-pill text-bg-primary bg-primary-bg text-primary fw-medium">
+                                                    {{ selectedAnimal.race|default(selectedAnimal.espece|default('Animal de compagnie'))|upper }}
+                                                </span>
+                                            </div>
+                                            <div class="mt-2 d-flex flex-wrap gap-3 text-muted small">
+                                                <span class="d-inline-flex align-items-center gap-1">
+                                                    <twig:ux:icon name="lucide:calendar" class="text-primary"/>
+                                                    {{ selectedAnimal.age|default('Age inconnu') }}
+                                                </span>
+                                                <span class="d-inline-flex align-items-center gap-1">
+                                                    <twig:ux:icon name="lucide:fingerprint" class="text-primary"/>
+                                                    Puce : {{ ('2502687' ~ selectedAnimal.id ~ '345678')|slice(0, 15) }}
+                                                </span>
+                                                <span class="d-inline-flex align-items-center gap-1">
+                                                    <twig:ux:icon name="lucide:venus-and-mars" class="text-primary"/>
+                                                    Male castre
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="cs-last-visit-box text-center text-lg-start p-3 rounded-3 bg-neutral-20">
+                                        <div class="text-uppercase small fw-bold text-muted mb-1">Derniere visite</div>
+                                        {% if lastVisit %}
+                                            <div class="fw-semibold text-neutral-90">{{ lastVisit.dateHeure|date('d M Y') }}</div>
+                                        {% else %}
+                                            <div class="fw-semibold text-neutral-90">Aucune</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h2 class="h5 fw-bold d-flex align-items-center gap-2 mb-3 text-neutral-100">
+                                <twig:ux:icon name="lucide:stethoscope" class="text-primary"/>
+                                Suivi Sante
+                            </h2>
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6">
+                                    <div class="card border-0 shadow-sm h-100">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span class="text-muted">Vaccinations</span>
+                                                <span class="fw-bold text-primary">{{ selectedAnimal.vaccinAJour ? '100 %' : '85 %' }}</span>
+                                            </div>
+                                            <div class="progress" role="progressbar" aria-label="Avancement vaccinations" aria-valuenow="{{ selectedAnimal.vaccinAJour ? 100 : 85 }}" aria-valuemin="0" aria-valuemax="100" style="height: 8px;">
+                                                <div class="progress-bar bg-primary" style="width: {{ selectedAnimal.vaccinAJour ? 100 : 85 }}%"></div>
+                                            </div>
+                                            <div class="small text-muted mt-2">Prochain rappel : Decembre 2024</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="card border-0 shadow-sm h-100">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span class="text-muted">Antiparasitaires</span>
+                                                <span class="fw-bold text-primary">100 %</span>
+                                            </div>
+                                            <div class="progress" role="progressbar" aria-label="Avancement antiparasitaires" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="height: 8px;">
+                                                <div class="progress-bar bg-primary" style="width: 100%"></div>
+                                            </div>
+                                            <div class="small text-success mt-2">A jour (Administre le 01/05)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="card border-0 shadow-sm h-100">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <div class="text-muted mb-1">Courbe de poids</div>
+                                                    <div class="h3 mb-1 fw-bold text-neutral-100">{{ selectedAnimal.poids|default('4.2') }} <span class="fs-6 fw-medium text-muted">kg</span></div>
+                                                    <div class="small text-muted">Stable depuis 6 mois</div>
+                                                </div>
+                                                <twig:ux:icon name="lucide:arrow-right" class="text-primary"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="card border-0 shadow-sm h-100">
+                                        <div class="card-body">
+                                            <div class="text-muted mb-2">Traitements en cours</div>
+                                            <div class="d-flex align-items-start gap-2">
+                                                <twig:ux:icon name="lucide:clipboard-plus" class="text-primary mt-1"/>
+                                                <div>
+                                                    <div class="fw-semibold text-neutral-90">Vitamines B12</div>
+                                                    <div class="small text-muted">1 comprime par jour (matin)</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <h2 class="h5 fw-bold d-flex align-items-center gap-2 mb-0 text-neutral-100">
+                                    <twig:ux:icon name="lucide:history" class="text-primary"/>
+                                    Historique medical
+                                </h2>
+                                <a href="#" class="small text-primary text-decoration-none fw-medium">Tout exporter</a>
+                            </div>
+
+                            <div class="card border-0 shadow-sm overflow-hidden">
+                                <div class="table-responsive">
+                                    <table class="table table-borderless align-middle mb-0 cs-history-table">
+                                        <thead>
+                                            <tr class="border-bottom border-light-subtle">
+                                                <th class="text-muted cs-fs-7 fw-bold pb-2">DATE</th>
+                                                <th class="text-muted cs-fs-7 fw-bold pb-2">VETERINAIRE</th>
+                                                <th class="text-muted cs-fs-7 fw-bold pb-2">MOTIF & STATUT</th>
+                                                <th class="text-muted cs-fs-7 fw-bold pb-2 text-end">DOCUMENTS</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for rdv in medicalHistory %}
+                                                {% set isFinished = rdv.statut == 'termine' or rdv.dateHeure < date() %}
+                                                {% set statusLabel = isFinished ? 'VISITE TERMINEE' : (rdv.statut == 'annule' ? 'ANNULE' : rdv.statut|upper) %}
+
+                                                <tr class="border-bottom border-light-subtle">
+                                                    <td>
+                                                        <div class="fw-bold text-neutral-100">{{ rdv.dateHeure|date('d M Y') }}</div>
+                                                        <div class="text-muted cs-fs-8">{{ statusLabel }}</div>
+                                                    </td>
+                                                    <td>
+                                                        {% if rdv.veterinaire %}
+                                                            <div class="d-flex align-items-center gap-2">
+                                                                <div class="rounded-circle overflow-hidden bg-light cs-vet-avatar">
+                                                                    <img
+                                                                        src="https://ui-avatars.com/api/?name={{ (rdv.veterinaire.prenom|default(''))|url_encode }}+{{ (rdv.veterinaire.nom|default(''))|url_encode }}&background=random"
+                                                                        class="w-100 h-100 object-fit-cover"
+                                                                        alt="Dr. {{ rdv.veterinaire.nom|default('') }}"
+                                                                    >
+                                                                </div>
+                                                                <span class="fw-bold text-neutral-100 text-nowrap">Dr. {{ rdv.veterinaire.nom|default('') }}</span>
+                                                            </div>
+                                                        {% else %}
+                                                            <div class="text-muted">Veterinaire non renseigne</div>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        <div class="fw-bold text-neutral-100">{{ rdv.motif|default('Consultation') }}</div>
+                                                        <div class="text-muted cs-fs-8">{{ rdv.remarque|default('Aucune remarque')|slice(0, 60) }}</div>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <div class="d-flex justify-content-end gap-2 text-muted">
+                                                            <button class="btn btn-sm btn-light rounded p-1 text-muted hover-bg-primary-bg hover-text-primary" type="button" aria-label="Compte-rendu PDF">
+                                                                <twig:ux:icon name="lucide:file-text" class="cs-action-icon"/>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-light rounded p-1 text-muted hover-bg-primary-bg hover-text-primary" type="button" aria-label="Imagerie">
+                                                                <twig:ux:icon name="lucide:image" class="cs-action-icon"/>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            {% else %}
+                                                <tr>
+                                                    <td colspan="4" class="text-center py-5 text-muted">
+                                                        Aucun rendez-vous passe pour cet animal.
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="cs-table-footer px-3 py-2 border-top bg-neutral-20 text-muted">
+                                    Affichage des {{ medicalHistory|length }} dernieres consultations
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-xl-3">
+                        <div class="d-flex flex-column gap-3">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h2 class="h5 fw-bold d-flex align-items-center gap-2 mb-3 text-neutral-100">
+                                        <twig:ux:icon name="lucide:bell-ring" class="text-primary"/>
+                                        Alertes & Rappels
+                                    </h2>
+
+                                    <div class="alert border-0 bg-danger-bg text-danger mb-2">
+                                        <div class="d-flex gap-2 align-items-start">
+                                            <twig:ux:icon name="lucide:triangle-alert" class="mt-1"/>
+                                            <div>
+                                                <div class="fw-semibold">Rappel Vaccin (Typhus)</div>
+                                                <div class="small">Echeance : 15 Juin 2024</div>
+                                                <a href="#" class="small fw-bold text-danger text-decoration-none">PRENDRE RDV</a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="alert border-0 bg-info-bg text-info mb-0">
+                                        <div class="d-flex gap-2 align-items-start">
+                                            <twig:ux:icon name="lucide:siren" class="mt-1"/>
+                                            <div>
+                                                <div class="fw-semibold">Vermifuge</div>
+                                                <div class="small">Prochaine dose : 01 Aout 2024</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h2 class="h5 fw-bold d-flex align-items-center gap-2 mb-3 text-neutral-100">
+                                        <twig:ux:icon name="lucide:folder-open" class="text-primary"/>
+                                        Documents
+                                    </h2>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <twig:ux:icon name="lucide:file-text" class="text-muted"/>
+                                                <span class="small">Carnet de Sante (PDF)</span>
+                                            </div>
+                                            <a href="#" class="text-muted" aria-label="Telecharger carnet de sante"><twig:ux:icon name="lucide:download"/></a>
+                                        </li>
+                                        <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <twig:ux:icon name="lucide:file-text" class="text-muted"/>
+                                                <span class="small">Certificat d'identification</span>
+                                            </div>
+                                            <a href="#" class="text-muted" aria-label="Telecharger certificat"><twig:ux:icon name="lucide:download"/></a>
+                                        </li>
+                                        <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <twig:ux:icon name="lucide:file-text" class="text-muted"/>
+                                                <span class="small">Contrat Assurance Animale</span>
+                                            </div>
+                                            <a href="#" class="text-muted" aria-label="Telecharger contrat"><twig:ux:icon name="lucide:download"/></a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="modal fade" id="carnetAnimalModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content rounded-4 border-0 shadow-lg">
+                    <div class="modal-header border-0 pb-0 px-4 pt-4">
+                        <h2 class="h5 fw-bold mb-0 text-info-pressed">Ajouter un animal</h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                    </div>
+
+                    <div class="modal-body p-4 pt-3">
+                        <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+                            <h3 class="h5 fw-bold mb-4 text-info-pressed">Compléter la fiche animal</h3>
+
+                            <form method="POST" action="{{ path('app_carnet_sante_save_animal') }}">
+                                <input type="hidden" name="_selectedAnimal" value="{{ selectedAnimal ? selectedAnimal.id : 0 }}">
+
+                                <div class="row g-4 mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-medium text-primary">Nom de l'animal
+                                            <span class="text-danger">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="animalNom"
+                                            class="form-control rounded-pill border-light-subtle shadow-sm px-3"
+                                            placeholder="Saisir le nom de l'animal"
+                                            required
+                                        >
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-medium text-primary">Espèce
+                                            <span class="text-danger">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="animalEspece"
+                                            class="form-control rounded-pill border-light-subtle shadow-sm px-3"
+                                            placeholder="Saisir le nom de l'espèce"
+                                            required
+                                        >
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-medium text-primary">Âge
+                                            <span class="text-danger">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="animalAge"
+                                            class="form-control rounded-pill border-light-subtle shadow-sm px-3"
+                                            placeholder="(ex: 10 ans)"
+                                            required
+                                        >
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-medium text-primary d-block">Vaccin à jour</label>
+                                        <div class="d-flex gap-4 mt-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="vaccin" value="oui" id="vaccinOui">
+                                                <label class="form-check-label text-neutral-60" for="vaccinOui">Oui</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="vaccin" value="non" id="vaccinNon" checked>
+                                                <label class="form-check-label text-neutral-60" for="vaccinNon">Non</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-medium text-primary">Race (optionnel)</label>
+                                        <input
+                                            type="text"
+                                            name="animalRace"
+                                            class="form-control rounded-pill border-light-subtle shadow-sm px-3"
+                                            placeholder="Entrer race"
+                                        >
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-medium text-primary">Poids (optionnel)</label>
+                                        <input
+                                            type="text"
+                                            name="animalPoids"
+                                            class="form-control rounded-pill border-light-subtle shadow-sm px-3"
+                                            placeholder="(ex: 12 kg)"
+                                        >
+                                    </div>
+                                </div>
+
+                                <div class="d-flex flex-wrap align-items-center gap-3">
+                                    <button type="submit" class="btn btn-primary text-white rounded-pill px-4 py-2 fw-bold shadow-sm fs-6 border-0">Créer l'animal</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

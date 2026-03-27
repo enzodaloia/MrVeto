@@ -1,0 +1,55 @@
+.carnet-sante-page {
+    .cs-animal-tabs .btn {
+        white-space: nowrap;
+    }
+
+    .cs-online-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: var(--bs-success);
+        display: inline-block;
+    }
+
+    .cs-last-visit-box {
+        min-width: 170px;
+    }
+
+    .cs-history-table th,
+    .cs-history-table td {
+        padding: 0.9rem 1rem;
+        vertical-align: middle;
+    }
+
+    .cs-fs-7 {
+        font-size: 0.75rem;
+    }
+
+    .cs-fs-8 {
+        font-size: 0.8rem;
+    }
+
+    .cs-vet-avatar {
+        width: 35px;
+        height: 35px;
+        flex-shrink: 0;
+    }
+
+    .cs-action-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .cs-icon-btn {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .cs-table-footer {
+        font-size: 0.85rem;
+    }
+}
