@@ -570,7 +570,7 @@ if (role === 'ROLE_VETO') {
 										const parser = new DOMParser();
 										const doc = parser.parseFromString(html, 'text/html');
 			
-										const content = doc.querySelector('.container-fluid');
+										const content = doc.querySelector('#user-show-content') || doc.querySelector('main .container-fluid') || doc.querySelector('.container-fluid');
 										modalContent.innerHTML = content ? content.outerHTML : html;
 			
 										if (window.lucide) {
