@@ -107,45 +107,49 @@
 			<div
 				class="row mt-4">
 				<!-- Mot de passe -->
-				<div class="col-md-6 mb-3 form-floating position-relative">
-					{% set pw_first_class = 'form-control ps-4 pe-4' %}
+				<div class="col-md-6 mb-3">
+					<div class="form-floating position-relative" data-password-wrapper>
+					{% set pw_first_class = 'form-control ps-4 pe-5' %}
 					{% if registrationForm.plainPassword.first.vars.errors|length > 0 %}
 						{% set pw_first_class = pw_first_class ~ ' is-invalid' %}
 					{% endif %}
 
 					{{ form_widget(registrationForm.plainPassword.first, {
-                    'attr': {'class': pw_first_class, 'placeholder': 'Mot de passe', 'id': 'password'}
+					'attr': {'class': pw_first_class ~ ' password-toggle-input', 'placeholder': 'Mot de passe', 'id': 'password'}
                 }) }}
 					{{ form_label(registrationForm.plainPassword.first, 'Mot de passe', {'label_attr': {'class': 'ps-4'}}) }}
+
+					<button type="button" class="btn btn-link btn-sm text-dark p-0 position-absolute top-50 end-0 translate-middle-y me-3 toggle-password password-reveal-btn">
+						<i class="fa-solid fa-eye"></i>
+					</button>
+					</div>
 
 					{% for error in registrationForm.plainPassword.first.vars.errors %}
 						<div class="invalid-feedback d-block">{{ error.message }}</div>
 					{% endfor %}
-
-					<button type="button" class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2 toggle-password" style="z-index:2;">
-						<i class="fa-solid fa-eye"></i>
-					</button>
 				</div>
 
 				<!-- Confirmation mot de passe -->
-				<div class="col-md-6 mb-3 form-floating position-relative">
-					{% set pw_second_class = 'form-control ps-4 pe-4' %}
+				<div class="col-md-6 mb-3">
+					<div class="form-floating position-relative" data-password-wrapper>
+					{% set pw_second_class = 'form-control ps-4 pe-5' %}
 					{% if registrationForm.plainPassword.second.vars.errors|length > 0 %}
 						{% set pw_second_class = pw_second_class ~ ' is-invalid' %}
 					{% endif %}
 
 					{{ form_widget(registrationForm.plainPassword.second, {
-                    'attr': {'class': pw_second_class, 'placeholder': 'Confirmation mot de passe', 'id': 'passwordConfirm'}
+					'attr': {'class': pw_second_class ~ ' password-toggle-input', 'placeholder': 'Confirmation mot de passe', 'id': 'passwordConfirm'}
                 }) }}
 					{{ form_label(registrationForm.plainPassword.second, 'Confirmation mot de passe', {'label_attr': {'class': 'ps-4'}}) }}
+
+					<button type="button" class="btn btn-link btn-sm text-dark p-0 position-absolute top-50 end-0 translate-middle-y me-3 toggle-password password-reveal-btn">
+						<i class="fa-solid fa-eye"></i>
+					</button>
+					</div>
 
 					{% for error in registrationForm.plainPassword.second.vars.errors %}
 						<div class="invalid-feedback d-block">{{ error.message }}</div>
 					{% endfor %}
-
-					<button type="button" class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2 toggle-password" style="z-index:2;">
-						<i class="fa-solid fa-eye"></i>
-					</button>
 				</div>
 			</div>
 
@@ -168,30 +172,74 @@
 		</main>
 	</div>
 
+	<style>
+		.password-toggle-input {
+			padding-right: 3rem !important;
+		}
+
+		.password-toggle-input.is-valid,
+		.password-toggle-input.is-invalid,
+		.was-validated .password-toggle-input:valid,
+		.was-validated .password-toggle-input:invalid {
+			background-image: none !important;
+		}
+
+		.password-toggle-input::-ms-reveal,
+		.password-toggle-input::-ms-clear {
+			display: none;
+		}
+
+		.password-reveal-btn {
+			z-index: 2;
+			line-height: 1;
+		}
+	</style>
+
 	{# JS toggle pur #}
 	<script>
-		document.addEventListener("DOMContentLoaded", function () {
-const toggleButtons = document.querySelectorAll(".toggle-password");
+		(function () {
+			function syncPasswordToggleIcons() {
+				document.querySelectorAll('[data-password-wrapper]').forEach((wrapper) => {
+					const input = wrapper.querySelector('input');
+					const icon = wrapper.querySelector('.toggle-password i');
 
-toggleButtons.forEach(button => {
-button.addEventListener("click", function () {
-const input = this.parentElement.querySelector("input");
-const icon = this.querySelector("i");
+					if (!input || !icon) {
+						return;
+					}
 
-if (! input) 
-return;
+					const isPassword = input.type === 'password';
+					icon.classList.toggle('fa-eye', isPassword);
+					icon.classList.toggle('fa-eye-slash', !isPassword);
+				});
+			}
 
+			if (!window.__registrationPasswordToggleBound) {
+				document.addEventListener('click', function (event) {
+					const button = event.target.closest('.toggle-password');
+					if (!button) {
+						return;
+					}
 
+					const wrapper = button.closest('[data-password-wrapper]');
+					const input = wrapper ? wrapper.querySelector('input') : null;
+					const icon = button.querySelector('i');
 
-if (input.type === "password") {
-input.type = "text";
-} else {
-input.type = "password";
-} icon.classList.toggle("fa-eye");
-icon.classList.toggle("fa-eye-slash");
-});
-});
-});
+					if (!input || !icon) {
+						return;
+					}
+
+					const isPassword = input.type === 'password';
+					input.type = isPassword ? 'text' : 'password';
+					icon.classList.toggle('fa-eye', !isPassword);
+					icon.classList.toggle('fa-eye-slash', isPassword);
+				});
+
+				window.__registrationPasswordToggleBound = true;
+			}
+
+			document.addEventListener('DOMContentLoaded', syncPasswordToggleIcons);
+			document.addEventListener('turbo:load', syncPasswordToggleIcons);
+		})();
 	</script>
 
 {% endblock %}
