@@ -124,7 +124,7 @@
 								<h4 class="h6 fw-bold mb-3 text-start ps-3">Matin</h4>
 								<div class="d-flex flex-wrap gap-2 justify-content-start ps-3">
 									{% for slot in morningSlots %}
-										{% set isPast = (selectedDate == "now"|date("Y-m-d") and slot.time < "now"|date("H:i")) %}
+										{% set isPast = (selectedDate == "now"|date("Y-m-d", "Europe/Paris") and slot.time < "now"|date("H:i", "Europe/Paris")) %}
 										{% if not isPast %}
 											{% if slot.available %}
 												<button type="button" class="btn bg-white border-neutral-40 text-dark px-3 py-1 rounded-3 slot-btn" data-slot="{{ slot.time }}">
@@ -145,7 +145,7 @@
 								<h4 class="h6 fw-bold mb-3 text-start ps-3">Après-midi</h4>
 								<div class="d-flex flex-wrap gap-2 justify-content-start ps-3">
 									{% for slot in afternoonSlots %}
-										{% set isPast = (selectedDate == "now"|date("Y-m-d") and slot.time < "now"|date("H:i")) %}
+										{% set isPast = (selectedDate == "now"|date("Y-m-d", "Europe/Paris") and slot.time < "now"|date("H:i", "Europe/Paris")) %}
 										{% if not isPast %}
 											{% if slot.available %}
 												<button type="button" class="btn bg-white border-neutral-40 text-dark px-3 py-1 rounded-3 slot-btn" data-slot="{{ slot.time }}">
@@ -185,15 +185,16 @@
 			</div>
 		{% endif %}
 
-		<!-- FICHE ANIMAL FORM -->
-		<div class="card border-0 shadow-sm rounded-4 mb-4 p-4 p-md-5 bg-white">
-			<h3 class="h5 fw-bold mb-4 text-info-pressed">Compléter la fiche animal</h3>
+		<!-- MAIN BOOKING FORM -->
+		<form method="POST" action="{{ path('app_vet_book_confirm', {id: vet.id}) }}" id="confirmBookingForm" data-turbo="false">
+			<input type="hidden" name="selectedDate" value="{{ selectedDate ?? '' }}">
+			<input type="hidden" name="selectedSlot" id="confirmSlotInput" value="">
+			<input type="hidden" name="animalId" id="selectedAnimalId" value="">
 
-			<form method="POST" action="{{ path('app_vet_book_save_animal', {id: vet.id}) }}">
-				<input type="hidden" id="selectedAnimalId" name="animalId" value="">
-				<input type="hidden" name="_month" value="{{ currentYear ~ '-' ~ ('%02d'|format(currentMonth)) }}">
-				<input type="hidden" name="_date" value="{{ selectedDate ?? '' }}">
-				<input type="hidden" name="_slot" value="">
+			<!-- FICHE ANIMAL -->
+			<div class="card border-0 shadow-sm rounded-4 mb-4 p-4 p-md-5 bg-white">
+				<h3 class="h5 fw-bold mb-4 text-info-pressed">Compléter la fiche animal</h3>
+
 				<div class="row g-4 mb-4">
 					<div class="col-md-6">
 						<label class="form-label fw-medium text-primary">Nom de l'animal
@@ -240,23 +241,15 @@
 				<hr class="my-4 text-light">
 
 				<div class="d-flex align-items-center gap-4">
-					<button type="submit" class="btn btn-primary text-white rounded-pill px-4 py-2 fw-bold shadow-sm fs-6 border-0">Mettre à jour profil</button>
 					<button type="button" class="btn btn-danger text-white rounded-pill px-4 py-2 fw-bold shadow-sm fs-6 border-0 d-flex align-items-center gap-2" id="clearAnimalFormBtn">
 						<i class="bi bi-x fs-5"></i>
 						Tout supprimer
 					</button>
 				</div>
+			</div>
 
-			</form>
-		</div>
-
-		<!-- SUBMIT BUTTON -->
-		<div class="text-center mt-5 mb-5">
-			<form method="POST" action="{{ path('app_vet_book_confirm', {id: vet.id}) }}" id="confirmBookingForm" data-turbo="false">
-				<input type="hidden" name="selectedDate" value="{{ selectedDate ?? '' }}">
-				<input type="hidden" name="selectedSlot" id="confirmSlotInput" value="">
-				<input type="hidden" name="animalId" id="confirmAnimalInput" value="">
-
+			<!-- SUBMIT BUTTON -->
+			<div class="text-center mt-5 mb-5">
 				<div class="card border-0 shadow-sm rounded-4 mb-4 p-4 p-md-5 bg-white text-start mx-auto">
 					<h3 class="h5 fw-bold mb-4 text-info-pressed">Détails de la consultation</h3>
 					<div class="row g-4">
@@ -276,8 +269,8 @@
 				<button type="submit" class="btn btn-primary text-white rounded-pill px-5 py-3 fw-bold shadow-sm fs-6 border-0">
 					Confirmer mon Rendez-vous
 				</button>
-			</form>
-		</div>
+			</div>
+		</form>
 
 	</div>
 {% endblock %}

@@ -13,28 +13,14 @@ export default class extends Controller {
         this.setupCalendarSlots();
         this.setupAnimalSelector();
 
-        // Sync selected slot into the save-animal form hidden field before submit
-        const form = document.querySelector('form[action*="save-animal"]');
-        if (form) {
-            form.addEventListener('submit', () => {
-                const slotInput = form.querySelector('input[name="_slot"]');
-                const selectedSlotInput = document.getElementById('selectedSlotInput');
-                if (slotInput && selectedSlotInput) {
-                    slotInput.value = selectedSlotInput.value;
-                }
-            });
-        }
-
-        // Sync slot + animal into confirmation form before submit
+        // Sync slot into confirmation form before submit
         const confirmForm = document.getElementById('confirmBookingForm');
         if (confirmForm) {
             confirmForm.addEventListener('submit', () => {
                 const slotInput = document.getElementById('confirmSlotInput');
-                const animalInput = document.getElementById('confirmAnimalInput');
                 const selectedSlotInput = document.getElementById('selectedSlotInput');
-                const selectedAnimalInput = document.getElementById('selectedAnimalId');
+                // The animal fields are already inside the form, so no need to sync them
                 if (slotInput && selectedSlotInput) slotInput.value = selectedSlotInput.value;
-                if (animalInput && selectedAnimalInput) animalInput.value = selectedAnimalInput.value;
             });
         }
     }

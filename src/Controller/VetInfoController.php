@@ -458,8 +458,8 @@ class VetInfoController extends AbstractController
         ]);
     }
 
-    #[Route('/vet/{id}/book/save-animal', name: 'app_vet_book_save_animal', methods: ['POST'])]
-    public function saveAnimal(Request $request, User $vet = null, EntityManagerInterface $em, AnimalRepository $animalRepository): Response
+    #[Route('/vet/{id}/book/confirm', name: 'app_vet_book_confirm', methods: ['POST'])]
+    public function confirmBooking(Request $request, User $vet = null, AnimalRepository $animalRepository, EntityManagerInterface $em): Response
     {
         if (!$vet || !in_array('ROLE_VETO', $vet->getRoles())) {
             throw new NotFoundHttpException('Vétérinaire non trouvé.');
@@ -470,64 +470,53 @@ class VetInfoController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
+        // 1. Process animal save/update
         $animalId = $request->request->get('animalId');
         $animal = null;
 
-        // Update existing animal (only if it belongs to the current user)
-        if ($animalId) {
-            $animal = $animalRepository->find($animalId);
-            if (!$animal || $animal->getProprietaire() !== $user) {
-                $animal = null;
+        // Verify if we have minimal data to save an animal (requires at least 'animalNom')
+        $animalNom = trim($request->request->get('animalNom', ''));
+        if (!empty($animalNom)) {
+            // Update existing animal (only if it belongs to the current user)
+            if ($animalId) {
+                $animal = $animalRepository->find($animalId);
+                if (!$animal || $animal->getProprietaire() !== $user) {
+                    $animal = null;
+                }
             }
+
+            // Create new animal if not updating
+            if (!$animal) {
+                $animal = new \App\Entity\Animal();
+                $animal->setProprietaire($user);
+                $em->persist($animal);
+            }
+
+            $animal->setNom($animalNom);
+            $animal->setEspece($request->request->get('animalEspece'));
+            $animal->setRace($request->request->get('animalRace'));
+            $animal->setPoids($request->request->get('animalPoids'));
+            $animal->setVaccinAJour($request->request->get('vaccin') === 'oui');
+
+            $age = $request->request->get('animalAge');
+            $animal->setAge(empty($age) ? null : $age);
+
+            $em->flush();
+            $animalId = $animal->getId(); // Override animalId with the newly created/updated one
         }
 
-        // Create new animal if not updating
-        if (!$animal) {
-            $animal = new Animal();
-            $animal->setProprietaire($user);
-            $em->persist($animal);
-        }
-
-        $animal->setNom($request->request->get('animalNom', ''));
-        $animal->setEspece($request->request->get('animalEspece'));
-        $animal->setRace($request->request->get('animalRace'));
-        $animal->setPoids($request->request->get('animalPoids'));
-        $animal->setVaccinAJour($request->request->get('vaccin') === 'oui');
-
-        $age = $request->request->get('animalAge');
-        $animal->setAge(empty($age) ? null : $age);
-
-        $em->flush();
-
-        $this->addFlash('success', $animalId ? 'Animal mis à jour !' : 'Animal créé avec succès !');
-
-        // Redirect back preserving current query params
-        return $this->redirectToRoute('app_vet_book', [
-            'id' => $vet->getId(),
-            'month' => $request->request->get('_month'),
-            'date' => $request->request->get('_date'),
-            'slot' => $request->request->get('_slot'),
-        ]);
-    }
-
-    #[Route('/vet/{id}/book/confirm', name: 'app_vet_book_confirm', methods: ['POST'])]
-    public function confirmBooking(Request $request, User $vet = null, AnimalRepository $animalRepository): Response
-    {
-        if (!$vet || !in_array('ROLE_VETO', $vet->getRoles())) {
-            throw new NotFoundHttpException('Vétérinaire non trouvé.');
-        }
-
-        $user = $this->getUser();
-        if (!$user) {
-            return $this->redirectToRoute('app_login');
-        }
-
+        // 2. Process booking data
         $selectedDate = $request->request->get('selectedDate');
         $selectedSlot = $request->request->get('selectedSlot');
-        $animalId = $request->request->get('animalId');
         
         $rdvMotif = $request->request->get('rdvMotif');
         $rdvRemarque = $request->request->get('rdvRemarque');
+
+        // Check if date and slot are provided
+        if (empty($selectedDate) || empty($selectedSlot)) {
+            $this->addFlash('error', 'Veuillez sélectionner une date et un créneau horaire.');
+            return $this->redirectToRoute('app_vet_book', ['id' => $vet->getId()]);
+        }
 
         // Format date for display
         $dateDisplay = '';
@@ -543,10 +532,12 @@ class VetInfoController extends AbstractController
 
         // Get animal name
         $animalName = 'Non sélectionné';
-        if ($animalId) {
-            $animal = $animalRepository->find($animalId);
-            if ($animal && $animal->getProprietaire() === $user) {
-                $animalName = $animal->getNom() . ($animal->getEspece() ? ' (' . $animal->getEspece() . ')' : '');
+        if ($animal) {
+            $animalName = $animal->getNom() . ($animal->getEspece() ? ' (' . $animal->getEspece() . ')' : '');
+        } elseif ($animalId) {
+            $existingAnimal = $animalRepository->find($animalId);
+            if ($existingAnimal && $existingAnimal->getProprietaire() === $user) {
+                $animalName = $existingAnimal->getNom() . ($existingAnimal->getEspece() ? ' (' . $existingAnimal->getEspece() . ')' : '');
             }
         }
 
