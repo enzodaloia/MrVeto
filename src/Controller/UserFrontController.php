@@ -154,6 +154,25 @@ final class UserFrontController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/archive', name: 'app_user_front_archive', methods: ['POST'])]
+    public function archive(Request $request, User $user, EntityManagerInterface $entityManager, Security $security): Response
+    {
+        if ($this->isCsrfTokenValid('archive'.$user->getId(), $request->getPayload()->getString('_token'))) {
+            $isCurrentUser = $this->getUser() === $user;
+            
+            // Archiver l'utilisateur
+            $user->setIsArchived(true);
+            $user->setArchivedAt(new \DateTime());
+            $entityManager->flush();
+            
+            if ($isCurrentUser) {
+                $security->logout(false);
+            }
+        }
+
+        return $this->redirectToRoute('app_home', [], Response::HTTP_SEE_OTHER);
+    }
+
     #[Route('/{id}', name: 'app_user_front_delete', methods: ['POST'])]
     public function delete(Request $request, User $user, EntityManagerInterface $entityManager, Security $security): Response
     {
@@ -161,7 +180,15 @@ final class UserFrontController extends AbstractController
             // Vérifier si l'utilisateur supprime son propre compte
             $isCurrentUser = $this->getUser() === $user;
             
-            $entityManager->remove($user);
+            if (in_array('ROLE_VETO', $user->getRoles())) {
+                // Pour un vétérinaire, on ne supprime pas complètement pour garder l'historique des documents pendant 20 ans
+                $user->setIsArchived(true);
+                $user->setArchivedAt(new \DateTime());
+                // Eventuellement anonymiser si nécessaire, mais on garde en l'état pour les archives.
+            } else {
+                $entityManager->remove($user);
+            }
+            
             $entityManager->flush();
             
             // Si c'est l'utilisateur connecté, le déconnecter
