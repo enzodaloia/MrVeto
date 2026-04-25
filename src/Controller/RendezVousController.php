@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\RendezVous as RendezVousEntity;
 use App\Repository\RendezVousRepository;
 use App\Repository\DayOfWorkRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -208,6 +209,9 @@ class RendezVousController extends AbstractController
 
         if ($rdv->getDateHeure() > new \DateTime()) {
             $rdv->setStatut('annule');
+            $rdv->setLastActionType(RendezVousEntity::ACTION_TYPE_CANCELLED);
+            $rdv->setLastActionByRole($this->resolveActionActorRole($user));
+            $rdv->setLastActionAt(new \DateTime());
             $entityManager->flush();
             return $this->json(['success' => true]);
         }
@@ -263,7 +267,12 @@ class RendezVousController extends AbstractController
                 return $this->json(['error' => 'Le vétérinaire n\'est pas disponible à ce créneau (déjà réservé).'], 409);
             }
 
+            $oldDateHeure = clone $rdv->getDateHeure();
             $rdv->setDateHeure($newDateHeure);
+            $rdv->setPreviousDateHeure($oldDateHeure);
+            $rdv->setLastActionType(RendezVousEntity::ACTION_TYPE_RESCHEDULED);
+            $rdv->setLastActionByRole($this->resolveActionActorRole($user));
+            $rdv->setLastActionAt(new \DateTime());
             // La mise à jour de la date rend implicitement l'ancienne libre (puisque liée au RDV via son ID et changée)
             $entityManager->flush();
 
@@ -271,5 +280,24 @@ class RendezVousController extends AbstractController
         } catch (\Exception $e) {
             return $this->json(['error' => 'Format de date invalide'], 400);
         }
+    }
+
+    private function resolveActionActorRole($user): string
+    {
+        if (!is_object($user) || !method_exists($user, 'getRoles')) {
+            return RendezVousEntity::ACTION_BY_CLIENT;
+        }
+
+        $roles = $user->getRoles();
+
+        if (in_array('ROLE_VETO', $roles, true)) {
+            return RendezVousEntity::ACTION_BY_VETERINAIRE;
+        }
+
+        if (in_array('ROLE_SECRETARY', $roles, true) || in_array('ROLE_SECRETAIRE', $roles, true)) {
+            return RendezVousEntity::ACTION_BY_SECRETAIRE;
+        }
+
+        return RendezVousEntity::ACTION_BY_CLIENT;
     }
 }
