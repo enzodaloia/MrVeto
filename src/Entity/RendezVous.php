@@ -9,6 +9,13 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: RendezVousRepository::class)]
 class RendezVous
 {
+    public const ACTION_TYPE_CANCELLED = 'annule';
+    public const ACTION_TYPE_RESCHEDULED = 'deplace';
+
+    public const ACTION_BY_CLIENT = 'client';
+    public const ACTION_BY_VETERINAIRE = 'veterinaire';
+    public const ACTION_BY_SECRETAIRE = 'secretaire';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -40,6 +47,18 @@ class RendezVous
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTime $createdAt = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTime $previousDateHeure = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $lastActionType = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $lastActionByRole = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTime $lastActionAt = null;
 
     public function __construct()
     {
@@ -101,6 +120,34 @@ class RendezVous
     public function setRemarque(?string $remarque): static
     {
         $this->remarque = $remarque;
+        return $this;
+    }
+
+    public function getPreviousDateHeure(): ?\DateTime { return $this->previousDateHeure; }
+    public function setPreviousDateHeure(?\DateTime $previousDateHeure): static
+    {
+        $this->previousDateHeure = $previousDateHeure;
+        return $this;
+    }
+
+    public function getLastActionType(): ?string { return $this->lastActionType; }
+    public function setLastActionType(?string $lastActionType): static
+    {
+        $this->lastActionType = $lastActionType;
+        return $this;
+    }
+
+    public function getLastActionByRole(): ?string { return $this->lastActionByRole; }
+    public function setLastActionByRole(?string $lastActionByRole): static
+    {
+        $this->lastActionByRole = $lastActionByRole;
+        return $this;
+    }
+
+    public function getLastActionAt(): ?\DateTime { return $this->lastActionAt; }
+    public function setLastActionAt(?\DateTime $lastActionAt): static
+    {
+        $this->lastActionAt = $lastActionAt;
         return $this;
     }
 }

@@ -88,7 +88,8 @@
                             <button class="btn bg-danger-hover text-white rounded-pill px-4 fw-medium border-0 hover-bg-danger hover-text-white"
                                     data-action="click->rendezvous#openCancelModal"
                                     data-id="{{ rdv.id }}"
-                                    data-date="{{ rdv.dateHeure|date('c') }}">
+                                    data-date="{{ rdv.dateHeure|date('Y-m-d') }}"
+                                    data-time="{{ rdv.dateHeure|date('H:i') }}">
                                 Annuler
                             </button>
                         </div>

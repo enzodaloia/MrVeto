@@ -33,6 +33,9 @@ class Animal
     #[ORM\Column(nullable: true)]
     private ?bool $vaccinAJour = false;
 
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $prochainVaccin = null;
+
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $poids = null;
 
@@ -77,6 +80,18 @@ class Animal
     public function setVaccinAJour(?bool $vaccinAJour): static
     {
         $this->vaccinAJour = $vaccinAJour;
+        return $this;
+    }
+
+    public function getProchainVaccin(): ?\DateTimeInterface
+    {
+        return $this->prochainVaccin;
+    }
+
+    public function setProchainVaccin(?\DateTimeInterface $prochainVaccin): static
+    {
+        $this->prochainVaccin = $prochainVaccin;
+
         return $this;
     }
 

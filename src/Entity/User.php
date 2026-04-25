@@ -75,6 +75,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?\DateTime $createdAt = null;
 
+    #[ORM\Column(type: 'boolean')]
+    private bool $isArchived = false;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $archivedAt = null;
+
     /**
      * @var Collection<int, DayOfWork>
      */
@@ -343,6 +349,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $animal->setProprietaire(null);
             }
         }
+        return $this;
+    }
+
+    public function isArchived(): bool
+    {
+        return $this->isArchived;
+    }
+
+    public function setIsArchived(bool $isArchived): static
+    {
+        $this->isArchived = $isArchived;
+
+        return $this;
+    }
+
+    public function getArchivedAt(): ?\DateTimeInterface
+    {
+        return $this->archivedAt;
+    }
+
+    public function setArchivedAt(?\DateTimeInterface $archivedAt): static
+    {
+        $this->archivedAt = $archivedAt;
+
         return $this;
     }
 }
