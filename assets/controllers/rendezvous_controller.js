@@ -97,9 +97,20 @@ export default class extends Controller {
         const btn = event.currentTarget;
         this.rdvToCancel = btn.dataset.id;
         
-        // Format date and time for modal
-        const rdvDateStr = btn.dataset.date; // ISO format string
-        const dateObj = new Date(rdvDateStr);
+        // Use backend date/time directly to avoid timezone shifts in the modal
+        const rdvDateStr = btn.dataset.date;
+        const rdvTimeStr = btn.dataset.time;
+        const dateObj = (rdvDateStr && rdvTimeStr)
+            ? new Date(`${rdvDateStr}T${rdvTimeStr}:00`)
+            : new Date(rdvDateStr);
+
+        if (Number.isNaN(dateObj.getTime())) {
+            this.modalDateTarget.innerText = "Date indisponible";
+            this.modalTimeTarget.innerText = "Heure indisponible";
+            const modal = new bootstrap.Modal(this.cancelModalTarget);
+            modal.show();
+            return;
+        }
         
         // Ex: "18 Set, 2023"
         const formattedDate = dateObj.toLocaleDateString('fr-FR', {
@@ -109,7 +120,7 @@ export default class extends Controller {
         }).replace('.', ''); // Fix abbreviation dot
 
         // Ex: "5:30 PM - 5:55 PM"
-        const formattedTime = dateObj.toLocaleTimeString('fr-FR', {
+        const formattedTime = rdvTimeStr ?? dateObj.toLocaleTimeString('fr-FR', {
             hour: '2-digit',
             minute: '2-digit'
         });
