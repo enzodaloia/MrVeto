@@ -121,16 +121,12 @@
 							<div class="d-none d-lg-flex align-items-center gap-3 flex-grow-1" style="max-width: 800px;">
 							</div>
 
-							<!-- Mobile Toggle Button -->
-							<button class="navbar-toggler border-0 shadow-none px-0 ms-auto d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContentUser" aria-controls="navbarContentUser" aria-expanded="false" aria-label="Toggle navigation">
-								<i class="bi bi-list fs-1 text-dark"></i>
-							</button>
-
-							<!-- Desktop Profile & Actions -->
-							<div class="d-none d-lg-flex align-items-center gap-4 ms-4">
+							<!-- Notifications & Mobile Toggle -->
+							<div class="d-flex align-items-center gap-3 ms-auto">
+								<!-- Notification Bell -->
 								<div class="dropdown">
 									<button class="btn btn-link p-0 text-muted position-relative hover-text-dark text-decoration-none" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Afficher les notifications">
-										<i class="bi bi-bell fs-5"></i>
+										<i class="bi bi-bell {% if app.request.headers.get('User-Agent') matches '/Mobi/' %}fs-3{% else %}fs-4{% endif %}"></i>
 										{% if navbarNotifications|length > 0 %}
 											<span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
 												<span class="visually-hidden">{{ navbarNotifications|length }} notifications</span>
@@ -141,7 +137,7 @@
 										<div class="px-3 py-2 bg-light border-bottom">
 											<strong class="text-dark">Notifications</strong>
 										</div>
-										{% if navbarNotifications is not empty %}
+										{% if navbarNotifications|length > 0 %}
 											<div style="max-height: 360px; overflow-y: auto;">
 												{% for notification in navbarNotifications %}
 													<div class="px-3 py-3 {% if not loop.first %}border-top{% endif %}">
@@ -166,6 +162,15 @@
 										{% endif %}
 									</div>
 								</div>
+
+								<!-- Mobile Toggle Button -->
+								<button class="navbar-toggler border-0 shadow-none px-0 d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContentUser" aria-controls="navbarContentUser" aria-expanded="false" aria-label="Toggle navigation">
+									<i class="bi bi-list fs-1 text-dark"></i>
+								</button>
+							</div>
+
+							<!-- Desktop Profile & Actions -->
+							<div class="d-none d-lg-flex align-items-center gap-4 ms-4">
 								<div class="d-flex align-items-center gap-3 ms-2 ps-3 border-start border-1">
 									<div class="text-end lh-1">
 										<strong class="text-dark d-block mb-1 fs-6">{{ app.user.prenom }} {{ app.user.nom }}</strong>
