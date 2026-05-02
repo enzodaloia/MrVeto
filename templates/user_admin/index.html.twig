@@ -389,6 +389,15 @@
 
 	{{ include('user_admin/new.html.twig') }}
 
+	{% if openCreateModal is defined and openCreateModal %}
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			var myModal = new bootstrap.Modal(document.getElementById('createUserModal'));
+			myModal.show();
+		});
+	</script>
+	{% endif %}
+
  <script>
 		function modalShowForm(role) {
 			document.getElementById('modal-step-1').style.display = 'none';
