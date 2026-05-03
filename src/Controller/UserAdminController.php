@@ -65,6 +65,7 @@ final class UserAdminController extends AbstractController
                     $this->addFlash('danger', 'Erreur : Cette adresse email est déjà utilisée.');
                     break;
                 }
+                $this->addFlash('danger', 'Erreur du formulaire : ' . $error->getMessage());
             }
 
             return $this->render('user_admin/index.html.twig', [

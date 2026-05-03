@@ -19,6 +19,7 @@ class UserAdminType extends AbstractType
             ->add('roles', ChoiceType::class, [
                 'choices' => [
                     'Utilisateur' => 'ROLE_USER',
+                    'Secrétaire' => 'ROLE_SECRETARY',
                     'Vétérinaire' => 'ROLE_VETO',
                     'Administrateur' => 'ROLE_ADMIN',
                 ],
@@ -42,7 +43,10 @@ class UserAdminType extends AbstractType
                     ]),
                 ],
             ])
-            ->add('datenaissance')
+            ->add('datenaissance', \Symfony\Component\Form\Extension\Core\Type\DateType::class, [
+                'widget' => 'single_text',
+                'required' => false,
+            ])
             ->add('adresse')
             ->add('telephone')
             ->add('ville')

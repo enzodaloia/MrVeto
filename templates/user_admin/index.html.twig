@@ -54,6 +54,9 @@
 								<a class="dropdown-item filter-role-item" href="#" data-value="role_admin">Admin</a>
 							</li>
 							<li>
+								<a class="dropdown-item filter-role-item" href="#" data-value="role_secretary">Secrétaire</a>
+							</li>
+							<li>
 								<a class="dropdown-item filter-role-item" href="#" data-value="role_veto">Vétérinaire</a>
 							</li>
 							<li>
@@ -133,7 +136,7 @@
 						</thead>
 						<tbody id="users-table-body">
 							{% for user in users %}
-								<tr class="user-row border-bottom" data-nom="{{ user.nom|lower }} {{ user.prenom|lower }}" data-email="{{ user.email|lower }}" data-role="{% if 'ROLE_ADMIN' in user.roles %}role_admin{% elseif 'ROLE_VETO' in user.roles %}role_veto{% else %}role_user{% endif %}" data-verified="
+								<tr class="user-row border-bottom" data-nom="{{ user.nom|lower }} {{ user.prenom|lower }}" data-email="{{ user.email|lower }}" data-role="{% if 'ROLE_ADMIN' in user.roles %}role_admin{% elseif 'ROLE_SECRETARY' in user.roles or 'ROLE_SECRETAIRE' in user.roles %}role_secretary{% elseif 'ROLE_VETO' in user.roles %}role_veto{% else %}role_user{% endif %}" data-verified="
 																		{% if 'ROLE_VETO' in user.roles %}
 																			{{ user.isVerified ? '1' : '0' }}
 																		{% else %}
@@ -175,7 +178,7 @@
 										{% elseif 'ROLE_VETO' in user.roles %}
 											<span class="fw-medium text-info">Vétérinaire</span>
 
-										{% elseif 'ROLE_SECRETAIRE' in user.roles %}
+										{% elseif 'ROLE_SECRETARY' in user.roles or 'ROLE_SECRETAIRE' in user.roles %}
 											<span class="badge rounded-pill px-3 py-2 bg-secondary text-white">Secrétaire</span>
 
 										{% else %}
@@ -230,6 +233,9 @@
 									</li>
 									<li>
 										<a class="dropdown-item filter-role-item" href="#" data-value="role_admin">Admin</a>
+									</li>
+									<li>
+										<a class="dropdown-item filter-role-item" href="#" data-value="role_secretary">Secrétaire</a>
 									</li>
 									<li>
 										<a class="dropdown-item filter-role-item" href="#" data-value="role_veto">Vétérinaire</a>
@@ -290,7 +296,7 @@
 
 				<div id="users-mobile-list">
 					{% for user in users %}
-						<div class="user-row bg-white rounded-4 shadow-sm p-3 mb-3" data-nom="{{ user.nom|lower }} {{ user.prenom|lower }}" data-email="{{ user.email|lower }}" data-role="{% if 'ROLE_ADMIN' in user.roles %}role_admin{% elseif 'ROLE_VETO' in user.roles %}role_veto{% else %}role_user{% endif %}" data-verified="
+						<div class="user-row bg-white rounded-4 shadow-sm p-3 mb-3" data-nom="{{ user.nom|lower }} {{ user.prenom|lower }}" data-email="{{ user.email|lower }}" data-role="{% if 'ROLE_ADMIN' in user.roles %}role_admin{% elseif 'ROLE_SECRETARY' in user.roles or 'ROLE_SECRETAIRE' in user.roles %}role_secretary{% elseif 'ROLE_VETO' in user.roles %}role_veto{% else %}role_user{% endif %}" data-verified="
 														{% if 'ROLE_VETO' in user.roles %}
 															{{ user.isVerified ? '1' : '0' }}
 														{% else %}
@@ -332,7 +338,7 @@
 											<span class="badge rounded-pill px-3 py-2 bg-primary text-white">Admin</span>
 										{% elseif 'ROLE_VETO' in user.roles %}
 											<span class="fw-medium text-info">Vétérinaire</span>
-										{% elseif 'ROLE_SECRETAIRE' in user.roles %}
+										{% elseif 'ROLE_SECRETARY' in user.roles or 'ROLE_SECRETAIRE' in user.roles %}
 											<span class="badge rounded-pill px-3 py-2 bg-secondary text-white">Secrétaire</span>
 										{% else %}
 											<span class="fw-medium text-info">Utilisateur</span>
@@ -389,6 +395,15 @@
 
 	{{ include('user_admin/new.html.twig') }}
 
+	{% if openCreateModal is defined and openCreateModal %}
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			var myModal = new bootstrap.Modal(document.getElementById('createUserModal'));
+			myModal.show();
+		});
+	</script>
+	{% endif %}
+
  <script>
 		function modalShowForm(role) {
 			document.getElementById('modal-step-1').style.display = 'none';
@@ -399,6 +414,7 @@
 			const titles = {
 				'ROLE_VETO': 'Créer un compte vétérinaire',
 				'ROLE_ADMIN': 'Créer un compte administrateur',
+				'ROLE_SECRETARY': 'Créer un compte secrétaire',
 				'ROLE_USER': 'Créer un compte utilisateur'
 			};
 			document.getElementById('modal-title').textContent = titles[role] || 'Créer un compte';

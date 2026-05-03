@@ -36,6 +36,9 @@
 						<button type="button" class="btn btn-outline-primary rounded-3 p-3 text-center fw-semibold" onclick="modalShowForm('ROLE_ADMIN')">
 							Administrateur
 						</button>
+						<button type="button" class="btn btn-outline-primary rounded-3 p-3 text-center fw-semibold" onclick="modalShowForm('ROLE_SECRETARY')">
+							Secrétaire
+						</button>
 						<button type="button" class="btn btn-outline-primary rounded-3 p-3 text-center fw-semibold" onclick="modalShowForm('ROLE_USER')">
 							Utilisateur
 						</button>
@@ -122,8 +125,9 @@
 						</div>
 					</div>
 
-					<select name="user_admin[roles][]" id="modal-roles-select" class="d-none">
+					<select name="user_admin[roles]" id="modal-roles-select" class="d-none">
 						<option value="ROLE_USER">Utilisateur</option>
+						<option value="ROLE_SECRETARY">Secrétaire</option>
 						<option value="ROLE_VETO">Vétérinaire</option>
 						<option value="ROLE_ADMIN">Admin</option>
 					</select>
