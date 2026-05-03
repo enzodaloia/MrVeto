@@ -33,6 +33,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private bool $isVerified = false;
 
     #[ORM\Column(length: 255, nullable: true)]
+    private ?string $numeroOrdreVeterinaire = null;
+
+    #[ORM\Column(type: 'boolean')]
+    private bool $isAdminValidated = false;
+
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $nom = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -183,6 +189,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsVerified(bool $isVerified): static
     {
         $this->isVerified = $isVerified;
+        return $this;
+    }
+
+    public function getNumeroOrdreVeterinaire(): ?string
+    {
+        return $this->numeroOrdreVeterinaire;
+    }
+
+    public function setNumeroOrdreVeterinaire(?string $numeroOrdreVeterinaire): static
+    {
+        $this->numeroOrdreVeterinaire = $numeroOrdreVeterinaire;
+        return $this;
+    }
+
+    public function isAdminValidated(): bool
+    {
+        return $this->isAdminValidated;
+    }
+
+    public function setIsAdminValidated(bool $isAdminValidated): static
+    {
+        $this->isAdminValidated = $isAdminValidated;
         return $this;
     }
 

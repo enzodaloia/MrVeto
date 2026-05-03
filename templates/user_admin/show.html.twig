@@ -20,25 +20,38 @@
 	<div id="user-show-content" class="container-fluid py-3 py-md-4 px-3 px-md-4 min-vh-100">
 		<div class="mx-auto" style="max-width: 900px;">
 
-			<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
-				<div>
-					<h1 class="h3 fw-bold text-dark mb-1 text-nowrap">{{ user.prenom }}
-						{{ user.nom }}</h1>
-					<p class="text-muted mb-0 text-nowrap">Fiche utilisateur</p>
-				</div>
-
-				<div class="d-flex flex-column flex-sm-row gap-2 w-100 w-md-auto">
-					<a href="{{ path('app_user_admin_edit', {'id': user.id}) }}" class="btn text-danger rounded-3 px-4 fw-semibold d-inline-flex align-items-center justify-content-center gap-2 w-100 w-sm-auto text-white">
-						<i data-lucide="pencil" style="width:15px;height:15px;"></i>
-						Modifier
-					</a>
-
-					<a href="{{ path('app_user_admin_index') }}" class="btn text-neutral-90 border-0 rounded-3 px-4 fw-semibold text-nowrap d-inline-flex align-items-center justify-content-center gap-2 btn-retour w-100 w-sm-auto" data-turbo="false">
-						<i data-lucide="arrow-left" style="width:16px;height:16px;"></i>
-						Retour à la liste
-					</a>
-				</div>
+			<div class="d-flex justify-content-end mb-2">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
 			</div>
+
+		<div class="mb-4">
+
+    <a href="{{ path('app_user_admin_index') }}"
+       class="d-inline-flex align-items-center gap-2 text-decoration-none text-muted fw-semibold retour-link mb-3">
+        <i class="bi bi-arrow-left"></i>
+        Retour à la liste
+    </a>
+
+    <div class="d-flex justify-content-between align-items-center">
+
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-person text-muted"></i>
+            <div class="h5 mb-0 text-muted">
+                Fiche utilisateur
+            </div>
+        </div>
+
+        <a href="{{ path('app_user_admin_edit', {'id': user.id}) }}"
+           class="btn btn-danger d-flex align-items-center gap-2 px-4">
+            <i class="bi bi-pencil"></i>
+            Modifier
+        </a>
+
+    </div>
+
+</div>
+
+</div>
 
 			<div class="bg-white rounded-4 shadow-sm p-3 p-md-4 p-lg-5">
 				<div class="d-flex flex-column flex-sm-row align-items-center align-items-sm-start gap-4 mb-4 pb-4 border-bottom text-center text-sm-start">
@@ -63,13 +76,19 @@
 							{% endif %}
 
 							{% if 'ROLE_VETO' in user.roles %}
-								{% if user.isVerified %}
-									<span class="badge rounded-pill px-3 py-2" style="background:#e4f9f0;color:#16a34a;">Compte vérifié</span>
+								{% if user.isAdminValidated %}
+									<span class="badge rounded-pill px-3 py-2" style="background:#e4f9f0;color:#16a34a;">Validé admin</span>
 								{% else %}
-									<span class="badge rounded-pill px-3 py-2" style="background:#fde8e8;color:#dc2626;">Non vérifié</span>
+									<span class="badge rounded-pill px-3 py-2" style="background:#fde8e8;color:#dc2626;">En attente admin</span>
 								{% endif %}
 							{% else %}
 								<span class="badge rounded-pill px-3 py-2" style="background:#dcfce7;color:#166534;">Actif</span>
+							{% endif %}
+
+							{% if user.isVerified %}
+								<span class="badge rounded-pill px-3 py-2" style="background:#dcfce7;color:#166534;">Email vérifié</span>
+							{% else %}
+								<span class="badge rounded-pill px-3 py-2" style="background:#fef3c7;color:#92400e;">Email non vérifié</span>
 							{% endif %}
 						</div>
 					</div>
@@ -121,9 +140,20 @@
 
 						<div class="col-12 col-md-6">
 							<div class="bg-secondary-bg rounded-4 p-3 h-100">
+								<div class="text-muted small mb-1">N° d’ordre vétérinaire</div>
+								<div class="fw-medium">{{ user.numeroOrdreVeterinaire ?: '—' }}</div>
+							</div>
+						</div>
+
+						<div class="col-12 col-md-6">
+							<div class="bg-secondary-bg rounded-4 p-3 h-100">
 								<div class="text-muted small mb-1">Adresse cabinet</div>
 								<div class="fw-medium">{{ user.adressecabinet ?: '—' }}</div>
 							</div>
+						</div>
+
+						<div class="col-12">
+							{{ include('user_admin/_siret_verification.html.twig') }}
 						</div>
 					{% endif %}
 				</div>

@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\UserAdminType;
 use App\Repository\UserRepository;
+use App\Service\SiretVerificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -97,7 +98,8 @@ final class UserAdminController extends AbstractController
         Request $request,
         User $user,
         EntityManagerInterface $entityManager,
-        UserPasswordHasherInterface $userPasswordHasher
+        UserPasswordHasherInterface $userPasswordHasher,
+        SiretVerificationService $siretVerificationService
     ): Response {
         $form = $this->createForm(UserAdminType::class, $user, [
             'is_edit' => true,
@@ -125,45 +127,51 @@ final class UserAdminController extends AbstractController
         return $this->render('user_admin/edit.html.twig', [
             'user' => $user,
             'form' => $form->createView(),
+            'siretVerification' => $this->buildSiretVerification($user, $siretVerificationService),
         ]);
     }
 
     /**
-     * Active ou désactive la validation d’un utilisateur
-     * - Vérification CSRF obligatoire
+     * Active ou désactive la validation admin d'un compte vétérinaire.
      */
-    #[Route('/admin/user/{id}/verify/{value}', name: 'app_user_admin_verify', methods: ['POST'])]
+    #[Route('/{id}/admin-validation/{value}', name: 'app_user_admin_verify', methods: ['POST'])]
     public function verify(
         User $user,
         int $value,
         Request $request,
         EntityManagerInterface $entityManager
     ): Response {
-        // Sécurité CSRF
         if (!$this->isCsrfTokenValid('verify' . $user->getId(), $request->request->get('_token'))) {
             throw $this->createAccessDeniedException('Token CSRF invalide.');
         }
 
-        // Mise à jour du statut de vérification
-        $user->setIsVerified($value === 1);
+        if (!in_array('ROLE_VETO', $user->getRoles(), true)) {
+            throw $this->createAccessDeniedException('Seuls les comptes vétérinaires peuvent être validés par un administrateur.');
+        }
+
+        $user->setIsAdminValidated($value === 1);
         $entityManager->flush();
 
-        $this->addFlash('success', $value === 1 ? 'Utilisateur validé.' : 'Validation retirée.');
+        $this->addFlash('success', $value === 1 ? 'Compte vétérinaire validé.' : 'Validation admin retirée.');
         return $this->redirectToRoute('app_user_admin_index');
     }
 
 
     #[Route('/{id}', name: 'app_user_admin_show', methods: ['GET'])]
-    public function show(Request $request, User $user): Response
+    public function show(Request $request, User $user, SiretVerificationService $siretVerificationService): Response
     {
+        $siretVerification = $this->buildSiretVerification($user, $siretVerificationService);
+
         if ($request->query->get('modal') === '1') {
             return $this->render('user_admin/_show_content.html.twig', [
                 'user' => $user,
+                'siretVerification' => $siretVerification,
             ]);
         }
 
         return $this->render('user_admin/show.html.twig', [
             'user' => $user,
+            'siretVerification' => $siretVerification,
         ]);
     }
 
@@ -181,5 +189,14 @@ final class UserAdminController extends AbstractController
         }
 
         return $this->redirectToRoute('app_user_admin_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    private function buildSiretVerification(User $user, SiretVerificationService $siretVerificationService): ?array
+    {
+        if (!in_array('ROLE_VETO', $user->getRoles(), true)) {
+            return null;
+        }
+
+        return $siretVerificationService->verify($user->getSiret());
     }
 }

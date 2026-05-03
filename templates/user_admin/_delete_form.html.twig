@@ -1,4 +1,4 @@
-<button type="button" class="action-btn delete btn btn-link p-1 text-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ user.id }}">
+<button type="button" class="action-btn delete btn btn-link p-0 text-danger" style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#deleteModal{{ user.id }}">
     <i data-lucide="trash-2"></i>
 </button>
 
@@ -25,7 +25,7 @@
                         data-bs-dismiss="modal">
                         Retour
                     </button>
-                    <form id="delete-user-form-{{ user.id }}" method="post" action="{{ path('app_user_admin_delete', {'id': user.id}) }}" class="flex-grow-1">
+                    <form id="delete-user-form-{{ user.id }}" method="post" action="{{ path('app_user_admin_delete', {'id': user.id}) }}" class="flex-grow-1" data-turbo="false">
                         <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
                         <button class="btn fw-bold rounded-pill w-100 py-3"
                             style="background:var(--bs-danger); color:white;">

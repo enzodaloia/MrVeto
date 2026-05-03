@@ -26,7 +26,9 @@ class UserAdminType extends AbstractType
                 'expanded' => true,
                 'multiple' => false,
             ])
-            ->add('isVerified')
+            ->add('isAdminValidated', null, [
+                'label' => 'Compte vétérinaire validé',
+            ])
             ->add('nom', null, [
                 'required' => false,
                 'constraints' => [
@@ -52,6 +54,7 @@ class UserAdminType extends AbstractType
             ->add('ville')
             ->add('codepostal')
             ->add('siret')
+            ->add('numeroOrdreVeterinaire')
             ->add('adressecabinet');
 
         if (!$options['is_edit']) {

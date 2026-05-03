@@ -75,10 +75,10 @@
 								<a class="dropdown-item filter-status-item" href="#" data-value="">Tous</a>
 							</li>
 							<li>
-								<a class="dropdown-item filter-status-item" href="#" data-value="1">Validé</a>
+								<a class="dropdown-item filter-status-item" href="#" data-value="1">Validé admin</a>
 							</li>
 							<li>
-								<a class="dropdown-item filter-status-item" href="#" data-value="0">En attente</a>
+								<a class="dropdown-item filter-status-item" href="#" data-value="0">En attente admin</a>
 							</li>
 						</ul>
 					</div>
@@ -138,7 +138,7 @@
 							{% for user in users %}
 								<tr class="user-row border-bottom" data-nom="{{ user.nom|lower }} {{ user.prenom|lower }}" data-email="{{ user.email|lower }}" data-role="{% if 'ROLE_ADMIN' in user.roles %}role_admin{% elseif 'ROLE_SECRETARY' in user.roles or 'ROLE_SECRETAIRE' in user.roles %}role_secretary{% elseif 'ROLE_VETO' in user.roles %}role_veto{% else %}role_user{% endif %}" data-verified="
 																		{% if 'ROLE_VETO' in user.roles %}
-																			{{ user.isVerified ? '1' : '0' }}
+																			{{ user.isAdminValidated ? '1' : '0' }}
 																		{% else %}
 																			active
 																		{% endif %}
@@ -161,10 +161,10 @@
 
 									<td>
 										{% if 'ROLE_VETO' in user.roles %}
-											{% if user.isVerified %}
-												<span class="badge rounded-pill px-3 py-2 bg-primary text-white" style="font-size:0.72rem;">Validé</span>
+											{% if user.isAdminValidated %}
+												<span class="badge rounded-pill px-3 py-2 bg-primary text-white" style="font-size:0.72rem;">Validé admin</span>
 											{% else %}
-												<span class="badge rounded-pill px-3 py-2 bg-warning text-white" style="font-size:0.72rem;">En attente</span>
+												<span class="badge rounded-pill px-3 py-2 bg-warning text-white" style="font-size:0.72rem;">En attente admin</span>
 											{% endif %}
 										{% else %}
 											<span class="badge rounded-pill px-3 py-2 bg-info text-white" style="font-size:0.72rem;">Actif</span>
@@ -190,15 +190,17 @@
 										{{ user.createdAt ? user.createdAt|date('d M Y') : '—' }}
 									</td>
 
-									<td class="text-center pe-4">
-										<button type="button" class="action-btn btn btn-link p-1 btn-show-user" data-bs-toggle="modal" data-bs-target="#userModal" data-url="{{ path('app_user_admin_show', {'id': user.id}) }}">
-											<i data-lucide="eye"></i>
-										</button>
-										<a href="{{ path('app_user_admin_edit', {'id': user.id}) }}" class="action-btn btn btn-link p-1 text-info">
-											<i data-lucide="pencil"></i>
-										</a>
+									<td class="text-end pe-4">
+										<div class="d-flex align-items-center justify-content-end gap-3 flex-nowrap">
+											<button type="button" class="action-btn btn btn-link p-0 btn-show-user" style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#userModal" data-url="{{ path('app_user_admin_show', {'id': user.id}) }}">
+												<i data-lucide="eye"></i>
+											</button>
+											<a href="{{ path('app_user_admin_edit', {'id': user.id}) }}" class="action-btn btn btn-link p-0 text-info" style="cursor:pointer;" data-turbo="false">
+												<i data-lucide="pencil"></i>
+											</a>
 
-										{{ include('user_admin/_delete_form.html.twig') }}
+											{{ include('user_admin/_delete_form.html.twig') }}
+										</div>
 									</td>
 								</tr>
 							{% else %}
@@ -258,10 +260,10 @@
 										<a class="dropdown-item filter-status-item" href="#" data-value="">Tous</a>
 									</li>
 									<li>
-										<a class="dropdown-item filter-status-item" href="#" data-value="1">Validé</a>
+										<a class="dropdown-item filter-status-item" href="#" data-value="1">Validé admin</a>
 									</li>
 									<li>
-										<a class="dropdown-item filter-status-item" href="#" data-value="0">En attente</a>
+										<a class="dropdown-item filter-status-item" href="#" data-value="0">En attente admin</a>
 									</li>
 								</ul>
 							</div>
@@ -298,7 +300,7 @@
 					{% for user in users %}
 						<div class="user-row bg-white rounded-4 shadow-sm p-3 mb-3" data-nom="{{ user.nom|lower }} {{ user.prenom|lower }}" data-email="{{ user.email|lower }}" data-role="{% if 'ROLE_ADMIN' in user.roles %}role_admin{% elseif 'ROLE_SECRETARY' in user.roles or 'ROLE_SECRETAIRE' in user.roles %}role_secretary{% elseif 'ROLE_VETO' in user.roles %}role_veto{% else %}role_user{% endif %}" data-verified="
 														{% if 'ROLE_VETO' in user.roles %}
-															{{ user.isVerified ? '1' : '0' }}
+															{{ user.isAdminValidated ? '1' : '0' }}
 														{% else %}
 															active
 														{% endif %}
@@ -320,10 +322,10 @@
 									<span class="text-muted">Status</span>
 									<div>
 										{% if 'ROLE_VETO' in user.roles %}
-											{% if user.isVerified %}
-												<span class="badge rounded-pill px-3 py-2 bg-primary text-white" style="font-size:0.72rem;">Validé</span>
+											{% if user.isAdminValidated %}
+												<span class="badge rounded-pill px-3 py-2 bg-primary text-white" style="font-size:0.72rem;">Validé admin</span>
 											{% else %}
-												<span class="badge rounded-pill px-3 py-2 bg-warning text-white" style="font-size:0.72rem;">En attente</span>
+												<span class="badge rounded-pill px-3 py-2 bg-warning text-white" style="font-size:0.72rem;">En attente admin</span>
 											{% endif %}
 										{% else %}
 											<span class="badge rounded-pill px-3 py-2 bg-success text-white" style="font-size:0.72rem;">Actif</span>
@@ -356,7 +358,7 @@
 								<button type="button" class="action-btn btn btn-link p-1 btn-show-user" data-bs-toggle="modal" data-bs-target="#userModal" data-url="{{ path('app_user_admin_show', {'id': user.id}) }}">
 									<i data-lucide="eye"></i>
 								</button>
-								<a href="{{ path('app_user_admin_edit', {'id': user.id}) }}" class="action-btn btn btn-link p-1 text-info">
+								<a href="{{ path('app_user_admin_edit', {'id': user.id}) }}" class="action-btn btn btn-link p-1 text-info" data-turbo="false">
 									<i data-lucide="pencil"></i>
 								</a>
 
@@ -377,11 +379,6 @@
 	<div class="modal fade" id="userModal" tabindex="-1">
 		<div class="modal-dialog modal-dialog-centered modal-lg">
 			<div class="modal-content rounded-4 border-0 shadow">
-
-				<div class="modal-header border-0">
-					<h5 class="modal-title fw-bold">Détails utilisateur</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-				</div>
 
 				<div class="modal-body" id="userModalContent">
 					<div class="text-center py-5 text-muted">
@@ -425,16 +422,16 @@
 				opt.selected = opt.value === role;
 			});
 
-			const isVerifiedWrapper = document.getElementById('modal-is-verified-wrapper');
-const isVerifiedCheckbox = document.getElementById('modal-is-verified');
+			const isAdminValidatedWrapper = document.getElementById('modal-is-admin-validated-wrapper');
+const isAdminValidatedCheckbox = document.getElementById('modal-is-admin-validated');
 
 // afficher uniquement pour veto
 if (role === 'ROLE_VETO') {
-    isVerifiedWrapper.style.display = 'block';
-    isVerifiedCheckbox.checked = true;
+    isAdminValidatedWrapper.style.display = 'block';
+    isAdminValidatedCheckbox.checked = true;
 } else {
-    isVerifiedWrapper.style.display = 'none';
-    isVerifiedCheckbox.checked = false;
+    isAdminValidatedWrapper.style.display = 'none';
+    isAdminValidatedCheckbox.checked = false;
 }
 		}
 
@@ -568,8 +565,12 @@ if (role === 'ROLE_VETO') {
 				</script>
 
 	 <script>
-					document.addEventListener('DOMContentLoaded', function () {
+					function bindUserShowButtons() {
 						document.querySelectorAll('.btn-show-user').forEach(function (btn) {
+							if (btn.dataset.showBound === '1') {
+								return;
+							}
+							btn.dataset.showBound = '1';
 							btn.addEventListener('click', function () {
 								const url = this.getAttribute('data-url');
 								const modalContent = document.getElementById('userModalContent');
@@ -602,6 +603,9 @@ if (role === 'ROLE_VETO') {
 									});
 							});
 						});
-					});
+					}
+
+					document.addEventListener('DOMContentLoaded', bindUserShowButtons);
+					document.addEventListener('turbo:load', bindUserShowButtons);
 				</script>
 {% endblock %}

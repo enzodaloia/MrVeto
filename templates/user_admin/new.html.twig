@@ -95,6 +95,10 @@
 								<label class="form-label text-muted small">N° de Siret</label>
 								<input type="text" name="user_admin[siret]" class="form-control rounded-3">
 							</div>
+							<div class="col-12">
+								<label class="form-label text-muted small">N° d’ordre vétérinaire</label>
+								<input type="text" name="user_admin[numeroOrdreVeterinaire]" class="form-control rounded-3">
+							</div>
 							<div class="col-md-6">
 								<label class="form-label text-muted small">Code postal</label>
 								<input type="text" name="user_admin[codepostal]" class="form-control rounded-3">
@@ -117,10 +121,10 @@
 							<label class="form-label text-muted small">Confirmation mot de passe</label>
 							<input type="password" class="form-control rounded-3">
 						</div>
-						<div class="col-12" id="modal-is-verified-wrapper" style="display:none;">
+						<div class="col-12" id="modal-is-admin-validated-wrapper" style="display:none;">
 							<div class="form-check">
-								<input type="checkbox" name="user_admin[isVerified]" id="modal-is-verified" class="form-check-input" value="1">
-								<label class="form-check-label">Compte vérifié</label>
+								<input type="checkbox" name="user_admin[isAdminValidated]" id="modal-is-admin-validated" class="form-check-input" value="1">
+								<label class="form-check-label">Compte vétérinaire validé par l’admin</label>
 							</div>
 						</div>
 					</div>
