@@ -5,20 +5,33 @@
 
 {% block body %}
 	<div class="container py-4" data-controller="secretary-availability">
-		<div class="d-flex justify-content-between align-items-center mb-4">
-			<div>
-				<h1 class="h3 mb-1">Horaires de Dr.
-					{{ vet.prenom }}
-					{{ vet.nom }}</h1>
-				<p class="text-muted mb-0">{{ vet.email }}</p>
+		<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+
+			<div class="d-flex align-items-center gap-3">
+				<div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+					<i class="bi bi-calendar3 text-white"></i>
+				</div>
+
+				<div>
+					<h1 class="h4 fw-semibold mb-0">
+						Horaires de Dr.
+						{{ vet.prenom }}
+						{{ vet.nom }}
+					</h1>
+					<p class="text-muted mb-0 small">
+						{{ vet.email }}
+					</p>
+				</div>
 			</div>
 
-			<button type="submit" form="secretary-availability-form" class="btn btn-primary px-4">
-				Enregistrer
+			<button type="submit" form="secretary-availability-form" class="btn btn-primary px-4 d-flex align-items-center gap-2">
+				<i class="bi bi-check-lg"></i>
+				<span>Enregistrer</span>
 			</button>
+
 		</div>
 
-		<div class="card border-0 shadow-sm rounded-4 ">
+		<div class="card border-0 shadow-sm rounded-4">
 			{{ form_start(form, {
             attr: {
                 id: 'secretary-availability-form',
@@ -26,80 +39,87 @@
             }
         }) }}
 
-			<div class="table-responsive">
-				<table class="table custom-table align-middle mb-0">
-					<thead>
-						<tr>
-							<th>Jour</th>
-							<th>Ouvert</th>
-							<th>Matin</th>
-							<th>Après-midi</th>
-							<th class="text-end">Actions</th>
-						</tr>
-					</thead>
-
-					<tbody>
-						{% for horaire in form.horaires %}
-							{% set data = horaire.vars.data %}
-							{% set day = data.dayOfWork %}
-							{% set hasAfternoon = horaire.afternoonStart.vars.value and horaire.afternoonEnd.vars.value %}
-
-							<tr data-secretary-availability-target="row" data-afternoon-visible="{{ hasAfternoon ? '1' : '0' }}" class="{{ day.isWorking ? '' : 'table-light' }}">
-								<td class="fw-semibold">
-									{{ day.jour.libelle }}
-									{{ form_widget(horaire.dayOfWork, { attr: { class: 'd-none' } }) }}
-								</td>
-
-								<td>
-									<div class="form-check form-switch">
-										<input class="form-check-input" type="checkbox" name="working_days[]" value="{{ day.id }}" {{ day.isWorking ? 'checked' : '' }} data-secretary-availability-target="workingCheckbox" data-action="change->secretary-availability#toggleDay">
-									</div>
-								</td>
-
-								<td>
-									<div class="d-flex align-items-center gap-2" data-secretary-availability-target="morningFields">
-										{{ form_widget(horaire.morningStart, { attr: { class: 'form-control form-control-sm' } }) }}
-										<span class="text-muted">à</span>
-										{{ form_widget(horaire.morningEnd, { attr: { class: 'form-control form-control-sm' } }) }}
-									</div>
-									{{ form_errors(horaire.morningEnd) }}
-								</td>
-
-								<td>
-									<div class="d-flex align-items-center gap-2 {{ hasAfternoon ? '' : 'd-none' }}" data-secretary-availability-target="afternoonFields">
-										{{ form_widget(horaire.afternoonStart, { attr: { class: 'form-control form-control-sm' } }) }}
-										<span class="text-muted">à</span>
-										{{ form_widget(horaire.afternoonEnd, { attr: { class: 'form-control form-control-sm' } }) }}
-									</div>
-									{{ form_errors(horaire.afternoonEnd) }}
-								</td>
-
-								<td class="text-end">
-									<button type="button" class="btn btn-sm btn-outline-primary" data-secretary-availability-target="addAfternoonButton" data-action="secretary-availability#addAfternoon">
-										<i class="bi bi-plus-lg"></i>
-									</button>
-
-									<button type="button" class="btn btn-sm btn-outline-danger" data-secretary-availability-target="removeButton" data-action="secretary-availability#removeSlot">
-										<i class="bi bi-x-lg"></i>
-									</button>
-								</td>
-							</tr>
-						{% endfor %}
-					</tbody>
-				</table>
+			<div class="d-none d-lg-flex border-bottom fw-semibold text-muted small text-uppercase px-3 py-3">
+				<div class="col-lg-2">Jour</div>
+				<div class="col-lg-1">Ouvert</div>
+				<div class="col-lg">Matin</div>
+				<div class="col-lg">Après-midi</div>
+				<div class="col-lg-auto text-end">Actions</div>
 			</div>
 
-			<div class="card-body border-top d-flex justify-content-end gap-2 ">
-				<a href="{{ path('app_vet_cabinet_index') }}" class="btn btn-outline-secondary">
-					Annuler
+			<div class="d-flex flex-column">
+				{% for horaire in form.horaires %}
+					{% set data = horaire.vars.data %}
+					{% set day = data.dayOfWork %}
+					{% set hasAfternoon = horaire.afternoonStart.vars.value and horaire.afternoonEnd.vars.value %}
+
+					<div data-secretary-availability-target="row" data-afternoon-visible="{{ hasAfternoon ? '1' : '0' }}" class="border-bottom p-3 {{ day.isWorking ? 'bg-white' : 'bg-light' }}">
+						<div class="row g-3 align-items-center">
+							<div class="col-8 col-lg-2">
+								<div class="fw-semibold text-primary">{{ day.jour.libelle }}</div>
+								{{ form_widget(horaire.dayOfWork, { attr: { class: 'd-none' } }) }}
+							</div>
+
+							<div class="col-4 col-lg-auto text-end text-lg-start pe-lg-4">
+								<div class="form-check form-switch d-inline-flex align-items-center mb-0">
+									<input class="form-check-input" type="checkbox" name="working_days[]" value="{{ day.id }}" {{ day.isWorking ? 'checked' : '' }} data-secretary-availability-target="workingCheckbox" data-action="change->secretary-availability#toggleDay">
+								</div>
+							</div>
+
+							<div class="col-12 col-lg">
+								<div class="small fw-semibold text-muted mb-2 d-lg-none">Matin</div>
+								<div class="d-flex align-items-center gap-2" data-secretary-availability-target="morningFields">
+									{{ form_widget(horaire.morningStart, { attr: { class: 'form-control form-control-sm' } }) }}
+									<span class="text-muted">à</span>
+									{{ form_widget(horaire.morningEnd, { attr: { class: 'form-control form-control-sm' } }) }}
+								</div>
+								{{ form_errors(horaire.morningEnd) }}
+							</div>
+
+							<div class="col-12 col-lg">
+								<div class="small fw-semibold text-muted mb-2 d-lg-none">Après-midi</div>
+								<div class="d-flex align-items-center gap-2 {{ hasAfternoon ? '' : 'd-none' }}" data-secretary-availability-target="afternoonFields">
+									{{ form_widget(horaire.afternoonStart, { attr: { class: 'form-control form-control-sm' } }) }}
+									<span class="text-muted">à</span>
+									{{ form_widget(horaire.afternoonEnd, { attr: { class: 'form-control form-control-sm' } }) }}
+								</div>
+								{{ form_errors(horaire.afternoonEnd) }}
+							</div>
+
+							<div class="col-12 col-lg-auto">
+								<div class="d-flex justify-content-end gap-2">
+									<button type="button" class="btn btn-sm btn-outline-primary flex-fill flex-lg-grow-0" data-secretary-availability-target="addAfternoonButton" data-action="secretary-availability#addAfternoon">
+										<i class="bi bi-plus-lg"></i>
+										<span class="d-lg-none ms-1">Ajouter</span>
+									</button>
+
+									<button type="button" class="btn btn-sm btn-outline-danger flex-fill flex-lg-grow-0" data-secretary-availability-target="removeButton" data-action="secretary-availability#removeSlot">
+										<i class="bi bi-x-lg"></i>
+										<span class="d-lg-none ms-1">Retirer</span>
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				{% endfor %}
+			</div>
+
+			<div class="card-body border-top d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+
+				<a href="{{ path('app_vet_cabinet_index') }}" class="btn btn-outline-secondary d-flex align-items-center gap-2">
+					<i class="bi bi-arrow-left"></i>
+					<span>Annuler</span>
 				</a>
 
-				<button type="submit" class="btn btn-primary">
-					Enregistrer les horaires
+				<button type="submit" class="btn btn-primary d-flex align-items-center gap-2 px-4">
+					<i class="bi bi-check-lg"></i>
+					<span>Enregistrer les horaires</span>
 				</button>
+
 			</div>
 
 			{{ form_end(form) }}
 		</div>
 	</div>
+
 {% endblock %}

@@ -15,11 +15,24 @@ export default class extends Controller {
   }
 
   toggleDay(event) {
-    this.syncRow(event.currentTarget.closest("tr"));
+  const row = event.currentTarget.closest('[data-secretary-availability-target="row"]');
+  const morningInputs = row.querySelectorAll('[data-secretary-availability-target="morningFields"] input');
+
+  if (event.currentTarget.checked) {
+    if (morningInputs[0] && !morningInputs[0].value) {
+      morningInputs[0].value = "08:00";
+    }
+
+    if (morningInputs[1] && !morningInputs[1].value) {
+      morningInputs[1].value = "12:00";
+    }
   }
 
+  this.syncRow(row);
+}
+
   addAfternoon(event) {
-    const row = event.currentTarget.closest("tr");
+    const row = event.currentTarget.closest('[data-secretary-availability-target="row"]');
 
     const checkbox = row.querySelector(
       '[data-secretary-availability-target="workingCheckbox"]',
@@ -65,7 +78,7 @@ export default class extends Controller {
   }
 
   removeSlot(event) {
-    const row = event.currentTarget.closest("tr");
+    const row = event.currentTarget.closest('[data-secretary-availability-target="row"]');
     const checkbox = row.querySelector(
       '[data-secretary-availability-target="workingCheckbox"]',
     );
@@ -118,12 +131,13 @@ export default class extends Controller {
 
     const isWorking = checkbox?.checked === true;
 
-    const hasBothSlots = isWorking && hasMorning && hasAfternoon;
     const hasMorning =
       morningInputs[0]?.value !== "" && morningInputs[1]?.value !== "";
     const hasAfternoon =
       afternoonInputs[0]?.value !== "" && afternoonInputs[1]?.value !== "";
     const hasAnySlot = hasMorning || hasAfternoon;
+
+    const hasBothSlots = isWorking && hasMorning && hasAfternoon;
 
     row.classList.toggle("table-light", !isWorking);
 
