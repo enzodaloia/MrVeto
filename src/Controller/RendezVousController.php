@@ -174,8 +174,11 @@ class RendezVousController extends AbstractController
 
                 // Rajouter le créneau actuel s'il a été joué ce jour là
                 if ($dateStr === $currentDate && !in_array($currentTime, $slots)) {
-                    $slots[] = $currentTime;
-                    sort($slots); // Remettre dans l'ordre
+                    // On vérifie s'il n'est pas déjà passé, ou alors s'il est pour aujourd'hui, on ne l'affiche que s'il est dans le futur
+                    if ($dateStr !== $now->format('Y-m-d') || $currentTime > $now->format('H:i')) {
+                        $slots[] = $currentTime;
+                        sort($slots); // Remettre dans l'ordre
+                    }
                 }
 
                 if (!empty($slots)) {
@@ -183,8 +186,10 @@ class RendezVousController extends AbstractController
                 }
             } else if ($dateStr === $currentDate) {
                 // Si le véto ne bosse exceptionnellement plus ce jour mais que le rdv y est,
-                // on permet quand même de conserver sa valeur
-                $disponibilites[$dateStr] = [$currentTime];
+                // on permet quand même de conserver sa valeur si pas passé
+                if ($dateStr !== $now->format('Y-m-d') || $currentTime > $now->format('H:i')) {
+                    $disponibilites[$dateStr] = [$currentTime];
+                }
             }
 
             $current->modify('+1 day');

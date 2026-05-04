@@ -172,7 +172,7 @@ class GestionRdvController extends AbstractController
                 if (!empty($slots)) {
                     $disponibilites[$dateStr] = array_values(array_unique($slots));
                 }
-            } elseif ($dateStr === $currentDate) {
+            } elseif ($dateStr === $currentDate && $rdv->getDateHeure() > $now) {
                 $disponibilites[$dateStr] = [$currentTime];
             }
 
