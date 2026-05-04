@@ -24,7 +24,7 @@ class Horaire
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'horaires')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?DayOfWork $dayOfWork = null;
 
     #[ORM\Column(type: Types::TIME_MUTABLE, nullable: true)]
