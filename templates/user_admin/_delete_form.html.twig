@@ -1,8 +1,9 @@
-<button type="button" class="action-btn delete btn btn-link p-1 text-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ user.id }}">
+{% set modal_id = 'deleteModal' ~ (prefix|default('')) ~ user.id %}
+<button type="button" class="action-btn delete btn btn-link p-1 text-danger" data-bs-toggle="modal" data-bs-target="#{{ modal_id }}">
     <i data-lucide="trash-2"></i>
 </button>
 
-<div class="modal fade" id="deleteModal{{ user.id }}" tabindex="-1">
+<div class="modal fade" id="{{ modal_id }}" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow" style="border-radius: 35px; overflow: hidden;">
             <div class="modal-body p-5 text-center">
