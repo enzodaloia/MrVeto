@@ -13,10 +13,22 @@ export default class extends Controller {
         "editModal", "editModalVetImg", "editModalVetName", "editModalVetSubtitle", "editModalMotif", "editModalBadge", "editModalDateSelect", "editModalTimeSelect", "confirmEditBtn"
     ]
 
+    static values = {
+        endpointPrefix: String
+    }
+
     connect() {
         this.rdvToCancel = null;
         this.rdvToEdit = null;
         this.disponibilites = {};
+    }
+
+    getEndpointPrefix() {
+        if (this.hasEndpointPrefixValue && this.endpointPrefixValue) {
+            return this.endpointPrefixValue;
+        }
+
+        return '/mes-rendez-vous';
     }
 
     showUpcoming() {
@@ -149,7 +161,7 @@ export default class extends Controller {
         btn.disabled = true;
 
         try {
-            const response = await fetch(`/mes-rendez-vous/${this.rdvToCancel}/annuler`, {
+            const response = await fetch(`${this.getEndpointPrefix()}/${this.rdvToCancel}/annuler`, {
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
@@ -172,14 +184,52 @@ export default class extends Controller {
         }
     }
 
+    async confirmRdv(event) {
+        const btn = event.currentTarget;
+        const rdvId = btn.dataset.id;
+
+        if (!rdvId) return;
+
+        const originalText = btn.innerText;
+        btn.innerText = "Confirmation...";
+        btn.disabled = true;
+
+        try {
+            const response = await fetch(`${this.getEndpointPrefix()}/${rdvId}/confirmer`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                const data = await response.json().catch(() => ({}));
+                alert(data.error || "Une erreur s'est produite lors de la confirmation.");
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Erreur reseau");
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+    }
+
     openEditModal(event) {
         const btn = event.currentTarget;
         this.rdvToEdit = btn.dataset.id;
         
         // Setup Modal visuals
-        this.editModalVetNameTarget.innerText = btn.dataset.vet;
+        this.editModalVetNameTarget.innerText = btn.dataset.vet || '';
         this.editModalMotifTarget.innerText = btn.dataset.motif;
-        this.editModalVetImgTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(btn.dataset.vet)}&background=random`;
+        this.editModalVetImgTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(btn.dataset.vet || '')}&background=random`;
+
+        if (this.hasEditModalVetSubtitleTarget) {
+            this.editModalVetSubtitleTarget.innerText = btn.dataset.subtitle || 'Veterinaire';
+        }
         
         const statut = btn.dataset.statut;
         let badgeClass = "bg-light text-muted";
@@ -209,7 +259,7 @@ export default class extends Controller {
 
     async fetchDisponibilites(id, currentDate, currentTime) {
         try {
-            const response = await fetch(`/mes-rendez-vous/${id}/disponibilites`);
+            const response = await fetch(`${this.getEndpointPrefix()}/${id}/disponibilites`);
             if (response.ok) {
                 this.disponibilites = await response.json();
                 this.populateDateSelect(currentDate);
@@ -303,7 +353,7 @@ export default class extends Controller {
         btn.disabled = true;
 
         try {
-            const response = await fetch(`/mes-rendez-vous/${this.rdvToEdit}/modifier`, {
+            const response = await fetch(`${this.getEndpointPrefix()}/${this.rdvToEdit}/modifier`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
