@@ -106,9 +106,7 @@
 					<table class="table align-middle mb-0" style="--bs-table-bg: transparent;">
 						<thead class="border-bottom">
 							<tr class="text-primary fw-bold small">
-								<th class="ps-4 py-3" style="width:40px;">
-									<input type="checkbox" class="form-check-input">
-								</th>
+
 								<th class="py-3" style="width:250px">Nom
 								</th>
 								<th class="py-3">Adresse email
@@ -126,23 +124,35 @@
 						<tbody id="users-table-body">
 							{% for user in users %}
 								<tr class="user-row border-bottom" data-nom="{{ user.nom|lower }} {{ user.prenom|lower }}" data-email="{{ user.email|lower }}" data-role="{% if 'ROLE_ADMIN' in user.roles %}role_admin{% elseif 'ROLE_SECRETARY' in user.roles or 'ROLE_SECRETAIRE' in user.roles %}role_secretary{% elseif 'ROLE_VETO' in user.roles %}role_veto{% else %}role_user{% endif %}" data-verified="
-																		{% if 'ROLE_VETO' in user.roles %}
-																			{{ user.isVerified ? '1' : '0' }}
-																		{% else %}
-																			active
-																		{% endif %}
-																		" data-date="{{ user.createdAt ? user.createdAt|date('Y-m-d') : '' }}">
-									<td class="ps-4">
-										<input type="checkbox" class="form-check-input">
-									</td>
+																																																																								{% if 'ROLE_VETO' in user.roles %}
+																																																																									{{ user.isVerified ? '1' : '0' }}
+																																																																								{% else %}
+																																																																									active
+																																																																								{% endif %}
+																																																																								" data-date="{{ user.createdAt ? user.createdAt|date('d/m/Y') : '' }}">
+
 
 									<td>
-										<div class="d-flex align-items-center gap-3">
-											<div style="width:38px;height:38px;border-radius:50%;background:var(--bs-primary-bg);color:var(--bs-primary);font-weight:700;font-size:0.8rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+										{% set colors = [
+    'bg-primary',
+    'bg-success',
+    'bg-danger',
+    'bg-warning',
+    'bg-info',
+    'bg-secondary'
+] %}
+
+										{% set color = colors[user.id % colors|length] %}
+
+										<div class="d-flex align-items-center gap-2">
+											<div class="d-flex align-items-center justify-content-center rounded-circle {{ color }} text-white" style="width:24px;height:24px;font-size:0.6rem;font-weight:700;flex-shrink:0;">
 												{{ user.prenom|first|upper }}{{ user.nom|first|upper }}
 											</div>
-											<span class="fw-medium">{{ user.prenom }}
-												{{ user.nom }}</span>
+
+											<span class="fw-medium fs-6 text-nowrap">
+												{{ user.prenom }}
+												{{ user.nom }}
+											</span>
 										</div>
 									</td>
 
@@ -162,21 +172,22 @@
 
 									<td>
 										{% if 'ROLE_ADMIN' in user.roles %}
-											<span class="badge rounded-pill px-3 py-2 bg-primary text-white">Admin</span>
+											<span class="badge rounded-pill px-3 py-2 bg-danger-bg text-danger">Admin</span>
 
 										{% elseif 'ROLE_VETO' in user.roles %}
-											<span class="fw-medium text-info">Vétérinaire</span>
-
+											<span class="badge rounded-pill px-3 py-2 bg-primary-bg text-primary ">Vétérinaire</span>
 										{% elseif 'ROLE_SECRETARY' in user.roles or 'ROLE_SECRETAIRE' in user.roles %}
-											<span class="badge rounded-pill px-3 py-2 bg-secondary text-white">Secrétaire</span>
+											<span class="badge rounded-pill px-3 py-2 bg-secondary-bg text-secondary ">Secrétaire</span>
 
 										{% else %}
-											<span class="fw-medium text-info">Utilisateur</span>
+											<span class="badge rounded-pill px-3 py-2 bg-info-bg text-info">
+												Utilisateur
+											</span>
 										{% endif %}
 									</td>
 
 									<td class="text-muted">
-										{{ user.createdAt ? user.createdAt|date('d M Y') : '—' }}
+										{{ user.createdAt ? user.createdAt|date('d/m/Y') : '—' }}
 									</td>
 
 									<td class="text-end pe-4">
@@ -188,7 +199,7 @@
 												<i data-lucide="pencil"></i>
 											</a>
 
-										{{ include('user_admin/_delete_form.html.twig', { prefix: 'desktop' }) }}
+											{{ include('user_admin/_delete_form.html.twig', { prefix: 'desktop' }) }}
 									</td>
 								</tr>
 							{% else %}
@@ -287,15 +298,14 @@
 				<div id="users-mobile-list">
 					{% for user in users %}
 						<div class="user-row bg-white rounded-4 shadow-sm p-3 mb-3" data-nom="{{ user.nom|lower }} {{ user.prenom|lower }}" data-email="{{ user.email|lower }}" data-role="{% if 'ROLE_ADMIN' in user.roles %}role_admin{% elseif 'ROLE_SECRETARY' in user.roles or 'ROLE_SECRETAIRE' in user.roles %}role_secretary{% elseif 'ROLE_VETO' in user.roles %}role_veto{% else %}role_user{% endif %}" data-verified="
-														{% if 'ROLE_VETO' in user.roles %}
-															{{ user.isVerified ? '1' : '0' }}
-														{% else %}
-															active
-														{% endif %}
-														" data-date="{{ user.createdAt ? user.createdAt|date('Y-m-d') : '' }}">
+																																																								{% if 'ROLE_VETO' in user.roles %}
+																																																									{{ user.isVerified ? '1' : '0' }}
+																																																								{% else %}
+																																																									active
+																																																								{% endif %}
+																																																								" data-date="{{ user.createdAt ? user.createdAt|date('Y-m-d') : '' }}">
 							<div class="d-flex align-items-start gap-3 mb-3">
-								<input type="checkbox" class="form-check-input mt-1">
-								<div style="width:38px;height:38px;border-radius:50%;background:var(--bs-primary-bg);color:var(--bs-primary);font-weight:700;font-size:0.8rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+								<div style="width:12px;height:12px;border-radius:50%;background:var(--bs-primary-bg);color:var(--bs-primary);font-weight:700;font-size:0.8rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
 									{{ user.prenom|first|upper }}{{ user.nom|first|upper }}
 								</div>
 								<div class="flex-grow-1">
@@ -325,7 +335,7 @@
 									<span class="text-muted">Role</span>
 									<div class="text-end">
 										{% if 'ROLE_ADMIN' in user.roles %}
-											<span class="badge rounded-pill px-3 py-2 bg-primary text-white">Admin</span>
+											<span class="badge rounded-pill px-3 py-2 bg-primary-bg text-white">Admin</span>
 										{% elseif 'ROLE_VETO' in user.roles %}
 											<span class="fw-medium text-info">Vétérinaire</span>
 										{% elseif 'ROLE_SECRETARY' in user.roles or 'ROLE_SECRETAIRE' in user.roles %}
@@ -336,8 +346,10 @@
 									</div>
 								</div>
 
-								<div class="d-flex justify-content-between align-items-center gap-3">
-									<span class="text-muted">Date inscription</span>
+								<div class="d-flex align-items-center justify-content-between">
+									<th class="py-3">
+										<span class="text-nowrap d-inline-block">Date inscription</span>
+									</th>
 									<span class="text-muted text-end">{{ user.createdAt ? user.createdAt|date('d M Y') : '—' }}</span>
 								</div>
 							</div>
@@ -381,57 +393,57 @@
 	{{ include('user_admin/new.html.twig') }}
 
 	{% if openCreateModal is defined and openCreateModal %}
-	<script>
-		document.addEventListener('DOMContentLoaded', function () {
-			var myModal = new bootstrap.Modal(document.getElementById('createUserModal'));
-			myModal.show();
-		});
-	</script>
+		 <script>
+														document.addEventListener('DOMContentLoaded', function () {
+															var myModal = new bootstrap.Modal(document.getElementById('createUserModal'));
+															myModal.show();
+														});
+													</script>
 	{% endif %}
 
- <script>
-		function modalShowForm(role) {
-			document.getElementById('modal-step-1').style.display = 'none';
-			document.getElementById('modal-step-2').style.display = 'block';
-			document.getElementById('modal-selected-role').value = role;
-			document.querySelector('#createUserModal .modal-dialog').classList.add('modal-lg');
-
-			const titles = {
-				'ROLE_VETO': 'Créer un compte vétérinaire',
-				'ROLE_ADMIN': 'Créer un compte administrateur',
-				'ROLE_SECRETARY': 'Créer un compte secrétaire',
-				'ROLE_USER': 'Créer un compte utilisateur'
-			};
-			document.getElementById('modal-title').textContent = titles[role] || 'Créer un compte';
-			document.getElementById('modal-fields-veto').style.display = role === 'ROLE_VETO' ? 'block' : 'none';
-
-			const rolesSelect = document.getElementById('modal-roles-select');
-			Array.from(rolesSelect.options).forEach(opt => {
-				opt.selected = opt.value === role;
-			});
-
-			const isVerifiedWrapper = document.getElementById('modal-is-verified-wrapper');
-const isVerifiedCheckbox = document.getElementById('modal-is-verified');
-
-// afficher uniquement pour veto
-if (role === 'ROLE_VETO') {
-    isVerifiedWrapper.style.display = 'block';
-    isVerifiedCheckbox.checked = true;
-} else {
-    isVerifiedWrapper.style.display = 'none';
-    isVerifiedCheckbox.checked = false;
-}
-		}
-
-		function modalShowStep1() {
-			document.getElementById('modal-step-1').style.display = 'block';
-			document.getElementById('modal-step-2').style.display = 'none';
-			document.getElementById('modal-title').textContent = 'Créer un compte';
-			document.querySelector('#createUserModal .modal-dialog').classList.remove('modal-lg');
-		}
-	</script>
-
 	 <script>
+								function modalShowForm(role) {
+									document.getElementById('modal-step-1').style.display = 'none';
+									document.getElementById('modal-step-2').style.display = 'block';
+									document.getElementById('modal-selected-role').value = role;
+									document.querySelector('#createUserModal .modal-dialog').classList.add('modal-lg');
+						
+									const titles = {
+										'ROLE_VETO': 'Créer un compte vétérinaire',
+										'ROLE_ADMIN': 'Créer un compte administrateur',
+										'ROLE_SECRETARY': 'Créer un compte secrétaire',
+										'ROLE_USER': 'Créer un compte utilisateur'
+									};
+									document.getElementById('modal-title').textContent = titles[role] || 'Créer un compte';
+									document.getElementById('modal-fields-veto').style.display = role === 'ROLE_VETO' ? 'block' : 'none';
+						
+									const rolesSelect = document.getElementById('modal-roles-select');
+									Array.from(rolesSelect.options).forEach(opt => {
+										opt.selected = opt.value === role;
+									});
+						
+									const isVerifiedWrapper = document.getElementById('modal-is-verified-wrapper');
+						const isVerifiedCheckbox = document.getElementById('modal-is-verified');
+						
+						// afficher uniquement pour veto
+						if (role === 'ROLE_VETO') {
+						    isVerifiedWrapper.style.display = 'block';
+						    isVerifiedCheckbox.checked = true;
+						} else {
+						    isVerifiedWrapper.style.display = 'none';
+						    isVerifiedCheckbox.checked = false;
+						}
+								}
+						
+								function modalShowStep1() {
+									document.getElementById('modal-step-1').style.display = 'block';
+									document.getElementById('modal-step-2').style.display = 'none';
+									document.getElementById('modal-title').textContent = 'Créer un compte';
+									document.querySelector('#createUserModal .modal-dialog').classList.remove('modal-lg');
+								}
+							</script>
+
+ <script>
 					document.addEventListener('DOMContentLoaded', function () {
 						const searchDesktop = document.getElementById('search-input');
 						const searchMobile = document.getElementById('search-input-mobile');
@@ -553,47 +565,47 @@ if (role === 'ROLE_VETO') {
 				</script>
 
 	 <script>
-					function bindUserShowButtons() {
-						document.querySelectorAll('.btn-show-user').forEach(function (btn) {
-							if (btn.dataset.showBound === '1') {
-								return;
-							}
-							btn.dataset.showBound = '1';
-							btn.addEventListener('click', function () {
-								const url = this.getAttribute('data-url');
-								const modalContent = document.getElementById('userModalContent');
-			
-								modalContent.innerHTML = `
-									<div class="text-center py-5 text-muted">
-										Chargement...
-									</div>
-								`;
-			
-								fetch(url)
-									.then(response => response.text())
-									.then(html => {
-										const parser = new DOMParser();
-										const doc = parser.parseFromString(html, 'text/html');
-			
-										const content = doc.querySelector('#user-show-content') || doc.querySelector('main .container-fluid') || doc.querySelector('.container-fluid');
-										modalContent.innerHTML = content ? content.outerHTML : html;
-			
-										if (window.lucide) {
-											lucide.createIcons({ icons: lucide.icons });
-										}
-									})
-									.catch(() => {
-										modalContent.innerHTML = `
-											<div class="text-center py-5 text-danger">
-												Erreur de chargement
-											</div>
-										`;
-									});
-							});
-						});
-					}
-
-					document.addEventListener('DOMContentLoaded', bindUserShowButtons);
-					document.addEventListener('turbo:load', bindUserShowButtons);
-				</script>
+											function bindUserShowButtons() {
+												document.querySelectorAll('.btn-show-user').forEach(function (btn) {
+													if (btn.dataset.showBound === '1') {
+														return;
+													}
+													btn.dataset.showBound = '1';
+													btn.addEventListener('click', function () {
+														const url = this.getAttribute('data-url');
+														const modalContent = document.getElementById('userModalContent');
+									
+														modalContent.innerHTML = `
+															<div class="text-center py-5 text-muted">
+																Chargement...
+															</div>
+														`;
+									
+														fetch(url)
+															.then(response => response.text())
+															.then(html => {
+																const parser = new DOMParser();
+																const doc = parser.parseFromString(html, 'text/html');
+									
+																const content = doc.querySelector('#user-show-content') || doc.querySelector('main .container-fluid') || doc.querySelector('.container-fluid');
+																modalContent.innerHTML = content ? content.outerHTML : html;
+									
+																if (window.lucide) {
+																	lucide.createIcons({ icons: lucide.icons });
+																}
+															})
+															.catch(() => {
+																modalContent.innerHTML = `
+																	<div class="text-center py-5 text-danger">
+																		Erreur de chargement
+																	</div>
+																`;
+															});
+													});
+												});
+											}
+						
+											document.addEventListener('DOMContentLoaded', bindUserShowButtons);
+											document.addEventListener('turbo:load', bindUserShowButtons);
+										</script>
 {% endblock %}
