@@ -54,6 +54,8 @@
 						<div class="d-flex flex-wrap gap-2 justify-content-center justify-content-sm-start">
 							{% if 'ROLE_ADMIN' in user.roles %}
 								<span class="badge rounded-pill px-3 py-2 text-white bg-info">Admin</span>
+							{% elseif 'ROLE_SECRETARY' in user.roles or 'ROLE_SECRETAIRE' in user.roles %}
+								<span class="badge rounded-pill px-3 py-2 bg-secondary text-white">Secrétaire</span>
 							{% elseif 'ROLE_VETO' in user.roles %}
 								<span class="badge rounded-pill px-3 py-2" style="background:#e4f0ff;color:#2563eb;">Vétérinaire</span>
 							{% else %}
