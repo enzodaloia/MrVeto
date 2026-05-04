@@ -16,6 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     "this.getAfternoonStart() === null or this.getAfternoonEnd() === null or this.getAfternoonStart() < this.getAfternoonEnd()",
     message: "L'heure de début d'après-midi doit être avant l'heure de fin."
 )]
+
 class Horaire
 {
     #[ORM\Id]
