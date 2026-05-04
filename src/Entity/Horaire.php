@@ -16,6 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     "this.getAfternoonStart() === null or this.getAfternoonEnd() === null or this.getAfternoonStart() < this.getAfternoonEnd()",
     message: "L'heure de début d'après-midi doit être avant l'heure de fin."
 )]
+
 class Horaire
 {
     #[ORM\Id]
@@ -24,7 +25,7 @@ class Horaire
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'horaires')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?DayOfWork $dayOfWork = null;
 
     #[ORM\Column(type: Types::TIME_MUTABLE, nullable: true)]
