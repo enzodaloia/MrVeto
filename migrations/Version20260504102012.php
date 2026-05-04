@@ -28,7 +28,7 @@ final class Version20260504102012 extends AbstractMigration
         $this->addSql('ALTER TABLE rendez_vous ADD CONSTRAINT FK_65E8AA0A19EB6921 FOREIGN KEY (client_id) REFERENCES user (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE rendez_vous ADD CONSTRAINT FK_65E8AA0A5C80924 FOREIGN KEY (veterinaire_id) REFERENCES user (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE rendez_vous ADD CONSTRAINT FK_65E8AA0A8E962C16 FOREIGN KEY (animal_id) REFERENCES animal (id) ON DELETE CASCADE');
-        $this->addSql('ALTER TABLE user DROP numero_ordre_veterinaire, DROP is_admin_validated');
+        // $this->addSql('ALTER TABLE user DROP numero_ordre_veterinaire, DROP is_admin_validated');
     }
 
     public function down(Schema $schema): void
@@ -42,6 +42,6 @@ final class Version20260504102012 extends AbstractMigration
         $this->addSql('ALTER TABLE rendez_vous ADD CONSTRAINT `FK_65E8AA0A19EB6921` FOREIGN KEY (client_id) REFERENCES user (id)');
         $this->addSql('ALTER TABLE rendez_vous ADD CONSTRAINT `FK_65E8AA0A5C80924` FOREIGN KEY (veterinaire_id) REFERENCES user (id)');
         $this->addSql('ALTER TABLE rendez_vous ADD CONSTRAINT `FK_65E8AA0A8E962C16` FOREIGN KEY (animal_id) REFERENCES animal (id)');
-        $this->addSql('ALTER TABLE user ADD numero_ordre_veterinaire VARCHAR(255) DEFAULT NULL, ADD is_admin_validated TINYINT NOT NULL');
+        // $this->addSql('ALTER TABLE user ADD numero_ordre_veterinaire VARCHAR(255) DEFAULT NULL, ADD is_admin_validated TINYINT NOT NULL');
     }
 }
