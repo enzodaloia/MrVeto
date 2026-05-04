@@ -72,7 +72,10 @@
 								<i class="bi bi-people fs-5"></i> Utilisateurs
 							</a>
 						{% else %}
-							<a href="{{ path('app_home') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
+							<a href="{{ path('app_search_vet') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_search_vet' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
+								<i class="bi bi-house fs-5"></i> Accueil
+							</a>
+							<a href="#" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
 								<i class="bi bi-grid fs-5"></i> Tableau de bord
 							</a>
 							<a href="#" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_animaux' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
@@ -213,7 +216,8 @@
 									<a href="{{ path('app_admin_cabinet_index') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route starts with 'app_admin_cabinet_' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-building fs-5 w-20px text-center"></i> Cabinets</a>
 									<a href="{{ path('app_user_admin_index') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route starts with 'app_user_admin_' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-people fs-5 w-20px text-center"></i> Utilisateurs</a>
 								{% else %}
-									<a href="{{ path('app_home') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-grid fs-5 w-20px text-center"></i> Tableau de bord</a>
+									<a href="{{ path('app_search_vet') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_search_vet' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-house fs-5 w-20px text-center"></i> Accueil</a>
+									<a href="#" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-grid fs-5 w-20px text-center"></i> Tableau de bord</a>
 									<a href="#" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_animaux' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-heart fs-5 w-20px text-center"></i> Mes Animaux</a>
 									<a href="{{ path('app_rendezvous') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_rendezvous' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-calendar-event fs-5 w-20px text-center"></i> Mes Rendez-vous</a>
 									<a href="{{ path('app_carnet_sante') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_carnet_sante' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-journal-medical fs-5 w-20px text-center"></i> Carnet de santé</a>
@@ -249,7 +253,7 @@
 
 					<div class="collapse navbar-collapse mt-3 mt-lg-0" id="navbarContent">
 						<div class="bg-white rounded-4 rounded-lg-pill px-4 py-3 py-lg-2 shadow-sm d-flex flex-column flex-lg-row gap-3 gap-lg-4 align-items-start align-items-lg-center mx-auto">
-							<a class="nav-link text-muted hover-text-primary d-flex align-items-center gap-2" href="{{ path('app_home') }}">
+							<a class="nav-link text-muted hover-text-primary d-flex align-items-center gap-2" href="{{ path('app_search_vet') }}">
 								<i class="bi bi-house d-inline-block d-lg-none"></i> Accueil
 							</a>
 							<a class="nav-link text-muted hover-text-primary d-flex align-items-center gap-2" href="{{path('app_search_vet')}}">
