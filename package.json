@@ -2,6 +2,7 @@
     "devDependencies": {
         "@babel/core": "^7.17.0",
         "@babel/preset-env": "^7.16.0",
+        "@playwright/test": "^1.58.2",
         "@popperjs/core": "^2.11.8",
         "@symfony/stimulus-bridge": "^4.0.1",
         "@symfony/ux-turbo": "^2.32.0",

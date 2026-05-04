@@ -3,35 +3,42 @@
 {% block title %}Administration des cabinets{% endblock %}
 
 {% block body %}
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0">Cabinets</h1>
-        <a class="btn btn-primary px-4" style="border-radius: 30px;" href="{{ path('app_admin_cabinet_new') }}">Nouveau cabinet</a>
+<div class="container py-4 admin-cabinet-index">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+        <h1 class="h3 mb-0 text-center text-md-start w-100">Cabinets</h1>
+        <a class="btn btn-primary px-4 w-auto mx-auto mx-md-0" style="border-radius: 30px;" href="{{ path('app_admin_cabinet_new') }}">Nouveau cabinet</a>
     </div>
     <div class="card border-0 shadow-sm rounded-4">
         <div class="table-responsive">
-            <table class="table mb-0 align-middle">
+            <table class="table mb-0 align-middle cabinets-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th class="d-none d-md-table-cell">ID</th>
                         <th>Nom</th>
-                        <th>Ville</th>
-                        <th>Téléphone</th>
-                        <th>Créé le</th>
-                        <th class="text-end">Actions</th>
+                        <th class="d-none d-md-table-cell">Ville</th>
+                        <th class="d-none d-lg-table-cell">Téléphone</th>
+                        <th class="d-none d-lg-table-cell">Créé le</th>
+                        <th class="text-md-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                 {% for cabinet in cabinets %}
                     <tr>
-                        <td>{{ cabinet.id }}</td>
-                        <td>{{ cabinet.nom }}</td>
-                        <td>{{ cabinet.ville ?: '—' }}</td>
-                        <td>{{ cabinet.telephone ?: '—' }}</td>
-                        <td>{{ cabinet.createdAt ? cabinet.createdAt|date('d/m/Y H:i') : '—' }}</td>
-                        <td class="text-end">
-                            <a class="btn btn-sm btn-outline-secondary" href="{{ path('app_admin_cabinet_show', {'id': cabinet.id}) }}">Voir</a>
-                            <a class="btn btn-sm btn-outline-primary" href="{{ path('app_admin_cabinet_edit', {'id': cabinet.id}) }}">Modifier</a>
+                        <td class="d-none d-md-table-cell">{{ cabinet.id }}</td>
+                        <td>
+                            <div class="fw-semibold">{{ cabinet.nom }}</div>
+                            <div class="d-md-none small text-muted">Ville: {{ cabinet.ville ?: '—' }}</div>
+                            <div class="d-lg-none small text-muted">Téléphone: {{ cabinet.telephone ?: '—' }}</div>
+                            <div class="d-lg-none small text-muted">Créé le: {{ cabinet.createdAt ? cabinet.createdAt|date('d/m/Y H:i') : '—' }}</div>
+                        </td>
+                        <td class="d-none d-md-table-cell">{{ cabinet.ville ?: '—' }}</td>
+                        <td class="d-none d-lg-table-cell">{{ cabinet.telephone ?: '—' }}</td>
+                        <td class="d-none d-lg-table-cell">{{ cabinet.createdAt ? cabinet.createdAt|date('d/m/Y H:i') : '—' }}</td>
+                        <td class="text-md-end">
+                            <div class="d-flex flex-column flex-sm-row justify-content-md-end gap-2">
+                                <a class="btn btn-sm btn-outline-secondary w-100 w-sm-auto" href="{{ path('app_admin_cabinet_show', {'id': cabinet.id}) }}">Voir</a>
+                                <a class="btn btn-sm btn-outline-primary w-100 w-sm-auto" href="{{ path('app_admin_cabinet_edit', {'id': cabinet.id}) }}">Modifier</a>
+                            </div>
                         </td>
                     </tr>
                 {% else %}
