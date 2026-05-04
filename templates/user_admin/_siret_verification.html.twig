@@ -1,5 +1,5 @@
 {% if siretVerification is defined and siretVerification %}
-	{% set isValidated = user is defined and user.isAdminValidated %}
+	{% set isValidated = user is defined and user.isVerified %}
 	{% set statusClass = siretVerification.status == 'success' ? 'success' : (siretVerification.status == 'danger' ? 'danger' : 'warning') %}
 	{% set softBg = isValidated ? '#EBF4FC' : (statusClass == 'success' ? '#e4f9f0' : (statusClass == 'danger' ? '#fde8e8' : '#fef3c7')) %}
 	{% set softColor = isValidated ? '#3688BD' : (statusClass == 'success' ? '#16a34a' : (statusClass == 'danger' ? '#dc2626' : '#92400e')) %}

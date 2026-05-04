@@ -124,4 +124,23 @@ class CabinetUserRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult() > 0;
     }
+
+    /**
+     * @return User[]
+     */
+    public function findUsersByCabinetRole(Cabinet $cabinet, string $roleInCabinet): array
+    {
+        return $this->getEntityManager()->createQueryBuilder()
+            ->select('u')
+            ->from(User::class, 'u')
+            ->innerJoin(CabinetUser::class, 'cu', 'WITH', 'cu.user = u')
+            ->where('cu.cabinet = :cabinet')
+            ->andWhere('cu.roleInCabinet = :role')
+            ->setParameter('cabinet', $cabinet)
+            ->setParameter('role', $roleInCabinet)
+            ->orderBy('u.nom', 'ASC')
+            ->addOrderBy('u.prenom', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

@@ -92,10 +92,6 @@
 					{{ form_widget(registrationForm.siret, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'N° de Siret'}}) }}
 					{{ form_label(registrationForm.siret, 'N° de Siret') }}
 				</div>
-				<div class="mb-3 form-floating">
-					{{ form_widget(registrationForm.numeroOrdreVeterinaire, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'N° d’ordre vétérinaire'}}) }}
-					{{ form_label(registrationForm.numeroOrdreVeterinaire, 'N° d’ordre vétérinaire') }}
-				</div>
 				<div class="mb-3 form-floating position-relative" data-controller="autocomplete-address" data-autocomplete-address-theme-value="form">
 					{{ form_widget(registrationForm.adressecabinet, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Adresse du cabinet', 'data-autocomplete-address-target': 'input', 'data-action': 'input->autocomplete-address#search', 'autocomplete': 'off'}}) }}
 					{{ form_label(registrationForm.adressecabinet, 'Adresse du cabinet') }}

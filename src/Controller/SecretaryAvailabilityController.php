@@ -18,6 +18,27 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class SecretaryAvailabilityController extends AbstractController
 {
+    #[Route('/secretary/vets', name: 'app_secretary_vets', methods: ['GET'])]
+    public function vets(CabinetUserRepository $cabinetUserRepository): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_SECRETARY');
+
+        $secretary = $this->getUser();
+        if (!$secretary instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $cabinet = $cabinetUserRepository->findCabinetForUserRole($secretary, CabinetUser::ROLE_SECRETAIRE);
+        $vets = $cabinet === null
+            ? []
+            : $cabinetUserRepository->findUsersByCabinetRole($cabinet, CabinetUser::ROLE_VETERINAIRE);
+
+        return $this->render('secretary_availability/vets.html.twig', [
+            'cabinet' => $cabinet,
+            'vets' => $vets,
+        ]);
+    }
+
     #[Route('/secretary/vet/{id}/availability', name: 'app_secretary_vet_availability', methods: ['GET', 'POST'])]
     public function editVetAvailability(
         User $vet,

@@ -7,11 +7,15 @@ use App\Form\UserAdminType;
 use App\Repository\UserRepository;
 use App\Service\SiretVerificationService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
 #[Route('/admin/user')]
 final class UserAdminController extends AbstractController
@@ -36,7 +40,9 @@ final class UserAdminController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         UserPasswordHasherInterface $userPasswordHasher,
-        UserRepository $userRepository
+        UserRepository $userRepository,
+        ResetPasswordHelperInterface $resetPasswordHelper,
+        MailerInterface $mailer
     ): Response {
         $user = new User();
         $form = $this->createForm(UserAdminType::class, $user, [
@@ -46,17 +52,31 @@ final class UserAdminController extends AbstractController
 
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
-                $plainPassword = $form->get('password')->getData();
-
-                if ($plainPassword) {
-                    $hashedPassword = $userPasswordHasher->hashPassword($user, $plainPassword);
-                    $user->setPassword($hashedPassword);
-                }
+                $temporaryPassword = bin2hex(random_bytes(32));
+                $user->setPassword($userPasswordHasher->hashPassword($user, $temporaryPassword));
 
                 $entityManager->persist($user);
                 $entityManager->flush();
 
-                $this->addFlash('success', 'Utilisateur créé avec succès.');
+                try {
+                    $resetToken = $resetPasswordHelper->generateResetToken($user);
+
+                    $email = (new TemplatedEmail())
+                        ->from(new Address('contact@mrveto.fr', 'MrVeto'))
+                        ->to($user->getEmail())
+                        ->subject('Activez votre compte MrVeto')
+                        ->htmlTemplate('user_admin/invitation_email.html.twig')
+                        ->context([
+                            'user' => $user,
+                            'resetToken' => $resetToken,
+                        ]);
+
+                    $mailer->send($email);
+                    $this->addFlash('success', 'Utilisateur créé avec succès. Un email d’invitation a été envoyé.');
+                    $this->addFlash('success', 'Email invitation envoyé à ' . $user->getEmail());
+                } catch (\Throwable) {
+                    $this->addFlash('danger', 'Utilisateur créé, mais l’email d’invitation n’a pas pu être envoyé.');
+                }
 
                 return $this->redirectToRoute('app_user_admin_index', [], Response::HTTP_SEE_OTHER);
             }
@@ -82,23 +102,11 @@ final class UserAdminController extends AbstractController
         ]);
     }
 
-    // Debug temporaire (à supprimer
-    /**if ($form->isSubmitted() && !$form->isValid()) {
-        dd($form->getErrors(true, true));
-    }
-
-    return $this->render('user_admin/new.html.twig', [
-        'user' => $user,
-        'form' => $form->createView(),
-    ]);
-}**/
-
     #[Route('/{id}/edit', name: 'app_user_admin_edit', methods: ['GET', 'POST'])]
     public function edit(
         Request $request,
         User $user,
         EntityManagerInterface $entityManager,
-        UserPasswordHasherInterface $userPasswordHasher,
         SiretVerificationService $siretVerificationService
     ): Response {
         $form = $this->createForm(UserAdminType::class, $user, [
@@ -107,17 +115,6 @@ final class UserAdminController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
-
-            if ($form->has('password')) {
-                $plainPassword = $form->get('password')->getData();
-
-                if ($plainPassword) {
-                    $hashedPassword = $userPasswordHasher->hashPassword($user, $plainPassword);
-                    $user->setPassword($hashedPassword);
-                }
-            }
-
             $entityManager->flush();
 
             $this->addFlash('success', 'Utilisateur mis à jour.');
@@ -149,7 +146,7 @@ final class UserAdminController extends AbstractController
             throw $this->createAccessDeniedException('Seuls les comptes vétérinaires peuvent être validés par un administrateur.');
         }
 
-        $user->setIsAdminValidated($value === 1);
+        $user->setIsVerified($value === 1);
         $entityManager->flush();
 
         $this->addFlash('success', $value === 1 ? 'Compte vétérinaire validé.' : 'Validation admin retirée.');
@@ -182,6 +179,14 @@ final class UserAdminController extends AbstractController
         EntityManagerInterface $entityManager
     ): Response {
         if ($this->isCsrfTokenValid('delete' . $user->getId(), $request->request->get('_token'))) {
+            $resetPasswordRequests = $entityManager
+                ->getRepository(\App\Entity\ResetPasswordRequest::class)
+                ->findBy(['user' => $user]);
+
+            foreach ($resetPasswordRequests as $resetPasswordRequest) {
+                $entityManager->remove($resetPasswordRequest);
+            }
+
             $entityManager->remove($user);
             $entityManager->flush();
 

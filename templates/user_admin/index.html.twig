@@ -5,11 +5,6 @@
 
 {% block body %}
 	<style>
-		.sort-icon {
-			font-size: 0.85rem;
-			opacity: 0.5;
-			margin-left: 4px;
-		}
 		.action-btn {
 			color: var(--bs-primary);
 			text-decoration: none;
@@ -115,22 +110,16 @@
 									<input type="checkbox" class="form-check-input">
 								</th>
 								<th class="py-3" style="width:250px">Nom
-									<span class="sort-icon">⇅</span>
 								</th>
 								<th class="py-3">Adresse email
-									<span class="sort-icon">⇅</span>
 								</th>
 								<th class="py-3">Status
-									<span class="sort-icon">⇅</span>
 								</th>
 								<th class="py-3">Role
-									<span class="sort-icon">⇅</span>
 								</th>
 								<th class="py-3">Date inscription
-									<span class="sort-icon">⇅</span>
 								</th>
 								<th class="py-3 text-center pe-4">Actions
-									<span class="sort-icon">⇅</span>
 								</th>
 							</tr>
 						</thead>
@@ -138,7 +127,7 @@
 							{% for user in users %}
 								<tr class="user-row border-bottom" data-nom="{{ user.nom|lower }} {{ user.prenom|lower }}" data-email="{{ user.email|lower }}" data-role="{% if 'ROLE_ADMIN' in user.roles %}role_admin{% elseif 'ROLE_SECRETARY' in user.roles or 'ROLE_SECRETAIRE' in user.roles %}role_secretary{% elseif 'ROLE_VETO' in user.roles %}role_veto{% else %}role_user{% endif %}" data-verified="
 																		{% if 'ROLE_VETO' in user.roles %}
-																			{{ user.isAdminValidated ? '1' : '0' }}
+																			{{ user.isVerified ? '1' : '0' }}
 																		{% else %}
 																			active
 																		{% endif %}
@@ -161,7 +150,7 @@
 
 									<td>
 										{% if 'ROLE_VETO' in user.roles %}
-											{% if user.isAdminValidated %}
+											{% if user.isVerified %}
 												<span class="badge rounded-pill px-3 py-2 bg-primary text-white" style="font-size:0.72rem;">Validé admin</span>
 											{% else %}
 												<span class="badge rounded-pill px-3 py-2 bg-warning text-white" style="font-size:0.72rem;">En attente admin</span>
@@ -300,7 +289,7 @@
 					{% for user in users %}
 						<div class="user-row bg-white rounded-4 shadow-sm p-3 mb-3" data-nom="{{ user.nom|lower }} {{ user.prenom|lower }}" data-email="{{ user.email|lower }}" data-role="{% if 'ROLE_ADMIN' in user.roles %}role_admin{% elseif 'ROLE_SECRETARY' in user.roles or 'ROLE_SECRETAIRE' in user.roles %}role_secretary{% elseif 'ROLE_VETO' in user.roles %}role_veto{% else %}role_user{% endif %}" data-verified="
 														{% if 'ROLE_VETO' in user.roles %}
-															{{ user.isAdminValidated ? '1' : '0' }}
+															{{ user.isVerified ? '1' : '0' }}
 														{% else %}
 															active
 														{% endif %}
@@ -322,7 +311,7 @@
 									<span class="text-muted">Status</span>
 									<div>
 										{% if 'ROLE_VETO' in user.roles %}
-											{% if user.isAdminValidated %}
+											{% if user.isVerified %}
 												<span class="badge rounded-pill px-3 py-2 bg-primary text-white" style="font-size:0.72rem;">Validé admin</span>
 											{% else %}
 												<span class="badge rounded-pill px-3 py-2 bg-warning text-white" style="font-size:0.72rem;">En attente admin</span>
@@ -422,16 +411,16 @@
 				opt.selected = opt.value === role;
 			});
 
-			const isAdminValidatedWrapper = document.getElementById('modal-is-admin-validated-wrapper');
-const isAdminValidatedCheckbox = document.getElementById('modal-is-admin-validated');
+			const isVerifiedWrapper = document.getElementById('modal-is-verified-wrapper');
+const isVerifiedCheckbox = document.getElementById('modal-is-verified');
 
 // afficher uniquement pour veto
 if (role === 'ROLE_VETO') {
-    isAdminValidatedWrapper.style.display = 'block';
-    isAdminValidatedCheckbox.checked = true;
+    isVerifiedWrapper.style.display = 'block';
+    isVerifiedCheckbox.checked = true;
 } else {
-    isAdminValidatedWrapper.style.display = 'none';
-    isAdminValidatedCheckbox.checked = false;
+    isVerifiedWrapper.style.display = 'none';
+    isVerifiedCheckbox.checked = false;
 }
 		}
 

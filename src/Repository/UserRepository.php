@@ -65,9 +65,9 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     {
         $qb = $this->createQueryBuilder('u')
             ->andWhere('u.roles LIKE :role')
-            ->andWhere('u.isAdminValidated = :isAdminValidated')
+            ->andWhere('u.isVerified = :isVerified')
             ->setParameter('role', '%"ROLE_VETO"%')
-            ->setParameter('isAdminValidated', true)
+            ->setParameter('isVerified', true)
             ->orderBy('u.nom', 'ASC')
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit);
