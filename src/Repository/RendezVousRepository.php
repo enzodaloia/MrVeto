@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Animal;
 use App\Entity\RendezVous;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -57,6 +58,36 @@ class RendezVousRepository extends ServiceEntityRepository
             ->setParameter('actionTypes', [RendezVous::ACTION_TYPE_CANCELLED, RendezVous::ACTION_TYPE_RESCHEDULED])
             ->setParameter('actorRoles', [RendezVous::ACTION_BY_VETERINAIRE, RendezVous::ACTION_BY_SECRETAIRE])
             ->orderBy('r.lastActionAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function vetHasRdvWithAnimal(User $vet, Animal $animal): bool
+    {
+        $count = (int) $this->createQueryBuilder('r')
+            ->select('COUNT(r.id)')
+            ->andWhere('r.veterinaire = :vet')
+            ->andWhere('r.animal = :animal')
+            ->setParameter('vet', $vet)
+            ->setParameter('animal', $animal)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count > 0;
+    }
+
+    /**
+     * Returns all RDVs for a given animal, ordered by date DESC.
+     *
+     * @return RendezVous[]
+     */
+    public function findByAnimalForVet(Animal $animal): array
+    {
+        return $this->createQueryBuilder('r')
+            ->leftJoin('r.veterinaire', 'v')->addSelect('v')
+            ->andWhere('r.animal = :animal')
+            ->setParameter('animal', $animal)
+            ->orderBy('r.dateHeure', 'DESC')
             ->getQuery()
             ->getResult();
     }
