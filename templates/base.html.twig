@@ -49,10 +49,10 @@
 							<a href="{{ path('app_availability') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_planning' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}" data-turbo="false">
 								<i class="bi bi-calendar-event fs-5"></i> Planning
 							</a>
-							<a href="#" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_patients' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
+							<a href="{{ path('app_vet_patients') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route starts with 'app_vet_patients' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
 								<i class="bi bi-people fs-5"></i> Patients
 							</a>
-							<a href="#" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_gestion_rdv' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
+							<a href="{{ path('app_gestion_rdv') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_gestion_rdv' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
 								<i class="bi bi-journal-plus fs-5"></i> Gestion des RDV
 							</a>
 							<a href="#" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_archives' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
@@ -204,8 +204,8 @@
 								{% if is_granted('ROLE_VETO') %}
 									<a href="{{ path('app_home') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-grid fs-5 w-20px text-center"></i> Tableau de bord</a>
 									<a href="#" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_planning' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-calendar-event fs-5 w-20px text-center"></i> Planning</a>
-									<a href="#" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_patients' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-people fs-5 w-20px text-center"></i> Patients</a>
-									<a href="#" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_gestion_rdv' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-journal-plus fs-5 w-20px text-center"></i> Gestion des RDV</a>
+									<a href="{{ path('app_vet_patients') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route starts with 'app_vet_patients' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-people fs-5 w-20px text-center"></i> Patients</a>
+									<a href="{{ path('app_gestion_rdv') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_gestion_rdv' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-journal-plus fs-5 w-20px text-center"></i> Gestion des RDV</a>
 									<a href="#" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_archives' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-archive fs-5 w-20px text-center"></i> Archives</a>
 									<a href="{{ path('app_vet_cabinet_index') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route starts with 'app_vet_cabinet_' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-building fs-5 w-20px text-center"></i> Cabinets</a>
 								{% elseif is_granted('ROLE_ADMIN') %}
