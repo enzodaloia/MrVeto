@@ -23,6 +23,12 @@
             </ol>
         </nav>
 
+        {% if isReadOnly %}
+            <div class="mb-3">
+                <span class="badge bg-neutral-20 text-neutral-80 rounded-pill">Lecture seule</span>
+            </div>
+        {% endif %}
+
         <div class="row g-4 align-items-start">
 
             <!-- COLONNE PRINCIPALE -->
@@ -83,15 +89,17 @@
                                         <div class="fw-semibold text-neutral-90 small">Aucune</div>
                                     {% endif %}
                                 </div>
-                                <button
-                                    class="btn btn-outline-primary rounded-3 d-flex align-items-center justify-content-center gap-2 w-100"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#editAnimalModal"
-                                    type="button"
-                                >
-                                    <i class="bi bi-pencil-square"></i>
-                                    Modifier la fiche
-                                </button>
+                                {% if not isReadOnly %}
+                                    <button
+                                        class="btn btn-outline-primary rounded-3 d-flex align-items-center justify-content-center gap-2 w-100"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#editAnimalModal"
+                                        type="button"
+                                    >
+                                        <i class="bi bi-pencil-square"></i>
+                                        Modifier la fiche
+                                    </button>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -104,14 +112,16 @@
                             <i class="bi bi-clipboard-pulse text-primary"></i>
                             Traitements
                         </h2>
-                        <button
-                            class="btn btn-sm btn-primary rounded-pill px-3"
-                            data-bs-toggle="modal"
-                            data-bs-target="#addTraitementModal"
-                            type="button"
-                        >
-                            <i class="bi bi-plus-lg me-1"></i>Ajouter
-                        </button>
+                        {% if not isReadOnly %}
+                            <button
+                                class="btn btn-sm btn-primary rounded-pill px-3"
+                                data-bs-toggle="modal"
+                                data-bs-target="#addTraitementModal"
+                                type="button"
+                            >
+                                <i class="bi bi-plus-lg me-1"></i>Ajouter
+                            </button>
+                        {% endif %}
                     </div>
 
                     {% if traitements is empty %}
@@ -161,7 +171,7 @@
                                                         {% else %}
                                                             <span class="badge bg-neutral-20 text-neutral-70 rounded-pill" style="font-size: 0.7rem;">Terminé</span>
                                                         {% endif %}
-                                                        {% if traitement.veterinaire == vet %}
+                                                        {% if not isReadOnly and traitement.veterinaire == vet %}
                                                             <button
                                                                 type="button"
                                                                 class="btn btn-sm btn-light rounded p-1 text-danger cs-icon-btn d-flex align-items-center justify-content-center"
@@ -244,7 +254,7 @@
                                             <div class="text-neutral-80 fw-medium">{{ rdv.motif|default('Consultation') }}</div>
 
                                             <!-- Compte-rendu / remarque -->
-                                            {% if isOwnRdv %}
+                                            {% if isOwnRdv and not isReadOnly %}
                                                 <div class="mt-2">
                                                     <button
                                                         id="toggle-remarque-{{ rdv.id }}"
@@ -392,128 +402,130 @@
     </div>
 </div>
 
-<!-- Modal : Supprimer un traitement (confirmation) -->
-<div class="modal fade" id="deleteTraitementModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4 border-0 shadow-lg">
-            <div class="modal-header border-0 pb-0 px-4 pt-4">
-                <h2 class="h5 fw-bold mb-0">Supprimer le traitement</h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-            </div>
-            <div class="modal-body px-4 py-3">
-                <div class="d-flex align-items-start gap-3 p-3 bg-danger-bg rounded-3 mb-3">
-                    <i class="bi bi-exclamation-triangle-fill text-danger fs-5 mt-1 flex-shrink-0"></i>
-                    <p class="mb-0 text-danger-emphasis">
-                        Vous êtes sur le point de supprimer le traitement
-                        <strong id="deleteTraitementName"></strong>.
-                        Cette action est irréversible.
-                    </p>
+{% if not isReadOnly %}
+    <!-- Modal : Supprimer un traitement (confirmation) -->
+    <div class="modal fade" id="deleteTraitementModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow-lg">
+                <div class="modal-header border-0 pb-0 px-4 pt-4">
+                    <h2 class="h5 fw-bold mb-0">Supprimer le traitement</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body px-4 py-3">
+                    <div class="d-flex align-items-start gap-3 p-3 bg-danger-bg rounded-3 mb-3">
+                        <i class="bi bi-exclamation-triangle-fill text-danger fs-5 mt-1 flex-shrink-0"></i>
+                        <p class="mb-0 text-danger-emphasis">
+                            Vous êtes sur le point de supprimer le traitement
+                            <strong id="deleteTraitementName"></strong>.
+                            Cette action est irréversible.
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Annuler</button>
+                    <form id="deleteTraitementForm" method="POST" action="">
+                        <input type="hidden" name="_token" id="deleteTraitementToken" value="">
+                        <button type="submit" class="btn btn-danger rounded-pill px-4">Supprimer</button>
+                    </form>
                 </div>
             </div>
-            <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2">
-                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Annuler</button>
-                <form id="deleteTraitementForm" method="POST" action="">
-                    <input type="hidden" name="_token" id="deleteTraitementToken" value="">
-                    <button type="submit" class="btn btn-danger rounded-pill px-4">Supprimer</button>
-                </form>
-            </div>
         </div>
     </div>
-</div>
 
-<!-- Modal : Modifier la fiche animal -->
-<div class="modal fade" id="editAnimalModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content rounded-4 border-0 shadow-lg">
-            <div class="modal-header border-0 pb-0 px-4 pt-4">
-                <h2 class="h5 fw-bold mb-0">Modifier la fiche de {{ animal.nom }}</h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-            </div>
-            <div class="modal-body p-4 pt-3">
-                <form method="POST" action="{{ path('app_vet_patients_update_animal', {'slug': animal.slug}) }}">
-                    <input type="hidden" name="_token" value="{{ csrf_token('update_animal_' ~ animal.id) }}">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-medium">Espèce</label>
-                            <input type="text" name="espece" class="form-control" value="{{ animal.espece|default('') }}" placeholder="Ex: Chat, Chien...">
+    <!-- Modal : Modifier la fiche animal -->
+    <div class="modal fade" id="editAnimalModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content rounded-4 border-0 shadow-lg">
+                <div class="modal-header border-0 pb-0 px-4 pt-4">
+                    <h2 class="h5 fw-bold mb-0">Modifier la fiche de {{ animal.nom }}</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body p-4 pt-3">
+                    <form method="POST" action="{{ path('app_vet_patients_update_animal', {'slug': animal.slug}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('update_animal_' ~ animal.id) }}">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">Espèce</label>
+                                <input type="text" name="espece" class="form-control" value="{{ animal.espece|default('') }}" placeholder="Ex: Chat, Chien...">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">Race</label>
+                                <input type="text" name="race" class="form-control" value="{{ animal.race|default('') }}" placeholder="Ex: Labrador, Persan...">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">Âge</label>
+                                <input type="text" name="age" class="form-control" value="{{ animal.age|default('') }}" placeholder="Ex: 3 ans">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">Poids (kg)</label>
+                                <input type="text" name="poids" class="form-control" value="{{ animal.poids|default('') }}" placeholder="Ex: 4.5">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">Vaccins à jour</label>
+                                <select name="vaccinAJour" class="form-select">
+                                    <option value="1" {{ animal.vaccinAJour ? 'selected' : '' }}>Oui</option>
+                                    <option value="0" {{ not animal.vaccinAJour ? 'selected' : '' }}>Non</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">Prochain vaccin</label>
+                                <input
+                                    type="date"
+                                    name="prochainVaccin"
+                                    class="form-control"
+                                    value="{{ animal.prochainVaccin ? animal.prochainVaccin|date('Y-m-d') : '' }}"
+                                >
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-medium">Race</label>
-                            <input type="text" name="race" class="form-control" value="{{ animal.race|default('') }}" placeholder="Ex: Labrador, Persan...">
+                        <div class="d-flex gap-2 mt-4">
+                            <button class="btn btn-primary rounded-pill px-4" type="submit">Enregistrer</button>
+                            <button class="btn btn-light rounded-pill px-4" type="button" data-bs-dismiss="modal">Annuler</button>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-medium">Âge</label>
-                            <input type="text" name="age" class="form-control" value="{{ animal.age|default('') }}" placeholder="Ex: 3 ans">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-medium">Poids (kg)</label>
-                            <input type="text" name="poids" class="form-control" value="{{ animal.poids|default('') }}" placeholder="Ex: 4.5">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-medium">Vaccins à jour</label>
-                            <select name="vaccinAJour" class="form-select">
-                                <option value="1" {{ animal.vaccinAJour ? 'selected' : '' }}>Oui</option>
-                                <option value="0" {{ not animal.vaccinAJour ? 'selected' : '' }}>Non</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-medium">Prochain vaccin</label>
-                            <input
-                                type="date"
-                                name="prochainVaccin"
-                                class="form-control"
-                                value="{{ animal.prochainVaccin ? animal.prochainVaccin|date('Y-m-d') : '' }}"
-                            >
-                        </div>
-                    </div>
-                    <div class="d-flex gap-2 mt-4">
-                        <button class="btn btn-primary rounded-pill px-4" type="submit">Enregistrer</button>
-                        <button class="btn btn-light rounded-pill px-4" type="button" data-bs-dismiss="modal">Annuler</button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Modal : Ajouter un traitement -->
-<div class="modal fade" id="addTraitementModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4 border-0 shadow-lg">
-            <div class="modal-header border-0 pb-0 px-4 pt-4">
-                <h2 class="h5 fw-bold mb-0">Ajouter un traitement</h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-            </div>
-            <div class="modal-body p-4 pt-3">
-                <form method="POST" action="{{ path('app_vet_patients_traitement_new', {'slug': animal.slug}) }}">
-                    <input type="hidden" name="_token" value="{{ csrf_token('traitement_new_' ~ animal.id) }}">
-                    <div class="row g-3">
-                        <div class="col-12">
-                            <label class="form-label fw-medium">Médicament / Traitement <span class="text-danger">*</span></label>
-                            <input type="text" name="libelle" class="form-control" placeholder="Ex: Vitamines B12, Antibiotiques..." required>
+    <!-- Modal : Ajouter un traitement -->
+    <div class="modal fade" id="addTraitementModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow-lg">
+                <div class="modal-header border-0 pb-0 px-4 pt-4">
+                    <h2 class="h5 fw-bold mb-0">Ajouter un traitement</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body p-4 pt-3">
+                    <form method="POST" action="{{ path('app_vet_patients_traitement_new', {'slug': animal.slug}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('traitement_new_' ~ animal.id) }}">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label fw-medium">Médicament / Traitement <span class="text-danger">*</span></label>
+                                <input type="text" name="libelle" class="form-control" placeholder="Ex: Vitamines B12, Antibiotiques..." required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-medium">Posologie</label>
+                                <input type="text" name="posologie" class="form-control" placeholder="Ex: 1 comprimé par jour le matin">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">Date de début <span class="text-danger">*</span></label>
+                                <input type="date" name="dateDebut" class="form-control" value="{{ 'now'|date('Y-m-d') }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">Date de fin <span class="text-muted fw-normal">(facultatif)</span></label>
+                                <input type="date" name="dateFin" class="form-control">
+                            </div>
                         </div>
-                        <div class="col-12">
-                            <label class="form-label fw-medium">Posologie</label>
-                            <input type="text" name="posologie" class="form-control" placeholder="Ex: 1 comprimé par jour le matin">
+                        <div class="d-flex gap-2 mt-4">
+                            <button class="btn btn-primary rounded-pill px-4" type="submit">Ajouter</button>
+                            <button class="btn btn-light rounded-pill px-4" type="button" data-bs-dismiss="modal">Annuler</button>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-medium">Date de début <span class="text-danger">*</span></label>
-                            <input type="date" name="dateDebut" class="form-control" value="{{ 'now'|date('Y-m-d') }}" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-medium">Date de fin <span class="text-muted fw-normal">(facultatif)</span></label>
-                            <input type="date" name="dateFin" class="form-control">
-                        </div>
-                    </div>
-                    <div class="d-flex gap-2 mt-4">
-                        <button class="btn btn-primary rounded-pill px-4" type="submit">Ajouter</button>
-                        <button class="btn btn-light rounded-pill px-4" type="button" data-bs-dismiss="modal">Annuler</button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
+{% endif %}
 
 {% block javascripts %}
 {{ parent() }}

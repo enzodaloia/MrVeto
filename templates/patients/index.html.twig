@@ -9,8 +9,20 @@
         <!-- Header -->
         <div class="mb-3">
             <h1 class="fw-black text-dark mb-1" style="font-weight: 900;">Mes Patients</h1>
-            <p class="text-muted mb-0">Animaux que vous avez pris en charge</p>
+            <p class="text-muted mb-0">
+                {% if isReadOnly %}
+                    Animaux suivis par votre cabinet
+                {% else %}
+                    Animaux que vous avez pris en charge
+                {% endif %}
+            </p>
         </div>
+
+        {% if isReadOnly %}
+            <div class="mb-3">
+                <span class="badge bg-neutral-20 text-neutral-80 rounded-pill">Lecture seule</span>
+            </div>
+        {% endif %}
 
         <!-- Barre de recherche -->
         <div class="mb-4">

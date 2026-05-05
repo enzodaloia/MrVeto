@@ -21,16 +21,30 @@ final class PatientsController extends AbstractController
     #[Route('', name: 'app_vet_patients', methods: ['GET'])]
     public function index(Request $request, AnimalRepository $animalRepository): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_VETO');
+        $currentUser = $this->getUser();
+        if (!$currentUser instanceof User) {
+            throw $this->createAccessDeniedException();
+        }
 
-        /** @var User $vet */
-        $vet = $this->getUser();
+        $roles = $currentUser->getRoles();
+        $isVet = in_array('ROLE_VETO', $roles, true);
+        $isSecretary = in_array('ROLE_SECRETARY', $roles, true) || in_array('ROLE_SECRETAIRE', $roles, true);
+
+        if (!$isVet && !$isSecretary) {
+            throw $this->createAccessDeniedException();
+        }
+
         $search = trim((string) $request->query->get('q', ''));
-        $animals = $animalRepository->findByVetWithSearch($vet, $search);
+        if ($isVet) {
+            $animals = $animalRepository->findByVetWithSearch($currentUser, $search);
+        } else {
+            $animals = $animalRepository->findBySecretaryCabinetWithSearch($currentUser, $search);
+        }
 
         return $this->render('patients/index.html.twig', [
             'animals' => $animals,
             'search' => $search,
+            'isReadOnly' => $isSecretary,
         ]);
     }
 
@@ -40,12 +54,24 @@ final class PatientsController extends AbstractController
         RendezVousRepository $rendezVousRepository,
         TraitementRepository $traitementRepository,
     ): Response {
-        $this->denyAccessUnlessGranted('ROLE_VETO');
+        $currentUser = $this->getUser();
+        if (!$currentUser instanceof User) {
+            throw $this->createAccessDeniedException();
+        }
 
-        /** @var User $vet */
-        $vet = $this->getUser();
+        $roles = $currentUser->getRoles();
+        $isVet = in_array('ROLE_VETO', $roles, true);
+        $isSecretary = in_array('ROLE_SECRETARY', $roles, true) || in_array('ROLE_SECRETAIRE', $roles, true);
 
-        if (!$rendezVousRepository->vetHasRdvWithAnimal($vet, $animal)) {
+        if (!$isVet && !$isSecretary) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if ($isVet && !$rendezVousRepository->vetHasRdvWithAnimal($currentUser, $animal)) {
+            throw $this->createAccessDeniedException('Vous n\'avez pas accès au carnet de cet animal.');
+        }
+
+        if ($isSecretary && !$rendezVousRepository->secretaryHasAccessToAnimal($currentUser, $animal)) {
             throw $this->createAccessDeniedException('Vous n\'avez pas accès au carnet de cet animal.');
         }
 
@@ -58,7 +84,8 @@ final class PatientsController extends AbstractController
             'rdvHistory' => $rdvHistory,
             'traitements' => $traitements,
             'lastVisit' => $lastVisit,
-            'vet' => $vet,
+            'vet' => $isVet ? $currentUser : null,
+            'isReadOnly' => $isSecretary,
         ]);
     }
 
