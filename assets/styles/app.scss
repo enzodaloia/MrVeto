@@ -291,6 +291,16 @@ $theme-colors: $custom-colors;
     }
 }
 
+.custom-table {
+    --bs-table-bg: #FFFBEB;
+    --bs-table-striped-bg: #FFFBEB;
+    --bs-table-hover-bg: #FFFBEB;
+}
+
+.custom-table > :not(caption) > * > * {
+    background-color: #FFFBEB !important;
+}
+
 // 8. MODE SOMBRE (DARK MODE)
 // Bootstrap 5.3 gère le dark mode avec l'attribut data-bs-theme="dark" sur la balise <html>.
 // On surcharge les variables CSS natives pour ce mode.

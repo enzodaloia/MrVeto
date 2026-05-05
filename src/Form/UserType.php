@@ -29,7 +29,6 @@ class UserType extends AbstractType
                 'required' => true,
                 'attr' => ['autocomplete' => 'new-password'],
             ])
-            ->add('isVerified')
             ->add('nom')
             ->add('prenom')
             ->add('datenaissance')
