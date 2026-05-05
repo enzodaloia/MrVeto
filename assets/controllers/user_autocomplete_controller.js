@@ -69,6 +69,15 @@ export default class extends Controller {
 
         const user = JSON.parse(payload);
 
+        if (this.timeout) {
+            clearTimeout(this.timeout);
+            this.timeout = null;
+        }
+
+        this.resultsTarget.innerHTML = '';
+        this.inputTarget.value = user.email;
+        this.inputTarget.blur();
+
         this.userIdTarget.value = String(user.id);
         this.selectedLabelTarget.textContent = `Sélectionné: ${user.email}`;
 
