@@ -37,7 +37,7 @@ final class SearchVetController extends AbstractController
 
         $vets = iterator_to_array($vetsPaginator->getIterator());
         $vetAvailability = $this->buildVetAvailability($vets, $dayOfWorkRepository);
-
+        dd($vets);
         return $this->render('search-vet/searchvet.html.twig', [
             'controller_name' => 'SearchVetController',
             'vets' => $vets,
