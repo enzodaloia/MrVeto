@@ -10,11 +10,13 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 
 final class SearchVetController extends AbstractController
 {
     #[Route('/front/search', name: 'app_search_vet')]
-    public function index(Request $request, UserRepository $userRepository, DayOfWorkRepository $dayOfWorkRepository): Response
+    public function index(Request $request, UserRepository $userRepository, DayOfWorkRepository $dayOfWorkRepository,EntityManagerInterface $em, PaginatorInterface $paginator): Response
     {
         $page = $request->query->getInt('page', 1);
         $limit = $request->query->getInt('limit', 10);
@@ -31,21 +33,31 @@ final class SearchVetController extends AbstractController
         $lat = $lat !== null && $lat !== '' ? (float) $lat : null;
         $lon = $lon !== null && $lon !== '' ? (float) $lon : null;
 
-        $vetsPaginator = $userRepository->findAllVets($page, $limit, $lat, $lon, $distance);
-        $totalItems = count($vetsPaginator);
-        $totalPages = ceil($totalItems / $limit);
+        $allVets = $em->getRepository(User::class)->findall();
+        $allVets = array_filter($allVets, function ($user) {
+            return in_array('ROLE_VETO', $user->getRoles());
+        });
+        // dd($allVets);
+        $pagination = $paginator->paginate(
+            $allVets,
+            $request->query->getInt('page', 1),
+            10
+        );
+        // dd($allVets);
+        // $vetsPaginator = $userRepository->findAllVets($page, $limit, $lat, $lon, $distance);
+        // $totalItems = count($vetsPaginator);
+        // $totalPages = ceil($totalItems / $limit);
 
-        $vets = iterator_to_array($vetsPaginator->getIterator());
-        $vetAvailability = $this->buildVetAvailability($vets, $dayOfWorkRepository);
-
+        // $vets = iterator_to_array($vetsPaginator->getIterator());
+        $vetAvailability = $this->buildVetAvailability($allVets, $dayOfWorkRepository);
         return $this->render('search-vet/searchvet.html.twig', [
-            'controller_name' => 'SearchVetController',
-            'vets' => $vets,
+            'allVets' => $allVets,
+            'pagination' => $pagination,
             'vetAvailability' => $vetAvailability,
             'currentPage' => $page,
             'limit' => $limit,
-            'totalPages' => $totalPages,
-            'totalItems' => $totalItems,
+            // 'totalPages' => $totalPages,
+            // 'totalItems' => $totalItems,
             'lat' => $lat,
             'lon' => $lon,
             'distance' => $distance,
