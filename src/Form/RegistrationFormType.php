@@ -38,9 +38,6 @@ class RegistrationFormType extends AbstractType
                 ->add('telephone')
                 ->add('adressecabinet')
                 ->add('siret')
-                ->add('numeroOrdreVeterinaire', TextType::class, [
-                    'required' => false,
-                ])
                 ->add('latitude', HiddenType::class, ['required' => false])
                 ->add('longitude', HiddenType::class, ['required' => false]);
         }
