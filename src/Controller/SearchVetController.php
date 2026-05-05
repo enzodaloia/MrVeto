@@ -33,7 +33,11 @@ final class SearchVetController extends AbstractController
         $lat = $lat !== null && $lat !== '' ? (float) $lat : null;
         $lon = $lon !== null && $lon !== '' ? (float) $lon : null;
 
-        $allVets = $em->getRepository(User::class)->findAll();
+        $allVets = $em->getRepository(User::class)->findall();
+        $allVets = array_filter($allVets, function ($user) {
+            return in_array('ROLE_VETO', $user->getRoles());
+        });
+        // dd($allVets);
         $pagination = $paginator->paginate(
             $allVets,
             $request->query->getInt('page', 1),
