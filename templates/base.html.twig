@@ -17,12 +17,13 @@
 		{% endblock %}
 	</head>
 	<body class="{% if app.user %}bg-warning-bg{% else %}bg-light{% endif %}">
-		
+
 		{% if not hiddenNavbar is defined and app.user %}
 			{% set current_route = app.request.attributes.get('_route')|default('') %}
 			{% set navbarNotifications = navbar_notifications() %}
-			<div class="d-flex min-vh-100">
-				
+			<div
+				class="d-flex min-vh-100">
+
 				<!-- Sidebar (Desktop only) -->
 				<aside class="d-none d-lg-flex flex-column bg-white shadow-sm" style="width: 280px; position: sticky; top: 0; height: 100vh; overflow-y: auto;">
 
@@ -31,10 +32,17 @@
 							<img src="{{ asset('assets/img/MrVeto.png') }}" alt="Logo MrVeto" class="img-fluid" style="width: 45px; height: 45px; object-fit: contain; background: #ebf5f3; border-radius: 12px; padding: 5px;">
 							<div>
 								<div class="fw-bold fs-5 text-primary lh-1">MrVeto</div>
+
 								{% if is_granted('ROLE_VETO') %}
-									<div class="text-muted" style="font-size: 0.8rem;">Dr. {{ app.user.nom }}</div>
+									<div class="text-muted" style="font-size: 0.8rem;">Dr.
+										{{ app.user.nom }}</div>
+
 								{% elseif is_granted('ROLE_ADMIN') %}
 									<div class="text-muted" style="font-size: 0.8rem;">Espace Admin</div>
+
+								{% elseif is_granted('ROLE_SECRETARY') %}
+									<div class="text-muted" style="font-size: 0.8rem;">Espace Secrétaire</div>
+
 								{% else %}
 									<div class="text-muted" style="font-size: 0.8rem;">Espace Propriétaire</div>
 								{% endif %}
@@ -44,11 +52,14 @@
 					<div class="d-flex flex-column gap-2 px-3 mt-3 flex-grow-1">
 						{% if is_granted('ROLE_VETO') %}
 							<a href="{{ path('app_home') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}" data-turbo="false">
-								<i class="bi bi-grid fs-5"></i> Tableau de bord
+								<i class="bi bi-grid fs-5"></i>
+								Tableau de bord
 							</a>
 							<a href="{{ path('app_availability') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_planning' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}" data-turbo="false">
-								<i class="bi bi-calendar-event fs-5"></i> Planning
+								<i class="bi bi-calendar-event fs-5"></i>
+								Planning
 							</a>
+
 							<a href="{{ path('app_vet_patients') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route starts with 'app_vet_patients' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
 								<i class="bi bi-people fs-5"></i> Patients
 							</a>
@@ -56,61 +67,80 @@
 								<i class="bi bi-journal-plus fs-5"></i> Gestion des RDV
 							</a>
 							<a href="#" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_archives' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
-								<i class="bi bi-archive fs-5"></i> Archives
+								<i class="bi bi-archive fs-5"></i>
+								Archives
 							</a>
 							<a href="{{ path('app_vet_cabinet_index') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route starts with 'app_vet_cabinet_' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
-								<i class="bi bi-building fs-5"></i> Cabinets
+								<i class="bi bi-building fs-5"></i>
+								Cabinets
 							</a>
 						{% elseif is_granted('ROLE_ADMIN') %}
 							<a href="{{ path('app_home') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
-								<i class="bi bi-grid fs-5"></i> Tableau de bord
+								<i class="bi bi-grid fs-5"></i>
+								Tableau de bord
 							</a>
 							<a href="{{ path('app_admin_cabinet_index') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route starts with 'app_admin_cabinet_' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
-								<i class="bi bi-building fs-5"></i> Cabinets
+								<i class="bi bi-building fs-5"></i>
+								Cabinets
 							</a>
 							<a href="{{ path('app_user_admin_index') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route starts with 'app_user_admin_' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
-								<i class="bi bi-people fs-5"></i> Utilisateurs
+								<i class="bi bi-people fs-5"></i>
+								Utilisateurs
+							</a>
+						{% elseif is_granted('ROLE_SECRETARY') %}
+							<a href="{{ path('app_secretary_vets') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route starts with 'app_secretary_' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
+								<i class="bi bi-calendar-check fs-5"></i>
+								Disponibilités vétos
 							</a>
 						{% else %}
 							<a href="{{ path('app_home') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
-								<i class="bi bi-grid fs-5"></i> Tableau de bord
+								<i class="bi bi-grid fs-5"></i>
+								Tableau de bord
 							</a>
 							<a href="#" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_animaux' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
-								<i class="bi bi-heart fs-5"></i> Mes Animaux
+								<i class="bi bi-heart fs-5"></i>
+								Mes Animaux
 							</a>
 							<a href="{{ path('app_rendezvous') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_rendezvous' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
-								<i class="bi bi-calendar-event fs-5"></i> Mes Rendez-vous
+								<i class="bi bi-calendar-event fs-5"></i>
+								Mes Rendez-vous
 							</a>
 							<a href="{{ path('app_carnet_sante') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_carnet_sante' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
-								<i class="bi bi-journal-medical fs-5"></i> Carnet de santé
+								<i class="bi bi-journal-medical fs-5"></i>
+								Carnet de santé
 							</a>
 						{% endif %}
 
 						<small class="text-muted fw-bold mt-4 mb-2 ps-2" style="font-size: 0.75rem; letter-spacing: 0.5px;">COMPTE</small>
 						<a href="{{ path('app_user_front_show', {'id': app.user.id}) }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_user_front_show' or current_route == 'app_user_front_show_vet' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
-							<i class="bi bi-gear fs-5"></i> Mon compte
+							<i class="bi bi-gear fs-5"></i>
+							Mon compte
 						</a>
 					</div>
 
 					<div class="p-4 mt-auto">
 						{% if is_granted('ROLE_VETO') %}
 							<a href="#" class="btn btn-primary w-100 text-white fw-bold mb-3 d-flex align-items-center justify-content-center gap-2" style="border-radius: 8px;">
-								<i class="bi bi-plus-lg"></i> Créer un RDV
+								<i class="bi bi-plus-lg"></i>
+								Créer un RDV
 							</a>
 						{% endif %}
 						<a href="{{ path('app_logout') }}" class="text-decoration-none text-danger fw-bold d-flex align-items-center gap-2 justify-content-center p-2 rounded hover-bg-light">
-							<i class="bi bi-box-arrow-right"></i> Déconnexion
+							<i class="bi bi-box-arrow-right"></i>
+							Déconnexion
 						</a>
 					</div>
 				</aside>
 
 				<!-- Main Content Wrapper -->
-				<div class="flex-grow-1 d-flex flex-column min-vw-0">
-					
+				<div
+					class="flex-grow-1 d-flex flex-column min-vw-0">
+
 					<!-- Top Navbar (User Logged In) -->
 					<nav class="navbar navbar-expand-lg py-3 px-3 px-lg-4">
-						<div class="container-fluid p-0 d-flex justify-content-between align-items-center">
-							
+						<div
+							class="container-fluid p-0 d-flex justify-content-between align-items-center">
+
 							<!-- Mobile Logo & Title -->
 							<a class="navbar-brand d-lg-none d-flex align-items-center gap-2 m-0" href="{{ path('app_search_vet') }}">
 								<img src="{{ asset('assets/img/MrVeto.png') }}" alt="Logo MrVeto" style="width: 35px; height: 35px; object-fit: contain; background: #ebf5f3; border-radius: 8px; padding: 4px;">
@@ -118,18 +148,19 @@
 							</a>
 
 							<!-- Desktop Header Elements -->
-							<div class="d-none d-lg-flex align-items-center gap-3 flex-grow-1" style="max-width: 800px;">
-							</div>
+							<div class="d-none d-lg-flex align-items-center gap-3 flex-grow-1" style="max-width: 800px;"></div>
 
 							<!-- Notifications & Mobile Toggle -->
-							<div class="d-flex align-items-center gap-3 ms-auto">
+							<div
+								class="d-flex align-items-center gap-3 ms-auto">
 								<!-- Notification Bell -->
 								<div class="dropdown">
 									<button class="btn btn-link p-0 text-muted position-relative hover-text-dark text-decoration-none" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Afficher les notifications">
 										<i class="bi bi-bell {% if app.request.headers.get('User-Agent') matches '/Mobi/' %}fs-3{% else %}fs-4{% endif %}"></i>
 										{% if navbarNotifications|length > 0 %}
 											<span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
-												<span class="visually-hidden">{{ navbarNotifications|length }} notifications</span>
+												<span class="visually-hidden">{{ navbarNotifications|length }}
+													notifications</span>
 											</span>
 										{% endif %}
 									</button>
@@ -173,8 +204,19 @@
 							<div class="d-none d-lg-flex align-items-center gap-4 ms-4">
 								<div class="d-flex align-items-center gap-3 ms-2 ps-3 border-start border-1">
 									<div class="text-end lh-1">
-										<strong class="text-dark d-block mb-1 fs-6">{{ app.user.prenom }} {{ app.user.nom }}</strong>
-										<small class="text-muted">{% if is_granted('ROLE_VETO') %}Vétérinaire{% else %}Propriétaire{% endif %}</small>
+										<strong class="text-dark d-block mb-1 fs-6">{{ app.user.prenom }}
+											{{ app.user.nom }}</strong>
+										<small class="text-muted">
+											{% if is_granted('ROLE_VETO') %}
+												Vétérinaire
+											{% elseif is_granted('ROLE_ADMIN') %}
+												Administrateur
+											{% elseif is_granted('ROLE_SECRETARY') %}
+												Secrétaire
+											{% else %}
+												Propriétaire
+											{% endif %}
+										</small>
 									</div>
 									<div class="rounded-circle overflow-hidden shadow-sm" style="width: 45px; height: 45px;">
 										<img src="https://ui-avatars.com/api/?name={{ app.user.prenom }}+{{ app.user.nom }}&background=random" class="w-100 h-100 object-fit-cover" alt="Avatar">
@@ -191,116 +233,152 @@
 								</div>
 								<div class="lh-1">
 									<span class="text-muted d-block mb-1" style="font-size: 0.85rem;">Bonjour,</span>
-									<strong class="text-dark fs-5">{{ app.user.prenom }} {{ app.user.nom }}</strong>
+									<strong class="text-dark fs-5">{{ app.user.prenom }}
+										{{ app.user.nom }}</strong>
 								</div>
 							</div>
-							
+
 							<div class="input-group bg-light rounded-pill overflow-hidden mb-4">
-								<span class="input-group-text bg-transparent border-0 ps-3 pe-2 text-secondary"><i class="bi bi-search"></i></span>
+								<span class="input-group-text bg-transparent border-0 ps-3 pe-2 text-secondary">
+									<i class="bi bi-search"></i>
+								</span>
 								<input type="text" class="form-control bg-transparent border-0 shadow-none py-2" placeholder="Recherche...">
 							</div>
 
 							<div class="d-flex flex-column gap-2 mb-2">
 								{% if is_granted('ROLE_VETO') %}
-									<a href="{{ path('app_home') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-grid fs-5 w-20px text-center"></i> Tableau de bord</a>
-									<a href="#" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_planning' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-calendar-event fs-5 w-20px text-center"></i> Planning</a>
-									<a href="{{ path('app_vet_patients') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route starts with 'app_vet_patients' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-people fs-5 w-20px text-center"></i> Patients</a>
-									<a href="{{ path('app_gestion_rdv') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_gestion_rdv' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-journal-plus fs-5 w-20px text-center"></i> Gestion des RDV</a>
-									<a href="#" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_archives' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-archive fs-5 w-20px text-center"></i> Archives</a>
-									<a href="{{ path('app_vet_cabinet_index') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route starts with 'app_vet_cabinet_' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-building fs-5 w-20px text-center"></i> Cabinets</a>
+									<a href="{{ path('app_home') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
+										<i class="bi bi-grid fs-5 w-20px text-center"></i>
+										Tableau de bord</a>
+									<a href="#" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_planning' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
+										<i class="bi bi-calendar-event fs-5 w-20px text-center"></i>
+										Planning</a>
+									<a href="#" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_patients' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
+										<i class="bi bi-people fs-5 w-20px text-center"></i>
+										Patients</a>
+									<a href="#" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_gestion_rdv' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
+										<i class="bi bi-journal-plus fs-5 w-20px text-center"></i>
+										Gestion des RDV</a>
+									<a href="#" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_archives' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
+										<i class="bi bi-archive fs-5 w-20px text-center"></i>
+										Archives</a>
+									<a href="{{ path('app_vet_cabinet_index') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route starts with 'app_vet_cabinet_' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
+										<i class="bi bi-building fs-5 w-20px text-center"></i>
+										Cabinets</a>
 								{% elseif is_granted('ROLE_ADMIN') %}
-									<a href="{{ path('app_home') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-grid fs-5 w-20px text-center"></i> Tableau de bord</a>
-									<a href="{{ path('app_admin_cabinet_index') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route starts with 'app_admin_cabinet_' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-building fs-5 w-20px text-center"></i> Cabinets</a>
-									<a href="{{ path('app_user_admin_index') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route starts with 'app_user_admin_' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-people fs-5 w-20px text-center"></i> Utilisateurs</a>
+									<a href="{{ path('app_home') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
+										<i class="bi bi-grid fs-5 w-20px text-center"></i>
+										Tableau de bord</a>
+									<a href="{{ path('app_admin_cabinet_index') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route starts with 'app_admin_cabinet_' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
+										<i class="bi bi-building fs-5 w-20px text-center"></i>
+										Cabinets</a>
+									<a href="{{ path('app_user_admin_index') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route starts with 'app_user_admin_' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
+										<i class="bi bi-people fs-5 w-20px text-center"></i>
+										Utilisateurs</a>
 								{% else %}
-									<a href="{{ path('app_home') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-grid fs-5 w-20px text-center"></i> Tableau de bord</a>
-									<a href="#" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_animaux' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-heart fs-5 w-20px text-center"></i> Mes Animaux</a>
-									<a href="{{ path('app_rendezvous') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_rendezvous' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-calendar-event fs-5 w-20px text-center"></i> Mes Rendez-vous</a>
-									<a href="{{ path('app_carnet_sante') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_carnet_sante' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-journal-medical fs-5 w-20px text-center"></i> Carnet de santé</a>
+									<a href="{{ path('app_home') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
+										<i class="bi bi-grid fs-5 w-20px text-center"></i>
+										Tableau de bord</a>
+									<a href="#" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_animaux' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
+										<i class="bi bi-heart fs-5 w-20px text-center"></i>
+										Mes Animaux</a>
+									<a href="{{ path('app_rendezvous') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_rendezvous' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
+										<i class="bi bi-calendar-event fs-5 w-20px text-center"></i>
+										Mes Rendez-vous</a>
+									<a href="{{ path('app_carnet_sante') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_carnet_sante' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
+										<i class="bi bi-journal-medical fs-5 w-20px text-center"></i>
+										Carnet de santé</a>
 								{% endif %}
-								
+
 								<small class="text-muted fw-bold mt-3 mb-1 ps-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">COMPTE</small>
-								<a href="{{ path('app_user_front_show', {'id': app.user.id}) }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_user_front_show' or current_route == 'app_user_front_show_vet' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-gear fs-5 w-20px text-center"></i> Mon compte</a>
-								
+								<a href="{{ path('app_user_front_show', {'id': app.user.id}) }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_user_front_show' or current_route == 'app_user_front_show_vet' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
+									<i class="bi bi-gear fs-5 w-20px text-center"></i>
+									Mon compte</a>
+
 								{% if is_granted('ROLE_VETO') %}
 									<div class="mt-3">
 										<a href="#" class="btn btn-primary w-100 text-white fw-bold mb-2 d-flex align-items-center justify-content-center gap-2" style="border-radius: 8px;">
-											<i class="bi bi-plus-lg"></i> Créer un RDV
+											<i class="bi bi-plus-lg"></i>
+											Créer un RDV
 										</a>
 									</div>
 								{% endif %}
 
-								<a href="{{ path('app_logout') }}" class="nav-link text-danger fw-bold d-flex align-items-center gap-3 py-2 mt-2 pt-3 border-top px-2"><i class="bi bi-box-arrow-right fs-5 w-20px text-center"></i> Déconnexion</a>
+								<a href="{{ path('app_logout') }}" class="nav-link text-danger fw-bold d-flex align-items-center gap-3 py-2 mt-2 pt-3 border-top px-2">
+									<i class="bi bi-box-arrow-right fs-5 w-20px text-center"></i>
+									Déconnexion</a>
 							</div>
 						</div>
 					</nav>
 
 					<main class="flex-grow-1 p-3 p-lg-4 bg-secondary-bg" style="min-height: 100vh; overflow-y: auto;">
-		{% elseif not hiddenNavbar is defined %}
+					{% elseif not hiddenNavbar is defined %}
 
-			<!-- Disconnected / Public Navbar -->
-			<nav class="navbar navbar-expand-lg navbar-light bg-warning-bg py-4 shadow-sm">
-				<div class="container-fluid px-lg-5">
-					<a class="navbar-brand fw-bold text-dark" href="{{ path('app_home') }}"><img src="{{ asset('assets/img/MrVeto.png') }}" alt="Logo MrVeto" class="img-fluid" width="100"></a>
+						<!-- Disconnected / Public Navbar -->
+						<nav class="navbar navbar-expand-lg navbar-light bg-warning-bg py-4 shadow-sm">
+							<div class="container-fluid px-lg-5">
+								<a class="navbar-brand fw-bold text-dark" href="{{ path('app_home') }}"><img src="{{ asset('assets/img/MrVeto.png') }}" alt="Logo MrVeto" class="img-fluid" width="100"></a>
 
-					<button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-						<span class="navbar-toggler-icon"></span>
-					</button>
-
-					<div class="collapse navbar-collapse mt-3 mt-lg-0" id="navbarContent">
-						<div class="bg-white rounded-4 rounded-lg-pill px-4 py-3 py-lg-2 shadow-sm d-flex flex-column flex-lg-row gap-3 gap-lg-4 align-items-start align-items-lg-center mx-auto">
-							<a class="nav-link text-muted hover-text-primary d-flex align-items-center gap-2" href="{{ path('app_home') }}">
-								<i class="bi bi-house d-inline-block d-lg-none"></i> Accueil
-							</a>
-							<a class="nav-link text-muted hover-text-primary d-flex align-items-center gap-2" href="{{path('app_search_vet')}}">
-								<i class="bi bi-search d-inline-block d-lg-none"></i> Rechercher un vétérinaire
-							</a>
-							
-							<div class="dropdown w-lg-auto">
-								<button class="btn dropdown-toggle text-start px-0 px-lg-3 text-muted" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-									S'inscrire
+								<button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+									<span class="navbar-toggler-icon"></span>
 								</button>
-								<ul class="dropdown-menu border-0 shadow-sm" aria-labelledby="dropdownMenuButton">
-									<li>
-										<a class="dropdown-item" href="{{ path('app_register', {'type': 'veterinaire'}) }}">Vétérinaire</a>
-									</li>
-									<li>
-										<a class="dropdown-item" href="{{ path('app_register', {'type': 'utilisateur'}) }}">Utilisateur</a>
-									</li>
-								</ul>
+
+								<div class="collapse navbar-collapse mt-3 mt-lg-0" id="navbarContent">
+									<div class="bg-white rounded-4 rounded-lg-pill px-4 py-3 py-lg-2 shadow-sm d-flex flex-column flex-lg-row gap-3 gap-lg-4 align-items-start align-items-lg-center mx-auto">
+										<a class="nav-link text-muted hover-text-primary d-flex align-items-center gap-2" href="{{ path('app_home') }}">
+											<i class="bi bi-house d-inline-block d-lg-none"></i>
+											Accueil
+										</a>
+										<a class="nav-link text-muted hover-text-primary d-flex align-items-center gap-2" href="{{path('app_search_vet')}}">
+											<i class="bi bi-search d-inline-block d-lg-none"></i>
+											Rechercher un vétérinaire
+										</a>
+
+										<div class="dropdown w-lg-auto">
+											<button class="btn dropdown-toggle text-start px-0 px-lg-3 text-muted" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+												S'inscrire
+											</button>
+											<ul class="dropdown-menu border-0 shadow-sm" aria-labelledby="dropdownMenuButton">
+												<li>
+													<a class="dropdown-item" href="{{ path('app_register', {'type': 'veterinaire'}) }}">Vétérinaire</a>
+												</li>
+												<li>
+													<a class="dropdown-item" href="{{ path('app_register', {'type': 'utilisateur'}) }}">Utilisateur</a>
+												</li>
+											</ul>
+										</div>
+										<a class="nav-link text-muted hover-text-primary" href="{{ path('app_login') }}">Me connecter</a>
+									</div>
+								</div>
 							</div>
-							<a class="nav-link text-muted hover-text-primary" href="{{ path('app_login') }}">Me connecter</a>
-						</div>
+						</nav>
+
+					{% endif %}
+
+					{% block body %}{% endblock %}
+
+					<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 2000;">
+						{% for flash in app.flashes('success') %}
+							<twig:Toast type="success" message="{{ flash }}"/>
+						{% endfor %}
+						{% for flash in app.flashes('info') %}
+							<twig:Toast type="info" message="{{ flash }}"/>
+						{% endfor %}
+						{% for flash in app.flashes('warning') %}
+							<twig:Toast type="warning" message="{{ flash }}"/>
+						{% endfor %}
+						{% for flash in app.flashes('danger') %}
+							<twig:Toast type="danger" message="{{ flash }}"/>
+						{% endfor %}
+						{% for flash in app.flashes('error') %}
+							<twig:Toast type="danger" message="{{ flash }}"/>
+						{% endfor %}
+						{% for flash in app.flashes('reset_password_error') %}
+							<twig:Toast type="danger" message="{{ flash }}"/>
+						{% endfor %}
 					</div>
-				</div>
-			</nav>
 
-		{% endif %}
-		
-		{% block body %}{% endblock %}
-
-		<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 2000;">
-			{% for flash in app.flashes('success') %}
-				<twig:Toast type="success" message="{{ flash }}"/>
-			{% endfor %}
-			{% for flash in app.flashes('info') %}
-				<twig:Toast type="info" message="{{ flash }}"/>
-			{% endfor %}
-			{% for flash in app.flashes('warning') %}
-				<twig:Toast type="warning" message="{{ flash }}"/>
-			{% endfor %}
-			{% for flash in app.flashes('danger') %}
-				<twig:Toast type="danger" message="{{ flash }}"/>
-			{% endfor %}
-			{% for flash in app.flashes('error') %}
-				<twig:Toast type="danger" message="{{ flash }}"/>
-			{% endfor %}
-			{% for flash in app.flashes('reset_password_error') %}
-				<twig:Toast type="danger" message="{{ flash }}"/>
-			{% endfor %}
-		</div>
-
-		{% if not hiddenNavbar is defined and app.user %}
+					{% if not hiddenNavbar is defined and app.user %}
 					</main>
 				</div>
 			</div>

@@ -18,109 +18,156 @@
 </style>
 <div class="modal fade" id="createUserModal" tabindex="-1">
 	<div class="modal-dialog modal-dialog-centered">
-		<div class="modal-content rounded-4 border-0 shadow">
-			<div class="modal-header border-0 pb-0">
-				<h5 class="modal-title fw-bold text-primary text-center w-100" id="modal-title">Créer un compte</h5>
+		<div class="modal-content rounded-4 border-0 shadow-sm overflow-hidden">
+			<div class="modal-header border-0 px-4 pt-4 pb-2 position-relative">
+
+				<h5 class="modal-title fw-semibold text-primary position-absolute start-50 translate-middle-x mb-0" id="modal-title">
+					Créer un compte
+				</h5>
+
 				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+
 			</div>
 			<div
-				class="modal-body p-4">
+				class="modal-body px-4 pb-4 pt-2">
 
 				{# Étape 1 #}
-				<div id="modal-step-1" class="text-center">
-					<p class="text-muted mb-4">Quel type de compte souhaitez-vous créer ?</p>
-					<div class="d-flex flex-column gap-3 mx-auto" style="max-width:300px;">
-						<button type="button" class="btn btn-outline-primary rounded-3 p-3 text-center fw-semibold" onclick="modalShowForm('ROLE_VETO')">
-							Vétérinaire
-						</button>
-						<button type="button" class="btn btn-outline-primary rounded-3 p-3 text-center fw-semibold" onclick="modalShowForm('ROLE_ADMIN')">
-							Administrateur
-						</button>
-						<button type="button" class="btn btn-outline-primary rounded-3 p-3 text-center fw-semibold" onclick="modalShowForm('ROLE_SECRETARY')">
-							Secrétaire
-						</button>
-						<button type="button" class="btn btn-outline-primary rounded-3 p-3 text-center fw-semibold" onclick="modalShowForm('ROLE_USER')">
-							Utilisateur
-						</button>
+				<div id="modal-step-1">
+					<p class=" small text-muted mb-4 text-center">Quel type de compte souhaitez-vous créer ?</p>
+					<div class="row g-3">
+						<div class="col-12 col-sm-6">
+							<button type="button" class="btn btn-outline-primary rounded-3 p-3 text-start w-100 h-100" onclick="modalShowForm('ROLE_VETO')">
+								<span class="d-flex align-items-start gap-3">
+									<i class="bi bi-heart-pulse fs-5"></i>
+									<span>
+										<span class="d-block fw-semibold">Vétérinaire</span>
+										<span class="d-block small text-muted">Compte professionnel du cabinet</span>
+									</span>
+								</span>
+							</button>
+						</div>
+						<div class="col-12 col-sm-6">
+							<button type="button" class="btn btn-outline-primary rounded-3 p-3 text-start w-100 h-100" onclick="modalShowForm('ROLE_ADMIN')">
+								<span class="d-flex align-items-start gap-3">
+									<i class="bi bi-shield-lock fs-5"></i>
+									<span>
+										<span class="d-block fw-semibold">Administrateur</span>
+										<span class="d-block small text-muted">Accès à la gestion admin</span>
+									</span>
+								</span>
+							</button>
+						</div>
+						<div class="col-12 col-sm-6">
+							<button type="button" class="btn btn-outline-primary rounded-3 p-3 text-start w-100 h-100" onclick="modalShowForm('ROLE_SECRETARY')">
+								<span class="d-flex align-items-start gap-3">
+									<i class="bi bi-calendar-check fs-5"></i>
+									<span>
+										<span class="d-block fw-semibold">Secrétaire</span>
+										<span class="d-block small text-muted">Gestion des horaires du cabinet</span>
+									</span>
+								</span>
+							</button>
+						</div>
+						<div class="col-12 col-sm-6">
+							<button type="button" class="btn btn-outline-primary rounded-3 p-3 text-start w-100 h-100" onclick="modalShowForm('ROLE_USER')">
+								<span class="d-flex align-items-start gap-3">
+									<i class="bi bi-person fs-5"></i>
+									<span>
+										<span class="d-block fw-semibold">Utilisateur</span>
+										<span class="d-block small text-muted">Compte client standard</span>
+									</span>
+								</span>
+							</button>
+						</div>
 					</div>
 				</div>
 
 				{# Étape 2 #}
 				<div id="modal-step-2" style="display:none;">
-					<button type="button" class="btn btn-link text-muted p-0 mb-3" onclick="modalShowStep1()">
-						← Retour
+					<button type="button" class="btn btn-link text-muted text-decoration-none p-0 mb-3 d-inline-flex align-items-center gap-2" onclick="modalShowStep1()">
+						<i class="bi bi-arrow-left"></i>
+						Retour
 					</button>
 
 					{{ form_start(form, {'action': path('app_user_admin_new'), 'attr': {'data-turbo': 'false'}}) }}
 					<input type="hidden" name="selected_role" id="modal-selected-role">
 
-					<h6 class="fw-semibold text-primary mb-3">Informations personnelles</h6>
-					<div class="row g-3 mb-3">
-						<div class="col-md-6">
-							<label class="form-label text-muted small">Nom</label>
-							<input type="text" name="user_admin[nom]" class="form-control rounded-3">
-						</div>
-						<div class="col-md-6">
-							<label class="form-label text-muted small">Prénom</label>
-							<input type="text" name="user_admin[prenom]" class="form-control rounded-3">
-						</div>
-						<div class="col-md-6">
-							<label class="form-label text-muted small">Adresse postale</label>
-							<input type="text" name="user_admin[adresse]" class="form-control rounded-3">
-						</div>
-						<div class="col-md-6">
-							<label class="form-label text-muted small">Ville</label>
-							<input type="text" name="user_admin[ville]" class="form-control rounded-3">
-						</div>
-						<div class="col-md-6">
-							<label class="form-label text-muted small">Téléphone</label>
-							<input type="text" name="user_admin[telephone]" class="form-control rounded-3">
-						</div>
-						<div class="col-md-6">
-							<label class="form-label text-muted small">Date de naissance</label>
-							<input type="date" name="user_admin[datenaissance]" class="form-control rounded-3">
-						</div>
-						<div class="col-12">
-							<label class="form-label text-muted small">Adresse email</label>
-							<input type="email" name="user_admin[email]" class="form-control rounded-3" placeholder="john.doe@gmail.com">
+					<div class="mb-4">
+						<h6 class="fw-semibold text-primary mb-1">Informations du compte</h6>
+						<p class="text-muted small mb-0">Renseignez les informations nécessaires à la création du compte.</p>
+					</div>
+
+					<div class="bg-info-bg border rounded-3 p-3 mb-3">
+						<h6 class="fw-semibold text-primary mb-3">Informations personnelles</h6>
+						<div class="row g-3">
+							<div class="col-md-6">
+								<label class="form-label text-muted small fw-semibold">Nom</label>
+								<input type="text" name="user_admin[nom]" class="form-control rounded-3">
+							</div>
+							<div class="col-md-6">
+								<label class="form-label text-muted small fw-semibold">Prénom</label>
+								<input type="text" name="user_admin[prenom]" class="form-control rounded-3">
+							</div>
+							<div class="col-md-6">
+								<label class="form-label text-muted small fw-semibold">Date de naissance</label>
+								<input type="date" name="user_admin[datenaissance]" class="form-control rounded-3">
+							</div>
 						</div>
 					</div>
 
-					<hr class="my-3">
+					<div class="bg-info-bg border rounded-3 p-3 mb-3">
+						<h6 class="fw-semibold text-primary mb-3">Coordonnées</h6>
+						<div class="row g-3">
+							<div class="col-12">
+								<label class="form-label text-muted small fw-semibold">Adresse email</label>
+								<input type="email" name="user_admin[email]" class="form-control rounded-3" placeholder="john.doe@gmail.com">
+							</div>
+							<div class="col-md-6">
+								<label class="form-label text-muted small fw-semibold">Téléphone</label>
+								<input type="text" name="user_admin[telephone]" class="form-control rounded-3">
+							</div>
+							<div class="col-md-6">
+								<label class="form-label text-muted small fw-semibold">Ville</label>
+								<input type="text" name="user_admin[ville]" class="form-control rounded-3">
+							</div>
+							<div class="col-12">
+								<label class="form-label text-muted small fw-semibold">Adresse postale</label>
+								<input type="text" name="user_admin[adresse]" class="form-control rounded-3">
+							</div>
+						</div>
+					</div>
 
 					<div id="modal-fields-veto" style="display:none;">
-						<h6 class="fw-semibold text-primary mb-3">Informations professionnelles</h6>
-						<div class="row g-3 mb-3">
-							<div class="col-12">
-								<label class="form-label text-muted small">N° de Siret</label>
-								<input type="text" name="user_admin[siret]" class="form-control rounded-3">
-							</div>
-							<div class="col-md-6">
-								<label class="form-label text-muted small">Code postal</label>
-								<input type="text" name="user_admin[codepostal]" class="form-control rounded-3">
-							</div>
-							<div class="col-md-6">
-								<label class="form-label text-muted small">Adresse cabinet</label>
-								<input type="text" name="user_admin[adressecabinet]" class="form-control rounded-3">
+						<div class="bg-info-bg border rounded-3 p-3 mb-3">
+							<h6 class="fw-semibold text-primary mb-3">Informations professionnelles</h6>
+							<div class="row g-3">
+								<div class="col-12">
+									<label class="form-label text-muted small fw-semibold">N° de Siret</label>
+									<input type="text" name="user_admin[siret]" class="form-control rounded-3">
+								</div>
+								<div class="col-md-6">
+									<label class="form-label text-muted small fw-semibold">Code postal</label>
+									<input type="text" name="user_admin[codepostal]" class="form-control rounded-3">
+								</div>
+								<div class="col-md-6">
+									<label class="form-label text-muted small fw-semibold">Adresse cabinet</label>
+									<input type="text" name="user_admin[adressecabinet]" class="form-control rounded-3">
+								</div>
 							</div>
 						</div>
-						<hr class="my-3">
 					</div>
 
-					<h6 class="fw-semibold text-primary mb-3">Accès</h6>
-					<div class="row g-3 mb-3">
-						<div class="col-md-6">
-							<label class="form-label text-muted small">Mot de passe</label>
-							<input type="password" name="user_admin[password]" class="form-control rounded-3">
-						</div>
-						<div class="col-md-6">
-							<label class="form-label text-muted small">Confirmation mot de passe</label>
-							<input type="password" class="form-control rounded-3">
-						</div>
-						<div class="col-12" id="modal-is-verified-wrapper" style="display:none;">
-							<div class="form-check">
-								<input type="checkbox" name="user_admin[isVerified]" id="modal-is-verified" class="form-check-input" value="1">
-								<label class="form-check-label">Compte vérifié</label>
+					<div class="bg-info-bg border rounded-3 p-3 mb-3">
+						<h6 class="fw-semibold text-primary mb-3">Accès</h6>
+						<div class="row g-3">
+							<div class="col-12">
+								<div class="small text-muted">Un email d’invitation sera envoyé pour permettre à l’utilisateur de définir son mot de passe.</div>
+							</div>
+							<div class="col-12" id="modal-is-verified-wrapper" style="display:none;">
+								<div class="form-check">
+									<input type="checkbox" name="user_admin[isVerified]" id="modal-is-verified" class="form-check-input" value="1">
+									<label class="form-check-label text-muted small fw-semibold">Compte vétérinaire validé par l’admin</label>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -132,11 +179,11 @@
 						<option value="ROLE_ADMIN">Admin</option>
 					</select>
 
-					<div class="d-flex justify-content-center gap-3 mt-4">
-						<button type="button" class="btn btn-danger rounded-pill px-5 fw-semibold" data-bs-dismiss="modal">
+					<div class="d-flex justify-content-end gap-2 mt-4">
+						<button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
 							Annuler
 						</button>
-						<button type="submit" class="btn btn-primary rounded-pill px-5 fw-semibold text-white">
+						<button type="submit" class="btn btn-primary px-4 text-white">
 							Créer le compte
 						</button>
 					</div>

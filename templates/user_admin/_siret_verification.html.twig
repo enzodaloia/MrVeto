@@ -1,0 +1,75 @@
+{% if siretVerification is defined and siretVerification %}
+	{% set isValidated = user is defined and user.isVerified %}
+	{% set statusClass = siretVerification.status == 'success' ? 'success' : (siretVerification.status == 'danger' ? 'danger' : 'warning') %}
+	{% set softBg = isValidated ? '#EBF4FC' : (statusClass == 'success' ? '#e4f9f0' : (statusClass == 'danger' ? '#fde8e8' : '#fef3c7')) %}
+	{% set softColor = isValidated ? '#3688BD' : (statusClass == 'success' ? '#16a34a' : (statusClass == 'danger' ? '#dc2626' : '#92400e')) %}
+	{% if siretVerification.exists is same as(false) %}
+		{% set mainMessage = 'SIRET introuvable' %}
+	{% elseif siretVerification.exists is same as(true) and siretVerification.isVeterinaryActivity is same as(false) %}
+		{% set mainMessage = 'SIRET trouvé, mais activité non vétérinaire (APE 75.00Z attendu)' %}
+	{% elseif siretVerification.exists is same as(true) and siretVerification.isVeterinaryActivity is same as(true) and siretVerification.isActive is same as(true) %}
+		{% set mainMessage = 'SIRET valide — activité vétérinaire confirmée' %}
+	{% else %}
+		{% set mainMessage = siretVerification.message %}
+	{% endif %}
+	{% set displayMessage = isValidated ? 'Compte vétérinaire validé' : mainMessage %}
+	{% set badgeLabel = isValidated ? 'Validé' : (statusClass == 'success' ? 'OK' : (statusClass == 'danger' ? 'A vérifier' : 'Indisponible')) %}
+
+	<div class="border rounded-4 p-2 p-md-3 h-100" style="background:{{ softBg }};">
+		<div class="d-flex flex-column gap-2">
+			<div class="d-flex justify-content-between align-items-start gap-2">
+				<div class="text-muted small mb-1">Vérification SIRET</div>
+
+				<span class="badge rounded-pill {{ isValidated ? '' : 'bg-' ~ statusClass }} text-white flex-shrink-0" {% if isValidated %} style="background:{{ softColor }};" {% endif %}>
+					{{ badgeLabel }}
+				</span>
+			</div>
+
+			<div class="fw-semibold small lh-sm w-100 d-block mt-2" style="color:{{ softColor }};">
+				{{ displayMessage }}
+			</div>
+
+			<div class="bg-white rounded-3 p-2 small">
+				<div class="d-flex justify-content-between align-items-center gap-2 py-1 border-bottom">
+					<span class="text-muted">SIRET</span>
+					<span class="fw-semibold text-end">{{ siretVerification.exists is same as(true) ? 'Oui' : (siretVerification.exists is same as(false) ? 'Non' : 'Non vérifié') }}</span>
+				</div>
+				<div class="d-flex justify-content-between align-items-center gap-2 py-1 border-bottom">
+					<span class="text-muted">Établissement</span>
+					<span class="fw-semibold text-end">{{ siretVerification.isActive is same as(true) ? 'Actif' : (siretVerification.isActive is same as(false) ? 'Inactif' : 'Non vérifié') }}</span>
+				</div>
+				<div class="d-flex justify-content-between align-items-center gap-2 py-1">
+					<span class="text-muted">Activité</span>
+					<span class="fw-semibold text-end">{{ siretVerification.isVeterinaryActivity is same as(true) ? 'Vétérinaire' : (siretVerification.isVeterinaryActivity is same as(false) ? 'Non' : 'Non vérifié') }}</span>
+				</div>
+			</div>
+
+			{% if siretVerification.name or siretVerification.address or siretVerification.apeCode %}
+				<div class="bg-white rounded-3 p-2 small d-flex flex-column gap-1">
+					{% if siretVerification.name %}
+						<div class="text-break">
+							<span class="text-muted">Établissement :</span>
+							<span class="fw-medium">{{ siretVerification.name }}</span>
+						</div>
+					{% endif %}
+					{% if siretVerification.address %}
+						<div class="text-break">
+							<span class="text-muted">Adresse :</span>
+							<span class="fw-medium">{{ siretVerification.address }}</span>
+						</div>
+					{% endif %}
+					<div class="text-break">
+						<span class="text-muted">Code APE :</span>
+						<span class="fw-medium">{{ siretVerification.apeCode ?: 'inconnu' }}</span>
+					</div>
+				</div>
+			{% else %}
+				<div class="bg-white rounded-3 p-2 small">
+					<span class="text-muted">Code APE :</span>
+					<span class="fw-medium">inconnu</span>
+				</div>
+			{% endif %}
+
+		</div>
+	</div>
+{% endif %}
