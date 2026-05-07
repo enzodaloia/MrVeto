@@ -10,6 +10,7 @@ use App\Form\CabinetType;
 use App\Repository\CabinetRepository;
 use App\Repository\CabinetUserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -53,8 +54,8 @@ final class AdminCabinetController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_admin_cabinet_show', methods: ['GET'])]
-    public function show(Cabinet $cabinet, CabinetUserRepository $cabinetUserRepository): Response
+    #[Route('/{slug}', name: 'app_admin_cabinet_show', methods: ['GET'])]
+    public function show(#[MapEntity(mapping: ['slug' => 'slug'])] Cabinet $cabinet, CabinetUserRepository $cabinetUserRepository): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
@@ -64,8 +65,8 @@ final class AdminCabinetController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_admin_cabinet_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Cabinet $cabinet, CabinetUserRepository $cabinetUserRepository, EntityManagerInterface $entityManager): Response
+    #[Route('/{slug}/edit', name: 'app_admin_cabinet_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, #[MapEntity(mapping: ['slug' => 'slug'])] Cabinet $cabinet, CabinetUserRepository $cabinetUserRepository, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
@@ -76,7 +77,7 @@ final class AdminCabinetController extends AbstractController
             $entityManager->flush();
             $this->addFlash('success', 'Cabinet mis à jour.');
 
-            return $this->redirectToRoute('app_admin_cabinet_edit', ['id' => $cabinet->getId()], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_admin_cabinet_edit', ['slug' => $cabinet->getSlug()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('admin_cabinet/edit.html.twig', [
@@ -86,8 +87,8 @@ final class AdminCabinetController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_admin_cabinet_delete', methods: ['POST'])]
-    public function delete(Request $request, Cabinet $cabinet, EntityManagerInterface $entityManager): Response
+    #[Route('/{slug}', name: 'app_admin_cabinet_delete', methods: ['POST'])]
+    public function delete(Request $request, #[MapEntity(mapping: ['slug' => 'slug'])] Cabinet $cabinet, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
@@ -100,10 +101,10 @@ final class AdminCabinetController extends AbstractController
         return $this->redirectToRoute('app_admin_cabinet_index', [], Response::HTTP_SEE_OTHER);
     }
 
-    #[Route('/{id}/assign', name: 'app_admin_cabinet_assign', methods: ['POST'])]
+    #[Route('/{slug}/assign', name: 'app_admin_cabinet_assign', methods: ['POST'])]
     public function assignUser(
         Request $request,
-        Cabinet $cabinet,
+        #[MapEntity(mapping: ['slug' => 'slug'])] Cabinet $cabinet,
         CabinetUserRepository $cabinetUserRepository,
         EntityManagerInterface $entityManager
     ): Response {
@@ -116,24 +117,24 @@ final class AdminCabinetController extends AbstractController
             $csrfToken = (string) $request->request->get('_token', '');
             if (!$this->isCsrfTokenValid('admin_cabinet_assign_' . $cabinet->getId(), $csrfToken)) {
                 $this->addFlash('danger', 'Le token CSRF est invalide.');
-                return $this->redirectToRoute('app_admin_cabinet_edit', ['id' => $cabinet->getId()]);
+                return $this->redirectToRoute('app_admin_cabinet_edit', ['slug' => $cabinet->getSlug()]);
             }
 
             $user = $entityManager->getRepository(User::class)->find($directUserId);
             if (!$user instanceof User) {
                 $this->addFlash('danger', 'Utilisateur invalide.');
-                return $this->redirectToRoute('app_admin_cabinet_edit', ['id' => $cabinet->getId()]);
+                return $this->redirectToRoute('app_admin_cabinet_edit', ['slug' => $cabinet->getSlug()]);
             }
 
             $validationError = $this->validateAssignmentRoleRules($cabinetUserRepository, $user, $directRole);
             if ($validationError !== null) {
                 $this->addFlash('danger', $validationError);
-                return $this->redirectToRoute('app_admin_cabinet_edit', ['id' => $cabinet->getId()]);
+                return $this->redirectToRoute('app_admin_cabinet_edit', ['slug' => $cabinet->getSlug()]);
             }
 
             if ($cabinetUserRepository->findOneByCabinetAndUser($cabinet, $user)) {
                 $this->addFlash('danger', 'Cet utilisateur est déjà affecté à ce cabinet.');
-                return $this->redirectToRoute('app_admin_cabinet_edit', ['id' => $cabinet->getId()]);
+                return $this->redirectToRoute('app_admin_cabinet_edit', ['slug' => $cabinet->getSlug()]);
             }
 
             $assignment = (new CabinetUser())
@@ -147,7 +148,7 @@ final class AdminCabinetController extends AbstractController
             $entityManager->flush();
 
             $this->addFlash('success', 'Utilisateur affecté au cabinet.');
-            return $this->redirectToRoute('app_admin_cabinet_edit', ['id' => $cabinet->getId()]);
+            return $this->redirectToRoute('app_admin_cabinet_edit', ['slug' => $cabinet->getSlug()]);
         }
 
         $assignment = new CabinetUser();
@@ -159,18 +160,18 @@ final class AdminCabinetController extends AbstractController
 
             if ($user === null) {
                 $this->addFlash('danger', 'Utilisateur invalide.');
-                return $this->redirectToRoute('app_admin_cabinet_edit', ['id' => $cabinet->getId()]);
+                return $this->redirectToRoute('app_admin_cabinet_edit', ['slug' => $cabinet->getSlug()]);
             }
 
             $validationError = $this->validateAssignmentRoleRules($cabinetUserRepository, $user, (string) $assignment->getRoleInCabinet());
             if ($validationError !== null) {
                 $this->addFlash('danger', $validationError);
-                return $this->redirectToRoute('app_admin_cabinet_edit', ['id' => $cabinet->getId()]);
+                return $this->redirectToRoute('app_admin_cabinet_edit', ['slug' => $cabinet->getSlug()]);
             }
 
             if ($cabinetUserRepository->findOneByCabinetAndUser($cabinet, $user)) {
                 $this->addFlash('danger', 'Cet utilisateur est déjà affecté à ce cabinet.');
-                return $this->redirectToRoute('app_admin_cabinet_edit', ['id' => $cabinet->getId()]);
+                return $this->redirectToRoute('app_admin_cabinet_edit', ['slug' => $cabinet->getSlug()]);
             }
 
             $assignment->setCabinet($cabinet);
@@ -181,11 +182,11 @@ final class AdminCabinetController extends AbstractController
             $this->addFlash('success', 'Utilisateur affecté au cabinet.');
         }
 
-        return $this->redirectToRoute('app_admin_cabinet_edit', ['id' => $cabinet->getId()]);
+        return $this->redirectToRoute('app_admin_cabinet_edit', ['slug' => $cabinet->getSlug()]);
     }
 
-    #[Route('/{id}/users/search', name: 'app_admin_cabinet_user_search', methods: ['GET'])]
-    public function searchUsers(Request $request, Cabinet $cabinet, CabinetUserRepository $cabinetUserRepository): JsonResponse
+    #[Route('/{slug}/users/recherche', name: 'app_admin_cabinet_user_search', methods: ['GET'])]
+    public function searchUsers(Request $request, #[MapEntity(mapping: ['slug' => 'slug'])] Cabinet $cabinet, CabinetUserRepository $cabinetUserRepository): JsonResponse
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
@@ -217,10 +218,10 @@ final class AdminCabinetController extends AbstractController
         return $this->json(['items' => $items]);
     }
 
-    #[Route('/assignment/{id}/delete', name: 'app_admin_cabinet_assignment_delete', methods: ['POST'])]
+    #[Route('/assignment/{slug}/delete', name: 'app_admin_cabinet_assignment_delete', methods: ['POST'])]
     public function deleteAssignment(
         Request $request,
-        CabinetUser $assignment,
+        #[MapEntity(mapping: ['slug' => 'slug'])] CabinetUser $assignment,
         CabinetUserRepository $cabinetUserRepository,
         EntityManagerInterface $entityManager
     ): Response
@@ -231,17 +232,17 @@ final class AdminCabinetController extends AbstractController
         $assignmentUserId = (int) ($assignment->getUser()?->getId() ?? 0);
         $currentUserId = $currentUser instanceof User ? (int) ($currentUser->getId() ?? 0) : 0;
         if ($currentUserId > 0 && $assignmentUserId > 0 && $assignmentUserId === $currentUserId) {
-            $cabinetId = $assignment->getCabinet()?->getId();
+            $cabinetSlug = $assignment->getCabinet()?->getSlug();
             $this->addFlash('danger', 'Vous ne pouvez pas vous retirer vous-même du cabinet.');
 
-            if ($cabinetId === null) {
+            if ($cabinetSlug === null) {
                 return $this->redirectToRoute('app_admin_cabinet_index');
             }
 
-            return $this->redirectToRoute('app_admin_cabinet_edit', ['id' => $cabinetId]);
+            return $this->redirectToRoute('app_admin_cabinet_edit', ['slug' => $cabinetSlug]);
         }
 
-        $cabinetId = $assignment->getCabinet()?->getId();
+        $cabinetSlug = $assignment->getCabinet()?->getSlug();
         $assignedUser = $assignment->getUser();
         $wasSecretaryAssignment = $assignment->getRoleInCabinet() === CabinetUser::ROLE_SECRETAIRE;
 
@@ -260,11 +261,11 @@ final class AdminCabinetController extends AbstractController
             $this->addFlash('danger', 'Impossible de supprimer l\'affectation (token invalide).');
         }
 
-        if ($cabinetId === null) {
+        if ($cabinetSlug === null) {
             return $this->redirectToRoute('app_admin_cabinet_index');
         }
 
-        return $this->redirectToRoute('app_admin_cabinet_edit', ['id' => $cabinetId]);
+        return $this->redirectToRoute('app_admin_cabinet_edit', ['slug' => $cabinetSlug]);
     }
 
     private function validateAssignmentRoleRules(CabinetUserRepository $cabinetUserRepository, User $user, string $requestedRole): ?string

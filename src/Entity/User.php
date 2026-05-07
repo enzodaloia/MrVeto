@@ -66,6 +66,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $img = null;
 
+    #[ORM\Column(length: 255, unique: true)]
+    private ?string $slug = null;
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $longitude = null;
 
@@ -298,6 +301,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setImg(?string $img): static
     {
         $this->img = $img;
+        return $this;
+    }
+
+    public function getSlug(): ?string { return $this->slug; }
+
+    public function setSlug(?string $slug): static
+    {
+        $this->slug = $slug;
         return $this;
     }
 

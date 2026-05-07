@@ -10,9 +10,9 @@
             <p class="text-muted mb-0">{{ cabinet.adresse ?: 'Adresse non renseignée' }}{% if cabinet.ville %}, {{ cabinet.ville }}{% endif %}</p>
         </div>
         <div class="d-flex flex-column flex-sm-row flex-wrap gap-2 w-100 w-md-auto cabinet-actions">
-            <a class="btn btn-outline-primary w-100 w-sm-auto" href="{{ path('app_admin_cabinet_edit', {'id': cabinet.id}) }}">Modifier</a>
+            <a class="btn btn-outline-primary w-100 w-sm-auto" href="{{ path('app_admin_cabinet_edit', {'slug': cabinet.slug}) }}">Modifier</a>
             <a class="btn btn-outline-secondary w-100 w-sm-auto" href="{{ path('app_admin_cabinet_index') }}">Retour</a>
-            <form class="w-100 w-sm-auto" method="post" action="{{ path('app_admin_cabinet_delete', {'id': cabinet.id}) }}" onsubmit="return confirm('Supprimer ce cabinet ?');">
+            <form class="w-100 w-sm-auto" method="post" action="{{ path('app_admin_cabinet_delete', {'slug': cabinet.slug}) }}" onsubmit="return confirm('Supprimer ce cabinet ?');">
                 <input type="hidden" name="_token" value="{{ csrf_token('delete_cabinet_' ~ cabinet.id) }}">
                 <button class="btn btn-danger w-100 w-sm-auto">Supprimer</button>
             </form>
@@ -22,13 +22,13 @@
         <div class="col-lg-5">
             <div class="card border-0 shadow-sm p-3"
                  data-controller="user-autocomplete"
-                 data-user-autocomplete-search-url-value="{{ path('app_admin_cabinet_user_search', {'id': cabinet.id}) }}">
+                 data-user-autocomplete-search-url-value="{{ path('app_admin_cabinet_user_search', {'slug': cabinet.slug}) }}">
                 <h2 class="h5 mb-2">Ajouter un membre</h2>
                 <p class="text-muted small mb-3">
                     Recherchez par email. Aucun résultat n'est affiché tant que vous ne recherchez pas.
                 </p>
 
-                <form method="post" action="{{ path('app_admin_cabinet_assign', {'id': cabinet.id}) }}">
+                <form method="post" action="{{ path('app_admin_cabinet_assign', {'slug': cabinet.slug}) }}">
                     <input type="hidden" name="_token" value="{{ csrf_token('admin_cabinet_assign_' ~ cabinet.id) }}">
                     <input type="hidden" name="user_id" data-user-autocomplete-target="userId">
 
@@ -80,7 +80,7 @@
                                 <td>{{ assignment.roleInCabinet }}</td>
                                 <td class="text-sm-end">
                                     {% if not (assignment.user and app.user and assignment.user.id == app.user.id) %}
-                                        <form method="post" action="{{ path('app_admin_cabinet_assignment_delete', {'id': assignment.id}) }}">
+                                        <form method="post" action="{{ path('app_admin_cabinet_assignment_delete', {'slug': assignment.slug}) }}">
                                             <input type="hidden" name="_token" value="{{ csrf_token('delete_assignment_' ~ assignment.id) }}">
                                             <button class="btn btn-sm btn-outline-danger w-100 w-sm-auto">Retirer</button>
                                         </form>

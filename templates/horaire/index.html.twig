@@ -21,8 +21,8 @@
                 <td>{{ horaire.startTime ? horaire.startTime|date('H:i:s') : '' }}</td>
                 <td>{{ horaire.endTime ? horaire.endTime|date('H:i:s') : '' }}</td>
                 <td>
-                    <a href="{{ path('app_horaire_show', {'id': horaire.id}) }}">show</a>
-                    <a href="{{ path('app_horaire_edit', {'id': horaire.id}) }}">edit</a>
+                    <a href="{{ path('app_horaire_show', {'slug': horaire.slug}) }}">show</a>
+                    <a href="{{ path('app_horaire_edit', {'slug': horaire.slug}) }}">edit</a>
                 </td>
             </tr>
         {% else %}

@@ -10,8 +10,8 @@
 {% block body %}
 
 <div class="container my-5" style="max-width: 900px;"
-     data-controller="profile-form"
-     data-profile-form-url-value="{{ path('app_user_front_update_user', {id: user.id}) }}">
+    data-controller="profile-form"
+    data-profile-form-url-value="{{ path('app_user_front_update_user', {slug: user.slug}) }}">
     <h1 class="text-center text-info fw-bold mb-5">Mon compte</h1>
 
     {# Profile Picture Section #}
@@ -21,8 +21,6 @@
                  <div class="rounded-circle overflow-hidden border border-2 border-white shadow-sm" style="width: 80px; height: 80px;">
                      <img src="https://ui-avatars.com/api/?name={{ user.prenom }}+{{ user.nom }}&background=random" class="w-100 h-100 object-fit-cover" alt="Avatar">
                  </div>
-                 <button class="btn btn-outline-info hover-text-primary-bg rounded-pill px-4 fw-bold">Mettre à jour</button>
-                 <button class="btn text-danger fw-bold"><i class="bi bi-trash"></i> Supprimer</button>
             </div>
         </div>
     </div>
@@ -108,7 +106,7 @@
                  <button class="btn text-info fw-bold bg-transparent border-0 px-4 py-2"><i class="bi bi-download me-2"></i> Télécharger mes données</button>
             </div>
             <div class="text-center py-3">
-                <form method="post" action="{{ path('app_user_front_delete', {'id': user.id}) }}" id="deleteAccountForm" style="display: inline;">
+                <form method="post" action="{{ path('app_user_front_delete', {'slug': user.slug}) }}" id="deleteAccountForm" style="display: inline;">
                     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
                     <button type="button" class="btn text-danger fw-bold bg-transparent border-0 px-4 py-2" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
                         <i class="bi bi-trash me-2"></i> Supprimer mon compte

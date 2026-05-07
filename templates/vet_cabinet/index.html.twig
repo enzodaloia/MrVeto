@@ -52,7 +52,7 @@
                 <h2 class="h5 mb-3">Mes cabinets</h2>
                 <div class="d-flex flex-column gap-2">
                     {% for managed in cabinets %}
-                        <a href="{{ path('app_vet_cabinet_index', {'cabinet': managed.id}) }}"
+                        <a href="{{ path('app_vet_cabinet_index', {'cabinet': managed.slug}) }}"
                            class="text-decoration-none border rounded p-2 {% if selected_cabinet and selected_cabinet.id == managed.id %}bg-primary-bg border-primary{% endif %}">
                             <div class="fw-semibold text-dark">{{ managed.nom }}</div>
                             <small class="text-muted">{{ managed.ville ?: 'Ville non renseignée' }}</small>
@@ -75,7 +75,7 @@
                         {% if selected_cabinet.ville %} - {{ selected_cabinet.ville }}{% endif %}
                     </p>
                 </div>
-                <a class="btn btn-outline-primary" href="{{ path('app_vet_cabinet_edit', {'id': selected_cabinet.id}) }}">
+                <a class="btn btn-outline-primary" href="{{ path('app_vet_cabinet_edit', {'slug': selected_cabinet.slug}) }}">
                     Gérer ce cabinet (infos + membres)
                 </a>
             </div>

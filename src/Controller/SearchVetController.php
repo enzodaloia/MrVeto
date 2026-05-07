@@ -15,7 +15,7 @@ use Knp\Component\Pager\PaginatorInterface;
 
 final class SearchVetController extends AbstractController
 {
-    #[Route('/front/search', name: 'app_search_vet')]
+    #[Route('/recherche', name: 'app_search_vet')]
     public function index(Request $request, UserRepository $userRepository, DayOfWorkRepository $dayOfWorkRepository,EntityManagerInterface $em, PaginatorInterface $paginator): Response
     {
         $page = $request->query->getInt('page', 1);

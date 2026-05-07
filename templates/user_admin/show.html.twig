@@ -42,7 +42,7 @@
                             {{ user.prenom }} {{ user.nom }}
                         </div>
 
-                        <a href="{{ path('app_user_admin_edit', {'id': user.id}) }}"
+                        <a href="{{ path('app_user_admin_edit', {'slug': user.slug}) }}"
            class="btn btn-danger d-flex align-items-center gap-2 px-4">
             <i class="bi bi-pencil"></i>
             Modifier

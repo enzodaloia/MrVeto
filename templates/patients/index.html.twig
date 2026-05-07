@@ -69,7 +69,7 @@
             <div class="row g-3">
                 {% for animal in animals %}
                     <div class="col-12 col-sm-6 col-xl-4">
-                        <a href="{{ path('app_vet_patients_show', {'id': animal.id}) }}" class="text-decoration-none">
+                        <a href="{{ path('app_vet_patients_show', {'slug': animal.slug}) }}" class="text-decoration-none">
                             <div class="card border-0 shadow-sm h-100 hover-shadow transition-all" style="transition: box-shadow .15s ease;">
                                 <div class="card-body p-4">
                                     <div class="d-flex align-items-center gap-3 mb-3">

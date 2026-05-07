@@ -43,8 +43,8 @@
                 <td>{{ user.siret }}</td>
                 <td>{{ user.adressecabinet }}</td>
                 <td>
-                    <a href="{{ path('app_user_front_show', {'id': user.id}) }}">show</a>
-                    <a href="{{ path('app_user_front_edit', {'id': user.id}) }}">edit</a>
+                    <a href="{{ path('app_user_front_show', {'slug': user.slug}) }}">show</a>
+                    <a href="{{ path('app_user_front_edit', {'slug': user.slug}) }}">edit</a>
                 </td>
             </tr>
         {% else %}

@@ -6,7 +6,7 @@
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0">Modifier le cabinet</h1>
-        <a class="btn btn-outline-secondary" href="{{ path('app_vet_cabinet_index', {'cabinet': cabinet.id}) }}">Retour</a>
+        <a class="btn btn-outline-secondary" href="{{ path('app_vet_cabinet_index', {'cabinet': cabinet.slug}) }}">Retour</a>
     </div>
 
     <div class="row g-4">
@@ -49,13 +49,13 @@
 
               <div class="card border-0 shadow-sm rounded-4 p-3"
                   data-controller="user-autocomplete"
-                  data-user-autocomplete-search-url-value="{{ path('app_vet_cabinet_user_search', {'id': cabinet.id}) }}">
+                  data-user-autocomplete-search-url-value="{{ path('app_vet_cabinet_user_search', {'slug': cabinet.slug}) }}">
                 <h2 class="h5 mb-2">Ajouter un membre</h2>
                 <p class="text-muted small mb-3">
                     Recherchez par email. Aucun résultat n'est affiché tant que vous ne recherchez pas.
                 </p>
 
-                <form method="post" action="{{ path('app_vet_cabinet_assign', {'id': cabinet.id}) }}" id="assign-user-form">
+                <form method="post" action="{{ path('app_vet_cabinet_assign', {'slug': cabinet.slug}) }}" id="assign-user-form">
                     <input type="hidden" name="_token" value="{{ csrf_token('vet_cabinet_assign_' ~ cabinet.id) }}">
                     <input type="hidden" name="user_id" data-user-autocomplete-target="userId">
 
@@ -119,7 +119,7 @@
                                 <td>{{ assignment.roleInCabinet }}</td>
                                 <td class="text-end">
                                     {% if not (assignment.user and app.user and assignment.user.id == app.user.id) %}
-                                        <form method="post" action="{{ path('app_vet_cabinet_assignment_delete', {'id': assignment.id}) }}">
+                                        <form method="post" action="{{ path('app_vet_cabinet_assignment_delete', {'slug': assignment.slug}) }}">
                                             <input type="hidden" name="_token" value="{{ csrf_token('delete_assignment_' ~ assignment.id) }}">
                                             <button class="btn btn-sm btn-outline-danger">Retirer</button>
                                         </form>

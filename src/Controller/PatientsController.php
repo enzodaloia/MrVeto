@@ -9,12 +9,13 @@ use App\Repository\AnimalRepository;
 use App\Repository\RendezVousRepository;
 use App\Repository\TraitementRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/vet/patients')]
+#[Route('/veterinaire/patients')]
 final class PatientsController extends AbstractController
 {
     #[Route('', name: 'app_vet_patients', methods: ['GET'])]
@@ -33,9 +34,9 @@ final class PatientsController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_vet_patients_show', methods: ['GET'], requirements: ['id' => '\d+'])]
+    #[Route('/{slug}', name: 'app_vet_patients_show', methods: ['GET'])]
     public function show(
-        Animal $animal,
+        #[MapEntity(mapping: ['slug' => 'slug'])] Animal $animal,
         RendezVousRepository $rendezVousRepository,
         TraitementRepository $traitementRepository,
     ): Response {
@@ -61,9 +62,9 @@ final class PatientsController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/update', name: 'app_vet_patients_update_animal', methods: ['POST'], requirements: ['id' => '\d+'])]
+    #[Route('/{slug}/update', name: 'app_vet_patients_update_animal', methods: ['POST'])]
     public function updateAnimal(
-        Animal $animal,
+        #[MapEntity(mapping: ['slug' => 'slug'])] Animal $animal,
         Request $request,
         EntityManagerInterface $entityManager,
         RendezVousRepository $rendezVousRepository,
@@ -79,7 +80,7 @@ final class PatientsController extends AbstractController
 
         if (!$this->isCsrfTokenValid('update_animal_' . $animal->getId(), (string) $request->request->get('_token'))) {
             $this->addFlash('danger', 'Token CSRF invalide.');
-            return $this->redirectToRoute('app_vet_patients_show', ['id' => $animal->getId()]);
+            return $this->redirectToRoute('app_vet_patients_show', ['slug' => $animal->getSlug()]);
         }
 
         $poids = trim((string) $request->request->get('poids', ''));
@@ -116,12 +117,12 @@ final class PatientsController extends AbstractController
         $entityManager->flush();
         $this->addFlash('success', 'Fiche animal mise à jour.');
 
-        return $this->redirectToRoute('app_vet_patients_show', ['id' => $animal->getId()]);
+        return $this->redirectToRoute('app_vet_patients_show', ['slug' => $animal->getSlug()]);
     }
 
-    #[Route('/rdv/{rdvId}/remarque', name: 'app_vet_patients_update_remarque', methods: ['POST'], requirements: ['rdvId' => '\d+'])]
+    #[Route('/rdv/{slug}/remarque', name: 'app_vet_patients_update_remarque', methods: ['POST'])]
     public function updateRemarque(
-        int $rdvId,
+        string $slug,
         Request $request,
         RendezVousRepository $rendezVousRepository,
         EntityManagerInterface $entityManager,
@@ -131,7 +132,7 @@ final class PatientsController extends AbstractController
         /** @var User $vet */
         $vet = $this->getUser();
 
-        $rdv = $rendezVousRepository->find($rdvId);
+        $rdv = $rendezVousRepository->findOneBy(['slug' => $slug]);
         if (!$rdv) {
             throw $this->createNotFoundException();
         }
@@ -140,9 +141,9 @@ final class PatientsController extends AbstractController
             throw $this->createAccessDeniedException('Vous ne pouvez modifier que vos propres rendez-vous.');
         }
 
-        if (!$this->isCsrfTokenValid('remarque_' . $rdvId, (string) $request->request->get('_token'))) {
+        if (!$this->isCsrfTokenValid('remarque_' . $rdv->getId(), (string) $request->request->get('_token'))) {
             $this->addFlash('danger', 'Token CSRF invalide.');
-            return $this->redirectToRoute('app_vet_patients_show', ['id' => $rdv->getAnimal()?->getId()]);
+            return $this->redirectToRoute('app_vet_patients_show', ['slug' => $rdv->getAnimal()?->getSlug()]);
         }
 
         $remarque = trim((string) $request->request->get('remarque', ''));
@@ -150,12 +151,12 @@ final class PatientsController extends AbstractController
         $entityManager->flush();
 
         $this->addFlash('success', 'Compte-rendu mis à jour.');
-        return $this->redirectToRoute('app_vet_patients_show', ['id' => $rdv->getAnimal()?->getId()]);
+        return $this->redirectToRoute('app_vet_patients_show', ['slug' => $rdv->getAnimal()?->getSlug()]);
     }
 
-    #[Route('/{id}/traitement/new', name: 'app_vet_patients_traitement_new', methods: ['POST'], requirements: ['id' => '\d+'])]
+    #[Route('/{slug}/traitement/new', name: 'app_vet_patients_traitement_new', methods: ['POST'])]
     public function addTraitement(
-        Animal $animal,
+        #[MapEntity(mapping: ['slug' => 'slug'])] Animal $animal,
         Request $request,
         EntityManagerInterface $entityManager,
         RendezVousRepository $rendezVousRepository,
@@ -171,7 +172,7 @@ final class PatientsController extends AbstractController
 
         if (!$this->isCsrfTokenValid('traitement_new_' . $animal->getId(), (string) $request->request->get('_token'))) {
             $this->addFlash('danger', 'Token CSRF invalide.');
-            return $this->redirectToRoute('app_vet_patients_show', ['id' => $animal->getId()]);
+            return $this->redirectToRoute('app_vet_patients_show', ['slug' => $animal->getSlug()]);
         }
 
         $libelle = trim((string) $request->request->get('libelle', ''));
@@ -181,14 +182,14 @@ final class PatientsController extends AbstractController
 
         if ($libelle === '' || $dateDebutStr === '') {
             $this->addFlash('danger', 'Le libellé et la date de début sont obligatoires.');
-            return $this->redirectToRoute('app_vet_patients_show', ['id' => $animal->getId()]);
+            return $this->redirectToRoute('app_vet_patients_show', ['slug' => $animal->getSlug()]);
         }
 
         try {
             $dateDebut = new \DateTime($dateDebutStr);
         } catch (\Exception) {
             $this->addFlash('danger', 'Date de début invalide.');
-            return $this->redirectToRoute('app_vet_patients_show', ['id' => $animal->getId()]);
+            return $this->redirectToRoute('app_vet_patients_show', ['slug' => $animal->getSlug()]);
         }
 
         $traitement = new Traitement();
@@ -209,12 +210,12 @@ final class PatientsController extends AbstractController
         $entityManager->flush();
 
         $this->addFlash('success', 'Traitement ajouté.');
-        return $this->redirectToRoute('app_vet_patients_show', ['id' => $animal->getId()]);
+        return $this->redirectToRoute('app_vet_patients_show', ['slug' => $animal->getSlug()]);
     }
 
-    #[Route('/traitement/{traitementId}/delete', name: 'app_vet_patients_traitement_delete', methods: ['POST'], requirements: ['traitementId' => '\d+'])]
+    #[Route('/traitement/{slug}/delete', name: 'app_vet_patients_traitement_delete', methods: ['POST'])]
     public function deleteTraitement(
-        int $traitementId,
+        string $slug,
         Request $request,
         TraitementRepository $traitementRepository,
         EntityManagerInterface $entityManager,
@@ -224,7 +225,7 @@ final class PatientsController extends AbstractController
         /** @var User $vet */
         $vet = $this->getUser();
 
-        $traitement = $traitementRepository->find($traitementId);
+        $traitement = $traitementRepository->findOneBy(['slug' => $slug]);
         if (!$traitement) {
             throw $this->createNotFoundException();
         }
@@ -233,16 +234,16 @@ final class PatientsController extends AbstractController
             throw $this->createAccessDeniedException('Vous ne pouvez supprimer que vos propres traitements.');
         }
 
-        if (!$this->isCsrfTokenValid('delete_traitement_' . $traitementId, (string) $request->request->get('_token'))) {
+        if (!$this->isCsrfTokenValid('delete_traitement_' . $traitement->getId(), (string) $request->request->get('_token'))) {
             $this->addFlash('danger', 'Token CSRF invalide.');
-            return $this->redirectToRoute('app_vet_patients_show', ['id' => $traitement->getAnimal()?->getId()]);
+            return $this->redirectToRoute('app_vet_patients_show', ['slug' => $traitement->getAnimal()?->getSlug()]);
         }
 
-        $animalId = $traitement->getAnimal()?->getId();
+        $animalSlug = $traitement->getAnimal()?->getSlug();
         $entityManager->remove($traitement);
         $entityManager->flush();
 
         $this->addFlash('success', 'Traitement supprimé.');
-        return $this->redirectToRoute('app_vet_patients_show', ['id' => $animalId]);
+        return $this->redirectToRoute('app_vet_patients_show', ['slug' => $animalSlug]);
     }
 }

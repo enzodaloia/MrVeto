@@ -49,7 +49,7 @@
                 <p class="fw-bold mb-2">Date et heure</p>
                 <p class="text-neutral-60 mb-0">{{ dateDisplay|default('Non sélectionné') }}</p>
             </div>
-            <a href="{{ path('app_vet_book', {id: vet.id, date: selectedDate, slot: selectedSlot}) }}" class="btn btn-outline-secondary text-neutral-80 border-neutral-30 rounded-pill px-4 py-2">Modifier</a>
+            <a href="{{ path('app_vet_book_day', {slug: vet.slug, date: selectedDate}) }}" class="btn btn-outline-secondary text-neutral-80 border-neutral-30 rounded-pill px-4 py-2">Modifier</a>
         </div>
 
         <!-- Animal -->
@@ -58,7 +58,7 @@
                 <p class="fw-bold mb-2">Animal</p>
                 <p class="text-neutral-60 mb-0">{{ animalName }}</p>
             </div>
-            <a href="{{ path('app_vet_book', {id: vet.id, date: selectedDate, slot: selectedSlot}) }}" class="btn btn-outline-secondary text-neutral-80 border-neutral-30 rounded-pill px-4 py-2">Modifier</a>
+            <a href="{{ path('app_vet_book_day', {slug: vet.slug, date: selectedDate}) }}" class="btn btn-outline-secondary text-neutral-80 border-neutral-30 rounded-pill px-4 py-2">Modifier</a>
         </div>
 
         <!-- Cabinet -->
@@ -67,7 +67,7 @@
                 <p class="fw-bold mb-2">Cabinet</p>
                 <p class="text-info-main mb-0">{{ vet.adressecabinet|default('123 Rue de la Santé, 75000 ville') }}</p>
             </div>
-            <a href="{{ path('app_vet_info', {id: vet.id}) }}" class="btn btn-outline-secondary text-neutral-80 border-neutral-30 rounded-pill px-4 py-2">Modifier</a>
+            <a href="{{ path('app_vet_info', {slug: vet.slug}) }}" class="btn btn-outline-secondary text-neutral-80 border-neutral-30 rounded-pill px-4 py-2">Modifier</a>
         </div>
 
         {% if rdvMotif %}
@@ -93,10 +93,10 @@
 
     <!-- ACTION BUTTONS -->
     <div class="d-flex justify-content-center gap-4 mt-5 mb-5">
-        <a href="{{ path('app_vet_book', {id: vet.id}) }}" class="btn bg-danger text-white rounded-pill px-5 py-3 fw-medium shadow-sm fs-6" style="border: none;">
+        <a href="{{ path('app_vet_book', {slug: vet.slug}) }}" class="btn bg-danger text-white rounded-pill px-5 py-3 fw-medium shadow-sm fs-6" style="border: none;">
             Annuler
         </a>
-        <form id="confirmSaveForm" data-action="{{ path('app_vet_book_save', {id: vet.id}) }}">
+        <form id="confirmSaveForm" data-action="{{ path('app_vet_book_save', {slug: vet.slug}) }}">
             <input type="hidden" name="selectedDate" value="{{ selectedDate }}">
             <input type="hidden" name="selectedSlot" value="{{ selectedSlot }}">
             <input type="hidden" name="animalId" value="{{ animalId }}">

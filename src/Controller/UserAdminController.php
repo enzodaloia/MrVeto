@@ -7,6 +7,7 @@ use App\Form\UserAdminType;
 use App\Repository\UserRepository;
 use App\Service\SiretVerificationService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -102,10 +103,10 @@ final class UserAdminController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_user_admin_edit', methods: ['GET', 'POST'])]
+    #[Route('/{slug}/edit', name: 'app_user_admin_edit', methods: ['GET', 'POST'])]
     public function edit(
         Request $request,
-        User $user,
+        #[MapEntity(mapping: ['slug' => 'slug'])] User $user,
         EntityManagerInterface $entityManager,
         SiretVerificationService $siretVerificationService
     ): Response {
@@ -131,9 +132,9 @@ final class UserAdminController extends AbstractController
     /**
      * Active ou désactive la validation admin d'un compte vétérinaire.
      */
-    #[Route('/{id}/admin-validation/{value}', name: 'app_user_admin_verify', methods: ['POST'])]
+    #[Route('/{slug}/admin-validation/{value}', name: 'app_user_admin_verify', methods: ['POST'])]
     public function verify(
-        User $user,
+        #[MapEntity(mapping: ['slug' => 'slug'])] User $user,
         int $value,
         Request $request,
         EntityManagerInterface $entityManager
@@ -154,8 +155,12 @@ final class UserAdminController extends AbstractController
     }
 
 
-    #[Route('/{id}', name: 'app_user_admin_show', methods: ['GET'])]
-    public function show(Request $request, User $user, SiretVerificationService $siretVerificationService): Response
+    #[Route('/{slug}', name: 'app_user_admin_show', methods: ['GET'])]
+    public function show(
+        Request $request,
+        #[MapEntity(mapping: ['slug' => 'slug'])] User $user,
+        SiretVerificationService $siretVerificationService
+    ): Response
     {
         $siretVerification = $this->buildSiretVerification($user, $siretVerificationService);
 
@@ -172,10 +177,10 @@ final class UserAdminController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_user_admin_delete', methods: ['POST'])]
+    #[Route('/{slug}', name: 'app_user_admin_delete', methods: ['POST'])]
     public function delete(
         Request $request,
-        User $user,
+        #[MapEntity(mapping: ['slug' => 'slug'])] User $user,
         EntityManagerInterface $entityManager
     ): Response {
         if ($this->isCsrfTokenValid('delete' . $user->getId(), $request->request->get('_token'))) {
