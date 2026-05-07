@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Animal;
+use App\Entity\CabinetUser;
 use App\Entity\RendezVous;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -70,6 +71,23 @@ class RendezVousRepository extends ServiceEntityRepository
             ->andWhere('r.animal = :animal')
             ->setParameter('vet', $vet)
             ->setParameter('animal', $animal)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count > 0;
+    }
+
+    public function secretaryHasAccessToAnimal(User $secretary, Animal $animal): bool
+    {
+        $count = (int) $this->createQueryBuilder('r')
+            ->select('COUNT(r.id)')
+            ->innerJoin(CabinetUser::class, 'cuVet', 'WITH', 'cuVet.user = r.veterinaire AND cuVet.roleInCabinet = :vetRole')
+            ->innerJoin(CabinetUser::class, 'cuSec', 'WITH', 'cuSec.cabinet = cuVet.cabinet AND cuSec.user = :secretary AND cuSec.roleInCabinet = :secRole')
+            ->andWhere('r.animal = :animal')
+            ->setParameter('secretary', $secretary)
+            ->setParameter('animal', $animal)
+            ->setParameter('vetRole', CabinetUser::ROLE_VETERINAIRE)
+            ->setParameter('secRole', CabinetUser::ROLE_SECRETAIRE)
             ->getQuery()
             ->getSingleScalarResult();
 

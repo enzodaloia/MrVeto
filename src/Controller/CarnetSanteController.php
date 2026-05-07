@@ -26,6 +26,10 @@ final class CarnetSanteController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
+        if ($this->isGranted('ROLE_SECRETARY')) {
+            return $this->redirectToRoute('app_home');
+        }
+
         $animals = $animalRepository->createQueryBuilder('a')
             ->andWhere('a.proprietaire = :owner')
             ->setParameter('owner', $user)
@@ -96,6 +100,10 @@ final class CarnetSanteController extends AbstractController
         $user = $this->getUser();
         if (!$user instanceof User) {
             return $this->redirectToRoute('app_login');
+        }
+
+        if ($this->isGranted('ROLE_SECRETARY')) {
+            return $this->redirectToRoute('app_home');
         }
 
         $animal = new Animal();
