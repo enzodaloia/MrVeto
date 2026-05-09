@@ -76,13 +76,13 @@
                                 {% if rdv.statut != 'confirme' %}
                                     <button class="btn btn-success rounded-pill px-4 fw-medium border-0"
                                             data-action="click->rendezvous#confirmRdv"
-                                            data-id="{{ rdv.id }}">
+                                            data-slug="{{ rdv.slug }}">
                                         Confirmer
                                     </button>
                                 {% endif %}
                                 <button class="btn btn-outline-secondary rounded-pill px-4 fw-medium border-light-subtle"
                                         data-action="click->rendezvous#openEditModal"
-                                        data-id="{{ rdv.id }}"
+                                        data-slug="{{ rdv.slug }}"
                                         data-vet="{{ rdv.client.prenom|default('Client') }} {{ rdv.client.nom|default('') }}"
                                         data-subtitle="Client"
                                         data-motif="{{ rdv.motif|default('Consultation') }}"
@@ -93,7 +93,7 @@
                                 </button>
                                 <button class="btn bg-danger-hover text-white rounded-pill px-4 fw-medium border-0 hover-bg-danger hover-text-white"
                                         data-action="click->rendezvous#openCancelModal"
-                                        data-id="{{ rdv.id }}"
+                                        data-slug="{{ rdv.slug }}"
                                         data-date="{{ rdv.dateHeure|date('Y-m-d') }}"
                                         data-time="{{ rdv.dateHeure|date('H:i') }}">
                                     Annuler

@@ -39,6 +39,9 @@ class Animal
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $poids = null;
 
+    #[ORM\Column(length: 255, unique: true)]
+    private ?string $slug = null;
+
     public function getId(): ?int { return $this->id; }
 
     public function getProprietaire(): ?User { return $this->proprietaire; }
@@ -99,6 +102,13 @@ class Animal
     public function setPoids(?string $poids): static
     {
         $this->poids = $poids;
+        return $this;
+    }
+
+    public function getSlug(): ?string { return $this->slug; }
+    public function setSlug(?string $slug): static
+    {
+        $this->slug = $slug;
         return $this;
     }
 }

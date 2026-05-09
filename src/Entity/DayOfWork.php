@@ -38,6 +38,9 @@ class DayOfWork
     #[ORM\OneToMany(mappedBy: 'dayOfWork', targetEntity: Horaire::class, orphanRemoval: true)]
     private Collection $horaires;
 
+    #[ORM\Column(length: 255, unique: true)]
+    private ?string $slug = null;
+
     public function __construct()
     {
         $this->horaires = new ArrayCollection();
@@ -106,6 +109,18 @@ class DayOfWork
                 $horaire->setDayOfWork(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(?string $slug): static
+    {
+        $this->slug = $slug;
 
         return $this;
     }

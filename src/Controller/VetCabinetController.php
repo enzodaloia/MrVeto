@@ -8,13 +8,14 @@ use App\Entity\User;
 use App\Form\CabinetType;
 use App\Repository\CabinetUserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/vet/cabinet')]
+#[Route('/veterinaire/cabinet')]
 final class VetCabinetController extends AbstractController
 {
     #[Route(name: 'app_vet_cabinet_index', methods: ['GET'])]
@@ -28,7 +29,7 @@ final class VetCabinetController extends AbstractController
         }
 
         $managedCabinets = $cabinetUserRepository->findManagedCabinets($currentUser);
-        $selectedCabinet = $this->resolveSelectedCabinet($managedCabinets, $request->query->getInt('cabinet'));
+        $selectedCabinet = $this->resolveSelectedCabinet($managedCabinets, (string) $request->query->get('cabinet', ''));
 
         $cabinetForm = $this->createForm(CabinetType::class, new Cabinet(), [
             'action' => $this->generateUrl('app_vet_cabinet_create'),
@@ -43,8 +44,8 @@ final class VetCabinetController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/users/search', name: 'app_vet_cabinet_user_search', methods: ['GET'])]
-    public function searchUsers(Request $request, Cabinet $cabinet, CabinetUserRepository $cabinetUserRepository): JsonResponse
+    #[Route('/{slug}/users/recherche', name: 'app_vet_cabinet_user_search', methods: ['GET'])]
+    public function searchUsers(Request $request, #[MapEntity(mapping: ['slug' => 'slug'])] Cabinet $cabinet, CabinetUserRepository $cabinetUserRepository): JsonResponse
     {
         $this->denyAccessUnlessGranted('ROLE_VETO');
 
@@ -88,8 +89,8 @@ final class VetCabinetController extends AbstractController
         return $this->json(['items' => $items]);
     }
 
-    #[Route('/{id}/edit', name: 'app_vet_cabinet_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Cabinet $cabinet, CabinetUserRepository $cabinetUserRepository, EntityManagerInterface $entityManager): Response
+    #[Route('/{slug}/edit', name: 'app_vet_cabinet_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, #[MapEntity(mapping: ['slug' => 'slug'])] Cabinet $cabinet, CabinetUserRepository $cabinetUserRepository, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted('ROLE_VETO');
 
@@ -103,14 +104,14 @@ final class VetCabinetController extends AbstractController
         }
 
         $form = $this->createForm(CabinetType::class, $cabinet, [
-            'action' => $this->generateUrl('app_vet_cabinet_edit', ['id' => $cabinet->getId()]),
+            'action' => $this->generateUrl('app_vet_cabinet_edit', ['slug' => $cabinet->getSlug()]),
         ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
             $this->addFlash('success', 'Cabinet mis à jour.');
-            return $this->redirectToRoute('app_vet_cabinet_index', ['cabinet' => $cabinet->getId()]);
+            return $this->redirectToRoute('app_vet_cabinet_index', ['cabinet' => $cabinet->getSlug()]);
         }
 
         if ($form->isSubmitted()) {
@@ -172,10 +173,10 @@ final class VetCabinetController extends AbstractController
         return $this->redirectToRoute('app_vet_cabinet_index');
     }
 
-    #[Route('/{id}/assign', name: 'app_vet_cabinet_assign', methods: ['POST'])]
+    #[Route('/{slug}/assign', name: 'app_vet_cabinet_assign', methods: ['POST'])]
     public function assign(
         Request $request,
-        Cabinet $cabinet,
+        #[MapEntity(mapping: ['slug' => 'slug'])] Cabinet $cabinet,
         CabinetUserRepository $cabinetUserRepository,
         EntityManagerInterface $entityManager
     ): Response {
@@ -193,7 +194,7 @@ final class VetCabinetController extends AbstractController
         $csrfToken = (string) $request->request->get('_token', '');
         if (!$this->isCsrfTokenValid('vet_cabinet_assign_' . $cabinet->getId(), $csrfToken)) {
             $this->addFlash('danger', 'Le token CSRF est invalide.');
-            return $this->redirectToRoute('app_vet_cabinet_edit', ['id' => $cabinet->getId()]);
+            return $this->redirectToRoute('app_vet_cabinet_edit', ['slug' => $cabinet->getSlug()]);
         }
 
         $userId = (int) $request->request->get('user_id', 0);
@@ -202,18 +203,18 @@ final class VetCabinetController extends AbstractController
         $userToAssign = $entityManager->getRepository(User::class)->find($userId);
         if (!$userToAssign instanceof User) {
             $this->addFlash('danger', 'Utilisateur introuvable.');
-            return $this->redirectToRoute('app_vet_cabinet_edit', ['id' => $cabinet->getId()]);
+            return $this->redirectToRoute('app_vet_cabinet_edit', ['slug' => $cabinet->getSlug()]);
         }
 
         $roleValidationError = $this->validateAssignmentRoleRules($cabinetUserRepository, $userToAssign, $requestedRole);
         if ($roleValidationError !== null) {
             $this->addFlash('danger', $roleValidationError);
-            return $this->redirectToRoute('app_vet_cabinet_edit', ['id' => $cabinet->getId()]);
+            return $this->redirectToRoute('app_vet_cabinet_edit', ['slug' => $cabinet->getSlug()]);
         }
 
         if ($cabinetUserRepository->findOneByCabinetAndUser($cabinet, $userToAssign)) {
             $this->addFlash('danger', 'Cet utilisateur est déjà affecté au cabinet.');
-            return $this->redirectToRoute('app_vet_cabinet_edit', ['id' => $cabinet->getId()]);
+            return $this->redirectToRoute('app_vet_cabinet_edit', ['slug' => $cabinet->getSlug()]);
         }
 
         $assignment = (new CabinetUser())
@@ -227,11 +228,11 @@ final class VetCabinetController extends AbstractController
         $entityManager->flush();
         $this->addFlash('success', 'Utilisateur affecté au cabinet.');
 
-        return $this->redirectToRoute('app_vet_cabinet_edit', ['id' => $cabinet->getId()]);
+        return $this->redirectToRoute('app_vet_cabinet_edit', ['slug' => $cabinet->getSlug()]);
     }
 
-    #[Route('/assignment/{id}/delete', name: 'app_vet_cabinet_assignment_delete', methods: ['POST'])]
-    public function deleteAssignment(Request $request, CabinetUser $assignment, CabinetUserRepository $cabinetUserRepository, EntityManagerInterface $entityManager): Response
+    #[Route('/assignment/{slug}/delete', name: 'app_vet_cabinet_assignment_delete', methods: ['POST'])]
+    public function deleteAssignment(Request $request, #[MapEntity(mapping: ['slug' => 'slug'])] CabinetUser $assignment, CabinetUserRepository $cabinetUserRepository, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted('ROLE_VETO');
 
@@ -249,7 +250,7 @@ final class VetCabinetController extends AbstractController
         $currentUserId = (int) ($currentUser->getId() ?? 0);
         if ($assignmentUserId > 0 && $assignmentUserId === $currentUserId) {
             $this->addFlash('danger', 'Vous ne pouvez pas vous retirer vous-même du cabinet.');
-            return $this->redirectToRoute('app_vet_cabinet_edit', ['id' => $cabinet->getId()]);
+            return $this->redirectToRoute('app_vet_cabinet_edit', ['slug' => $cabinet->getSlug()]);
         }
 
         $assignedUser = $assignment->getUser();
@@ -270,7 +271,7 @@ final class VetCabinetController extends AbstractController
             $this->addFlash('danger', 'Impossible de supprimer l\'affectation (token invalide).');
         }
 
-        return $this->redirectToRoute('app_vet_cabinet_edit', ['id' => $cabinet->getId()]);
+        return $this->redirectToRoute('app_vet_cabinet_edit', ['slug' => $cabinet->getSlug()]);
     }
 
     private function canManageCabinet(CabinetUserRepository $cabinetUserRepository, Cabinet $cabinet, User $currentUser): bool
@@ -280,15 +281,15 @@ final class VetCabinetController extends AbstractController
         return $managerAssignment !== null && $managerAssignment->getRoleInCabinet() === CabinetUser::ROLE_VETERINAIRE;
     }
 
-    private function resolveSelectedCabinet(array $managedCabinets, int $requestedCabinetId): ?Cabinet
+    private function resolveSelectedCabinet(array $managedCabinets, string $requestedCabinetSlug): ?Cabinet
     {
         if ($managedCabinets === []) {
             return null;
         }
 
-        if ($requestedCabinetId > 0) {
+        if ($requestedCabinetSlug !== '') {
             foreach ($managedCabinets as $managedCabinet) {
-                if ($managedCabinet instanceof Cabinet && $managedCabinet->getId() === $requestedCabinetId) {
+                if ($managedCabinet instanceof Cabinet && $managedCabinet->getSlug() === $requestedCabinetSlug) {
                     return $managedCabinet;
                 }
             }

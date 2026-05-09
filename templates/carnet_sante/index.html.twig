@@ -39,7 +39,7 @@
                     {% for animal in animals %}
                         {% set isActive = selectedAnimal and selectedAnimal.id == animal.id %}
                         <a
-                            href="{{ path('app_carnet_sante', {'animal': animal.id}) }}"
+                            href="{{ animal.slug ? path('app_carnet_sante_animal', {slug: animal.slug}) : path('app_carnet_sante') }}"
                             class="btn btn-sm rounded-pill px-3 py-2 d-inline-flex align-items-center gap-2 {{ isActive ? 'btn-light border border-primary-subtle text-neutral-100 fw-semibold' : 'btn-white border text-muted' }}"
                         >
                             {% if isActive %}
@@ -332,7 +332,7 @@
                             <h3 class="h5 fw-bold mb-4 text-info-pressed">Compléter la fiche animal</h3>
 
                             <form method="POST" action="{{ path('app_carnet_sante_save_animal') }}">
-                                <input type="hidden" name="_selectedAnimal" value="{{ selectedAnimal ? selectedAnimal.id : 0 }}">
+                                <input type="hidden" name="_returnSlug" value="{{ selectedAnimal and selectedAnimal.slug ? selectedAnimal.slug : '' }}">
 
                                 <div class="row g-4 mb-4">
                                     <div class="col-md-6">

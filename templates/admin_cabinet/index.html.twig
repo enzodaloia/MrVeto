@@ -36,8 +36,8 @@
                         <td class="d-none d-lg-table-cell">{{ cabinet.createdAt ? cabinet.createdAt|date('d/m/Y H:i') : '—' }}</td>
                         <td class="text-md-end">
                             <div class="d-flex flex-column flex-sm-row justify-content-md-end gap-2">
-                                <a class="btn btn-sm btn-outline-secondary w-100 w-sm-auto" href="{{ path('app_admin_cabinet_show', {'id': cabinet.id}) }}">Voir</a>
-                                <a class="btn btn-sm btn-outline-primary w-100 w-sm-auto" href="{{ path('app_admin_cabinet_edit', {'id': cabinet.id}) }}">Modifier</a>
+                                <a class="btn btn-sm btn-outline-secondary w-100 w-sm-auto" href="{{ path('app_admin_cabinet_show', {'slug': cabinet.slug}) }}">Voir</a>
+                                <a class="btn btn-sm btn-outline-primary w-100 w-sm-auto" href="{{ path('app_admin_cabinet_edit', {'slug': cabinet.slug}) }}">Modifier</a>
                             </div>
                         </td>
                     </tr>

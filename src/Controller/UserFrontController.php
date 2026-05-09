@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Form\UserType;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/user/front')]
+#[Route('/user')]
 final class UserFrontController extends AbstractController
 {
     #[Route(name: 'app_user_front_index', methods: ['GET'])]
@@ -44,12 +45,12 @@ final class UserFrontController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_user_front_show', methods: ['GET'])]
-    public function show(User $user): Response
+    #[Route('/{slug}', name: 'app_user_front_show', methods: ['GET'])]
+    public function show(#[MapEntity(mapping: ['slug' => 'slug'])] User $user): Response
     {
         // Rediriger vers le profil vétérinaire si l'utilisateur a le rôle ROLE_VETO
         if (in_array('ROLE_VETO', $user->getRoles())) {
-            return $this->redirectToRoute('app_user_front_show_vet', ['id' => $user->getId()]);
+            return $this->redirectToRoute('app_user_front_show_vet', ['slug' => $user->getSlug()]);
         }
         
         return $this->render('user_front/show.html.twig', [
@@ -57,12 +58,12 @@ final class UserFrontController extends AbstractController
         ]);
     }
 
-    #[Route('/veterinaire/{id}', name: 'app_user_front_show_vet', methods: ['GET'])]
-    public function showVet(User $user): Response
+    #[Route('/veterinaire/{slug}', name: 'app_user_front_show_vet', methods: ['GET'])]
+    public function showVet(#[MapEntity(mapping: ['slug' => 'slug'])] User $user): Response
     {
         // Vérifier que l'utilisateur est bien un vétérinaire
         if (!in_array('ROLE_VETO', $user->getRoles())) {
-            return $this->redirectToRoute('app_user_front_show', ['id' => $user->getId()]);
+            return $this->redirectToRoute('app_user_front_show', ['slug' => $user->getSlug()]);
         }
         
         return $this->render('user_front/show_vet.html.twig', [
@@ -70,8 +71,8 @@ final class UserFrontController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/update_vet', name: 'app_user_front_update_vet', methods: ['POST'])]
-    public function updateVet(Request $request, User $user, EntityManagerInterface $entityManager): JsonResponse
+    #[Route('/{slug}/update_vet', name: 'app_user_front_update_vet', methods: ['POST'])]
+    public function updateVet(Request $request, #[MapEntity(mapping: ['slug' => 'slug'])] User $user, EntityManagerInterface $entityManager): JsonResponse
     {
         $authorizationError = $this->validateUserAuthorization($user);
         if ($authorizationError !== null) {
@@ -107,8 +108,8 @@ final class UserFrontController extends AbstractController
         return null;
     }
 
-    #[Route('/{id}/update_user', name: 'app_user_front_update_user', methods: ['POST'])]
-    public function updateUser(Request $request, User $user, EntityManagerInterface $entityManager): JsonResponse
+    #[Route('/{slug}/update_user', name: 'app_user_front_update_user', methods: ['POST'])]
+    public function updateUser(Request $request, #[MapEntity(mapping: ['slug' => 'slug'])] User $user, EntityManagerInterface $entityManager): JsonResponse
     {
         $authorizationError = $this->validateUserAuthorization($user);
         if ($authorizationError !== null) {
@@ -136,8 +137,8 @@ final class UserFrontController extends AbstractController
         return new JsonResponse(['error' => implode(', ', $errors)], Response::HTTP_BAD_REQUEST);
     }
 
-    #[Route('/{id}/edit', name: 'app_user_front_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    #[Route('/{slug}/edit', name: 'app_user_front_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, #[MapEntity(mapping: ['slug' => 'slug'])] User $user, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
@@ -154,8 +155,8 @@ final class UserFrontController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/archive', name: 'app_user_front_archive', methods: ['POST'])]
-    public function archive(Request $request, User $user, EntityManagerInterface $entityManager, Security $security): Response
+    #[Route('/{slug}/archive', name: 'app_user_front_archive', methods: ['POST'])]
+    public function archive(Request $request, #[MapEntity(mapping: ['slug' => 'slug'])] User $user, EntityManagerInterface $entityManager, Security $security): Response
     {
         if ($this->isCsrfTokenValid('archive'.$user->getId(), $request->getPayload()->getString('_token'))) {
             $isCurrentUser = $this->getUser() === $user;
@@ -173,8 +174,8 @@ final class UserFrontController extends AbstractController
         return $this->redirectToRoute('app_home', [], Response::HTTP_SEE_OTHER);
     }
 
-    #[Route('/{id}', name: 'app_user_front_delete', methods: ['POST'])]
-    public function delete(Request $request, User $user, EntityManagerInterface $entityManager, Security $security): Response
+    #[Route('/{slug}', name: 'app_user_front_delete', methods: ['POST'])]
+    public function delete(Request $request, #[MapEntity(mapping: ['slug' => 'slug'])] User $user, EntityManagerInterface $entityManager, Security $security): Response
     {
         if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->getPayload()->getString('_token'))) {
             // Vérifier si l'utilisateur supprime son propre compte

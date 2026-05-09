@@ -32,17 +32,11 @@
 							<img src="{{ asset('assets/img/MrVeto.png') }}" alt="Logo MrVeto" class="img-fluid" style="width: 45px; height: 45px; object-fit: contain; background: #ebf5f3; border-radius: 12px; padding: 5px;">
 							<div>
 								<div class="fw-bold fs-5 text-primary lh-1">MrVeto</div>
-
 								{% if is_granted('ROLE_VETO') %}
 									<div class="text-muted" style="font-size: 0.8rem;">Dr.
 										{{ app.user.nom }}</div>
-
 								{% elseif is_granted('ROLE_ADMIN') %}
 									<div class="text-muted" style="font-size: 0.8rem;">Espace Admin</div>
-
-								{% elseif is_granted('ROLE_SECRETARY') %}
-									<div class="text-muted" style="font-size: 0.8rem;">Espace Secrétaire</div>
-
 								{% else %}
 									<div class="text-muted" style="font-size: 0.8rem;">Espace Propriétaire</div>
 								{% endif %}
@@ -59,12 +53,13 @@
 								<i class="bi bi-calendar-event fs-5"></i>
 								Planning
 							</a>
-
 							<a href="{{ path('app_vet_patients') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route starts with 'app_vet_patients' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
-								<i class="bi bi-people fs-5"></i> Patients
+								<i class="bi bi-people fs-5"></i>
+								Patients
 							</a>
 							<a href="{{ path('app_gestion_rdv') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_gestion_rdv' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
-								<i class="bi bi-journal-plus fs-5"></i> Gestion des RDV
+								<i class="bi bi-journal-plus fs-5"></i>
+								Gestion des RDV
 							</a>
 							<a href="#" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_archives' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
 								<i class="bi bi-archive fs-5"></i>
@@ -84,19 +79,7 @@
 							<a href="{{ path('app_rendezvous') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_rendezvous' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
 								<i class="bi bi-calendar-event fs-5"></i> Mes Rendez-vous
 							</a>
-						{% elseif is_granted('ROLE_ADMIN') %}
-							<a href="{{ path('app_home') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
-								<i class="bi bi-grid fs-5"></i> Tableau de bord
-							</a>
-							<a href="{{ path('app_vet_patients') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route starts with 'app_vet_patients' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
-								<i class="bi bi-people fs-5"></i> Patients
-							</a>
-							<a href="{{ path('app_rendezvous') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_rendezvous' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
-								<i class="bi bi-calendar-event fs-5"></i> Mes Rendez-vous
-							</a>
-							<a href="{{ path('app_carnet_sante') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_carnet_sante' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
-								<i class="bi bi-journal-medical fs-5"></i> Carnet de santé
-							</a>
+
 						{% elseif is_granted('ROLE_ADMIN') %}
 							<a href="{{ path('app_home') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
 								<i class="bi bi-grid fs-5"></i>
@@ -110,13 +93,12 @@
 								<i class="bi bi-people fs-5"></i>
 								Utilisateurs
 							</a>
-						{% elseif is_granted('ROLE_SECRETARY') %}
-							<a href="{{ path('app_secretary_vets') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route starts with 'app_secretary_' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
-								<i class="bi bi-calendar-check fs-5"></i>
-								Disponibilités vétos
-							</a>
 						{% else %}
-							<a href="{{ path('app_home') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
+							<a href="{{ path('app_search_vet') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_search_vet' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
+								<i class="bi bi-search fs-5"></i>
+								Recherche
+							</a>
+							<a href="#" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
 								<i class="bi bi-grid fs-5"></i>
 								Tableau de bord
 							</a>
@@ -128,14 +110,14 @@
 								<i class="bi bi-calendar-event fs-5"></i>
 								Mes Rendez-vous
 							</a>
-							<a href="{{ path('app_carnet_sante') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_carnet_sante' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
+							<a href="{{ path('app_carnet_sante') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_carnet_sante' or current_route == 'app_carnet_sante_animal' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
 								<i class="bi bi-journal-medical fs-5"></i>
 								Carnet de santé
 							</a>
 						{% endif %}
 
 						<small class="text-muted fw-bold mt-4 mb-2 ps-2" style="font-size: 0.75rem; letter-spacing: 0.5px;">COMPTE</small>
-						<a href="{{ path('app_user_front_show', {'id': app.user.id}) }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_user_front_show' or current_route == 'app_user_front_show_vet' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
+						<a href="{{ path('app_user_front_show', {slug: app.user.slug ?: 'user-' ~ app.user.id}) }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_user_front_show' or current_route == 'app_user_front_show_vet' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
 							<i class="bi bi-gear fs-5"></i>
 							Mon compte
 						</a>
@@ -230,14 +212,7 @@
 										<strong class="text-dark d-block mb-1 fs-6">{{ app.user.prenom }}
 											{{ app.user.nom }}</strong>
 										<small class="text-muted">
-											{% if is_granted('ROLE_VETO') %}
-												Vétérinaire
-											{% elseif is_granted('ROLE_ADMIN') %}
-												Administrateur
-											{% elseif is_granted('ROLE_SECRETARY') %}
-												Secrétaire
-											{% else %}
-												Propriétaire
+											{% if is_granted('ROLE_VETO') %}Vétérinaire{% else %}Propriétaire
 											{% endif %}
 										</small>
 									</div>
@@ -291,7 +266,10 @@
 										<i class="bi bi-people fs-5 w-20px text-center"></i>
 										Utilisateurs</a>
 								{% else %}
-									<a href="{{ path('app_home') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
+									<a href="{{ path('app_search_vet') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_search_vet' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
+										<i class="bi bi-search fs-5 w-20px text-center"></i>
+										Recherche</a>
+									<a href="#" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
 										<i class="bi bi-grid fs-5 w-20px text-center"></i>
 										Tableau de bord</a>
 									<a href="{{ path('app_animaux') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_animaux' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
@@ -300,13 +278,13 @@
 									<a href="{{ path('app_rendezvous') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_rendezvous' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
 										<i class="bi bi-calendar-event fs-5 w-20px text-center"></i>
 										Mes Rendez-vous</a>
-									<a href="{{ path('app_carnet_sante') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_carnet_sante' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
+									<a href="{{ path('app_carnet_sante') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_carnet_sante' or current_route == 'app_carnet_sante_animal' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
 										<i class="bi bi-journal-medical fs-5 w-20px text-center"></i>
 										Carnet de santé</a>
 								{% endif %}
 
 								<small class="text-muted fw-bold mt-3 mb-1 ps-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">COMPTE</small>
-								<a href="{{ path('app_user_front_show', {'id': app.user.id}) }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_user_front_show' or current_route == 'app_user_front_show_vet' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
+								<a href="{{ path('app_user_front_show', {slug: app.user.slug ?: 'user-' ~ app.user.id}) }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_user_front_show' or current_route == 'app_user_front_show_vet' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
 									<i class="bi bi-gear fs-5 w-20px text-center"></i>
 									Mon compte</a>
 
@@ -340,9 +318,9 @@
 
 								<div class="collapse navbar-collapse mt-3 mt-lg-0" id="navbarContent">
 									<div class="bg-white rounded-4 rounded-lg-pill px-4 py-3 py-lg-2 shadow-sm d-flex flex-column flex-lg-row gap-3 gap-lg-4 align-items-start align-items-lg-center mx-auto">
-										<a class="nav-link text-muted hover-text-primary d-flex align-items-center gap-2" href="{{ path('app_home') }}">
-											<i class="bi bi-house d-inline-block d-lg-none"></i>
-											Accueil
+										<a class="nav-link text-muted hover-text-primary d-flex align-items-center gap-2" href="{{ path('app_search_vet') }}">
+											<i class="bi bi-seach d-inline-block d-lg-none"></i>
+											Recherche
 										</a>
 										<a class="nav-link text-muted hover-text-primary d-flex align-items-center gap-2" href="{{path('app_search_vet')}}">
 											<i class="bi bi-search d-inline-block d-lg-none"></i>
@@ -401,3 +379,4 @@
 
 	</body>
 </html>
+

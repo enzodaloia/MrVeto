@@ -75,9 +75,9 @@
                         </div>
 
                         <div class="d-flex gap-2 mt-3 mt-md-0">
-                            <button class="btn btn-outline-secondary rounded-pill px-4 fw-medium border-light-subtle"
+                            <button class="btn btn-primary text-white rounded-pill px-4 fw-medium border-0"
                                     data-action="click->rendezvous#openEditModal"
-                                    data-id="{{ rdv.id }}"
+                                    data-slug="{{ rdv.slug }}"
                                     data-vet="{{ rdv.veterinaire.prenom }} {{ rdv.veterinaire.nom }}"
                                     data-motif="{{ rdv.motif|default('Consultation générale') }}"
                                     data-statut="{{ rdv.statut }}"
@@ -87,7 +87,7 @@
                             </button>
                             <button class="btn bg-danger-hover text-white rounded-pill px-4 fw-medium border-0 hover-bg-danger hover-text-white"
                                     data-action="click->rendezvous#openCancelModal"
-                                    data-id="{{ rdv.id }}"
+                                    data-slug="{{ rdv.slug }}"
                                     data-date="{{ rdv.dateHeure|date('Y-m-d') }}"
                                     data-time="{{ rdv.dateHeure|date('H:i') }}">
                                 Annuler
@@ -177,26 +177,26 @@
                             <i class="bi bi-x-circle" style="font-size: 2.5rem;"></i>
                         </div>
                     </div>
-                    <h4 class="fw-bold text-dark mb-3">Annuler le rendez-vous</h4>
-                    <p class="text-muted mb-4">Êtes-vous sûr(e) de vouloir annuler ce rendez-vous ? L'annulation libérera le créneau :</p>
+                    <h4 class="text-info fw-bold text-dark mb-3">Annuler le rendez-vous</h4>
+                    <p class="text-info text-muted mb-4">Êtes-vous sûr(e) de vouloir annuler ce rendez-vous ? L'annulation libérera le créneau :</p>
                     
                     <div class="bg-light rounded-3 p-3 mb-4 d-flex justify-content-center gap-4 align-items-center">
                         <div class="d-flex align-items-center gap-2">
                             <i class="bi bi-calendar-event text-primary fs-5"></i>
-                            <span class="fw-bold text-dark" data-rendezvous-target="modalDate"></span>
+                            <span class="text-info fw-bold text-dark" data-rendezvous-target="modalDate"></span>
                         </div>
                         <div class="border-start border-2 border-secondary" style="height: 30px; opacity: 0.2;"></div>
                         <div class="d-flex align-items-center gap-2">
                             <i class="bi bi-clock text-primary fs-5"></i>
-                            <span class="fw-bold text-dark" data-rendezvous-target="modalTime"></span>
+                            <span class="text-info fw-bold text-dark" data-rendezvous-target="modalTime"></span>
                         </div>
                     </div>
 
                     <div class="d-flex flex-column flex-sm-row gap-2">
-                        <button type="button" class="btn btn-light rounded-pill fw-bold w-100 py-3" data-bs-dismiss="modal">
+                        <button type="button" class="btn btn-info text-white border-0 rounded-3 fw-bold w-50 py-3" data-bs-dismiss="modal">
                             Conserver le rendez-vous
                         </button>
-                        <button type="button" class="btn btn-danger rounded-pill fw-bold w-100 py-3" data-action="click->rendezvous#confirmCancel" data-rendezvous-target="confirmCancelBtn">
+                        <button type="button" class="btn btn-danger text-white border-0 rounded-3 fw-bold w-50 py-3" data-action="click->rendezvous#confirmCancel" data-rendezvous-target="confirmCancelBtn">
                             Annuler le rendez-vous
                         </button>
                     </div>
@@ -244,10 +244,10 @@
                     </div>
 
                     <div class="d-flex gap-3 mt-4">
-                        <button type="button" class="btn btn-info text-white border-0 rounded-3 fw-bold w-50 py-3" data-bs-dismiss="modal">
+                        <button type="button" class="btn btn-danger text-white border-0 rounded-3 fw-bold w-50 py-3" data-bs-dismiss="modal">
                             Retour
                         </button>
-                        <button type="button" class="btn btn-danger text-white border-0 rounded-3 fw-bold w-50 py-3" data-action="click->rendezvous#confirmEdit" data-rendezvous-target="confirmEditBtn">
+                        <button type="button" class="btn btn-info text-white border-0 rounded-3 fw-bold w-50 py-3" data-action="click->rendezvous#confirmEdit" data-rendezvous-target="confirmEditBtn">
                             Modifier mon rendez-vous
                         </button>
                     </div>

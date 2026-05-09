@@ -14,12 +14,13 @@ use App\Entity\RendezVous;
 use App\Repository\AnimalRepository;
 use App\Repository\DayOfWorkRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class VetInfoController extends AbstractController
 {
-    #[Route('/vet/{id}', name: 'app_vet_info')]
-    public function index(User $vet = null, DayOfWorkRepository $dayOfWorkRepository): Response
+    #[Route('/veterinaire/{slug}', name: 'app_vet_info')]
+    public function index(#[MapEntity(mapping: ['slug' => 'slug'])] User $vet = null, DayOfWorkRepository $dayOfWorkRepository): Response
     {
         if (!$vet || !in_array('ROLE_VETO', $vet->getRoles())) {
             throw new NotFoundHttpException('Vétérinaire non trouvé.');
@@ -269,13 +270,58 @@ class VetInfoController extends AbstractController
         return $time->format('G:i');
     }
 
-    #[Route('/vet/{id}/book', name: 'app_vet_book')]
-    public function book(Request $request, User $vet = null, DayOfWorkRepository $dayOfWorkRepository, AnimalRepository $animalRepository, EntityManagerInterface $em): Response
-    {
+    #[Route('/veterinaire/{slug}/reserver/j/{date}', name: 'app_vet_book_day', requirements: ['date' => '\\d{4}-\\d{2}-\\d{2}'], methods: ['GET'])]
+    public function bookDay(
+        #[MapEntity(mapping: ['slug' => 'slug'])] User $vet,
+        string $date,
+        DayOfWorkRepository $dayOfWorkRepository,
+        AnimalRepository $animalRepository,
+        EntityManagerInterface $em,
+    ): Response {
         if (!$vet || !in_array('ROLE_VETO', $vet->getRoles())) {
             throw new NotFoundHttpException('Vétérinaire non trouvé.');
         }
 
+        return $this->renderBookingPage($vet, substr($date, 0, 7), $date, $dayOfWorkRepository, $animalRepository, $em);
+    }
+
+    #[Route('/veterinaire/{slug}/reserver/m/{month}', name: 'app_vet_book_month', requirements: ['month' => '\\d{4}-\\d{2}'], methods: ['GET'])]
+    public function bookMonth(
+        #[MapEntity(mapping: ['slug' => 'slug'])] User $vet,
+        string $month,
+        DayOfWorkRepository $dayOfWorkRepository,
+        AnimalRepository $animalRepository,
+        EntityManagerInterface $em,
+    ): Response {
+        if (!$vet || !in_array('ROLE_VETO', $vet->getRoles())) {
+            throw new NotFoundHttpException('Vétérinaire non trouvé.');
+        }
+
+        return $this->renderBookingPage($vet, $month, null, $dayOfWorkRepository, $animalRepository, $em);
+    }
+
+    #[Route('/veterinaire/{slug}/reserver', name: 'app_vet_book', methods: ['GET'])]
+    public function book(
+        #[MapEntity(mapping: ['slug' => 'slug'])] User $vet,
+        DayOfWorkRepository $dayOfWorkRepository,
+        AnimalRepository $animalRepository,
+        EntityManagerInterface $em,
+    ): Response {
+        if (!$vet || !in_array('ROLE_VETO', $vet->getRoles())) {
+            throw new NotFoundHttpException('Vétérinaire non trouvé.');
+        }
+
+        return $this->renderBookingPage($vet, null, null, $dayOfWorkRepository, $animalRepository, $em);
+    }
+
+    private function renderBookingPage(
+        User $vet,
+        ?string $monthParam,
+        ?string $selectedDateParam,
+        DayOfWorkRepository $dayOfWorkRepository,
+        AnimalRepository $animalRepository,
+        EntityManagerInterface $em,
+    ): Response {
         // --- Fetch vet's working days with horaires ---
         $daysOfWork = $dayOfWorkRepository->createQueryBuilder('d')
             ->innerJoin('d.jour', 'j')->addSelect('j')
@@ -303,9 +349,6 @@ class VetInfoController extends AbstractController
         }
 
         // --- Calendar computation ---
-        $monthParam = $request->query->get('month');
-        $selectedDateParam = $request->query->get('date');
-
         $today = new \DateTime('today');
 
         if ($monthParam && preg_match('/^\d{4}-\d{2}$/', $monthParam)) {
@@ -458,8 +501,8 @@ class VetInfoController extends AbstractController
         ]);
     }
 
-    #[Route('/vet/{id}/book/confirm', name: 'app_vet_book_confirm', methods: ['POST'])]
-    public function confirmBooking(Request $request, User $vet = null, AnimalRepository $animalRepository, EntityManagerInterface $em): Response
+    #[Route('/veterinaire/{slug}/reserver/confirmation', name: 'app_vet_book_confirm', methods: ['POST'])]
+    public function confirmBooking(Request $request, #[MapEntity(mapping: ['slug' => 'slug'])] User $vet = null, AnimalRepository $animalRepository, EntityManagerInterface $em): Response
     {
         if (!$vet || !in_array('ROLE_VETO', $vet->getRoles())) {
             throw new NotFoundHttpException('Vétérinaire non trouvé.');
@@ -515,7 +558,7 @@ class VetInfoController extends AbstractController
         // Check if date and slot are provided
         if (empty($selectedDate) || empty($selectedSlot)) {
             $this->addFlash('error', 'Veuillez sélectionner une date et un créneau horaire.');
-            return $this->redirectToRoute('app_vet_book', ['id' => $vet->getId()]);
+            return $this->redirectToRoute('app_vet_book', ['slug' => $vet->getSlug()]);
         }
 
         // Format date for display
@@ -553,8 +596,8 @@ class VetInfoController extends AbstractController
         ]);
     }
 
-    #[Route('/vet/{id}/book/save', name: 'app_vet_book_save', methods: ['POST'])]
-    public function saveRendezVous(Request $request, User $vet = null, EntityManagerInterface $em, AnimalRepository $animalRepository): Response
+    #[Route('/veterinaire/{slug}/reserver/sauvegarder', name: 'app_vet_book_save', methods: ['POST'])]
+    public function saveRendezVous(Request $request, #[MapEntity(mapping: ['slug' => 'slug'])] User $vet = null, EntityManagerInterface $em, AnimalRepository $animalRepository): Response
     {
         if (!$vet || !in_array('ROLE_VETO', $vet->getRoles())) {
             throw new NotFoundHttpException('Vétérinaire non trouvé.');
@@ -581,7 +624,7 @@ class VetInfoController extends AbstractController
         // Optionnel : ne pas compter les annulés
         if ($existingRdv && $existingRdv->getStatut() !== 'annule') {
             $this->addFlash('error', 'Désolé, ce créneau a déjà été réservé entre temps.');
-            return $this->redirectToRoute('app_vet_book', ['id' => $vet->getId()]);
+            return $this->redirectToRoute('app_vet_book', ['slug' => $vet->getSlug()]);
         }
 
         // Find animal
@@ -619,7 +662,7 @@ class VetInfoController extends AbstractController
 
         $this->addFlash('success', 'Votre rendez-vous a été confirmé avec succès !');
 
-        return $this->redirectToRoute('app_vet_info', ['id' => $vet->getId()]);
+        return $this->redirectToRoute('app_vet_info', ['slug' => $vet->getSlug()]);
     }
 
     /**

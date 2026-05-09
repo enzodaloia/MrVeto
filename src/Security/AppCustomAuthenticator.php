@@ -48,12 +48,17 @@ class AppCustomAuthenticator extends AbstractLoginFormAuthenticator
             return new RedirectResponse($targetPath);
         }
 
-        /** @var \App\Entity\User $user */
         $user = $token->getUser();
+        if (!$user instanceof \App\Entity\User) {
+            return new RedirectResponse($this->urlGenerator->generate('app_home'));
+        }
 
-        // For example:
-        return new RedirectResponse($this->urlGenerator->generate('app_user_front_show', ['id' => $user->getId()]));
-        // throw new \Exception('TODO: provide a valid redirect inside '.__FILE__);
+        $slug = $user->getSlug();
+        if ($slug === null || $slug === '') {
+            $slug = 'user-' . $user->getId();
+        }
+
+        return new RedirectResponse($this->urlGenerator->generate('app_user_front_show', ['slug' => $slug]));
     }
 
     protected function getLoginUrl(Request $request): string

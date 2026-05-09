@@ -59,15 +59,15 @@ class RendezVousController extends AbstractController
         ]);
     }
 
-    #[Route('/mes-rendez-vous/{id}/disponibilites', name: 'app_rendezvous_disponibilites', methods: ['GET'])]
-    public function disponibilites(int $id, RendezVousRepository $rendezVousRepository, DayOfWorkRepository $dayOfWorkRepository): Response
+    #[Route('/mes-rendez-vous/{slug}/disponibilites', name: 'app_rendezvous_disponibilites', methods: ['GET'])]
+    public function disponibilites(string $slug, RendezVousRepository $rendezVousRepository, DayOfWorkRepository $dayOfWorkRepository): Response
     {
         $user = $this->getUser();
         if (!$user) {
             return $this->json(['error' => 'Non autorisé'], 403);
         }
 
-        $rdv = $rendezVousRepository->find($id);
+        $rdv = $rendezVousRepository->findOneBy(['slug' => $slug]);
 
         if (!$rdv || $rdv->getClient() !== $user) {
             return $this->json(['error' => 'Rendez-vous introuvable'], 404);
@@ -193,15 +193,15 @@ class RendezVousController extends AbstractController
         return $this->json($disponibilites);
     }
 
-    #[Route('/mes-rendez-vous/{id}/annuler', name: 'app_rendezvous_annuler', methods: ['POST'])]
-    public function annuler(int $id, RendezVousRepository $rendezVousRepository, EntityManagerInterface $entityManager): Response
+    #[Route('/mes-rendez-vous/{slug}/annuler', name: 'app_rendezvous_annuler', methods: ['POST'])]
+    public function annuler(string $slug, RendezVousRepository $rendezVousRepository, EntityManagerInterface $entityManager): Response
     {
         $user = $this->getUser();
         if (!$user) {
             return $this->json(['error' => 'Non autorisé'], 403);
         }
 
-        $rdv = $rendezVousRepository->find($id);
+        $rdv = $rendezVousRepository->findOneBy(['slug' => $slug]);
 
         if (!$rdv || $rdv->getClient() !== $user) {
             return $this->json(['error' => 'Rendez-vous introuvable'], 404);
@@ -219,15 +219,15 @@ class RendezVousController extends AbstractController
         return $this->json(['error' => 'Impossible d\'annuler un rendez-vous passé'], 400);
     }
 
-    #[Route('/mes-rendez-vous/{id}/modifier', name: 'app_rendezvous_modifier', methods: ['POST'])]
-    public function modifier(int $id, \Symfony\Component\HttpFoundation\Request $request, RendezVousRepository $rendezVousRepository, EntityManagerInterface $entityManager): Response
+    #[Route('/mes-rendez-vous/{slug}/modifier', name: 'app_rendezvous_modifier', methods: ['POST'])]
+    public function modifier(string $slug, \Symfony\Component\HttpFoundation\Request $request, RendezVousRepository $rendezVousRepository, EntityManagerInterface $entityManager): Response
     {
         $user = $this->getUser();
         if (!$user) {
             return $this->json(['error' => 'Non autorisé'], 403);
         }
 
-        $rdv = $rendezVousRepository->find($id);
+        $rdv = $rendezVousRepository->findOneBy(['slug' => $slug]);
 
         if (!$rdv || $rdv->getClient() !== $user) {
             return $this->json(['error' => 'Rendez-vous introuvable'], 404);

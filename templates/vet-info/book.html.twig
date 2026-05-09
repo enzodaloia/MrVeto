@@ -56,11 +56,11 @@
 			{% else %}
 				<!-- Month navigation -->
 				<div class="d-flex justify-content-center align-items-center mb-4">
-					<a href="{{ path('app_vet_book', {id: vet.id, month: prevMonth}) }}#calendar" class="btn btn-outline-secondary rounded-circle shadow-sm p-2 d-flex align-items-center justify-content-center me-3 border text-decoration-none border-neutral-30 text-neutral-60" style="width: 36px; height: 36px;">
+					<a href="{{ path('app_vet_book_month', {slug: vet.slug, month: prevMonth}) }}#calendar" class="btn btn-outline-secondary rounded-circle shadow-sm p-2 d-flex align-items-center justify-content-center me-3 border text-decoration-none border-neutral-30 text-neutral-60" style="width: 36px; height: 36px;">
 						<i class="bi bi-chevron-left"></i>
 					</a>
 					<span class="fw-semibold mx-3 text-dark">{{ monthLabel }}</span>
-					<a href="{{ path('app_vet_book', {id: vet.id, month: nextMonth}) }}#calendar" class="btn btn-primary rounded-circle shadow-sm p-2 d-flex align-items-center justify-content-center ms-3 text-white border-0 text-decoration-none" style="width: 36px; height: 36px;">
+					<a href="{{ path('app_vet_book_month', {slug: vet.slug, month: nextMonth}) }}#calendar" class="btn btn-primary rounded-circle shadow-sm p-2 d-flex align-items-center justify-content-center ms-3 text-white border-0 text-decoration-none" style="width: 36px; height: 36px;">
 						<i class="bi bi-chevron-right"></i>
 					</a>
 				</div>
@@ -95,7 +95,7 @@
 													{{ day.number }}
 												</span>
 											{% else %}
-												<a href="{{ path('app_vet_book', {id: vet.id, month: currentYear ~ '-' ~ ('%02d'|format(currentMonth)), date: day.date}) }}#horaires" class="d-inline-flex align-items-center justify-content-center rounded-circle bg-neutral-10 text-dark fw-bold shadow-sm text-decoration-none {{ day.isToday ? 'border border-primary border-2' : '' }}" style="width:36px;height:36px;">
+												<a href="{{ path('app_vet_book_day', {slug: vet.slug, date: day.date}) }}#horaires" class="d-inline-flex align-items-center justify-content-center rounded-circle bg-neutral-10 text-dark fw-bold shadow-sm text-decoration-none {{ day.isToday ? 'border border-primary border-2' : '' }}" style="width:36px;height:36px;">
 													{{ day.number }}
 												</a>
 											{% endif %}
@@ -186,7 +186,7 @@
 		{% endif %}
 
 		<!-- MAIN BOOKING FORM -->
-		<form method="POST" action="{{ path('app_vet_book_confirm', {id: vet.id}) }}" id="confirmBookingForm" data-turbo="false">
+		<form method="POST" action="{{ path('app_vet_book_confirm', {slug: vet.slug}) }}" id="confirmBookingForm" data-turbo="false">
 			<input type="hidden" name="selectedDate" value="{{ selectedDate ?? '' }}">
 			<input type="hidden" name="selectedSlot" id="confirmSlotInput" value="">
 			<input type="hidden" name="animalId" id="selectedAnimalId" value="">
