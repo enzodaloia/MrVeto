@@ -11,6 +11,7 @@ use App\Repository\CabinetUserRepository;
 use App\Repository\DayOfWorkRepository;
 use App\Repository\JourRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,7 +19,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class SecretaryAvailabilityController extends AbstractController
 {
-    #[Route('/secretary/vets', name: 'app_secretary_vets', methods: ['GET'])]
+    #[Route('/secretaire/veterinaires', name: 'app_secretary_vets', methods: ['GET'])]
     public function vets(CabinetUserRepository $cabinetUserRepository): Response
     {
         $this->denyAccessUnlessGranted('ROLE_SECRETARY');
@@ -39,9 +40,9 @@ final class SecretaryAvailabilityController extends AbstractController
         ]);
     }
 
-    #[Route('/secretary/vet/{id}/availability', name: 'app_secretary_vet_availability', methods: ['GET', 'POST'])]
+    #[Route('/secretaire/veterinaire/{slug}/disponibilites', name: 'app_secretary_vet_availability', methods: ['GET', 'POST'])]
     public function editVetAvailability(
-        User $vet,
+        #[MapEntity(mapping: ['slug' => 'slug'])] User $vet,
         Request $request,
         CabinetUserRepository $cabinetUserRepository,
         DayOfWorkRepository $dayOfWorkRepository,
@@ -107,7 +108,7 @@ final class SecretaryAvailabilityController extends AbstractController
             $this->addFlash('success', 'Horaires du vétérinaire enregistrés.');
 
             return $this->redirectToRoute('app_secretary_vet_availability', [
-                'id' => $vet->getId(),
+                'slug' => $vet->getSlug(),
             ]);
         }
 

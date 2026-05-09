@@ -52,8 +52,8 @@ class GestionRdvController extends AbstractController
         ]);
     }
 
-    #[Route('/gestion-rdv/{id}/disponibilites', name: 'app_gestion_rdv_disponibilites', methods: ['GET'])]
-    public function disponibilites(int $id, RendezVousRepository $rendezVousRepository, DayOfWorkRepository $dayOfWorkRepository): Response
+    #[Route('/gestion-rdv/{slug}/disponibilites', name: 'app_gestion_rdv_disponibilites', methods: ['GET'])]
+    public function disponibilites(string $slug, RendezVousRepository $rendezVousRepository, DayOfWorkRepository $dayOfWorkRepository): Response
     {
         $this->denyAccessUnlessGranted('ROLE_VETO');
 
@@ -62,7 +62,7 @@ class GestionRdvController extends AbstractController
             return $this->json(['error' => 'Non autorise'], 403);
         }
 
-        $rdv = $rendezVousRepository->find($id);
+        $rdv = $rendezVousRepository->findOneBy(['slug' => $slug]);
         if (!$rdv || $rdv->getVeterinaire()?->getId() !== $user->getId()) {
             return $this->json(['error' => 'Rendez-vous introuvable'], 404);
         }
@@ -182,8 +182,8 @@ class GestionRdvController extends AbstractController
         return $this->json($disponibilites);
     }
 
-    #[Route('/gestion-rdv/{id}/annuler', name: 'app_gestion_rdv_annuler', methods: ['POST'])]
-    public function annuler(int $id, RendezVousRepository $rendezVousRepository, EntityManagerInterface $entityManager): Response
+    #[Route('/gestion-rdv/{slug}/annuler', name: 'app_gestion_rdv_annuler', methods: ['POST'])]
+    public function annuler(string $slug, RendezVousRepository $rendezVousRepository, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted('ROLE_VETO');
 
@@ -192,7 +192,7 @@ class GestionRdvController extends AbstractController
             return $this->json(['error' => 'Non autorise'], 403);
         }
 
-        $rdv = $rendezVousRepository->find($id);
+        $rdv = $rendezVousRepository->findOneBy(['slug' => $slug]);
         if (!$rdv || $rdv->getVeterinaire()?->getId() !== $user->getId()) {
             return $this->json(['error' => 'Rendez-vous introuvable'], 404);
         }
@@ -214,8 +214,8 @@ class GestionRdvController extends AbstractController
         return $this->json(['success' => true]);
     }
 
-    #[Route('/gestion-rdv/{id}/modifier', name: 'app_gestion_rdv_modifier', methods: ['POST'])]
-    public function modifier(int $id, Request $request, RendezVousRepository $rendezVousRepository, EntityManagerInterface $entityManager): Response
+    #[Route('/gestion-rdv/{slug}/modifier', name: 'app_gestion_rdv_modifier', methods: ['POST'])]
+    public function modifier(string $slug, Request $request, RendezVousRepository $rendezVousRepository, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted('ROLE_VETO');
 
@@ -224,7 +224,7 @@ class GestionRdvController extends AbstractController
             return $this->json(['error' => 'Non autorise'], 403);
         }
 
-        $rdv = $rendezVousRepository->find($id);
+        $rdv = $rendezVousRepository->findOneBy(['slug' => $slug]);
         if (!$rdv || $rdv->getVeterinaire()?->getId() !== $user->getId()) {
             return $this->json(['error' => 'Rendez-vous introuvable'], 404);
         }
@@ -280,8 +280,8 @@ class GestionRdvController extends AbstractController
         return $this->json(['success' => true]);
     }
 
-    #[Route('/gestion-rdv/{id}/confirmer', name: 'app_gestion_rdv_confirmer', methods: ['POST'])]
-    public function confirmer(int $id, RendezVousRepository $rendezVousRepository, EntityManagerInterface $entityManager): Response
+    #[Route('/gestion-rdv/{slug}/confirmer', name: 'app_gestion_rdv_confirmer', methods: ['POST'])]
+    public function confirmer(string $slug, RendezVousRepository $rendezVousRepository, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted('ROLE_VETO');
 
@@ -290,7 +290,7 @@ class GestionRdvController extends AbstractController
             return $this->json(['error' => 'Non autorise'], 403);
         }
 
-        $rdv = $rendezVousRepository->find($id);
+        $rdv = $rendezVousRepository->findOneBy(['slug' => $slug]);
         if (!$rdv || $rdv->getVeterinaire()?->getId() !== $user->getId()) {
             return $this->json(['error' => 'Rendez-vous introuvable'], 404);
         }

@@ -18,8 +18,8 @@ export default class extends Controller {
     }
 
     connect() {
-        this.rdvToCancel = null;
-        this.rdvToEdit = null;
+        this.rdvSlugToCancel = null;
+        this.rdvSlugToEdit = null;
         this.disponibilites = {};
     }
 
@@ -107,7 +107,7 @@ export default class extends Controller {
 
     openCancelModal(event) {
         const btn = event.currentTarget;
-        this.rdvToCancel = btn.dataset.id;
+        this.rdvSlugToCancel = btn.dataset.slug;
         
         // Use backend date/time directly to avoid timezone shifts in the modal
         const rdvDateStr = btn.dataset.date;
@@ -153,7 +153,7 @@ export default class extends Controller {
     }
 
     async confirmCancel(event) {
-        if (!this.rdvToCancel) return;
+        if (!this.rdvSlugToCancel) return;
 
         const btn = event.currentTarget;
         const originalText = btn.innerText;
@@ -161,7 +161,7 @@ export default class extends Controller {
         btn.disabled = true;
 
         try {
-            const response = await fetch(`${this.getEndpointPrefix()}/${this.rdvToCancel}/annuler`, {
+            const response = await fetch(`${this.getEndpointPrefix()}/${this.rdvSlugToCancel}/annuler`, {
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
@@ -186,16 +186,16 @@ export default class extends Controller {
 
     async confirmRdv(event) {
         const btn = event.currentTarget;
-        const rdvId = btn.dataset.id;
+        const rdvSlug = btn.dataset.slug;
 
-        if (!rdvId) return;
+        if (!rdvSlug) return;
 
         const originalText = btn.innerText;
         btn.innerText = "Confirmation...";
         btn.disabled = true;
 
         try {
-            const response = await fetch(`${this.getEndpointPrefix()}/${rdvId}/confirmer`, {
+            const response = await fetch(`${this.getEndpointPrefix()}/${rdvSlug}/confirmer`, {
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
@@ -220,7 +220,7 @@ export default class extends Controller {
 
     openEditModal(event) {
         const btn = event.currentTarget;
-        this.rdvToEdit = btn.dataset.id;
+        this.rdvSlugToEdit = btn.dataset.slug;
         
         // Setup Modal visuals
         this.editModalVetNameTarget.innerText = btn.dataset.vet || '';
@@ -254,12 +254,12 @@ export default class extends Controller {
         modal.show();
 
         // Fetch availabilities
-        this.fetchDisponibilites(this.rdvToEdit, btn.dataset.date, btn.dataset.time);
+        this.fetchDisponibilites(this.rdvSlugToEdit, btn.dataset.date, btn.dataset.time);
     }
 
-    async fetchDisponibilites(id, currentDate, currentTime) {
+    async fetchDisponibilites(slug, currentDate, currentTime) {
         try {
-            const response = await fetch(`${this.getEndpointPrefix()}/${id}/disponibilites`);
+            const response = await fetch(`${this.getEndpointPrefix()}/${slug}/disponibilites`);
             if (response.ok) {
                 this.disponibilites = await response.json();
                 this.populateDateSelect(currentDate);
@@ -336,7 +336,7 @@ export default class extends Controller {
     }
 
     async confirmEdit(event) {
-        if (!this.rdvToEdit) return;
+        if (!this.rdvSlugToEdit) return;
 
         const btn = event.currentTarget;
         const originalText = btn.innerText;
@@ -353,7 +353,7 @@ export default class extends Controller {
         btn.disabled = true;
 
         try {
-            const response = await fetch(`${this.getEndpointPrefix()}/${this.rdvToEdit}/modifier`, {
+            const response = await fetch(`${this.getEndpointPrefix()}/${this.rdvSlugToEdit}/modifier`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

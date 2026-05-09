@@ -40,6 +40,9 @@ class Horaire
     #[ORM\Column(type: Types::TIME_MUTABLE, nullable: true)]
     private ?\DateTime $afternoonEnd = null;
 
+    #[ORM\Column(length: 255, unique: true)]
+    private ?string $slug = null;
+
     public function getId(): ?int { return $this->id; }
 
     public function getDayOfWork(): ?DayOfWork { return $this->dayOfWork; }
@@ -74,6 +77,13 @@ class Horaire
     public function setAfternoonEnd(?\DateTime $afternoonEnd): static
     {
         $this->afternoonEnd = $afternoonEnd;
+        return $this;
+    }
+
+    public function getSlug(): ?string { return $this->slug; }
+    public function setSlug(?string $slug): static
+    {
+        $this->slug = $slug;
         return $this;
     }
 }

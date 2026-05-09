@@ -180,7 +180,7 @@
                                                                 data-bs-target="#deleteTraitementModal"
                                                                 data-traitement-id="{{ traitement.id }}"
                                                                 data-traitement-libelle="{{ traitement.libelle|e('html_attr') }}"
-                                                                data-delete-url="{{ path('app_vet_patients_traitement_delete', {'traitementId': traitement.id}) }}"
+                                                                data-delete-url="{{ path('app_vet_patients_traitement_delete', {'slug': traitement.slug}) }}"
                                                                 data-csrf-token="{{ csrf_token('delete_traitement_' ~ traitement.id) }}"
                                                             >
                                                                 <i class="bi bi-trash3"></i>
@@ -272,7 +272,7 @@
                                                     <div class="collapse mt-2" id="remarque-form-{{ rdv.id }}">
                                                         <form
                                                             method="POST"
-                                                            action="{{ path('app_vet_patients_update_remarque', {'rdvId': rdv.id}) }}"
+                                                            action="{{ path('app_vet_patients_update_remarque', {'slug': rdv.slug}) }}"
                                                         >
                                                             <input type="hidden" name="_token" value="{{ csrf_token('remarque_' ~ rdv.id) }}">
                                                             <textarea
@@ -441,7 +441,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
                 </div>
                 <div class="modal-body p-4 pt-3">
-                    <form method="POST" action="{{ path('app_vet_patients_update_animal', {'id': animal.id}) }}">
+                    <form method="POST" action="{{ path('app_vet_patients_update_animal', {'slug': animal.slug}) }}">
                         <input type="hidden" name="_token" value="{{ csrf_token('update_animal_' ~ animal.id) }}">
                         <div class="row g-3">
                             <div class="col-md-6">
@@ -496,7 +496,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
                 </div>
                 <div class="modal-body p-4 pt-3">
-                    <form method="POST" action="{{ path('app_vet_patients_traitement_new', {'id': animal.id}) }}">
+                    <form method="POST" action="{{ path('app_vet_patients_traitement_new', {'slug': animal.slug}) }}">
                         <input type="hidden" name="_token" value="{{ csrf_token('traitement_new_' ~ animal.id) }}">
                         <div class="row g-3">
                             <div class="col-12">

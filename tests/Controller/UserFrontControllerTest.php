@@ -14,7 +14,7 @@ final class UserFrontControllerTest extends WebTestCase
     private KernelBrowser $client;
     private EntityManagerInterface $manager;
     private EntityRepository $userRepository;
-    private string $path = '/front/user/';
+    private string $path = '/user/';
 
     protected function setUp(): void
     {
@@ -63,7 +63,7 @@ final class UserFrontControllerTest extends WebTestCase
             'user[adressecabinet]' => 'Testing',
         ]);
 
-        self::assertResponseRedirects('/user/front');
+        self::assertResponseRedirects('/user');
 
         self::assertSame(1, $this->userRepository->count([]));
 
@@ -137,7 +137,7 @@ final class UserFrontControllerTest extends WebTestCase
             'user[adressecabinet]' => 'Something New',
         ]);
 
-        self::assertResponseRedirects('/user/front');
+        self::assertResponseRedirects('/user');
 
         $fixture = $this->userRepository->findAll();
 
@@ -181,7 +181,7 @@ final class UserFrontControllerTest extends WebTestCase
         $this->client->request('GET', sprintf('%s%s', $this->path, $fixture->getId()));
         $this->client->submitForm('Delete');
 
-        self::assertResponseRedirects('/user/front');
+        self::assertResponseRedirects('/user');
         self::assertSame(0, $this->userRepository->count([]));
 
         $this->markTestIncomplete('This test was generated');

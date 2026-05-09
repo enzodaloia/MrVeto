@@ -28,12 +28,21 @@ export default class extends Controller {
     setupCalendarSlots() {
         const slotBtns = this.element.querySelectorAll('.slot-btn');
         const hiddenInput = document.getElementById('selectedSlotInput');
+        const storageKey = 'mr_veto_book_slot:' + window.location.pathname;
 
-        // Restore previously selected slot from URL
         const params = new URLSearchParams(window.location.search);
-        const savedSlot = params.get('slot');
-        
-        // Reset all buttons first to avoid duplicates
+        if (params.has('slot')) {
+            const fromQuery = params.get('slot');
+            if (fromQuery) {
+                sessionStorage.setItem(storageKey, fromQuery);
+            }
+            params.delete('slot');
+            const qs = params.toString();
+            window.history.replaceState({}, '', window.location.pathname + (qs ? '?' + qs : '') + (window.location.hash || ''));
+        }
+
+        const savedSlot = sessionStorage.getItem(storageKey);
+
         slotBtns.forEach(b => {
             b.classList.remove('bg-secondary', 'text-dark', 'border-secondary');
             b.classList.add('bg-white', 'border-neutral-40', 'text-dark');
@@ -48,7 +57,7 @@ export default class extends Controller {
                 }
             });
         }
-        
+
         slotBtns.forEach(btn => {
             if (btn.dataset.boundSlot) return;
             btn.dataset.boundSlot = 'true';
@@ -63,11 +72,8 @@ export default class extends Controller {
 
                 const slot = btn.getAttribute('data-slot');
                 if (hiddenInput) hiddenInput.value = slot;
-
-                const url = new URL(window.location);
-                url.searchParams.set('slot', slot);
-                url.hash = 'horaires';
-                window.history.replaceState({}, '', url);
+                sessionStorage.setItem(storageKey, slot);
+                window.history.replaceState({}, '', window.location.pathname + '#horaires');
             });
         });
     }
