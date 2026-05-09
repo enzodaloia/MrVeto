@@ -83,7 +83,7 @@ final class CarnetSanteController extends AbstractController
         return $this->renderCarnetPage($user, $animals, $first, $rendezVousRepository, $entityManager);
     }
 
-    #[Route('/carnet-sante/save-animal', name: 'app_carnet_sante_save_animal', methods: ['POST'])]
+    #[Route('/app/carnet-sante/save-animal', name: 'app_carnet_sante_save_animal', methods: ['POST'])]
     public function saveAnimal(Request $request, EntityManagerInterface $entityManager, AnimalRepository $animalRepository): Response
     {
         $user = $this->getUser();
@@ -197,45 +197,5 @@ final class CarnetSanteController extends AbstractController
         ]);
     }
 
-    #[Route('/app/carnet-sante/save-animal', name: 'app_carnet_sante_save_animal', methods: ['POST'])]
-    public function saveAnimal(Request $request, EntityManagerInterface $entityManager): Response
-    {
-        $user = $this->getUser();
-        if (!$user instanceof User) {
-            return $this->redirectToRoute('app_login');
-        }
 
-        if ($this->isGranted('ROLE_SECRETARY')) {
-            return $this->redirectToRoute('app_home');
-        }
-
-        $animal = new Animal();
-        $animal->setProprietaire($user);
-        $entityManager->persist($animal);
-
-        $animalNom = trim((string) $request->request->get('animalNom', ''));
-        $animalEspece = trim((string) $request->request->get('animalEspece', ''));
-        $animalAge = trim((string) $request->request->get('animalAge', ''));
-
-        if ($animalNom === '' || $animalEspece === '' || $animalAge === '') {
-            $this->addFlash('danger', 'Nom, espèce et âge sont obligatoires.');
-
-            return $this->redirectToRoute('app_carnet_sante', [
-                'animal' => $request->request->getInt('_selectedAnimal'),
-            ]);
-        }
-
-        $animal->setNom($animalNom);
-        $animal->setEspece($animalEspece);
-        $animal->setRace($request->request->get('animalRace'));
-        $animal->setPoids($request->request->get('animalPoids'));
-        $animal->setVaccinAJour($request->request->get('vaccin') === 'oui');
-        $animal->setAge($animalAge);
-
-        $entityManager->flush();
-
-        $this->addFlash('success', 'Animal créé avec succès !');
-
-        return $this->redirectToRoute('app_carnet_sante', ['animal' => $animal->getId()]);
-    }
 }
