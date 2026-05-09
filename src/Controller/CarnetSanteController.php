@@ -53,6 +53,16 @@ final class CarnetSanteController extends AbstractController
         }
 
         $animals = $this->findAnimalsForOwner($animalRepository, $user);
+        if ($this->isGranted('ROLE_SECRETARY')) {
+            return $this->redirectToRoute('app_home');
+        }
+
+        $animals = $animalRepository->createQueryBuilder('a')
+            ->andWhere('a.proprietaire = :owner')
+            ->setParameter('owner', $user)
+            ->orderBy('a.nom', 'ASC')
+            ->getQuery()
+            ->getResult();
 
         if ($animals === []) {
             return $this->render('carnet_sante/index.html.twig', [
