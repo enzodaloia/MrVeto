@@ -22,6 +22,7 @@ Encore
      */
     .addEntry('app', './assets/app.js')
     .addStyleEntry('carnet_sante', './assets/styles/pages/carnet_sante.scss')
+    .addStyleEntry('availability', './assets/styles/pages/availability.scss')
 
     // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
     .splitEntryChunks()
