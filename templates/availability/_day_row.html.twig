@@ -1,0 +1,121 @@
+{% set data = horaire.vars.data %}
+{% set hasAfternoon = horaire.afternoonStart.vars.value and horaire.afternoonStart.vars.value != '00:00' %}
+{% set errorId = 'errors-' ~ data.dayOfWork.id %}
+{% set statusId = 'status-' ~ data.dayOfWork.id %}
+{% set morningStartId = 'morning-start-' ~ data.dayOfWork.id %}
+{% set morningEndId = 'morning-end-' ~ data.dayOfWork.id %}
+{% set afternoonStartId = 'afternoon-start-' ~ data.dayOfWork.id %}
+{% set afternoonEndId = 'afternoon-end-' ~ data.dayOfWork.id %}
+
+<tr class="day-row {{ data.dayOfWork.isWorking ? '' : 'day-closed' }}" data-day-id="{{ data.dayOfWork.id }}" data-afternoon-visible="{{ hasAfternoon ? '1' : '0' }}">
+	<td class="fw-semibold ps-lg-4 day-name-cell">
+		<span class="mobile-label d-none">Jour</span>
+		{{ data.dayOfWork.jour.libelle }}
+	</td>
+
+	<td>
+		<span class="mobile-label d-none">Statut</span>
+		<div class="form-check form-switch d-flex align-items-center gap-2 mb-0">
+			<input class="form-check-input day-checkbox" type="checkbox" name="working_days[]" value="{{ data.dayOfWork.id }}" id="day_{{ data.dayOfWork.id }}" data-day-id="{{ data.dayOfWork.id }}" role="switch" aria-label="Activer ou désactiver les disponibilités du {{ data.dayOfWork.jour.libelle }}" aria-describedby="{{ statusId }}" {{ data.dayOfWork.isWorking ? 'checked' : '' }}>
+			<label class="form-check-label fw-medium mb-0 status-label" for="day_{{ data.dayOfWork.id }}" id="{{ statusId }}" aria-live="polite">
+				{{ data.dayOfWork.isWorking ? 'OUVERT' : 'FERMÉ' }}
+			</label>
+		</div>
+	</td>
+
+	<td class="py-3">
+		<span class="mobile-label d-none">Plages horaires</span>
+
+		<div class="open-fields">
+			<div class="d-flex align-items-center flex-wrap gap-2">
+				<label for="{{ morningStartId }}" class="visually-hidden">Heure de début du matin pour {{ data.dayOfWork.jour.libelle }}</label>
+				<div class="tw">
+					{{ form_widget(horaire.morningStart, {
+						attr: {
+							id: morningStartId,
+							class: 'form-control time-no-icon morning-start',
+							'aria-label': 'Heure de début du matin pour ' ~ data.dayOfWork.jour.libelle,
+							'aria-describedby': errorId
+						}
+					}) }}
+					<i data-lucide="clock" class="time-icon" style="width:20px;height:20px;" aria-hidden="true"></i>
+				</div>
+
+				<span class="text-neutral-60" aria-hidden="true">à</span>
+
+				<label for="{{ morningEndId }}" class="visually-hidden">Heure de fin du matin pour {{ data.dayOfWork.jour.libelle }}</label>
+				<div class="tw">
+					{{ form_widget(horaire.morningEnd, {
+						attr: {
+							id: morningEndId,
+							class: 'form-control time-no-icon morning-end',
+							'aria-label': 'Heure de fin du matin pour ' ~ data.dayOfWork.jour.libelle,
+							'aria-describedby': errorId
+						}
+					}) }}
+					<i data-lucide="clock" class="time-icon" style="width:20px;height:20px;" aria-hidden="true"></i>
+				</div>
+
+				<button type="button" class="btn btn-light rounded-circle slot-btn add-afternoon-btn d-flex align-items-center justify-content-center" aria-label="Ajouter un créneau l'après-midi pour {{ data.dayOfWork.jour.libelle }}" title="Ajouter un créneau l'après-midi">
+					<i data-lucide="plus" aria-hidden="true"></i>
+				</button>
+			</div>
+
+			<div class="afternoon-row mt-2 align-items-center flex-wrap gap-2">
+				<label for="{{ afternoonStartId }}" class="visually-hidden">Heure de début de l'après-midi pour {{ data.dayOfWork.jour.libelle }}</label>
+				<div class="tw">
+					{{ form_widget(horaire.afternoonStart, {
+						attr: {
+							id: afternoonStartId,
+							class: 'form-control time-no-icon afternoon-start',
+							'aria-label': 'Heure de début de l\'après-midi pour ' ~ data.dayOfWork.jour.libelle,
+							'aria-describedby': errorId
+						}
+					}) }}
+					<i data-lucide="clock" class="time-icon" style="width:20px;height:20px;" aria-hidden="true"></i>
+				</div>
+
+				<span class="text-neutral-60" aria-hidden="true">à</span>
+
+				<label for="{{ afternoonEndId }}" class="visually-hidden">Heure de fin de l'après-midi pour {{ data.dayOfWork.jour.libelle }}</label>
+				<div class="tw">
+					{{ form_widget(horaire.afternoonEnd, {
+						attr: {
+							id: afternoonEndId,
+							class: 'form-control time-no-icon afternoon-end',
+							'aria-label': 'Heure de fin de l\'après-midi pour ' ~ data.dayOfWork.jour.libelle,
+							'aria-describedby': errorId
+						}
+					}) }}
+					<i data-lucide="clock" class="time-icon" style="width:20px;height:20px;" aria-hidden="true"></i>
+				</div>
+
+				<button
+					type="button"
+					class="btn btn-light rounded-circle slot-btn remove-afternoon-btn d-flex align-items-center justify-content-center"
+					aria-label="Supprimer le créneau de l'après-midi pour {{ data.dayOfWork.jour.libelle }}"
+					title="Supprimer le créneau de l'après-midi">
+					<i data-lucide="x" style="width:18px;height:18px;" aria-hidden="true"></i>
+				</button>
+			</div>
+		</div>
+
+		<p class="closed-text small text-neutral-50 mb-0">Aucune plage horaire définie</p>
+
+		<div class="d-none">
+			{{ form_widget(horaire.dayOfWork) }}
+		</div>
+
+		<div class="mt-1" id="{{ errorId }}" aria-live="polite">
+			{{ form_errors(horaire.morningEnd) }}
+			{{ form_errors(horaire.afternoonEnd) }}
+		</div>
+	</td>
+
+	<td class="text-center pe-lg-4 actions-cell">
+		<span class="mobile-label d-none">Actions</span>
+		<button type="button" class="btn btn-link text-neutral-50 reset-day-btn p-0" aria-label="Réinitialiser les horaires de {{ data.dayOfWork.jour.libelle }}" title="Réinitialiser la journée">
+			<i data-lucide="trash-2" aria-hidden="true"></i>
+		</button>
+	</td>
+</tr>
