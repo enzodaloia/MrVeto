@@ -41,10 +41,8 @@
 
 								{% elseif is_granted('ROLE_ADMIN') %}
 									<div class="text-muted" style="font-size: 0.8rem;">Espace Admin</div>
-
 								{% elseif is_granted('ROLE_SECRETARY') %}
 									<div class="text-muted" style="font-size: 0.8rem;">Espace Secrétaire</div>
-
 								{% else %}
 									<div class="text-muted" style="font-size: 0.8rem;">Espace Propriétaire</div>
 								{% endif %}
