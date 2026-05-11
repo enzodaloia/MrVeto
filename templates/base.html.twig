@@ -25,7 +25,7 @@
 				class="d-flex min-vh-100">
 
 				<!-- Sidebar (Desktop only) -->
-				<aside class="d-none d-lg-flex flex-column bg-white shadow-sm" style="width: 280px; position: sticky; top: 0; height: 100vh; overflow-y: auto;">
+				<aside class="d-none d-lg-flex flex-column bg-white shadow-sm flex-shrink-0" style="width: 280px; position: sticky; top: 0; height: 100vh; overflow-y: auto;">
 
 					<a href="{{ path('app_search_vet') }}" class="text-decoration-none">
 						<div class="p-4 d-flex align-items-center gap-3 mb-2">
@@ -147,7 +147,7 @@
 
 				<!-- Main Content Wrapper -->
 				<div
-					class="flex-grow-1 d-flex flex-column min-vw-0">
+					class="flex-grow-1 d-flex flex-column" style="min-width: 0; overflow: hidden;">
 
 					<!-- Top Navbar (User Logged In) -->
 					<nav class="navbar navbar-expand-lg py-3 px-3 px-lg-4">
