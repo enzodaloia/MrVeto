@@ -1,3 +1,8 @@
+<link href="https://unpkg.com/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
+<script src="https://unpkg.com/fullcalendar@6.1.11/index.global.min.js"></script>
+<script src="https://unpkg.com/fullcalendar@6.1.11/locales/fr.global.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+
 <script>
 	document.addEventListener("DOMContentLoaded", function () {
 		const calendarView = document.getElementById("calendar-view");
@@ -12,8 +17,7 @@
 		const calendar = new FullCalendar.Calendar(
 			document.getElementById("calendar"),
 			{
-				plugins: [FullCalendar.timeGridPlugin],
-				locale: FullCalendar.frLocale,
+				locale: "fr",
 				initialView: window.innerWidth < 768 ? "timeGridDay" : "timeGridWeek",
 				headerToolbar: {
 					left: "prev,next today",
