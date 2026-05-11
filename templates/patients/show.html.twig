@@ -100,6 +100,13 @@
                                         Modifier la fiche
                                     </button>
                                 {% endif %}
+                                <a
+                                    class="btn btn-primary text-white rounded-3 d-flex align-items-center justify-content-center gap-2 w-100 {% if not isReadOnly %}mt-2{% endif %}"
+                                    href="{{ path('app_vet_patients_book', {'slug': animal.slug}) }}"
+                                >
+                                    <i class="bi bi-calendar-plus"></i>
+                                    Créer un RDV
+                                </a>
                             </div>
                         </div>
                     </div>

@@ -9,6 +9,8 @@ use App\Repository\AnimalRepository;
 use App\Repository\RendezVousRepository;
 use App\Repository\TraitementRepository;
 use App\Repository\UserRepository;
+use App\Repository\CabinetUserRepository;
+use App\Entity\RendezVous;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -193,6 +195,7 @@ final class PatientsController extends AbstractController
         #[MapEntity(mapping: ['slug' => 'slug'])] Animal $animal,
         RendezVousRepository $rendezVousRepository,
         TraitementRepository $traitementRepository,
+        CabinetUserRepository $cabinetUserRepository,
     ): Response {
         $currentUser = $this->getUser();
         if (!$currentUser instanceof User) {
@@ -219,6 +222,16 @@ final class PatientsController extends AbstractController
         $traitements = $traitementRepository->findByAnimal($animal);
         $lastVisit = !empty($rdvHistory) ? $rdvHistory[0] : null;
 
+        $vets = [];
+        if ($isVet) {
+            $vets[] = $currentUser;
+        } else if ($isSecretary) {
+            $cabinet = $cabinetUserRepository->findCabinetForUserRole($currentUser, \App\Entity\CabinetUser::ROLE_SECRETAIRE);
+            if ($cabinet) {
+                $vets = $cabinetUserRepository->findUsersByCabinetRole($cabinet, \App\Entity\CabinetUser::ROLE_VETERINAIRE);
+            }
+        }
+
         return $this->render('patients/show.html.twig', [
             'animal' => $animal,
             'rdvHistory' => $rdvHistory,
@@ -226,7 +239,256 @@ final class PatientsController extends AbstractController
             'lastVisit' => $lastVisit,
             'vet' => $isVet ? $currentUser : null,
             'isReadOnly' => $isSecretary,
+            'vets' => $vets,
         ]);
+    }
+
+    #[Route('/{slug}/nouveau-rdv', name: 'app_vet_patients_new_rdv', methods: ['POST'])]
+    public function newRdv(
+        #[MapEntity(mapping: ['slug' => 'slug'])] Animal $animal,
+        Request $request,
+        UserRepository $userRepository,
+        EntityManagerInterface $entityManager,
+    ): Response {
+        $currentUser = $this->getUser();
+        $isVet = in_array('ROLE_VETO', $currentUser->getRoles(), true);
+        $isSecretary = in_array('ROLE_SECRETARY', $currentUser->getRoles(), true) || in_array('ROLE_SECRETAIRE', $currentUser->getRoles(), true);
+
+        if (!$isVet && !$isSecretary) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if (!$this->isCsrfTokenValid('new_rdv_' . $animal->getId(), (string) $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Token CSRF invalide.');
+            return $this->redirectToRoute('app_vet_patients_show', ['slug' => $animal->getSlug()]);
+        }
+
+        $vetId = $request->request->get('vet_id');
+        $vet = $userRepository->find($vetId);
+        
+        if (!$vet || !in_array('ROLE_VETO', $vet->getRoles(), true)) {
+            $this->addFlash('danger', 'Vétérinaire invalide.');
+            return $this->redirectToRoute('app_vet_patients_show', ['slug' => $animal->getSlug()]);
+        }
+
+        $dateStr = $request->request->get('selectedDate');
+        $timeStr = $request->request->get('selectedSlot');
+        $motif = $request->request->get('rdvMotif');
+        $remarque = $request->request->get('rdvRemarque');
+
+        try {
+            if (!$dateStr || !$timeStr) throw new \Exception();
+            $dateHeure = new \DateTime($dateStr . ' ' . $timeStr);
+        } catch (\Exception $e) {
+            $this->addFlash('danger', 'Veuillez sélectionner une date et un créneau horaire.');
+            return $this->redirectToRoute('app_vet_patients_show', ['slug' => $animal->getSlug()]);
+        }
+
+        $rdv = new RendezVous();
+        $rdv->setClient($animal->getProprietaire());
+        $rdv->setVeterinaire($vet);
+        $rdv->setAnimal($animal);
+        $rdv->setDateHeure($dateHeure);
+        $rdv->setStatut('confirme');
+        if ($motif) $rdv->setMotif($motif);
+        if ($remarque) $rdv->setRemarque($remarque);
+
+        $rdv->setLastActionByRole($isVet ? RendezVous::ACTION_BY_VETERINAIRE : RendezVous::ACTION_BY_SECRETAIRE);
+        $rdv->setLastActionAt(new \DateTime());
+
+        $entityManager->persist($rdv);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Rendez-vous créé avec succès.');
+        return $this->redirectToRoute('app_vet_patients_show', ['slug' => $animal->getSlug()]);
+    }
+
+    #[Route('/{slug}/reserver', name: 'app_vet_patients_book', methods: ['GET'])]
+    public function book(
+        #[MapEntity(mapping: ['slug' => 'slug'])] Animal $animal,
+        Request $request,
+        CabinetUserRepository $cabinetUserRepository,
+        UserRepository $userRepository,
+        \App\Repository\DayOfWorkRepository $dayOfWorkRepository,
+        EntityManagerInterface $em
+    ): Response {
+        $currentUser = $this->getUser();
+        $isVet = in_array('ROLE_VETO', $currentUser->getRoles(), true);
+        $isSecretary = in_array('ROLE_SECRETARY', $currentUser->getRoles(), true) || in_array('ROLE_SECRETAIRE', $currentUser->getRoles(), true);
+
+        if (!$isVet && !$isSecretary) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $vets = [];
+        if ($isVet) {
+            $vets[] = $currentUser;
+        } else {
+            $cabinet = $cabinetUserRepository->findCabinetForUserRole($currentUser, \App\Entity\CabinetUser::ROLE_SECRETAIRE);
+            if ($cabinet) {
+                $vets = $cabinetUserRepository->findUsersByCabinetRole($cabinet, \App\Entity\CabinetUser::ROLE_VETERINAIRE);
+            }
+        }
+
+        $vetId = $request->query->get('vet_id');
+        $vet = null;
+        if ($vetId) {
+            $vet = $userRepository->find($vetId);
+        }
+        if (!$vet && !empty($vets)) {
+            $vet = $vets[0];
+        }
+
+        $monthParam = $request->query->get('month');
+        $selectedDateParam = $request->query->get('date');
+
+        $workingDays = [];
+        if ($vet) {
+            $daysOfWork = $dayOfWorkRepository->createQueryBuilder('d')
+                ->innerJoin('d.jour', 'j')->addSelect('j')
+                ->leftJoin('d.horaires', 'h')->addSelect('h')
+                ->andWhere('d.user = :u')->setParameter('u', $vet)
+                ->orderBy('j.ordre', 'ASC')
+                ->getQuery()->getResult();
+
+            foreach ($daysOfWork as $dow) {
+                if (!$dow->isWorking()) continue;
+                $ordre = $dow->getJour()->getOrdre();
+                $horaire = $dow->getHoraires()->first();
+                $workingDays[$ordre] = [
+                    'jourLibelle' => $dow->getJour()->getLibelle(),
+                    'morningStart' => $horaire ? $horaire->getMorningStart() : null,
+                    'morningEnd' => $horaire ? $horaire->getMorningEnd() : null,
+                    'afternoonStart' => $horaire ? $horaire->getAfternoonStart() : null,
+                    'afternoonEnd' => $horaire ? $horaire->getAfternoonEnd() : null,
+                ];
+            }
+        }
+
+        $today = new \DateTime('today');
+        if ($monthParam && preg_match('/^\d{4}-\d{2}$/', $monthParam)) {
+            $year = (int) substr($monthParam, 0, 4);
+            $month = (int) substr($monthParam, 5, 2);
+        } else {
+            $year = (int) $today->format('Y');
+            $month = (int) $today->format('m');
+        }
+
+        $firstDay = new \DateTime("$year-$month-01");
+        $daysInMonth = (int) $firstDay->format('t');
+        $firstDayOfWeek = (int) $firstDay->format('N');
+
+        $weeks = [];
+        $currentWeek = array_fill(0, 7, null);
+        $dayNumber = 1;
+
+        for ($i = $firstDayOfWeek - 1; $i < 7 && $dayNumber <= $daysInMonth; $i++) {
+            $date = new \DateTime("$year-$month-$dayNumber");
+            $dayOfWeekIso = (int) $date->format('N');
+            $isWorking = isset($workingDays[$dayOfWeekIso]);
+            $isPast = $date < $today;
+            $currentWeek[$i] = [
+                'number' => $dayNumber,
+                'date' => $date->format('Y-m-d'),
+                'isWorking' => $isWorking,
+                'isPast' => $isPast,
+                'isToday' => $date->format('Y-m-d') === $today->format('Y-m-d'),
+            ];
+            $dayNumber++;
+        }
+        $weeks[] = $currentWeek;
+
+        while ($dayNumber <= $daysInMonth) {
+            $currentWeek = array_fill(0, 7, null);
+            for ($i = 0; $i < 7 && $dayNumber <= $daysInMonth; $i++) {
+                $date = new \DateTime("$year-$month-$dayNumber");
+                $dayOfWeekIso = (int) $date->format('N');
+                $isWorking = isset($workingDays[$dayOfWeekIso]);
+                $isPast = $date < $today;
+                $currentWeek[$i] = [
+                    'number' => $dayNumber,
+                    'date' => $date->format('Y-m-d'),
+                    'isWorking' => $isWorking,
+                    'isPast' => $isPast,
+                    'isToday' => $date->format('Y-m-d') === $today->format('Y-m-d'),
+                ];
+                $dayNumber++;
+            }
+            $weeks[] = $currentWeek;
+        }
+
+        $prevMonth = (clone $firstDay)->modify('-1 month');
+        $nextMonth = (clone $firstDay)->modify('+1 month');
+
+        $selectedDate = null;
+        $morningSlots = [];
+        $afternoonSlots = [];
+
+        if ($selectedDateParam && preg_match('/^\d{4}-\d{2}-\d{2}$/', $selectedDateParam)) {
+            $selectedDate = new \DateTime($selectedDateParam);
+            $selectedDayOfWeek = (int) $selectedDate->format('N');
+
+            if (isset($workingDays[$selectedDayOfWeek]) && $selectedDate >= $today && $vet) {
+                $dayData = $workingDays[$selectedDayOfWeek];
+
+                $startOfDay = clone $selectedDate;
+                $startOfDay->setTime(0, 0, 0);
+                $endOfDay = clone $selectedDate;
+                $endOfDay->setTime(23, 59, 59);
+
+                $appointments = $em->getRepository(RendezVous::class)->createQueryBuilder('r')
+                    ->where('r.veterinaire = :vet')
+                    ->andWhere('r.dateHeure >= :start')
+                    ->andWhere('r.dateHeure <= :end')
+                    ->andWhere('r.statut != :cancelled')
+                    ->setParameter('vet', $vet)
+                    ->setParameter('start', $startOfDay)
+                    ->setParameter('end', $endOfDay)
+                    ->setParameter('cancelled', 'annule')
+                    ->getQuery()
+                    ->getResult();
+
+                $bookedSlots = [];
+                foreach ($appointments as $appt) {
+                    $bookedSlots[] = $appt->getDateHeure()->format('H:i');
+                }
+
+                if ($dayData['morningStart'] && $dayData['morningEnd']) {
+                    $morningSlots = $this->generateTimeSlots($dayData['morningStart'], $dayData['morningEnd'], 30, $bookedSlots);
+                }
+                if ($dayData['afternoonStart'] && $dayData['afternoonEnd']) {
+                    $afternoonSlots = $this->generateTimeSlots($dayData['afternoonStart'], $dayData['afternoonEnd'], 30, $bookedSlots);
+                }
+            }
+        }
+
+        return $this->render('patients/book.html.twig', [
+            'animal' => $animal,
+            'vets' => $vets,
+            'selectedVet' => $vet,
+            'weeks' => $weeks,
+            'prevMonth' => $prevMonth,
+            'nextMonth' => $nextMonth,
+            'currentMonth' => $firstDay,
+            'selectedDate' => $selectedDate ? $selectedDate->format('Y-m-d') : null,
+            'morningSlots' => $morningSlots,
+            'afternoonSlots' => $afternoonSlots,
+        ]);
+    }
+
+    private function generateTimeSlots(\DateTime $start, \DateTime $end, int $intervalMinutes, array $bookedSlots = []): array
+    {
+        $slots = [];
+        $current = clone $start;
+        while ($current < $end) {
+            $timeString = $current->format('H:i');
+            $slots[] = [
+                'time' => $timeString,
+                'available' => !in_array($timeString, $bookedSlots)
+            ];
+            $current->modify("+{$intervalMinutes} minutes");
+        }
+        return $slots;
     }
 
     #[Route('/{slug}/update', name: 'app_vet_patients_update_animal', methods: ['POST'])]
