@@ -18,6 +18,7 @@ final class AvailabilityController extends AbstractController
 {
     #[Route('/api/availability', name: 'api_availability', methods: ['GET'])]
     public function apiAvailability(
+        Request $request,
         DayOfWorkRepository $dayOfWorkRepository
     ): JsonResponse {
         $user = $this->getUser();
@@ -32,20 +33,26 @@ final class AvailabilityController extends AbstractController
             ->orderBy('j.ordre', 'ASC')
             ->getQuery()->getResult();
 
-        // On génère les events pour la semaine courante
         $events = [];
-        $monday = new \DateTime('monday this week');
+        $periodStart = $this->parseCalendarDate($request->query->get('start')) ?? new \DateTimeImmutable('monday this week');
+        $periodEnd = $this->parseCalendarDate($request->query->get('end')) ?? $periodStart->modify('+1 week');
 
-        foreach ($daysOfWork as $dow) {
-            // ordre de 1 (lundi) à 7 (dimanche)
-            $ordre = $dow->getJour()->getOrdre();
-            $date = (clone $monday)->modify('+' . ($ordre - 1) . ' days');
+        $daysByOrder = [];
+        foreach ($daysOfWork as $dayOfWork) {
+            $daysByOrder[(int) $dayOfWork->getJour()->getOrdre()] = $dayOfWork;
+        }
+
+        for ($date = $periodStart; $date < $periodEnd; $date = $date->modify('+1 day')) {
+            $dow = $daysByOrder[(int) $date->format('N')] ?? null;
+            if (!$dow) {
+                continue;
+            }
+
             $dateStr = $date->format('Y-m-d');
 
             $horaire = $dow->getHoraires()->first();
 
-            if (!$horaire) {
-                // Absent toute la journée
+            if (!$dow->isWorking() || !$horaire) {
                 $events[] = [
                     'title' => 'Absent',
                     'start' => $dateStr . 'T08:00:00',
@@ -142,14 +149,19 @@ final class AvailabilityController extends AbstractController
         ]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            $applyScope = $this->normalizeApplyScope($request->request->get('apply_scope'));
             $workingDayIds = $request->request->all('working_days') ?? [];
             foreach ($daysOfWork as $dow) {
                 $dow->setIsWorking(in_array($dow->getId(), array_map('intval', $workingDayIds)));
             }
+            $this->applyScopeToWeeklyAvailability($applyScope, $daysOfWork);
             $em->flush();
 
             if ($request->isXmlHttpRequest()) {
-                return $this->json(['success' => true]);
+                return $this->json([
+                    'success' => true,
+                    'applyScope' => $applyScope,
+                ]);
             }
 
             $this->addFlash('success', 'Disponibilités enregistrées.');
@@ -160,5 +172,45 @@ final class AvailabilityController extends AbstractController
             'daysOfWork' => $daysOfWork,
             'form' => $form->createView(),
         ]);
+    }
+
+    private function normalizeApplyScope(mixed $scope): string
+    {
+        return in_array($scope, ['week', 'month', 'year'], true) ? $scope : 'week';
+    }
+
+
+    private function applyScopeToWeeklyAvailability(string $scope, array $daysOfWork): void
+    {
+        if ($scope === 'week') {
+            return;
+        }
+
+        foreach ($daysOfWork as $dayOfWork) {
+            foreach ($dayOfWork->getHoraires() as $horaire) {
+                $horaire->setMorningStart($this->cloneTime($horaire->getMorningStart()));
+                $horaire->setMorningEnd($this->cloneTime($horaire->getMorningEnd()));
+                $horaire->setAfternoonStart($this->cloneTime($horaire->getAfternoonStart()));
+                $horaire->setAfternoonEnd($this->cloneTime($horaire->getAfternoonEnd()));
+            }
+        }
+    }
+
+    private function cloneTime(?\DateTime $time): ?\DateTime
+    {
+        return $time === null ? null : clone $time;
+    }
+
+    private function parseCalendarDate(mixed $value): ?\DateTimeImmutable
+    {
+        if (!is_string($value) || trim($value) === '') {
+            return null;
+        }
+
+        try {
+            return new \DateTimeImmutable($value);
+        } catch (\Exception) {
+            return null;
+        }
     }
 }
