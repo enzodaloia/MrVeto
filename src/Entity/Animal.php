@@ -39,7 +39,7 @@ class Animal
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $poids = null;
 
-    #[ORM\Column(length: 255, unique: true)]
+    #[ORM\Column(length: 255, unique: true, nullable: true)]
     private ?string $slug = null;
 
     public function getId(): ?int { return $this->id; }
