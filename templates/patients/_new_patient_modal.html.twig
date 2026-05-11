@@ -1,0 +1,204 @@
+<div class="modal fade" id="newPatientModal" tabindex="-1" aria-labelledby="newPatientModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <form action="{{ path('app_vet_patients_new_dossier') }}" method="POST" class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
+            <input type="hidden" name="_token" value="{{ csrf_token('new_dossier') }}">
+            <div class="modal-header border-0 pb-0 d-flex align-items-start px-4 pt-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="bg-primary-bg text-primary rounded-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                            <i class="bi bi-person-badge fs-4"></i>
+                        </div>
+                        <div>
+                            <h4 class="modal-title fw-bold text-dark mb-1" id="newPatientModalLabel">Créer un Nouveau Dossier Patient</h4>
+                            <p class="text-muted small mb-0">Complétez les informations pour initialiser le suivi médical.</p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4 py-4">
+                    <input type="hidden" name="existing_animal_id" value="">
+
+                    <!-- RECHERCHE GLOBALE -->
+                    <div class="mb-4 pb-4 border-bottom">
+                        <label class="form-label small fw-medium text-dark"><i class="bi bi-search text-primary me-2"></i>Rechercher un patient existant (base de données globale)</label>
+                        <div class="position-relative">
+                            <input type="text" id="searchExistingPatient" class="form-control" placeholder="Rechercher par nom de l'animal, nom du propriétaire, email..." autocomplete="off">
+                            <div id="searchResults" class="list-group position-absolute w-100 shadow mt-1" style="display:none; z-index: 1050; max-height: 250px; overflow-y: auto;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 1. PROPRIÉTAIRE -->
+                    <div class="mb-4 pb-4 border-bottom">
+                        <h6 class="fw-bold text-muted mb-3 d-flex align-items-center gap-2" style="letter-spacing: 0.5px;">
+                            <i class="bi bi-person text-primary"></i> 1. PROPRIÉTAIRE
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-medium text-dark">Nom</label>
+                                <input type="text" name="owner_nom" class="form-control" placeholder="Ex: Martin" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-medium text-dark">Prénom</label>
+                                <input type="text" name="owner_prenom" class="form-control" placeholder="Ex: Jean" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-medium text-dark">Téléphone</label>
+                                <input type="tel" name="owner_telephone" class="form-control" placeholder="06 00 00 00 00">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-medium text-dark">Email</label>
+                                <input type="email" name="owner_email" class="form-control" placeholder="jean.martin@email.com" required>
+                            </div>
+                            <div class="col-12 mt-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="send_invite" id="sendInviteCheck" value="1" checked>
+                                    <label class="form-check-label text-muted small" for="sendInviteCheck">
+                                        Envoyer une invitation MrVeto au propriétaire
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. ANIMAL -->
+                    <div class="mb-4 pb-4 border-bottom">
+                        <h6 class="fw-bold text-muted mb-3 d-flex align-items-center gap-2" style="letter-spacing: 0.5px;">
+                            <i class="bi bi-heart text-primary"></i> 2. ANIMAL
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-medium text-dark">Nom de l'animal</label>
+                                <input type="text" name="animal_nom" class="form-control" placeholder="Ex: Rex" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-medium text-dark">Espèce</label>
+                                <select name="animal_espece" class="form-select" required>
+                                    <option value="" disabled selected>Sélectionner l'espèce</option>
+                                    <option value="Chien">Chien</option>
+                                    <option value="Chat">Chat</option>
+                                    <option value="NAC">NAC (Nouveaux Animaux de Compagnie)</option>
+                                    <option value="Équin">Équin</option>
+                                    <option value="Bovin">Bovin</option>
+                                    <option value="Autre">Autre</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-medium text-dark">Race</label>
+                                <div class="position-relative">
+                                    <input type="text" name="animal_race" class="form-control pe-4" placeholder="Ex: Golden Retriever">
+                                    <i class="bi bi-search position-absolute top-50 end-0 translate-middle-y me-3 text-muted small"></i>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-medium text-dark">Date de naissance</label>
+                                <input type="date" name="animal_naissance" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-medium text-dark d-block mb-2">Sexe</label>
+                                <div class="d-flex gap-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="animal_sexe" id="sexeM" value="M">
+                                        <label class="form-check-label text-dark small" for="sexeM">Mâle (M)</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="animal_sexe" id="sexeF" value="F">
+                                        <label class="form-check-label text-dark small" for="sexeF">Femelle (F)</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-medium text-dark">Poids actuel (kg)</label>
+                                <input type="number" step="0.01" name="animal_poids" class="form-control" placeholder="Ex: 12.5">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-medium text-dark">N° identification (Puce/Tatouage)</label>
+                                <input type="text" name="animal_identification" class="form-control" placeholder="15 chiffres ou code tatouage">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4 pt-0 d-flex justify-content-between align-items-center">
+                    <button type="button" class="btn btn-link text-muted fw-medium text-decoration-none px-0" data-bs-dismiss="modal">ANNULER</button>
+                    <button type="submit" class="btn btn-primary text-white fw-bold px-4 rounded-pill d-flex align-items-center gap-2">
+                        <i class="bi bi-person-lines-fill"></i> ENREGISTRER LE PATIENT
+                    </button>
+                </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchExistingPatient');
+    const resultsContainer = document.getElementById('searchResults');
+    let timeoutId;
+
+    if (!searchInput || !resultsContainer) return;
+
+    searchInput.addEventListener('input', function() {
+        clearTimeout(timeoutId);
+        const q = this.value.trim();
+        if (q.length < 2) {
+            resultsContainer.style.display = 'none';
+            return;
+        }
+
+        timeoutId = setTimeout(() => {
+            fetch('{{ path("app_vet_patients_search_all") }}?q=' + encodeURIComponent(q))
+                .then(response => response.json())
+                .then(data => {
+                    resultsContainer.innerHTML = '';
+                    if (data.length > 0) {
+                        data.forEach(item => {
+                            const a = document.createElement('a');
+                            a.href = '#';
+                            a.className = 'list-group-item list-group-item-action py-2';
+                            a.innerHTML = `
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong class="text-primary">${item.animal_nom}</strong> <span class="text-muted small">(${item.animal_espece || 'Espèce inconnue'})</span>
+                                    </div>
+                                    <div class="small text-muted">
+                                        <i class="bi bi-person"></i> ${item.owner_prenom} ${item.owner_nom}
+                                    </div>
+                                </div>
+                            `;
+                            a.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                // Remplir le formulaire
+                                document.querySelector('input[name="existing_animal_id"]').value = item.id;
+                                document.querySelector('input[name="animal_nom"]').value = item.animal_nom || '';
+                                document.querySelector('select[name="animal_espece"]').value = item.animal_espece || '';
+                                document.querySelector('input[name="animal_race"]').value = item.animal_race || '';
+                                document.querySelector('input[name="animal_naissance"]').value = item.animal_naissance || '';
+                                document.querySelector('input[name="animal_poids"]').value = item.animal_poids || '';
+                                
+                                document.querySelector('input[name="owner_nom"]').value = item.owner_nom || '';
+                                document.querySelector('input[name="owner_prenom"]').value = item.owner_prenom || '';
+                                document.querySelector('input[name="owner_telephone"]').value = item.owner_telephone || '';
+                                document.querySelector('input[name="owner_email"]').value = item.owner_email || '';
+                                
+                                resultsContainer.style.display = 'none';
+                                searchInput.value = ''; // On peut vider ou laisser le texte
+                            });
+                            resultsContainer.appendChild(a);
+                        });
+                        resultsContainer.style.display = 'block';
+                    } else {
+                        resultsContainer.innerHTML = '<div class="list-group-item text-muted small">Aucun patient trouvé.</div>';
+                        resultsContainer.style.display = 'block';
+                    }
+                })
+                .catch(err => console.error(err));
+        }, 300);
+    });
+
+    // Cacher les résultats au clic à l'extérieur
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
+            resultsContainer.style.display = 'none';
+        }
+    });
+});
+</script>

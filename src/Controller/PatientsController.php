@@ -8,7 +8,9 @@ use App\Entity\User;
 use App\Repository\AnimalRepository;
 use App\Repository\RendezVousRepository;
 use App\Repository\TraitementRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -46,6 +48,144 @@ final class PatientsController extends AbstractController
             'search' => $search,
             'isReadOnly' => $isSecretary,
         ]);
+    }
+
+    #[Route('/nouveau-dossier', name: 'app_vet_patients_new_dossier', methods: ['POST'])]
+    public function newDossier(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        UserRepository $userRepository,
+        UserPasswordHasherInterface $passwordHasher,
+    ): Response {
+        $currentUser = $this->getUser();
+        if (!$currentUser instanceof User) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $roles = $currentUser->getRoles();
+        $isVet = in_array('ROLE_VETO', $roles, true);
+        $isSecretary = in_array('ROLE_SECRETARY', $roles, true) || in_array('ROLE_SECRETAIRE', $roles, true);
+
+        if (!$isVet && !$isSecretary) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if (!$this->isCsrfTokenValid('new_dossier', (string) $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Token CSRF invalide.');
+            return $this->redirectToRoute('app_vet_patients');
+        }
+
+        $email = trim((string) $request->request->get('owner_email'));
+        $owner = $userRepository->findOneBy(['email' => $email]);
+
+        if (!$owner) {
+            $owner = new User();
+            $owner->setEmail($email);
+            $owner->setNom(trim((string) $request->request->get('owner_nom')));
+            $owner->setPrenom(trim((string) $request->request->get('owner_prenom')));
+            $owner->setTelephone(trim((string) $request->request->get('owner_telephone')));
+            $owner->setRoles(['ROLE_USER']);
+            $owner->setPassword($passwordHasher->hashPassword($owner, bin2hex(random_bytes(10))));
+            
+            $baseSlug = mb_strtolower($owner->getPrenom() . '-' . $owner->getNom());
+            $baseSlug = preg_replace('/[^a-z0-9]+/', '-', $baseSlug);
+            $baseSlug = trim($baseSlug, '-');
+            $slug = $baseSlug;
+            $counter = 1;
+            while ($userRepository->findOneBy(['slug' => $slug])) {
+                $slug = $baseSlug . '-' . $counter;
+                $counter++;
+            }
+            $owner->setSlug($slug);
+            
+            $entityManager->persist($owner);
+        }
+
+        $existingAnimalId = $request->request->get('existing_animal_id');
+        $animal = null;
+        if ($existingAnimalId) {
+            $animal = $entityManager->getRepository(Animal::class)->find($existingAnimalId);
+        }
+        
+        $isNewAnimal = false;
+        if (!$animal) {
+            $animal = new Animal();
+            $isNewAnimal = true;
+        }
+
+        $animal->setProprietaire($owner);
+        $animal->setNom(trim((string) $request->request->get('animal_nom')));
+        $animal->setEspece(trim((string) $request->request->get('animal_espece')));
+        $animal->setRace(trim((string) $request->request->get('animal_race')));
+        $animal->setPoids(trim((string) $request->request->get('animal_poids')));
+        
+        $dateNaissanceStr = trim((string) $request->request->get('animal_naissance'));
+        if ($dateNaissanceStr) {
+            $animal->setAge($dateNaissanceStr);
+        }
+
+        if ($isNewAnimal) {
+            $baseSlug = mb_strtolower($animal->getNom());
+            $baseSlug = preg_replace('/[^a-z0-9]+/', '-', $baseSlug);
+            $baseSlug = trim($baseSlug, '-');
+            $slug = $baseSlug;
+            $counter = 1;
+            while ($entityManager->getRepository(Animal::class)->findOneBy(['slug' => $slug])) {
+                $slug = $baseSlug . '-' . $counter;
+                $counter++;
+            }
+            $animal->setSlug($slug);
+            $entityManager->persist($animal);
+        }
+
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Dossier patient enregistré avec succès.');
+        return $this->redirectToRoute('app_vet_patients');
+    }
+
+    #[Route('/api/search-all', name: 'app_vet_patients_search_all', methods: ['GET'])]
+    public function searchAll(Request $request, AnimalRepository $animalRepository): Response
+    {
+        $currentUser = $this->getUser();
+        if (!$currentUser) {
+            return $this->json([], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $q = trim((string) $request->query->get('q', ''));
+        if (strlen($q) < 2) {
+            return $this->json([]);
+        }
+
+        $qb = $animalRepository->createQueryBuilder('a')
+            ->leftJoin('a.proprietaire', 'p')
+            ->addSelect('p')
+            ->where('a.nom LIKE :q')
+            ->orWhere('p.email LIKE :q')
+            ->orWhere('p.nom LIKE :q')
+            ->orWhere('p.prenom LIKE :q')
+            ->setParameter('q', '%' . $q . '%')
+            ->setMaxResults(10);
+
+        $animals = $qb->getQuery()->getResult();
+        $results = [];
+        foreach ($animals as $a) {
+            $owner = $a->getProprietaire();
+            $results[] = [
+                'id' => $a->getId(),
+                'animal_nom' => $a->getNom(),
+                'animal_espece' => $a->getEspece(),
+                'animal_race' => $a->getRace(),
+                'animal_naissance' => $a->getAge(),
+                'animal_poids' => $a->getPoids(),
+                'owner_nom' => $owner ? $owner->getNom() : '',
+                'owner_prenom' => $owner ? $owner->getPrenom() : '',
+                'owner_email' => $owner ? $owner->getEmail() : '',
+                'owner_telephone' => $owner ? $owner->getTelephone() : '',
+            ];
+        }
+
+        return $this->json($results);
     }
 
     #[Route('/{slug}', name: 'app_vet_patients_show', methods: ['GET'])]
