@@ -14,6 +14,82 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class CarnetSanteController extends AbstractController
 {
+    #[Route('/app/tableau-de-bord/a/{slug}', name: 'app_dashboard_animal', methods: ['GET'])]
+    public function dashboardAnimal(
+        string $slug,
+        AnimalRepository $animalRepository,
+        RendezVousRepository $rendezVousRepository,
+    ): Response {
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        if ($this->isGranted('ROLE_SECRETARY')) {
+            return $this->redirectToRoute('app_home');
+        }
+
+        $selectedAnimal = $animalRepository->findOneBy([
+            'slug' => $slug,
+            'proprietaire' => $user,
+        ]);
+
+        if ($selectedAnimal === null) {
+            throw $this->createNotFoundException('Animal introuvable.');
+        }
+
+        $animals = $this->findAnimalsForOwner($animalRepository, $user);
+
+        return $this->renderDashboardPage($user, $animals, $selectedAnimal, $rendezVousRepository);
+    }
+
+    #[Route('/app/tableau-de-bord', name: 'app_dashboard', methods: ['GET'])]
+    public function dashboardIndex(
+        AnimalRepository $animalRepository,
+        RendezVousRepository $rendezVousRepository,
+        Request $request,
+    ): Response {
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        if ($this->isGranted('ROLE_SECRETARY')) {
+            return $this->redirectToRoute('app_home');
+        }
+
+        $animals = $this->findAnimalsForOwner($animalRepository, $user);
+        if ($animals === []) {
+            return $this->render('carnet_sante/dashboard.html.twig', [
+                'animals' => [],
+                'selectedAnimal' => null,
+                'visitTotal' => 0,
+                'lastVisit' => null,
+                'nextVisit' => null,
+                'recentVisits' => [],
+                'lastVets' => [],
+            ]);
+        }
+
+        $legacyAnimalId = $request->query->getInt('animal');
+        if ($legacyAnimalId > 0) {
+            foreach ($animals as $animal) {
+                if ($animal->getId() === $legacyAnimalId && $animal->getSlug() !== null && $animal->getSlug() !== '') {
+                    return $this->redirectToRoute('app_dashboard_animal', [
+                        'slug' => $animal->getSlug(),
+                    ], Response::HTTP_MOVED_PERMANENTLY);
+                }
+            }
+        }
+
+        $first = $animals[0];
+        if ($first->getSlug() !== null && $first->getSlug() !== '') {
+            return $this->redirectToRoute('app_dashboard_animal', ['slug' => $first->getSlug()]);
+        }
+
+        return $this->renderDashboardPage($user, $animals, $first, $rendezVousRepository);
+    }
+
     #[Route('/app/carnet-sante/a/{slug}', name: 'app_carnet_sante_animal', methods: ['GET'])]
     public function animal(
         string $slug,
@@ -205,6 +281,123 @@ final class CarnetSanteController extends AbstractController
             'historyTotalCount' => count($medicalHistory),
             'lastVisit' => $lastVisit,
         ]);
+    }
+
+    /**
+     * @param list<Animal> $animals
+     */
+    private function renderDashboardPage(
+        User $user,
+        array $animals,
+        Animal $selectedAnimal,
+        RendezVousRepository $rendezVousRepository,
+    ): Response {
+        [$visitTotal, $lastVisit, $nextVisit, $recentVisits, $lastVets] = $this->getDashboardStats($user, $selectedAnimal, $rendezVousRepository);
+
+        return $this->render('carnet_sante/dashboard.html.twig', [
+            'animals' => $animals,
+            'selectedAnimal' => $selectedAnimal,
+            'visitTotal' => $visitTotal,
+            'lastVisit' => $lastVisit,
+            'nextVisit' => $nextVisit,
+            'recentVisits' => $recentVisits,
+            'lastVets' => $lastVets,
+        ]);
+    }
+
+    /**
+     * @return array{0:int,1:?object,2:?object,3:list<object>,4:list<object>}
+     */
+    private function getDashboardStats(
+        User $user,
+        Animal $selectedAnimal,
+        RendezVousRepository $rendezVousRepository,
+    ): array {
+        $now = new \DateTime();
+        $visitTotal = (int) $rendezVousRepository->createQueryBuilder('r')
+            ->select('COUNT(r.id)')
+            ->andWhere('r.client = :client')
+            ->andWhere('r.animal = :animal')
+            ->setParameter('client', $user)
+            ->setParameter('animal', $selectedAnimal)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $lastVisit = $rendezVousRepository->createQueryBuilder('r')
+            ->leftJoin('r.veterinaire', 'v')->addSelect('v')
+            ->andWhere('r.client = :client')
+            ->andWhere('r.animal = :animal')
+            ->andWhere('r.dateHeure < :now OR r.statut = :annule')
+            ->setParameter('client', $user)
+            ->setParameter('animal', $selectedAnimal)
+            ->setParameter('now', $now)
+            ->setParameter('annule', 'annule')
+            ->orderBy('r.dateHeure', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        $nextVisit = $rendezVousRepository->createQueryBuilder('r')
+            ->leftJoin('r.veterinaire', 'v')->addSelect('v')
+            ->andWhere('r.client = :client')
+            ->andWhere('r.animal = :animal')
+            ->andWhere('r.dateHeure >= :now')
+            ->andWhere('r.statut != :annule')
+            ->setParameter('client', $user)
+            ->setParameter('animal', $selectedAnimal)
+            ->setParameter('now', $now)
+            ->setParameter('annule', 'annule')
+            ->orderBy('r.dateHeure', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        $recentVisits = $rendezVousRepository->createQueryBuilder('r')
+            ->leftJoin('r.veterinaire', 'v')->addSelect('v')
+            ->andWhere('r.client = :client')
+            ->andWhere('r.animal = :animal')
+            ->andWhere('r.dateHeure < :now')
+            ->andWhere('r.statut != :annule')
+            ->setParameter('client', $user)
+            ->setParameter('animal', $selectedAnimal)
+            ->setParameter('now', $now)
+            ->setParameter('annule', 'annule')
+            ->orderBy('r.dateHeure', 'DESC')
+            ->setMaxResults(2)
+            ->getQuery()
+            ->getResult();
+
+        $recentVetVisits = $rendezVousRepository->createQueryBuilder('r')
+            ->leftJoin('r.veterinaire', 'v')->addSelect('v')
+            ->andWhere('r.client = :client')
+            ->andWhere('r.animal = :animal')
+            ->andWhere('r.dateHeure < :now')
+            ->andWhere('r.statut != :annule')
+            ->setParameter('client', $user)
+            ->setParameter('animal', $selectedAnimal)
+            ->setParameter('now', $now)
+            ->setParameter('annule', 'annule')
+            ->orderBy('r.dateHeure', 'DESC')
+            ->setMaxResults(10)
+            ->getQuery()
+            ->getResult();
+
+        $lastVets = [];
+        $seenVets = [];
+        foreach ($recentVetVisits as $visit) {
+            $vet = $visit->getVeterinaire();
+            $vetId = $vet?->getId();
+            if ($vetId === null || isset($seenVets[$vetId])) {
+                continue;
+            }
+            $seenVets[$vetId] = true;
+            $lastVets[] = $vet;
+            if (count($lastVets) >= 3) {
+                break;
+            }
+        }
+
+        return [$visitTotal, $lastVisit, $nextVisit, $recentVisits, $lastVets];
     }
 
 
