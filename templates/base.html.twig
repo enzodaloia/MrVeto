@@ -33,16 +33,16 @@
 							<div>
 								<div class="fw-bold fs-5 text-primary lh-1">MrVeto</div>
 
-
 								{% if is_granted('ROLE_VETO') %}
 									<div class="text-muted" style="font-size: 0.8rem;">Dr.
 										{{ app.user.nom }}</div>
 
-
 								{% elseif is_granted('ROLE_ADMIN') %}
 									<div class="text-muted" style="font-size: 0.8rem;">Espace Admin</div>
+
 								{% elseif is_granted('ROLE_SECRETARY') %}
 									<div class="text-muted" style="font-size: 0.8rem;">Espace Secrétaire</div>
+
 								{% else %}
 									<div class="text-muted" style="font-size: 0.8rem;">Espace Propriétaire</div>
 								{% endif %}
@@ -57,13 +57,7 @@
 							</a>
 							<a href="{{ path('app_vet_planning') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route starts with 'app_vet_planning' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}" data-turbo="false">
 								<i class="bi bi-calendar-week fs-5"></i>
-							<a href="{{ path('app_vet_planning') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route starts with 'app_vet_planning' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}" data-turbo="false">
-								<i class="bi bi-calendar-week fs-5"></i>
 								Planning
-							</a>
-							<a href="{{ path('app_availability') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_availability' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}" data-turbo="false">
-								<i class="bi bi-calendar-check fs-5"></i>
-								Disponibilités
 							</a>
 							<a href="{{ path('app_availability') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_availability' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}" data-turbo="false">
 								<i class="bi bi-calendar-check fs-5"></i>
@@ -118,7 +112,6 @@
 								<i class="bi bi-grid fs-5"></i>
 								Tableau de bord
 							</a>
-							<a href="#" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_animaux' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
 							<a href="#" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_animaux' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
 								<i class="bi bi-heart fs-5"></i>
 								Mes Animaux
@@ -268,8 +261,6 @@
 									<a href="{{ path('app_home') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-grid fs-5 w-20px text-center"></i> Tableau de bord</a>
 									<a href="{{ path('app_vet_planning') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route starts with 'app_vet_planning' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-calendar-week fs-5 w-20px text-center"></i> Planning</a>
 							<a href="{{ path('app_availability') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_availability' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-calendar-check fs-5 w-20px text-center"></i> Disponibilités</a>
-									<a href="{{ path('app_vet_planning') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route starts with 'app_vet_planning' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-calendar-week fs-5 w-20px text-center"></i> Planning</a>
-							<a href="{{ path('app_availability') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_availability' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-calendar-check fs-5 w-20px text-center"></i> Disponibilités</a>
 									<a href="{{ path('app_vet_patients') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route starts with 'app_vet_patients' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-people fs-5 w-20px text-center"></i> Patients</a>
 									<a href="{{ path('app_gestion_rdv') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_gestion_rdv' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-journal-plus fs-5 w-20px text-center"></i> Gestion des RDV</a>
 									<a href="#" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_archives' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-archive fs-5 w-20px text-center"></i> Archives</a>
@@ -295,7 +286,6 @@
 									<a href="#" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
 										<i class="bi bi-grid fs-5 w-20px text-center"></i>
 										Tableau de bord</a>
-									<a href="#" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_animaux' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
 									<a href="#" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_animaux' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
 										<i class="bi bi-heart fs-5 w-20px text-center"></i>
 										Mes Animaux</a>
