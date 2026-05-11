@@ -37,6 +37,8 @@
 										{{ app.user.nom }}</div>
 								{% elseif is_granted('ROLE_ADMIN') %}
 									<div class="text-muted" style="font-size: 0.8rem;">Espace Admin</div>
+								{% elseif is_granted('ROLE_SECRETARY') %}
+									<div class="text-muted" style="font-size: 0.8rem;">Espace Secrétaire</div>
 								{% else %}
 									<div class="text-muted" style="font-size: 0.8rem;">Espace Propriétaire</div>
 								{% endif %}
@@ -102,7 +104,7 @@
 								<i class="bi bi-grid fs-5"></i>
 								Tableau de bord
 							</a>
-							<a href="{{ path('app_animaux') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_animaux' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
+							<a href="#" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_animaux' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
 								<i class="bi bi-heart fs-5"></i>
 								Mes Animaux
 							</a>
@@ -212,7 +214,10 @@
 										<strong class="text-dark d-block mb-1 fs-6">{{ app.user.prenom }}
 											{{ app.user.nom }}</strong>
 										<small class="text-muted">
-											{% if is_granted('ROLE_VETO') %}Vétérinaire{% else %}Propriétaire
+											{% if is_granted('ROLE_VETO') %}Vétérinaire
+											{% elseif is_granted('ROLE_ADMIN') %}Admin
+											{% elseif is_granted('ROLE_SECRETARY') %}Secrétaire
+											{% else %}Propriétaire
 											{% endif %}
 										</small>
 									</div>
@@ -272,7 +277,7 @@
 									<a href="#" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
 										<i class="bi bi-grid fs-5 w-20px text-center"></i>
 										Tableau de bord</a>
-									<a href="{{ path('app_animaux') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_animaux' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
+									<a href="#" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_animaux' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
 										<i class="bi bi-heart fs-5 w-20px text-center"></i>
 										Mes Animaux</a>
 									<a href="{{ path('app_rendezvous') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_rendezvous' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">

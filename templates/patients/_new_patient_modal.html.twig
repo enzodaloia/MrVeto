@@ -18,11 +18,11 @@
                     <input type="hidden" name="existing_animal_id" value="">
 
                     <!-- RECHERCHE GLOBALE -->
-                    <div class="mb-4 pb-4 border-bottom">
+                    <div class="mb-4 pb-4 border-bottom" data-controller="patient-search" data-patient-search-url-value="{{ path('app_vet_patients_search_all') }}" data-action="click@window->patient-search#clickOutside">
                         <label class="form-label small fw-medium text-dark"><i class="bi bi-search text-primary me-2"></i>Rechercher un patient existant (base de données globale)</label>
                         <div class="position-relative">
-                            <input type="text" id="searchExistingPatient" class="form-control" placeholder="Rechercher par nom de l'animal, nom du propriétaire, email..." autocomplete="off">
-                            <div id="searchResults" class="list-group position-absolute w-100 shadow mt-1" style="display:none; z-index: 1050; max-height: 250px; overflow-y: auto;">
+                            <input type="text" id="searchExistingPatient" data-patient-search-target="input" data-action="input->patient-search#search" class="form-control" placeholder="Rechercher par nom de l'animal, nom du propriétaire, email..." autocomplete="off">
+                            <div id="searchResults" data-patient-search-target="results" class="list-group position-absolute w-100 shadow mt-1" style="display:none; z-index: 1050; max-height: 250px; overflow-y: auto;">
                             </div>
                         </div>
                     </div>
@@ -128,77 +128,3 @@
     </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchExistingPatient');
-    const resultsContainer = document.getElementById('searchResults');
-    let timeoutId;
-
-    if (!searchInput || !resultsContainer) return;
-
-    searchInput.addEventListener('input', function() {
-        clearTimeout(timeoutId);
-        const q = this.value.trim();
-        if (q.length < 2) {
-            resultsContainer.style.display = 'none';
-            return;
-        }
-
-        timeoutId = setTimeout(() => {
-            fetch('{{ path("app_vet_patients_search_all") }}?q=' + encodeURIComponent(q))
-                .then(response => response.json())
-                .then(data => {
-                    resultsContainer.innerHTML = '';
-                    if (data.length > 0) {
-                        data.forEach(item => {
-                            const a = document.createElement('a');
-                            a.href = '#';
-                            a.className = 'list-group-item list-group-item-action py-2';
-                            a.innerHTML = `
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <strong class="text-primary">${item.animal_nom}</strong> <span class="text-muted small">(${item.animal_espece || 'Espèce inconnue'})</span>
-                                    </div>
-                                    <div class="small text-muted">
-                                        <i class="bi bi-person"></i> ${item.owner_prenom} ${item.owner_nom}
-                                    </div>
-                                </div>
-                            `;
-                            a.addEventListener('click', function(e) {
-                                e.preventDefault();
-                                // Remplir le formulaire
-                                document.querySelector('input[name="existing_animal_id"]').value = item.id;
-                                document.querySelector('input[name="animal_nom"]').value = item.animal_nom || '';
-                                document.querySelector('select[name="animal_espece"]').value = item.animal_espece || '';
-                                document.querySelector('input[name="animal_race"]').value = item.animal_race || '';
-                                document.querySelector('input[name="animal_naissance"]').value = item.animal_naissance || '';
-                                document.querySelector('input[name="animal_poids"]').value = item.animal_poids || '';
-                                
-                                document.querySelector('input[name="owner_nom"]').value = item.owner_nom || '';
-                                document.querySelector('input[name="owner_prenom"]').value = item.owner_prenom || '';
-                                document.querySelector('input[name="owner_telephone"]').value = item.owner_telephone || '';
-                                document.querySelector('input[name="owner_email"]').value = item.owner_email || '';
-                                
-                                resultsContainer.style.display = 'none';
-                                searchInput.value = ''; // On peut vider ou laisser le texte
-                            });
-                            resultsContainer.appendChild(a);
-                        });
-                        resultsContainer.style.display = 'block';
-                    } else {
-                        resultsContainer.innerHTML = '<div class="list-group-item text-muted small">Aucun patient trouvé.</div>';
-                        resultsContainer.style.display = 'block';
-                    }
-                })
-                .catch(err => console.error(err));
-        }, 300);
-    });
-
-    // Cacher les résultats au clic à l'extérieur
-    document.addEventListener('click', function(e) {
-        if (!searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
-            resultsContainer.style.display = 'none';
-        }
-    });
-});
-</script>
