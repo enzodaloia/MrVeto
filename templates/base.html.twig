@@ -179,7 +179,7 @@
 											</span>
 										{% endif %}
 									</button>
-									<div class="dropdown-menu dropdown-menu-end border-0 shadow-sm p-0 overflow-hidden" style="width: 360px; max-width: 90vw;">
+									<div class="dropdown-menu dropdown-menu-end border-0 shadow-sm p-0 overflow-hidden" style="width: 360px; max-width: 90vw; z-index: 9999999;">
 										<div class="px-3 py-2 bg-light border-bottom">
 											<strong class="text-dark">Notifications</strong>
 										</div>
@@ -361,7 +361,7 @@
 
 					{% block body %}{% endblock %}
 
-					<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 2000;">
+					<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999999;">
 						{% for flash in app.flashes('success') %}
 							<twig:Toast type="success" message="{{ flash }}"/>
 						{% endfor %}

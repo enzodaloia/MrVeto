@@ -74,13 +74,13 @@
 
                             <div class="d-flex gap-2 mt-3 mt-md-0">
                                 {% if rdv.statut != 'confirme' %}
-                                    <button class="btn btn-success rounded-pill px-4 fw-medium border-0"
+                                    <button class="btn btn-success text-white rounded-pill px-4 fw-medium border-0"
                                             data-action="click->rendezvous#confirmRdv"
                                             data-slug="{{ rdv.slug }}">
                                         Confirmer
                                     </button>
                                 {% endif %}
-                                <button class="btn btn-outline-secondary rounded-pill px-4 fw-medium border-light-subtle"
+                                <button class="btn btn-primary text-white rounded-pill px-4 fw-medium border-0"
                                         data-action="click->rendezvous#openEditModal"
                                         data-slug="{{ rdv.slug }}"
                                         data-vet="{{ rdv.client.prenom|default('Client') }} {{ rdv.client.nom|default('') }}"
@@ -131,8 +131,6 @@
                     <label class="form-label text-muted small mb-1" for="status">Statut</label>
                     <select id="status" name="status" class="form-select">
                         <option value="all" {% if filters.status == 'all' %}selected{% endif %}>Tous</option>
-                        <option value="en_attente" {% if filters.status == 'en_attente' %}selected{% endif %}>En attente</option>
-                        <option value="confirme" {% if filters.status == 'confirme' %}selected{% endif %}>Confirme</option>
                         <option value="termine" {% if filters.status == 'termine' %}selected{% endif %}>Termine</option>
                         <option value="annule" {% if filters.status == 'annule' %}selected{% endif %}>Annule</option>
                     </select>
@@ -146,7 +144,7 @@
                     <input id="animal" name="animal" type="text" class="form-control" placeholder="Nom" value="{{ filters.animal }}">
                 </div>
                 <div class="col-12 col-md-1 d-grid">
-                    <button type="submit" class="btn btn-primary fw-bold">Filtrer</button>
+                    <button type="submit" class="btn btn-primary text-white fw-bold">Filtrer</button>
                 </div>
             </div>
         </form>
@@ -203,25 +201,25 @@
                         </div>
                     </div>
                     <h4 class="fw-bold text-dark mb-3">Annuler le rendez-vous</h4>
-                    <p class="text-muted mb-4">Êtes-vous sûr(e) de vouloir annuler ce rendez-vous ? L'annulation libérera le créneau :</p>
+                    <p class="text-info text-muted mb-4">Êtes-vous sûr(e) de vouloir annuler ce rendez-vous ? L'annulation libérera le créneau :</p>
 
                     <div class="bg-light rounded-3 p-3 mb-4 d-flex justify-content-center gap-4 align-items-center">
                         <div class="d-flex align-items-center gap-2">
                             <i class="bi bi-calendar-event text-primary fs-5"></i>
-                            <span class="fw-bold text-dark" data-rendezvous-target="modalDate"></span>
+                            <span class="text-info fw-bold text-dark" data-rendezvous-target="modalDate"></span>
                         </div>
                         <div class="border-start border-2 border-secondary" style="height: 30px; opacity: 0.2;"></div>
                         <div class="d-flex align-items-center gap-2">
                             <i class="bi bi-clock text-primary fs-5"></i>
-                            <span class="fw-bold text-dark" data-rendezvous-target="modalTime"></span>
+                            <span class="text-info fw-bold text-dark" data-rendezvous-target="modalTime"></span>
                         </div>
                     </div>
 
                     <div class="d-flex flex-column flex-sm-row gap-2">
-                        <button type="button" class="btn btn-light rounded-pill fw-bold w-100 py-3" data-bs-dismiss="modal">
+                        <button type="button" class="btn btn-info text-white border-0 rounded-3 fw-bold w-50 py-3" data-bs-dismiss="modal">
                             Conserver le rendez-vous
                         </button>
-                        <button type="button" class="btn btn-danger rounded-pill fw-bold w-100 py-3" data-action="click->rendezvous#confirmCancel" data-rendezvous-target="confirmCancelBtn">
+                        <button type="button" class="btn btn-danger text-white border-0 rounded-3 fw-bold w-50 py-3" data-action="click->rendezvous#confirmCancel" data-rendezvous-target="confirmCancelBtn">
                             Annuler le rendez-vous
                         </button>
                     </div>
@@ -268,11 +266,11 @@
                     </div>
 
                     <div class="d-flex gap-3 mt-4">
-                        <button type="button" class="btn btn-info text-white border-0 rounded-3 fw-bold w-50 py-3" data-bs-dismiss="modal">
+                        <button type="button" class="btn btn-danger text-white border-0 rounded-3 fw-bold w-50 py-3" data-bs-dismiss="modal">
                             Retour
                         </button>
-                        <button type="button" class="btn btn-danger text-white border-0 rounded-3 fw-bold w-50 py-3" data-action="click->rendezvous#confirmEdit" data-rendezvous-target="confirmEditBtn">
-                            Modifier le rendez-vous
+                        <button type="button" class="btn btn-info text-white border-0 rounded-3 fw-bold w-50 py-3" data-action="click->rendezvous#confirmEdit" data-rendezvous-target="confirmEditBtn">
+                            Modifier mon rendez-vous
                         </button>
                     </div>
                 </div>
