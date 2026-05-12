@@ -59,6 +59,41 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 //        ;
 //    }
     /**
+     * Returns a QueryBuilder for vets, with optional bounding-box distance filtering.
+     * Pass to KnpPaginator so it can handle pagination itself.
+     */
+    public function createVetsQueryBuilder(?float $lat = null, ?float $lon = null, ?int $distance = null): \Doctrine\ORM\QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('u')
+            ->andWhere('u.roles LIKE :role')
+            ->andWhere('u.isVerified = :isVerified')
+            ->setParameter('role', '%"ROLE_VETO"%')
+            ->setParameter('isVerified', true)
+            ->orderBy('u.nom', 'ASC');
+
+        if ($lat !== null && $lon !== null && $distance !== null && $distance > 0) {
+            $latPerKm = 1 / 111.0;
+            $lonPerKm = 1 / (111.0 * cos(deg2rad($lat)));
+
+            $latMin = $lat - ($distance * $latPerKm);
+            $latMax = $lat + ($distance * $latPerKm);
+            $lonMin = $lon - ($distance * $lonPerKm);
+            $lonMax = $lon + ($distance * $lonPerKm);
+
+            $qb->andWhere('(u.latitude + 0) >= :latMin')
+                ->andWhere('(u.latitude + 0) <= :latMax')
+                ->andWhere('(u.longitude + 0) >= :lonMin')
+                ->andWhere('(u.longitude + 0) <= :lonMax')
+                ->setParameter('latMin', $latMin)
+                ->setParameter('latMax', $latMax)
+                ->setParameter('lonMin', $lonMin)
+                ->setParameter('lonMax', $lonMax);
+        }
+
+        return $qb;
+    }
+
+    /**
      * @return Paginator Returns a Paginator of User objects with ROLE_VETO
      */
     public function findAllVets(int $page = 1, int $limit = 10, ?float $lat = null, ?float $lon = null, ?int $distance = null): Paginator

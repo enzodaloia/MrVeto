@@ -9,10 +9,8 @@
 {% endblock %}
 
 {% block body %}
-    <html lang="fr">
     {# Main Container #}
-    <div
-        class="container-xxl min-vh-100 d-flex flex-column gap-4 py-4">
+    <div class="container-xxl d-flex flex-column gap-4 py-4">
 
         {# Sticky Search Bar #}
         <div
@@ -183,9 +181,74 @@
                             <p class="mb-0">Aucun vétérinaire trouvé pour cette recherche.</p>
                         </div>
                     {% endfor %}
-                    <div class="mt-4 d-flex justify-content-center">
-                        {{ knp_pagination_render(pagination) }}
-                    </div>
+
+                    {# Pagination Controls #}
+                    {% set totalItems = pagination.getTotalItemCount() %}
+                    {% set totalPages = totalItems > 0 ? (totalItems / limit)|round(0, 'ceil') : 1 %}
+                    {% set baseParams = app.request.query.all|filter((v, k) => k != 'page' and k != 'limit') %}
+
+                    {% if totalPages > 1 or totalItems > 0 %}
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 p-3 bg-white rounded-pill shadow-sm">
+
+                            {# Limit Dropdown #}
+                            <div class="d-flex align-items-center gap-2 mb-3 mb-md-0 ms-2">
+                                <span class="text-muted small fw-medium">Nombre de résultats</span>
+                                <div class="dropup">
+                                    <button class="btn btn-white rounded-pill d-flex align-items-center justify-content-between gap-2 border px-3 limit-dropdown-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-display="static">
+                                        <span class="fw-medium text-dark pe-2">{{ limit }}</span>
+                                        <twig:ux:icon class="fs-6 text-muted" name="lucide:chevron-up"/>
+                                    </button>
+                                    <ul class="dropdown-menu shadow-sm border rounded-top-4 mb-0 p-0 limit-dropdown-menu" style="min-width: 100%;">
+                                        <li><a class="dropdown-item limit-dropdown-item rounded-top-4 {% if limit == 10 %}bg-light fw-bold{% endif %} py-2 text-center text-dark" href="{{ path('app_search_vet', baseParams|merge({limit: 10, page: 1})) }}">10</a></li>
+                                        <li><a class="dropdown-item limit-dropdown-item {% if limit == 20 %}bg-light fw-bold{% endif %} py-2 text-center text-dark" href="{{ path('app_search_vet', baseParams|merge({limit: 20, page: 1})) }}">20</a></li>
+                                        <li><a class="dropdown-item limit-dropdown-item {% if limit == 50 %}bg-light fw-bold{% endif %} py-2 text-center text-dark" href="{{ path('app_search_vet', baseParams|merge({limit: 50, page: 1})) }}">50</a></li>
+                                    </ul>
+                                </div>
+                                <span class="text-muted ms-2 small">sur {{ totalItems }} lignes</span>
+                            </div>
+
+                            {# Page Nav Pills #}
+                            <div class="d-flex gap-2 pe-2">
+                                {# First & Prev #}
+                                <a href="{{ path('app_search_vet', baseParams|merge({limit: limit, page: 1})) }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage <= 1 %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;">
+                                    <twig:ux:icon class="fs-6 text-muted" name="lucide:chevrons-left"/>
+                                </a>
+                                <a href="{{ path('app_search_vet', baseParams|merge({limit: limit, page: currentPage - 1})) }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage <= 1 %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;">
+                                    <twig:ux:icon class="fs-6 text-muted" name="lucide:chevron-left"/>
+                                </a>
+
+                                {# Dynamic Pages #}
+                                {% set startPage = max(1, currentPage - 1) %}
+                                {% set endPage = min(totalPages, startPage + 2) %}
+                                {% if endPage - startPage < 2 and startPage > 1 %}
+                                    {% set startPage = max(1, endPage - 2) %}
+                                {% endif %}
+
+                                {% for i in startPage..endPage %}
+                                    <a href="{{ path('app_search_vet', baseParams|merge({limit: limit, page: i})) }}" class="btn rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover fw-medium {% if i == currentPage %}bg-dark text-white border-0{% else %}btn-white text-muted{% endif %}" style="width: 40px; height: 40px; {% if i != currentPage %}border: 1px solid #dee2e6;{% endif %}">
+                                        {{ i }}
+                                    </a>
+                                {% endfor %}
+
+                                {# Ellipsis + last page #}
+                                {% if endPage < totalPages %}
+                                    <span class="d-flex align-items-center justify-content-center text-muted px-1">...</span>
+                                    <a href="{{ path('app_search_vet', baseParams|merge({limit: limit, page: totalPages})) }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover text-muted fw-medium" style="width: 40px; height: 40px; border: 1px solid #dee2e6;">
+                                        {{ totalPages }}
+                                    </a>
+                                {% endif %}
+
+                                {# Next & Last #}
+                                <a href="{{ path('app_search_vet', baseParams|merge({limit: limit, page: currentPage + 1})) }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage >= totalPages %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;">
+                                    <twig:ux:icon class="fs-6 text-muted" name="lucide:chevron-right"/>
+                                </a>
+                                <a href="{{ path('app_search_vet', baseParams|merge({limit: limit, page: totalPages})) }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage >= totalPages %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;">
+                                    <twig:ux:icon class="fs-6 text-muted" name="lucide:chevrons-right"/>
+                                </a>
+                            </div>
+
+                        </div>
+                    {% endif %}
                 </div>
             </div>
 
@@ -203,7 +266,6 @@
 
         </div>
     </div>
-    </html>
 
     <script>
         function updateDistance(value, label, event) {
@@ -216,14 +278,14 @@
     <style>
         /* Limit Dropdown Component Styles */
         .limit-dropdown-btn[aria-expanded="true"] {
-            border-radius: 1rem 1rem 0 0 !important;
-            border-bottom-color: transparent !important;
+            border-radius: 0 0 1rem 1rem !important;
+            border-top-color: transparent !important;
         }
         .limit-dropdown-menu {
-            margin-top: -1px !important; /* overlap the border */
-            border-top-left-radius: 0 !important;
-            border-top-right-radius: 0 !important;
-            border-top: none !important;
+            margin-bottom: -1px !important;
+            border-bottom-left-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+            border-bottom: none !important;
             transition: none !important;
             transform: none !important;
         }
@@ -264,14 +326,10 @@
 
         /* Smooth Dropdown Animation */
         .dropdown-menu {
-            display: block;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(10px);
-            transition: all 0.2s ease;
-            z-index: 1000;
+            display: none;
         }
         .dropdown-menu.show {
+            display: block;
             opacity: 1;
             visibility: visible;
             transform: translateY(0);

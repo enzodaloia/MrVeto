@@ -16,13 +16,13 @@
 			{{ encore_entry_script_tags('app') }}
 		{% endblock %}
 	</head>
-	<body class="{% if app.user %}bg-warning-bg{% else %}bg-light{% endif %}">
+	<body class="{% if app.user %}bg-warning-bg{% else %}bg-light{% endif %}" {% if app.user %}style="overflow: hidden; height: 100vh;"{% endif %}>
 
 		{% if not hiddenNavbar is defined and app.user %}
 			{% set current_route = app.request.attributes.get('_route')|default('') %}
 			{% set navbarNotifications = navbar_notifications() %}
 			<div
-				class="d-flex min-vh-100">
+				class="d-flex bg-white" style="height: 100vh;">
 
 				<!-- Sidebar (Desktop only) -->
 				<aside class="d-none d-lg-flex flex-column bg-white shadow-sm flex-shrink-0" style="width: 280px; position: sticky; top: 0; height: 100vh; overflow-y: auto;">
@@ -149,7 +149,7 @@
 
 				<!-- Main Content Wrapper -->
 				<div
-					class="flex-grow-1 d-flex flex-column" style="min-width: 0; overflow: hidden;">
+					class="flex-grow-1 d-flex flex-column" style="min-width: 0; height: 100vh; overflow-y: auto; overflow-x: hidden;">
 
 					<!-- Top Navbar (User Logged In) -->
 					<nav class="navbar navbar-expand-lg py-3 px-3 px-lg-4">
@@ -315,75 +315,79 @@
 						</div>
 					</nav>
 
-					<main class="flex-grow-1 p-3 p-lg-4 bg-secondary-bg" style="min-height: 100vh; overflow-y: auto;">
-					{% elseif not hiddenNavbar is defined %}
+					<main class="flex-grow-1 p-3 p-lg-4 bg-secondary-bg">
+				{% elseif not hiddenNavbar is defined %}
 
-						<!-- Disconnected / Public Navbar -->
-						<nav class="navbar navbar-expand-lg navbar-light bg-warning-bg py-4 shadow-sm">
-							<div class="container-fluid px-lg-5">
-								<a class="navbar-brand fw-bold text-dark" href="{{ path('app_home') }}"><img src="{{ asset('assets/img/MrVeto.png') }}" alt="Logo MrVeto" class="img-fluid" width="100"></a>
+					<!-- Disconnected / Public Navbar -->
+					<nav class="navbar navbar-expand-lg navbar-light bg-warning-bg py-4 shadow-sm">
+						<div class="container-fluid px-lg-5">
+							<a class="navbar-brand fw-bold text-dark" href="{{ path('app_home') }}"><img src="{{ asset('assets/img/MrVeto.png') }}" alt="Logo MrVeto" class="img-fluid" width="100"></a>
 
-								<button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-									<span class="navbar-toggler-icon"></span>
-								</button>
+							<button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+								<span class="navbar-toggler-icon"></span>
+							</button>
 
-								<div class="collapse navbar-collapse mt-3 mt-lg-0" id="navbarContent">
-									<div class="bg-white rounded-4 rounded-lg-pill px-4 py-3 py-lg-2 shadow-sm d-flex flex-column flex-lg-row gap-3 gap-lg-4 align-items-start align-items-lg-center mx-auto">
-										<a class="nav-link text-muted hover-text-primary d-flex align-items-center gap-2" href="{{ path('app_search_vet') }}">
-											<i class="bi bi-seach d-inline-block d-lg-none"></i>
-											Recherche
-										</a>
-										<a class="nav-link text-muted hover-text-primary d-flex align-items-center gap-2" href="{{path('app_search_vet')}}">
-											<i class="bi bi-search d-inline-block d-lg-none"></i>
-											Rechercher un vétérinaire
-										</a>
+							<div class="collapse navbar-collapse mt-3 mt-lg-0" id="navbarContent">
+								<div class="bg-white rounded-4 rounded-lg-pill px-4 py-3 py-lg-2 shadow-sm d-flex flex-column flex-lg-row gap-3 gap-lg-4 align-items-start align-items-lg-center mx-auto">
+									<a class="nav-link text-muted hover-text-primary d-flex align-items-center gap-2" href="{{ path('app_home') }}">
+										<i class="bi bi-house d-inline-block d-lg-none"></i>
+										Accueil
+									</a>
+									<a class="nav-link text-muted hover-text-primary d-flex align-items-center gap-2" href="{{path('app_search_vet')}}">
+										<i class="bi bi-search d-inline-block d-lg-none"></i>
+										Rechercher un vétérinaire
+									</a>
 
-										<div class="dropdown w-lg-auto">
-											<button class="btn dropdown-toggle text-start px-0 px-lg-3 text-muted" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-												S'inscrire
-											</button>
-											<ul class="dropdown-menu border-0 shadow-sm" aria-labelledby="dropdownMenuButton">
-												<li>
-													<a class="dropdown-item" href="{{ path('app_register', {'type': 'veterinaire'}) }}">Vétérinaire</a>
-												</li>
-												<li>
-													<a class="dropdown-item" href="{{ path('app_register', {'type': 'utilisateur'}) }}">Utilisateur</a>
-												</li>
-											</ul>
-										</div>
-										<a class="nav-link text-muted hover-text-primary" href="{{ path('app_login') }}">Me connecter</a>
+									<div class="dropdown w-lg-auto">
+										<button class="btn dropdown-toggle text-start px-0 px-lg-3 text-muted" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+											S'inscrire
+										</button>
+										<ul class="dropdown-menu border-0 shadow-sm" aria-labelledby="dropdownMenuButton">
+											<li>
+												<a class="dropdown-item" href="{{ path('app_register', {'type': 'veterinaire'}) }}">Vétérinaire</a>
+											</li>
+											<li>
+												<a class="dropdown-item" href="{{ path('app_register', {'type': 'utilisateur'}) }}">Utilisateur</a>
+											</li>
+										</ul>
 									</div>
+									<a class="nav-link text-muted hover-text-primary" href="{{ path('app_login') }}">Me connecter</a>
 								</div>
 							</div>
-						</nav>
+						</div>
+					</nav>
 
-					{% endif %}
+					<main class="p-3 p-lg-4 bg-warning-bg">
+				{% else %}
+					<main>
+				{% endif %}
 
-					{% block body %}{% endblock %}
+				{% block body %}{% endblock %}
 
-					<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 2000;">
-						{% for flash in app.flashes('success') %}
-							<twig:Toast type="success" message="{{ flash }}"/>
-						{% endfor %}
-						{% for flash in app.flashes('info') %}
-							<twig:Toast type="info" message="{{ flash }}"/>
-						{% endfor %}
-						{% for flash in app.flashes('warning') %}
-							<twig:Toast type="warning" message="{{ flash }}"/>
-						{% endfor %}
-						{% for flash in app.flashes('danger') %}
-							<twig:Toast type="danger" message="{{ flash }}"/>
-						{% endfor %}
-						{% for flash in app.flashes('error') %}
-							<twig:Toast type="danger" message="{{ flash }}"/>
-						{% endfor %}
-						{% for flash in app.flashes('reset_password_error') %}
-							<twig:Toast type="danger" message="{{ flash }}"/>
-						{% endfor %}
-					</div>
+				<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 2000;">
+					{% for flash in app.flashes('success') %}
+						<twig:Toast type="success" message="{{ flash }}"/>
+					{% endfor %}
+					{% for flash in app.flashes('info') %}
+						<twig:Toast type="info" message="{{ flash }}"/>
+					{% endfor %}
+					{% for flash in app.flashes('warning') %}
+						<twig:Toast type="warning" message="{{ flash }}"/>
+					{% endfor %}
+					{% for flash in app.flashes('danger') %}
+						<twig:Toast type="danger" message="{{ flash }}"/>
+					{% endfor %}
+					{% for flash in app.flashes('error') %}
+						<twig:Toast type="danger" message="{{ flash }}"/>
+					{% endfor %}
+					{% for flash in app.flashes('reset_password_error') %}
+						<twig:Toast type="danger" message="{{ flash }}"/>
+					{% endfor %}
+				</div>
 
-					{% if not hiddenNavbar is defined and app.user %}
-					</main>
+				</main>
+
+				{% if not hiddenNavbar is defined and app.user %}
 				</div>
 			</div>
 		{% endif %}
