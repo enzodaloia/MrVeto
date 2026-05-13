@@ -3,12 +3,31 @@
 {% block title %}MrVeto - Trouver un vétérinaire
 {% endblock %}
 
-{% block stylesheets %}
-    {{ parent() }}
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-{% endblock %}
-
 {% block body %}
+    {# Vets data for the Stimulus map controller #}
+    {% set vetsData = [] %}
+    {% for vet in pagination %}
+        {% if vet.latitude and vet.longitude %}
+            {% set avail = vetAvailability[vet.id]|default({'isOpen': false, 'label': 'Fermé', 'detail': 'Aucun horaire renseigné'}) %}
+            {% set vetsData = vetsData|merge([{
+                lat: vet.latitude,
+                lon: vet.longitude,
+                nom: 'Dr. ' ~ vet.prenom ~ ' ' ~ vet.nom,
+                adresse: vet.adressecabinet ?? '',
+                url: path('app_vet_info', {slug: vet.slug}),
+                isOpen: avail.isOpen,
+                availLabel: avail.label,
+                availDetail: avail.detail
+            }]) %}
+        {% endif %}
+    {% endfor %}
+
+    {# Wrapper Stimulus controller (englobe le container ET la modal) #}
+    <div data-controller="searchmap"
+         data-searchmap-user-lat-value="{{ lat is not null ? lat : '' }}"
+         data-searchmap-user-lon-value="{{ lon is not null ? lon : '' }}"
+         data-searchmap-vets-value="{{ vetsData|json_encode|e('html_attr') }}">
+
     {# Main Container #}
     <div class="container-xxl d-flex flex-column gap-4 py-4">
 
@@ -43,7 +62,7 @@
                                         <!-- Invisible spacer to force width to the maximum possible value "100 km" -->
                                         <span class="fw-medium text-dark invisible" aria-hidden="true">100 km</span>
                                         <!-- Actual absolute positioned label that updates -->
-                                        <span class="text-dark fw-medium text-truncate position-absolute start-0 top-0 w-100" id="distanceLabel">{{ distance }}
+                                        <span class="text-dark fw-medium text-truncate position-absolute start-0 top-0 w-100" id="distanceLabel" data-searchmap-target="distanceLabel">{{ distance }}
 											km</span>
                                     </div>
                                 </div>
@@ -51,22 +70,22 @@
                             </button>
                             <ul class="dropdown-menu border-0 shadow-sm rounded-bottom-4 mt-0 p-0 w-100 limit-dropdown-menu">
                                 <li>
-                                    <a class="dropdown-item limit-dropdown-item py-2 fw-medium" href="#" onclick="updateDistance('5', '5 km', event)">5 km</a>
+                                    <a class="dropdown-item limit-dropdown-item py-2 fw-medium" href="#" data-action="click->searchmap#updateDistance" data-searchmap-distance-value-param="5" data-searchmap-distance-label-param="5 km">5 km</a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item limit-dropdown-item py-2 fw-medium" href="#" onclick="updateDistance('10', '10 km', event)">10 km</a>
+                                    <a class="dropdown-item limit-dropdown-item py-2 fw-medium" href="#" data-action="click->searchmap#updateDistance" data-searchmap-distance-value-param="10" data-searchmap-distance-label-param="10 km">10 km</a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item limit-dropdown-item py-2 fw-medium" href="#" onclick="updateDistance('20', '20 km', event)">20 km</a>
+                                    <a class="dropdown-item limit-dropdown-item py-2 fw-medium" href="#" data-action="click->searchmap#updateDistance" data-searchmap-distance-value-param="20" data-searchmap-distance-label-param="20 km">20 km</a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item limit-dropdown-item py-2 fw-medium" href="#" onclick="updateDistance('50', '50 km', event)">50 km</a>
+                                    <a class="dropdown-item limit-dropdown-item py-2 fw-medium" href="#" data-action="click->searchmap#updateDistance" data-searchmap-distance-value-param="50" data-searchmap-distance-label-param="50 km">50 km</a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item limit-dropdown-item rounded-bottom-4 py-2 fw-medium" href="#" onclick="updateDistance('100', '100 km', event)">100 km</a>
+                                    <a class="dropdown-item limit-dropdown-item rounded-bottom-4 py-2 fw-medium" href="#" data-action="click->searchmap#updateDistance" data-searchmap-distance-value-param="100" data-searchmap-distance-label-param="100 km">100 km</a>
                                 </li>
                             </ul>
-                            <input type="hidden" name="distance" id="distanceInput" value="{{ distance }}">
+                            <input type="hidden" name="distance" id="distanceInput" data-searchmap-target="distanceInput" value="{{ distance }}">
                         </div>
                     </div>
 
@@ -255,9 +274,9 @@
             {# Right Column: Map #}
             <div class="col-lg-3 d-none d-lg-block">
                 <div class="sticky-top" style="top: 100px;">
-                    <div class="bg-light rounded-4 d-flex align-items-center justify-content-center text-muted fw-bold shadow-sm position-relative overflow-hidden" style="aspect-ratio: 1/1;">
-                        Carte Interactive
-                        <button class="btn btn-white position-absolute top-0 end-0 m-2 rounded-circle shadow-sm p-2 d-flex align-items-center justify-content-center hover-scale" style="width: 32px; height: 32px;" title="Agrandir la carte">
+                    <div id="search-map-wrapper" class="rounded-4 shadow-sm overflow-hidden position-relative" style="height: 480px;" data-searchmap-target="mapWrapper">
+                        <div id="search-map" style="height: 100%; width: 100%;" data-searchmap-target="map"></div>
+                        <button id="map-expand-btn" class="btn bg-white border-0 position-absolute top-0 end-0 m-2 rounded-circle shadow-sm p-2 d-flex align-items-center justify-content-center hover-scale" style="width: 32px; height: 32px; z-index: 1000;" title="Agrandir la carte" data-action="click->searchmap#toggleMapExpand">
                             <twig:ux:icon class="fs-5 text-primary" name="lucide:expand"/>
                         </button>
                     </div>
@@ -267,80 +286,19 @@
         </div>
     </div>
 
-    <script>
-        function updateDistance(value, label, event) {
-            event.preventDefault();
-            document.getElementById('distanceInput').value = value;
-            document.getElementById('distanceLabel').textContent = label;
-        }
-    </script>
+    <div class="modal fade" id="searchMapModal" tabindex="-1" aria-hidden="true" data-searchmap-target="modal">
+        <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 90vw;">
+            <div class="modal-content border-0 shadow-lg overflow-hidden" style="height: 85vh; position: relative;">
+                <button type="button"
+                        class="btn bg-white border-0 position-absolute top-0 end-0 m-3 rounded-circle shadow d-flex align-items-center justify-content-center"
+                        style="width:36px;height:36px;z-index:1010;"
+                        data-bs-dismiss="modal" aria-label="Fermer">
+                    <twig:ux:icon class="fs-5 text-secondary" name="lucide:x"/>
+                </button>
+                <div data-searchmap-target="modalMap" style="height: 100%; width: 100%;"></div>
+            </div>
+        </div>
+    </div>
 
-    <style>
-        /* Limit Dropdown Component Styles */
-        .limit-dropdown-btn[aria-expanded="true"] {
-            border-radius: 0 0 1rem 1rem !important;
-            border-top-color: transparent !important;
-        }
-        .limit-dropdown-menu {
-            margin-bottom: -1px !important;
-            border-bottom-left-radius: 0 !important;
-            border-bottom-right-radius: 0 !important;
-            border-bottom: none !important;
-            transition: none !important;
-            transform: none !important;
-        }
-        .limit-dropdown-item:active,
-        .limit-dropdown-item:focus {
-            background-color: #f8f9fa !important;
-            color: #212529 !important;
-        }
-
-        /* Minimal Custom Styles for interactions that Bootstrap doesn't fully cover smoothly */
-        .transition-hover {
-            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
-        }
-        .transition-hover:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1) !important;
-        }
-
-        .custom-hover-lift {
-            transition: transform 0.2s;
-        }
-        .custom-hover-lift:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
-        }
-
-        .hover-scale {
-            transition: transform 0.2s;
-        }
-        .hover-scale:hover {
-            transform: scale(1.1);
-        }
-
-        /* Remove Dropdown Caret for cleaner look */
-        .remove-caret::after {
-            display: none !important;
-        }
-
-        /* Smooth Dropdown Animation */
-        .dropdown-menu {
-            display: none;
-        }
-        .dropdown-menu.show {
-            display: block;
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .interactive-map {
-            z-index: -1;
-        }
-
-        .zindex-moins1 {
-            z-index: -1;
-        }
-    </style>
+    </div>
 {% endblock %}
