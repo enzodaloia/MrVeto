@@ -124,22 +124,15 @@
 							</div>
 							<div class="col-md-6">
 								<label class="form-label text-muted small fw-semibold">Téléphone</label>
-								<input type="text" name="user_admin[telephone]" class="form-control rounded-3" data-controller="phone-input" data-action="input->phone-input#format" required minlength="10" maxlength="12">
+								<input type="text" name="user_admin[telephone]" class="form-control rounded-3" data-controller="phone-input" data-action="input->phone-input#format">
 							</div>
-							<div class="col-12" data-controller="autocomplete-address" data-autocomplete-address-theme-value="form">
-								<div class="row g-3">
-									<div class="col-12">
-										<label class="form-label text-muted small fw-semibold">Adresse postale</label>
-										<div class="position-relative">
-											<input type="text" name="user_admin[adresse]" class="form-control rounded-3" data-autocomplete-address-target="input street" data-action="input->autocomplete-address#search" autocomplete="off" required>
-											<div data-autocomplete-address-target="results" class="position-absolute start-0 end-0 top-100 z-3"></div>
-										</div>
-									</div>
-									<div class="col-md-6">
-										<label class="form-label text-muted small fw-semibold">Ville</label>
-										<input type="text" name="user_admin[ville]" class="form-control rounded-3" data-autocomplete-address-target="city" readonly required>
-									</div>
-								</div>
+							<div class="col-md-6">
+								<label class="form-label text-muted small fw-semibold">Ville</label>
+								<input type="text" name="user_admin[ville]" class="form-control rounded-3">
+							</div>
+							<div class="col-12">
+								<label class="form-label text-muted small fw-semibold">Adresse postale</label>
+								<input type="text" name="user_admin[adresse]" class="form-control rounded-3">
 							</div>
 						</div>
 					</div>
