@@ -18,6 +18,26 @@
 			color: var(--bs-info);
 			opacity: 1;
 		}
+			.filter-chip {
+				background: #f6f8fb;
+				border: 1px solid rgba(2, 62, 138, 0.12);
+				color: #1f2a44;
+				border-radius: 999px;
+				padding: 0.25rem 0.6rem 0.25rem 0.75rem;
+				font-weight: 600;
+				font-size: 0.82rem;
+				transition: all 0.15s ease-in-out;
+			}
+			.filter-chip:hover {
+				background: #eef2f8;
+			}
+			.filter-chip i {
+				margin-left: 0.4rem;
+			}
+			.filter-chip-clear {
+				border-radius: 999px;
+				padding: 0.2rem 0.65rem;
+			}
 	</style>
 
 	<div class="container-fluid py-4 px-4 min-vh-100">
@@ -70,6 +90,9 @@
 								<a class="dropdown-item filter-status-item" href="#" data-value="">Tous</a>
 							</li>
 							<li>
+								<a class="dropdown-item filter-status-item" href="#" data-value="active">Actif</a>
+							</li>
+							<li>
 								<a class="dropdown-item filter-status-item" href="#" data-value="1">Validé admin</a>
 							</li>
 							<li>
@@ -101,6 +124,8 @@
 						Créer un utilisateur
 					</button>
 				</div>
+
+				<div id="active-filters" class="d-flex align-items-center flex-wrap gap-2 mb-3"></div>
 
 				<div class="bg-white rounded-4 shadow-sm overflow-hidden">
 					<table class="table align-middle mb-0" style="--bs-table-bg: transparent;">
@@ -259,6 +284,9 @@
 										<a class="dropdown-item filter-status-item" href="#" data-value="">Tous</a>
 									</li>
 									<li>
+										<a class="dropdown-item filter-status-item" href="#" data-value="active">Actif</a>
+									</li>
+									<li>
 										<a class="dropdown-item filter-status-item" href="#" data-value="1">Validé admin</a>
 									</li>
 									<li>
@@ -294,6 +322,8 @@
 						Créer un utilisateur
 					</button>
 				</div>
+
+				<div id="active-filters-mobile" class="d-flex align-items-center flex-wrap gap-2 mb-3"></div>
 
 				<div id="users-mobile-list">
 					{% for user in users %}
@@ -449,10 +479,28 @@
 						const searchMobile = document.getElementById('search-input-mobile');
 						const emptyTableRow = document.getElementById('empty-table-row');
 						const emptyMobileRow = document.getElementById('empty-mobile-row');
+						const activeFilters = document.getElementById('active-filters');
+						const activeFiltersMobile = document.getElementById('active-filters-mobile');
 			
-						let activeRole = '';
-						let activeStatus = '';
+						let activeRoles = new Set();
+						let activeStatuses = new Set();
 						let activeDate = '';
+
+						const roleLabels = {
+							role_admin: 'Admin',
+							role_secretary: 'Secretaire',
+							role_veto: 'Veterinaire',
+							role_user: 'Utilisateur'
+						};
+						const statusLabels = {
+							active: 'Actif',
+							'1': 'Valide admin',
+							'0': 'En attente admin'
+						};
+						const dateLabels = {
+							asc: 'Plus ancien',
+							desc: 'Plus recent'
+						};
 			
 						function getSearchValue() {
 							return (searchDesktop?.value || searchMobile?.value || '').toLowerCase();
@@ -508,16 +556,80 @@
 			
 							document.querySelectorAll('.user-row').forEach(function (row) {
 								const matchSearch = ((row.dataset.nom || '') + ' ' + (row.dataset.email || '')).includes(search);
-								const matchRole = !activeRole || (row.dataset.role && row.dataset.role.trim().includes(activeRole));
+								const matchRole =
+									activeRoles.size === 0 ||
+									(activeRoles.has(row.dataset.role && row.dataset.role.trim()));
 								const matchStatus =
-		activeStatus === '' ||
-		row.dataset.verified.trim() === activeStatus ||
-		(activeStatus === '1' && row.dataset.verified === 'active');
+									activeStatuses.size === 0 ||
+									activeStatuses.has(row.dataset.verified && row.dataset.verified.trim());
 			
 								row.style.display = matchSearch && matchRole && matchStatus ? '' : 'none';
 							});
 			
 							updateEmptyStates();
+							updateFilterChips();
+						}
+
+						function createChip(label, onRemove) {
+							const chip = document.createElement('button');
+							chip.type = 'button';
+							chip.className = 'filter-chip d-inline-flex align-items-center';
+							chip.innerHTML = `<span>${label}</span><i data-lucide="x" style="width:14px;height:14px;"></i>`;
+							chip.addEventListener('click', onRemove);
+							return chip;
+						}
+
+						function updateFilterChips() {
+							const containers = [activeFilters, activeFiltersMobile].filter(Boolean);
+							containers.forEach(container => container.replaceChildren());
+
+							const chips = [];
+							if (activeRoles.size) {
+								Array.from(activeRoles).forEach(role => {
+									chips.push({
+										label: `Role: ${roleLabels[role] || role}`,
+										clear: () => { activeRoles.delete(role); filterRows(); }
+									});
+								});
+							}
+							if (activeStatuses.size) {
+								Array.from(activeStatuses).forEach(status => {
+									chips.push({
+										label: `Status: ${statusLabels[status] || status}`,
+										clear: () => { activeStatuses.delete(status); filterRows(); }
+									});
+								});
+							}
+							if (activeDate) {
+								chips.push({
+									label: `Date: ${dateLabels[activeDate] || activeDate}`,
+									clear: () => { activeDate = ''; filterRows(); }
+								});
+							}
+
+							containers.forEach(container => {
+								chips.forEach(chip => container.appendChild(createChip(chip.label, chip.clear)));
+							});
+
+							if (chips.length && containers.length) {
+								containers.forEach(container => {
+									const clearAll = document.createElement('button');
+									clearAll.type = 'button';
+									clearAll.className = 'btn btn-sm btn-outline-danger filter-chip-clear';
+									clearAll.textContent = 'Tout annuler';
+									clearAll.addEventListener('click', () => {
+										activeRoles = new Set();
+										activeStatuses = new Set();
+										activeDate = '';
+										filterRows();
+									});
+									container.appendChild(clearAll);
+								});
+							}
+
+							if (window.lucide) {
+								lucide.createIcons({ icons: lucide.icons });
+							}
 						}
 			
 						searchDesktop?.addEventListener('input', function () {
@@ -533,7 +645,14 @@
 						document.querySelectorAll('.filter-role-item').forEach(function (item) {
 							item.addEventListener('click', function (e) {
 								e.preventDefault();
-								activeRole = this.dataset.value;
+								const value = this.dataset.value;
+								if (!value) {
+									activeRoles = new Set();
+								} else if (activeRoles.has(value)) {
+									activeRoles.delete(value);
+								} else {
+									activeRoles.add(value);
+								}
 								filterRows();
 							});
 						});
@@ -541,7 +660,14 @@
 						document.querySelectorAll('.filter-status-item').forEach(function (item) {
 							item.addEventListener('click', function (e) {
 								e.preventDefault();
-								activeStatus = this.dataset.value;
+								const value = this.dataset.value;
+								if (!value) {
+									activeStatuses = new Set();
+								} else if (activeStatuses.has(value)) {
+									activeStatuses.delete(value);
+								} else {
+									activeStatuses.add(value);
+								}
 								filterRows();
 							});
 						});
