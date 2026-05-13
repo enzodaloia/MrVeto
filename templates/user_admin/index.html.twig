@@ -18,6 +18,17 @@
 			color: var(--bs-info);
 			opacity: 1;
 		}
+			.user-name {
+				min-width: 0;
+			}
+			.user-name-text {
+				display: inline-block;
+				max-width: 180px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				vertical-align: bottom;
+			}
 			.filter-chip {
 				background: #f6f8fb;
 				border: 1px solid rgba(2, 62, 138, 0.12);
@@ -169,12 +180,12 @@
 
 										{% set color = colors[user.id % colors|length] %}
 
-										<div class="d-flex align-items-center gap-2">
+										<div class="d-flex align-items-center gap-2 user-name">
 											<div class="d-flex align-items-center justify-content-center rounded-circle {{ color }} text-white" style="width:24px;height:24px;font-size:0.6rem;font-weight:700;flex-shrink:0;">
 												{{ user.prenom|first|upper }}{{ user.nom|first|upper }}
 											</div>
 
-											<span class="fw-medium fs-6 text-nowrap">
+											<span class="fw-medium fs-6 user-name-text" title="{{ user.prenom }} {{ user.nom }}">
 												{{ user.prenom }}
 												{{ user.nom }}
 											</span>
@@ -339,7 +350,7 @@
 									{{ user.prenom|first|upper }}{{ user.nom|first|upper }}
 								</div>
 								<div class="flex-grow-1">
-									<div class="fw-medium">{{ user.prenom }}
+									<div class="fw-medium user-name-text" title="{{ user.prenom }} {{ user.nom }}">{{ user.prenom }}
 										{{ user.nom }}</div>
 									<div class="text-muted small text-break">{{ user.email }}</div>
 								</div>
