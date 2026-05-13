@@ -3,10 +3,31 @@
 {% block title %}Modifier cabinet{% endblock %}
 
 {% block body %}
+    <style>
+        .cabinet-title {
+            display: inline-block;
+            max-width: 360px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: bottom;
+        }
+        .cabinet-user-name {
+            display: block;
+            max-width: 260px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: bottom;
+        }
+        .cabinet-user-email {
+            display: block;
+        }
+    </style>
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0">Modifier le cabinet</h1>
-        <a class="btn btn-outline-secondary" href="{{ path('app_vet_cabinet_index', {'cabinet': cabinet.slug}) }}">Retour</a>
+        <a class="btn btn-primary text-white" href="{{ path('app_vet_cabinet_index', {'cabinet': cabinet.slug}) }}">Retour</a>
     </div>
 
     <div class="row g-4">
@@ -43,7 +64,7 @@
                         </div>
                     </div>
                     </div>
-                    <button class="btn btn-primary px-4 mt-3" style="border-radius: 30px;">Enregistrer</button>
+                    <button class="btn btn-primary text-white px-4 mt-3" style="border-radius: 30px;">Enregistrer</button>
                 {{ form_end(form) }}
             </div>
 
@@ -84,7 +105,7 @@
                         <small class="text-muted" id="assign_selected_label" data-user-autocomplete-target="selectedLabel">Aucun utilisateur sélectionné.</small>
                     </div>
 
-                    <button class="btn btn-primary px-4" style="border-radius: 30px;" type="submit">Affecter</button>
+                    <button class="btn btn-primary text-white px-4" style="border-radius: 30px;" type="submit">Affecter</button>
                 </form>
             </div>
         </div>
@@ -92,7 +113,9 @@
         <div class="col-lg-7">
             <div class="card border-0 shadow-sm rounded-4">
                 <div class="card-body border-bottom">
-                    <h2 class="h5 mb-1">{{ cabinet.nom }}</h2>
+                    <h2 class="h5 mb-1">
+                        <span class="cabinet-title" title="{{ cabinet.nom }}">{{ cabinet.nom }}</span>
+                    </h2>
                     <p class="text-muted mb-0">
                         {{ cabinet.adresse ?: 'Adresse non renseignée' }}
                         {% if cabinet.ville %} - {{ cabinet.ville }}{% endif %}
@@ -113,15 +136,17 @@
                         {% for assignment in assignments %}
                             <tr>
                                 <td>
-                                    {{ assignment.user.prenom }} {{ assignment.user.nom }}
-                                    <small class="text-muted">({{ assignment.user.email }})</small>
+                                    <span class="cabinet-user-name" title="{{ assignment.user.prenom }} {{ assignment.user.nom }}">
+                                        {{ assignment.user.prenom }} {{ assignment.user.nom }}
+                                    </span>
+                                    <small class="text-muted cabinet-user-email">({{ assignment.user.email }})</small>
                                 </td>
                                 <td>{{ assignment.roleInCabinet }}</td>
                                 <td class="text-end">
                                     {% if not (assignment.user and app.user and assignment.user.id == app.user.id) %}
                                         <form method="post" action="{{ path('app_vet_cabinet_assignment_delete', {'slug': assignment.slug}) }}">
                                             <input type="hidden" name="_token" value="{{ csrf_token('delete_assignment_' ~ assignment.id) }}">
-                                            <button class="btn btn-sm btn-outline-danger">Retirer</button>
+                                            <button class="btn btn-sm btn-danger text-white">Retirer</button>
                                         </form>
                                     {% endif %}
                                 </td>
