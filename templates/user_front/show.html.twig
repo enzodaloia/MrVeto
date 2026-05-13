@@ -26,13 +26,13 @@
     </div>
 
     {# Informations personnelles #}
-    <div class="card border-0 shadow-sm mb-4 rounded-3 overflow-hidden">
+    <div class="card border-0 shadow-sm mb-4 rounded-3">
         <div class="card-header text-white px-4 py-3 bg-primary-pressed">
             <i class="bi bi-person-circle me-2 fs-4"></i> <span class="fw-bold fs-5">Informations personnelles</span>
         </div>
-        <ul class="list-group list-group-flush">
+        <ul class="list-group list-group-flush" data-controller="autocomplete-address" data-autocomplete-address-theme-value="form">
             <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
-                <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center w-100 overflow-hidden me-3">
+                <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center w-100 me-3">
                     <span class="fs-6 fw-bold me-2 mb-1 mb-sm-0 text-nowrap">Nom :</span>
                     <span class="fs-6 text-break" data-editable-field-target="display">{{ user.nom }}</span>
                     <input type="text" name="nom" class="form-control d-none w-100 mt-2 mt-sm-0" style="max-width: 300px;" value="{{ user.nom }}" data-editable-field-target="input" aria-label="Nom">
@@ -40,7 +40,7 @@
                 <button class="bg-transparent border-0 text-primary fs-5 flex-shrink-0 align-self-start align-self-sm-center mt-1 mt-sm-0" aria-label="Modifier le nom" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
-                <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center w-100 overflow-hidden me-3">
+                <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center w-100 me-3">
                     <span class="fs-6 fw-bold me-2 mb-1 mb-sm-0 text-nowrap">Prénom :</span>
                     <span class="fs-6 text-break" data-editable-field-target="display">{{ user.prenom }}</span>
                     <input type="text" name="prenom" class="form-control d-none w-100 mt-2 mt-sm-0" style="max-width: 300px;" value="{{ user.prenom }}" data-editable-field-target="input" aria-label="Prénom">
@@ -48,15 +48,32 @@
                 <button class="bg-transparent border-0 text-primary fs-5 flex-shrink-0 align-self-start align-self-sm-center mt-1 mt-sm-0" aria-label="Modifier le prénom" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
-                <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center w-100 overflow-hidden me-3">
+                <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center w-100 me-3">
                     <span class="fs-6 fw-bold me-2 mb-1 mb-sm-0 text-nowrap">Adresse postale :</span>
                     <span class="fs-6 text-break" data-editable-field-target="display">{{ user.adresse }}</span>
-                    <input type="text" name="adresse" class="form-control d-none w-100 mt-2 mt-sm-0" style="max-width: 300px;" value="{{ user.adresse }}" data-editable-field-target="input" aria-label="Adresse postale">
+                    <div class="position-relative w-100 mt-2 mt-sm-0" style="max-width: 300px;">
+                        <input type="text" name="adresse" class="form-control d-none w-100" value="{{ user.adresse }}" data-editable-field-target="input" data-autocomplete-address-target="input street" data-action="input->autocomplete-address#search" autocomplete="off" aria-label="Adresse postale">
+                        <div data-autocomplete-address-target="results" class="position-absolute start-0 end-0 top-100 z-3"></div>
+                    </div>
                 </div>
                 <button class="bg-transparent border-0 text-primary fs-5 flex-shrink-0 align-self-start align-self-sm-center mt-1 mt-sm-0" aria-label="Modifier l'adresse postale" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
             </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom">
+                <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center w-100 me-3">
+                    <span class="fs-6 fw-bold me-2 mb-1 mb-sm-0 text-nowrap">Ville :</span>
+                    <span class="fs-6 text-break text-muted" data-autocomplete-address-target="cityDisplay">{{ user.ville ?: '—' }}</span>
+                    <input type="hidden" name="ville" value="{{ user.ville }}" data-editable-field-target="input" data-autocomplete-address-target="city">
+                </div>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom">
+                <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center w-100 me-3">
+                    <span class="fs-6 fw-bold me-2 mb-1 mb-sm-0 text-nowrap">Code postal :</span>
+                    <span class="fs-6 text-break text-muted" data-autocomplete-address-target="postcodeDisplay">{{ user.codepostal ?: '—' }}</span>
+                    <input type="hidden" name="codepostal" value="{{ user.codepostal }}" data-editable-field-target="input" data-autocomplete-address-target="postcode">
+                </div>
+            </li>
             <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
-                <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center w-100 overflow-hidden me-3">
+                <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center w-100 me-3">
                     <span class="fs-6 fw-bold me-2 mb-1 mb-sm-0 text-nowrap">Téléphone :</span>
                     <span class="fs-6 text-break" data-editable-field-target="display">
                         {{ user.telephone|format_phone }}
@@ -69,13 +86,13 @@
     </div>
 
     {# Sécurité #}
-    <div class="card border-0 shadow-sm mb-4 rounded-3 overflow-hidden">
+    <div class="card border-0 shadow-sm mb-4 rounded-3">
         <div class="card-header text-white px-4 py-3 bg-primary-pressed">
              <i class="bi bi-shield-lock me-2 fs-4"></i> <span class="fw-bold fs-5">Sécurité</span>
         </div>
         <ul class="list-group list-group-flush">
             <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
-                <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center w-100 overflow-hidden me-3">
+                <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center w-100 me-3">
                     <span class="fs-6 fw-bold me-2 mb-1 mb-sm-0 text-nowrap">Adresse email :</span>
                     <span class="fs-6 text-break" data-editable-field-target="display">{{ user.email }}</span>
                     <input type="email" name="email" class="form-control d-none w-100 mt-2 mt-sm-0" style="max-width: 300px;" value="{{ user.email }}" data-editable-field-target="input" aria-label="Adresse email">
@@ -93,7 +110,7 @@
     </div>
 
     {# Données #}
-    <div class="card border-0 shadow-sm mb-5 rounded-3 overflow-hidden">
+    <div class="card border-0 shadow-sm mb-5 rounded-3">
          <div class="card-header text-white px-4 py-3 bg-info">
             <i class="bi bi-file-text me-2 fs-4"></i> <span class="fw-bold fs-5">Données</span>
         </div>
