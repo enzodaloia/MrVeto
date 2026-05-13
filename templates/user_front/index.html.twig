@@ -37,7 +37,7 @@
                 <td>{{ user.prenom }}</td>
                 <td>{{ user.datenaissance ? user.datenaissance|date('Y-m-d H:i:s') : '' }}</td>
                 <td>{{ user.adresse }}</td>
-                <td>{{ user.telephone }}</td>
+                <td>{{ user.telephone|format_phone }}</td>
                 <td>{{ user.ville }}</td>
                 <td>{{ user.codepostal }}</td>
                 <td>{{ user.siret }}</td>

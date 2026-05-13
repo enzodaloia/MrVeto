@@ -336,7 +336,7 @@
                                     <div>
                                         <div class="fw-semibold text-neutral-100">{{ animal.proprietaire.prenom }} {{ animal.proprietaire.nom }}</div>
                                         {% if animal.proprietaire.telephone %}
-                                            <div class="small text-muted">{{ animal.proprietaire.telephone }}</div>
+                                            <div class="small text-muted">{{ animal.proprietaire.telephone|format_phone }}</div>
                                         {% endif %}
                                         <div class="small text-muted">{{ animal.proprietaire.email }}</div>
                                     </div>
