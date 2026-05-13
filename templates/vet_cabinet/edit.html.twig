@@ -21,7 +21,7 @@
                             {{ form_errors(form.nom) }}
                         </div>
                         <div class="col-md-6 form-floating">
-                            {{ form_widget(form.telephone, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Téléphone'}}) }}
+                            {{ form_widget(form.telephone, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Téléphone', 'data-controller': 'phone-input', 'data-action': 'input->phone-input#format'}}) }}
                             {{ form_label(form.telephone, 'Téléphone', {'label_attr': {'class': 'ps-4'}}) }}
                             {{ form_errors(form.telephone) }}
                         </div>

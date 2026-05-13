@@ -28,11 +28,11 @@
                         <td>
                             <div class="fw-semibold">{{ cabinet.nom }}</div>
                             <div class="d-md-none small text-muted">Ville: {{ cabinet.ville ?: '—' }}</div>
-                            <div class="d-lg-none small text-muted">Téléphone: {{ cabinet.telephone ?: '—' }}</div>
+                            <div class="d-lg-none small text-muted">Téléphone: {{ cabinet.telephone ? cabinet.telephone|format_phone : '—' }}</div>
                             <div class="d-lg-none small text-muted">Créé le: {{ cabinet.createdAt ? cabinet.createdAt|date('d/m/Y H:i') : '—' }}</div>
                         </td>
                         <td class="d-none d-md-table-cell">{{ cabinet.ville ?: '—' }}</td>
-                        <td class="d-none d-lg-table-cell">{{ cabinet.telephone ?: '—' }}</td>
+                        <td class="d-none d-lg-table-cell">{{ cabinet.telephone ? cabinet.telephone|format_phone : '—' }}</td>
                         <td class="d-none d-lg-table-cell">{{ cabinet.createdAt ? cabinet.createdAt|date('d/m/Y H:i') : '—' }}</td>
                         <td class="text-md-end">
                             <div class="d-flex flex-column flex-sm-row justify-content-md-end gap-2">

@@ -20,7 +20,7 @@
                             {{ form_errors(cabinet_form.nom) }}
                         </div>
                         <div class="col-md-6 form-floating">
-                            {{ form_widget(cabinet_form.telephone, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Téléphone'}}) }}
+                            {{ form_widget(cabinet_form.telephone, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Téléphone', 'data-controller': 'phone-input', 'data-action': 'input->phone-input#format'}}) }}
                             {{ form_label(cabinet_form.telephone, 'Téléphone', {'label_attr': {'class': 'ps-4'}}) }}
                             {{ form_errors(cabinet_form.telephone) }}
                         </div>

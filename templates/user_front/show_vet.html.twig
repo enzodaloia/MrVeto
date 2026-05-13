@@ -64,8 +64,10 @@
             <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
                 <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center w-100 overflow-hidden me-3">
                     <span class="fs-6 fw-bold me-2 mb-1 mb-sm-0 text-nowrap">Téléphone :</span>
-                    <span class="fs-6 text-break" data-editable-field-target="display">{{ user.telephone }}</span>
-                    <input type="text" name="telephone" class="form-control d-none w-100 mt-2 mt-sm-0" style="max-width: 300px;" value="{{ user.telephone }}" data-editable-field-target="input" aria-label="Téléphone">
+                    <span class="fs-6 text-break" data-editable-field-target="display">
+                        {{ user.telephone|format_phone }}
+                    </span>
+                    <input type="text" name="telephone" class="form-control d-none w-100 mt-2 mt-sm-0" style="max-width: 300px;" value="{{ user.telephone }}" data-editable-field-target="input" aria-label="Téléphone" data-controller="phone-input" data-action="input->phone-input#format">
                 </div>
                 <button class="bg-transparent border-0 text-primary fs-5 flex-shrink-0 align-self-start align-self-sm-center mt-1 mt-sm-0" aria-label="Modifier le téléphone" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
             </li>
