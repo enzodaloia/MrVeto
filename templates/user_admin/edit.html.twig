@@ -159,7 +159,7 @@
 							{% if isUser %}
 								{% if form.telephone is defined %}
 									<div class="col-12 col-md-6">
-										{{ form_row(form.telephone) }}
+										{{ form_row(form.telephone, {'attr': {'data-controller': 'phone-input', 'data-action': 'input->phone-input#format'}}) }}
 									</div>
 								{% endif %}
 
@@ -191,7 +191,7 @@
 							{% if isVeto %}
 								{% if form.telephone is defined %}
 									<div class="col-12 col-md-6">
-										{{ form_row(form.telephone) }}
+										{{ form_row(form.telephone, {'attr': {'data-controller': 'phone-input', 'data-action': 'input->phone-input#format'}}) }}
 									</div>
 								{% endif %}
 

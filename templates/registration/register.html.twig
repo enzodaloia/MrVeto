@@ -60,11 +60,11 @@
 			{% if type == 'veterinaire' %}
 				<div class="row">
 					<div class="col-md-6 mb-3 form-floating">
-						{{ form_widget(registrationForm.email, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Adresse email'}}) }}
+						{{ form_widget(registrationForm.email, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Adresse email', 'pattern': '[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$', 'title': 'Veuillez entrer une adresse email valide'}}) }}
 						{{ form_label(registrationForm.email, 'Adresse email *', {'label_attr': {'class': 'ps-4'}}) }}
 					</div>
 					<div class="col-md-6 mb-3 form-floating">
-						{{ form_widget(registrationForm.telephone, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Téléphone'}}) }}
+						{{ form_widget(registrationForm.telephone, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Téléphone', 'data-controller': 'phone-input', 'data-action': 'input->phone-input#format'}}) }}
 						{{ form_label(registrationForm.telephone, 'Téléphone', {'label_attr': {'class': 'ps-4'}}) }}
 					</div>
 				</div>
@@ -75,12 +75,12 @@
 						{{ form_label(registrationForm.datenaissance, 'Date de naissance', {'label_attr': {'class': 'ps-4'}}) }}
 					</div>
 					<div class="col-md-6 mb-3 form-floating">
-						{{ form_widget(registrationForm.telephone, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Téléphone'}}) }}
+						{{ form_widget(registrationForm.telephone, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Téléphone', 'data-controller': 'phone-input', 'data-action': 'input->phone-input#format'}}) }}
 						{{ form_label(registrationForm.telephone, 'Téléphone', {'label_attr': {'class': 'ps-4'}}) }}
 					</div>
 				</div>
 				<div class="mb-3 form-floating">
-					{{ form_widget(registrationForm.email, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Adresse email'}}) }}
+					{{ form_widget(registrationForm.email, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Adresse email', 'pattern': '[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$', 'title': 'Veuillez entrer une adresse email valide'}}) }}
 					{{ form_label(registrationForm.email, 'Adresse email') }}
 				</div>
 			{% endif %}
