@@ -82,7 +82,7 @@
                 <div class="col-12 col-md-6">
                     <div class="border-bottom pb-2">
                         <div class="text-muted ">Téléphone</div>
-                        <div class="fw-normal text-info ">{{ user.telephone ?: '—' }}</div>
+                        <div class="fw-normal text-info ">{{ user.telephone ? user.telephone|format_phone : '—' }}</div>
                     </div>
                 </div>
 
