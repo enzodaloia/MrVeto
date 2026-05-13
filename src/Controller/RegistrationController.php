@@ -26,6 +26,10 @@ class RegistrationController extends AbstractController
 
     #[Route('/register/{type}', name: 'app_register')]
     public function register($type, Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager, UserAuthenticatorInterface $userAuthenticator, AppCustomAuthenticator $authenticator): Response {
+        if ($this->getUser()) {
+            return $this->redirectToRoute('app_home');
+        }
+
         $user = new User();
         $params = $request->request->all();
         if ($type === 'veterinaire') {
