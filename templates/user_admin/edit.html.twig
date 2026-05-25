@@ -169,23 +169,32 @@
 									</div>
 								{% endif %}
 
-								{% if form.adresse is defined %}
-									<div class="col-12">
-										{{ form_row(form.adresse) }}
-									</div>
-								{% endif %}
+								<div class="col-12" data-controller="autocomplete-address" data-autocomplete-address-theme-value="form">
+									<div class="row g-3">
+										{% if form.adresse is defined %}
+											<div class="col-12">
+												{{ form_label(form.adresse) }}
+												<div class="position-relative">
+													{{ form_widget(form.adresse, {'attr': {'data-autocomplete-address-target': 'input street', 'data-action': 'input->autocomplete-address#search', 'autocomplete': 'off'}}) }}
+													<div data-autocomplete-address-target="results" class="position-absolute start-0 end-0 top-100 z-3"></div>
+												</div>
+												{{ form_errors(form.adresse) }}
+											</div>
+										{% endif %}
 
-								{% if form.ville is defined %}
-									<div class="col-12 col-md-6">
-										{{ form_row(form.ville) }}
-									</div>
-								{% endif %}
+										{% if form.ville is defined %}
+											<div class="col-12 col-md-6">
+												{{ form_row(form.ville, {'attr': {'data-autocomplete-address-target': 'city', 'readonly': 'readonly'}}) }}
+											</div>
+										{% endif %}
 
-								{% if form.codepostal is defined %}
-									<div class="col-12 col-md-6">
-										{{ form_row(form.codepostal) }}
+										{% if form.codepostal is defined %}
+											<div class="col-12 col-md-6">
+												{{ form_row(form.codepostal, {'attr': {'data-autocomplete-address-target': 'postcode', 'readonly': 'readonly'}}) }}
+											</div>
+										{% endif %}
 									</div>
-								{% endif %}
+								</div>
 							{% endif %}
 
 							{% if isVeto %}
@@ -201,23 +210,32 @@
 									</div>
 								{% endif %}
 
-								{% if form.adresse is defined %}
-									<div class="col-12">
-										{{ form_row(form.adresse) }}
-									</div>
-								{% endif %}
+								<div class="col-12" data-controller="autocomplete-address" data-autocomplete-address-theme-value="form">
+									<div class="row g-3">
+										{% if form.adresse is defined %}
+											<div class="col-12">
+												{{ form_label(form.adresse) }}
+												<div class="position-relative">
+													{{ form_widget(form.adresse, {'attr': {'data-autocomplete-address-target': 'input street', 'data-action': 'input->autocomplete-address#search', 'autocomplete': 'off'}}) }}
+													<div data-autocomplete-address-target="results" class="position-absolute start-0 end-0 top-100 z-3"></div>
+												</div>
+												{{ form_errors(form.adresse) }}
+											</div>
+										{% endif %}
 
-								{% if form.ville is defined %}
-									<div class="col-12 col-md-6">
-										{{ form_row(form.ville) }}
-									</div>
-								{% endif %}
+										{% if form.ville is defined %}
+											<div class="col-12 col-md-6">
+												{{ form_row(form.ville, {'attr': {'data-autocomplete-address-target': 'city', 'readonly': 'readonly'}}) }}
+											</div>
+										{% endif %}
 
-								{% if form.codepostal is defined %}
-									<div class="col-12 col-md-6">
-										{{ form_row(form.codepostal) }}
+										{% if form.codepostal is defined %}
+											<div class="col-12 col-md-6">
+												{{ form_row(form.codepostal, {'attr': {'data-autocomplete-address-target': 'postcode', 'readonly': 'readonly'}}) }}
+											</div>
+										{% endif %}
 									</div>
-								{% endif %}
+								</div>
 
 								{% if form.siret is defined %}
 									<div class="col-12 col-md-6">
@@ -226,8 +244,13 @@
 								{% endif %}
 
 								{% if form.adressecabinet is defined %}
-									<div class="col-12 col-md-6">
-										{{ form_row(form.adressecabinet) }}
+									<div class="col-12 col-md-6" data-controller="autocomplete-address" data-autocomplete-address-theme-value="form">
+										{{ form_label(form.adressecabinet) }}
+										<div class="position-relative">
+											{{ form_widget(form.adressecabinet, {'attr': {'data-autocomplete-address-target': 'input', 'data-action': 'input->autocomplete-address#search', 'autocomplete': 'off'}}) }}
+											<div data-autocomplete-address-target="results" class="position-absolute start-0 end-0 top-100 z-3"></div>
+										</div>
+										{{ form_errors(form.adressecabinet) }}
 									</div>
 								{% endif %}
 
