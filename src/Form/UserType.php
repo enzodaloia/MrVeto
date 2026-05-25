@@ -31,9 +31,29 @@ class UserType extends AbstractType
             ])
             ->add('nom')
             ->add('prenom')
-            ->add('datenaissance')
+            ->add('datenaissance', \Symfony\Component\Form\Extension\Core\Type\DateType::class, [
+                'widget' => 'single_text',
+                'attr' => [
+                    'max' => (new \DateTime('-18 years'))->format('Y-m-d'),
+                ],
+                'constraints' => [
+                    new \Symfony\Component\Validator\Constraints\LessThanOrEqual([
+                        'value' => '-18 years',
+                        'message' => 'L\'utilisateur doit avoir au moins 18 ans.',
+                    ]),
+                ],
+            ])
             ->add('adresse')
-            ->add('telephone')
+            ->add('telephone', null, [
+                'constraints' => [
+                    new \Symfony\Component\Validator\Constraints\Length([
+                        'min' => 10,
+                        'max' => 12,
+                        'minMessage' => 'Le numéro de téléphone doit contenir au moins {{ limit }} caractères.',
+                        'maxMessage' => 'Le numéro de téléphone ne peut pas dépasser {{ limit }} caractères.',
+                    ]),
+                ],
+            ])
             ->add('ville')
             ->add('codepostal')
             ->add('siret')

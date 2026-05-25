@@ -9,6 +9,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 
 class UserAdminType extends AbstractType
 {
@@ -48,9 +50,16 @@ class UserAdminType extends AbstractType
             ->add('datenaissance', \Symfony\Component\Form\Extension\Core\Type\DateType::class, [
                 'widget' => 'single_text',
                 'required' => true,
+                'attr' => [
+                    'max' => (new \DateTime('-18 years'))->format('Y-m-d'),
+                ],
                 'constraints' => [
                     new NotBlank([
                         'message' => 'La date de naissance est obligatoire.',
+                    ]),
+                    new LessThanOrEqual([
+                        'value' => '-18 years',
+                        'message' => 'L\'utilisateur doit avoir au moins 18 ans.',
                     ]),
                 ],
             ])
@@ -64,9 +73,19 @@ class UserAdminType extends AbstractType
             ])
             ->add('telephone', null, [
                 'required' => true,
+                'attr' => [
+                    'minlength' => 10,
+                    'maxlength' => 12,
+                ],
                 'constraints' => [
                     new NotBlank([
                         'message' => 'Le téléphone est obligatoire.',
+                    ]),
+                    new Length([
+                        'min' => 10,
+                        'max' => 12,
+                        'minMessage' => 'Le numéro de téléphone doit contenir au moins {{ limit }} caractères.',
+                        'maxMessage' => 'Le numéro de téléphone ne peut pas dépasser {{ limit }} caractères.',
                     ]),
                 ],
             ])
