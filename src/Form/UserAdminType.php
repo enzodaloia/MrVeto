@@ -47,11 +47,37 @@ class UserAdminType extends AbstractType
             ])
             ->add('datenaissance', \Symfony\Component\Form\Extension\Core\Type\DateType::class, [
                 'widget' => 'single_text',
-                'required' => false,
+                'required' => true,
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'La date de naissance est obligatoire.',
+                    ]),
+                ],
             ])
-            ->add('adresse')
-            ->add('telephone')
-            ->add('ville')
+            ->add('adresse', null, [
+                'required' => true,
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'L\'adresse est obligatoire.',
+                    ]),
+                ],
+            ])
+            ->add('telephone', null, [
+                'required' => true,
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Le téléphone est obligatoire.',
+                    ]),
+                ],
+            ])
+            ->add('ville', null, [
+                'required' => true,
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'La ville est obligatoire.',
+                    ]),
+                ],
+            ])
             ->add('codepostal')
             ->add('siret')
             ->add('adressecabinet');

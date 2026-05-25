@@ -26,18 +26,49 @@ class RegistrationFormType extends AbstractType
         $builder
             ->add('email', EmailType::class, [
                 'required' => true,
+                'constraints' => [
+                    new NotBlank(['message' => 'L\'email est obligatoire.']),
+                ],
             ])
-            ->add('nom')
-            ->add('prenom');
+            ->add('nom', TextType::class, [
+                'required' => true,
+                'constraints' => [
+                    new NotBlank(['message' => 'Le nom est obligatoire.']),
+                ],
+            ])
+            ->add('prenom', TextType::class, [
+                'required' => true,
+                'constraints' => [
+                    new NotBlank(['message' => 'Le prénom est obligatoire.']),
+                ],
+            ]);
 
         if ($type === 'veterinaire') {
             $builder
-                ->add('adresse')
-                ->add('ville')
-                ->add('codepostal')
-                ->add('telephone')
-                ->add('adressecabinet')
-                ->add('siret')
+                ->add('adresse', TextType::class, [
+                    'required' => true,
+                    'constraints' => [new NotBlank(['message' => 'L\'adresse est obligatoire.'])],
+                ])
+                ->add('ville', TextType::class, [
+                    'required' => true,
+                    'constraints' => [new NotBlank(['message' => 'La ville est obligatoire.'])],
+                ])
+                ->add('codepostal', TextType::class, [
+                    'required' => true,
+                    'constraints' => [new NotBlank(['message' => 'Le code postal est obligatoire.'])],
+                ])
+                ->add('telephone', TextType::class, [
+                    'required' => true,
+                    'constraints' => [new NotBlank(['message' => 'Le téléphone est obligatoire.'])],
+                ])
+                ->add('adressecabinet', TextType::class, [
+                    'required' => true,
+                    'constraints' => [new NotBlank(['message' => 'L\'adresse du cabinet est obligatoire.'])],
+                ])
+                ->add('siret', TextType::class, [
+                    'required' => true,
+                    'constraints' => [new NotBlank(['message' => 'Le numéro SIRET est obligatoire.'])],
+                ])
                 ->add('latitude', HiddenType::class, ['required' => false])
                 ->add('longitude', HiddenType::class, ['required' => false]);
         }
@@ -46,12 +77,25 @@ class RegistrationFormType extends AbstractType
             $builder
                 ->add('datenaissance', DateType::class, [
                     'widget' => 'single_text',
-                    'required' => false,
+                    'required' => true,
+                    'constraints' => [new NotBlank(['message' => 'La date de naissance est obligatoire.'])],
                 ])
-                ->add('adresse')
-                ->add('ville')
-                ->add('codepostal')
-                ->add('telephone');
+                ->add('adresse', TextType::class, [
+                    'required' => true,
+                    'constraints' => [new NotBlank(['message' => 'L\'adresse est obligatoire.'])],
+                ])
+                ->add('ville', TextType::class, [
+                    'required' => true,
+                    'constraints' => [new NotBlank(['message' => 'La ville est obligatoire.'])],
+                ])
+                ->add('codepostal', TextType::class, [
+                    'required' => true,
+                    'constraints' => [new NotBlank(['message' => 'Le code postal est obligatoire.'])],
+                ])
+                ->add('telephone', TextType::class, [
+                    'required' => true,
+                    'constraints' => [new NotBlank(['message' => 'Le téléphone est obligatoire.'])],
+                ]);
         }
 
         $builder
