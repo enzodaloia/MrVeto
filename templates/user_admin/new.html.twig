@@ -110,7 +110,7 @@
 							</div>
 							<div class="col-md-6">
 								<label class="form-label text-muted small fw-semibold">Date de naissance</label>
-								<input type="date" name="user_admin[datenaissance]" class="form-control rounded-3" required>
+								<input type="date" name="user_admin[datenaissance]" class="form-control rounded-3" required max="{{ '-18 years'|date('Y-m-d') }}">
 							</div>
 						</div>
 					</div>
@@ -124,7 +124,7 @@
 							</div>
 							<div class="col-md-6">
 								<label class="form-label text-muted small fw-semibold">Téléphone</label>
-								<input type="text" name="user_admin[telephone]" class="form-control rounded-3" data-controller="phone-input" data-action="input->phone-input#format" required>
+								<input type="text" name="user_admin[telephone]" class="form-control rounded-3" data-controller="phone-input" data-action="input->phone-input#format" required minlength="10" maxlength="12">
 							</div>
 							<div class="col-12" data-controller="autocomplete-address" data-autocomplete-address-theme-value="form">
 								<div class="row g-3">

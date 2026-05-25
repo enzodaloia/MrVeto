@@ -13,6 +13,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -59,7 +60,19 @@ class RegistrationFormType extends AbstractType
                 ])
                 ->add('telephone', TextType::class, [
                     'required' => true,
-                    'constraints' => [new NotBlank(['message' => 'Le téléphone est obligatoire.'])],
+                    'attr' => [
+                        'minlength' => 10,
+                        'maxlength' => 12,
+                    ],
+                    'constraints' => [
+                        new NotBlank(['message' => 'Le téléphone est obligatoire.']),
+                        new Length([
+                            'min' => 10,
+                            'max' => 12,
+                            'minMessage' => 'Le numéro de téléphone doit contenir au moins {{ limit }} caractères.',
+                            'maxMessage' => 'Le numéro de téléphone ne peut pas dépasser {{ limit }} caractères.',
+                        ]),
+                    ],
                 ])
                 ->add('adressecabinet', TextType::class, [
                     'required' => true,
@@ -78,7 +91,16 @@ class RegistrationFormType extends AbstractType
                 ->add('datenaissance', DateType::class, [
                     'widget' => 'single_text',
                     'required' => true,
-                    'constraints' => [new NotBlank(['message' => 'La date de naissance est obligatoire.'])],
+                    'attr' => [
+                        'max' => (new \DateTime('-18 years'))->format('Y-m-d'),
+                    ],
+                    'constraints' => [
+                        new NotBlank(['message' => 'La date de naissance est obligatoire.']),
+                        new LessThanOrEqual([
+                            'value' => '-18 years',
+                            'message' => 'Vous devez avoir au moins 18 ans pour vous inscrire.',
+                        ]),
+                    ],
                 ])
                 ->add('adresse', TextType::class, [
                     'required' => true,
@@ -94,7 +116,19 @@ class RegistrationFormType extends AbstractType
                 ])
                 ->add('telephone', TextType::class, [
                     'required' => true,
-                    'constraints' => [new NotBlank(['message' => 'Le téléphone est obligatoire.'])],
+                    'attr' => [
+                        'minlength' => 10,
+                        'maxlength' => 12,
+                    ],
+                    'constraints' => [
+                        new NotBlank(['message' => 'Le téléphone est obligatoire.']),
+                        new Length([
+                            'min' => 10,
+                            'max' => 12,
+                            'minMessage' => 'Le numéro de téléphone doit contenir au moins {{ limit }} caractères.',
+                            'maxMessage' => 'Le numéro de téléphone ne peut pas dépasser {{ limit }} caractères.',
+                        ]),
+                    ],
                 ]);
         }
 
