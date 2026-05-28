@@ -464,16 +464,26 @@
 									});
 						
 									const isVerifiedWrapper = document.getElementById('modal-is-verified-wrapper');
-						const isVerifiedCheckbox = document.getElementById('modal-is-verified');
+									const isVerifiedCheckbox = document.getElementById('modal-is-verified');
 						
-						// afficher uniquement pour veto
-						if (role === 'ROLE_VETO') {
-						    isVerifiedWrapper.style.display = 'block';
-						    isVerifiedCheckbox.checked = true;
-						} else {
-						    isVerifiedWrapper.style.display = 'none';
-						    isVerifiedCheckbox.checked = false;
-						}
+									const siretInput = document.getElementById('modal-siret');
+									const cabinetInput = document.getElementById('modal-adressecabinet');
+									const codePostalInput = document.getElementById('modal-codepostal');
+
+									// afficher uniquement pour veto
+									if (role === 'ROLE_VETO') {
+									    isVerifiedWrapper.style.display = 'block';
+									    isVerifiedCheckbox.checked = true;
+									    if (siretInput) siretInput.setAttribute('required', 'required');
+									    if (cabinetInput) cabinetInput.setAttribute('required', 'required');
+									    if (codePostalInput) codePostalInput.setAttribute('required', 'required');
+									} else {
+									    isVerifiedWrapper.style.display = 'none';
+									    isVerifiedCheckbox.checked = false;
+									    if (siretInput) siretInput.removeAttribute('required');
+									    if (cabinetInput) cabinetInput.removeAttribute('required');
+									    if (codePostalInput) codePostalInput.removeAttribute('required');
+									}
 								}
 						
 								function modalShowStep1() {
