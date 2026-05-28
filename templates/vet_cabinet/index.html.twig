@@ -3,6 +3,30 @@
 {% block title %}Mon cabinet{% endblock %}
 
 {% block body %}
+    <style>
+        .cabinet-name {
+            display: block;
+            max-width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .cabinet-city {
+            display: block;
+            max-width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .cabinet-selected-name {
+            display: inline-block;
+            max-width: 360px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: bottom;
+        }
+    </style>
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0">Gestion des cabinets</h1>
@@ -20,7 +44,7 @@
                             {{ form_errors(cabinet_form.nom) }}
                         </div>
                         <div class="col-md-6 form-floating">
-                            {{ form_widget(cabinet_form.telephone, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Téléphone'}}) }}
+                            {{ form_widget(cabinet_form.telephone, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Téléphone', 'data-controller': 'phone-input', 'data-action': 'input->phone-input#format'}}) }}
                             {{ form_label(cabinet_form.telephone, 'Téléphone', {'label_attr': {'class': 'ps-4'}}) }}
                             {{ form_errors(cabinet_form.telephone) }}
                         </div>
@@ -42,7 +66,7 @@
                         </div>
                     </div>
                     </div>
-                    <button class="btn btn-primary px-4 mt-3" style="border-radius: 30px;">Créer</button>
+                    <button class="btn btn-primary text-white px-4 mt-3" style="border-radius: 30px;">Créer</button>
                 {{ form_end(cabinet_form) }}
             </div>
         </div>
@@ -54,8 +78,8 @@
                     {% for managed in cabinets %}
                         <a href="{{ path('app_vet_cabinet_index', {'cabinet': managed.slug}) }}"
                            class="text-decoration-none border rounded p-2 {% if selected_cabinet and selected_cabinet.id == managed.id %}bg-primary-bg border-primary{% endif %}">
-                            <div class="fw-semibold text-dark">{{ managed.nom }}</div>
-                            <small class="text-muted">{{ managed.ville ?: 'Ville non renseignée' }}</small>
+                            <div class="fw-semibold text-dark cabinet-name" title="{{ managed.nom }}">{{ managed.nom }}</div>
+                            <small class="text-muted cabinet-city" title="{{ managed.ville ?: 'Ville non renseignée' }}">{{ managed.ville ?: 'Ville non renseignée' }}</small>
                         </a>
                     {% else %}
                         <p class="text-muted mb-0">Aucun cabinet pour le moment.</p>
@@ -69,14 +93,16 @@
         <div class="card border-0 shadow-sm rounded-4 p-4">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div>
-                    <h2 class="h5 mb-1">Cabinet sélectionné: {{ selected_cabinet.nom }}</h2>
+                    <h2 class="h5 mb-1">Cabinet sélectionné:
+                        <span class="cabinet-selected-name" title="{{ selected_cabinet.nom }}">{{ selected_cabinet.nom }}</span>
+                    </h2>
                     <p class="text-muted mb-0">
                         {{ selected_cabinet.adresse ?: 'Adresse non renseignée' }}
                         {% if selected_cabinet.ville %} - {{ selected_cabinet.ville }}{% endif %}
                     </p>
                 </div>
-                <a class="btn btn-outline-primary" href="{{ path('app_vet_cabinet_edit', {'slug': selected_cabinet.slug}) }}">
-                    Gérer ce cabinet (infos + membres)
+                <a class="btn btn-primary text-white" href="{{ path('app_vet_cabinet_edit', {'slug': selected_cabinet.slug}) }}">
+                    Gerer ce cabinet (infos + membres)
                 </a>
             </div>
         </div>

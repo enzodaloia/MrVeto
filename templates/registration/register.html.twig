@@ -24,10 +24,12 @@
 				<div class="col-md-6 mb-3 form-floating">
 					{{ form_widget(registrationForm.nom, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Nom'}}) }}
 					{{ form_label(registrationForm.nom, 'Nom', {'label_attr': {'class': 'ps-4'}}) }}
+					{{ form_errors(registrationForm.nom) }}
 				</div>
 				<div class="col-md-6 mb-3 form-floating">
 					{{ form_widget(registrationForm.prenom, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Prénom'}}) }}
 					{{ form_label(registrationForm.prenom, 'Prénom', {'label_attr': {'class': 'ps-4'}}) }}
+					{{ form_errors(registrationForm.prenom) }}
 				</div>
 			</div>
 
@@ -45,14 +47,17 @@
 					<div class="col-md-4 mb-3 form-floating">
 						{{ form_widget(registrationForm.adresse, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Adresse', 'data-autocomplete-address-target': 'street'}}) }}
 						{{ form_label(registrationForm.adresse, 'Adresse', {'label_attr': {'class': 'ps-4'}}) }}
+						{{ form_errors(registrationForm.adresse) }}
 					</div>
 					<div class="col-md-4 mb-3 form-floating">
 						{{ form_widget(registrationForm.ville, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Ville', 'data-autocomplete-address-target': 'city'}}) }}
 						{{ form_label(registrationForm.ville, 'Ville', {'label_attr': {'class': 'ps-4'}}) }}
+						{{ form_errors(registrationForm.ville) }}
 					</div>
 					<div class="col-md-4 mb-3 form-floating">
 						{{ form_widget(registrationForm.codepostal, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Code postal', 'data-autocomplete-address-target': 'postcode'}}) }}
 						{{ form_label(registrationForm.codepostal, 'Code postal', {'label_attr': {'class': 'ps-4'}}) }}
+						{{ form_errors(registrationForm.codepostal) }}
 					</div>
 				</div>
 			</div>
@@ -60,12 +65,14 @@
 			{% if type == 'veterinaire' %}
 				<div class="row">
 					<div class="col-md-6 mb-3 form-floating">
-						{{ form_widget(registrationForm.email, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Adresse email'}}) }}
+						{{ form_widget(registrationForm.email, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Adresse email', 'pattern': '[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$', 'title': 'Veuillez entrer une adresse email valide'}}) }}
 						{{ form_label(registrationForm.email, 'Adresse email *', {'label_attr': {'class': 'ps-4'}}) }}
+						{{ form_errors(registrationForm.email) }}
 					</div>
 					<div class="col-md-6 mb-3 form-floating">
-						{{ form_widget(registrationForm.telephone, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Téléphone'}}) }}
+						{{ form_widget(registrationForm.telephone, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Téléphone', 'data-controller': 'phone-input', 'data-action': 'input->phone-input#format'}}) }}
 						{{ form_label(registrationForm.telephone, 'Téléphone', {'label_attr': {'class': 'ps-4'}}) }}
+						{{ form_errors(registrationForm.telephone) }}
 					</div>
 				</div>
 			{% else %}
@@ -73,15 +80,18 @@
 					<div class="col-md-6 mb-3 form-floating">
 						{{ form_widget(registrationForm.datenaissance, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Date de naissance'}}) }}
 						{{ form_label(registrationForm.datenaissance, 'Date de naissance', {'label_attr': {'class': 'ps-4'}}) }}
+						{{ form_errors(registrationForm.datenaissance) }}
 					</div>
 					<div class="col-md-6 mb-3 form-floating">
-						{{ form_widget(registrationForm.telephone, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Téléphone'}}) }}
+						{{ form_widget(registrationForm.telephone, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Téléphone', 'data-controller': 'phone-input', 'data-action': 'input->phone-input#format'}}) }}
 						{{ form_label(registrationForm.telephone, 'Téléphone', {'label_attr': {'class': 'ps-4'}}) }}
+						{{ form_errors(registrationForm.telephone) }}
 					</div>
 				</div>
 				<div class="mb-3 form-floating">
-					{{ form_widget(registrationForm.email, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Adresse email'}}) }}
+					{{ form_widget(registrationForm.email, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Adresse email', 'pattern': '[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$', 'title': 'Veuillez entrer une adresse email valide'}}) }}
 					{{ form_label(registrationForm.email, 'Adresse email') }}
+					{{ form_errors(registrationForm.email) }}
 				</div>
 			{% endif %}
 
@@ -91,10 +101,12 @@
 				<div class="mb-3 form-floating">
 					{{ form_widget(registrationForm.siret, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'N° de Siret'}}) }}
 					{{ form_label(registrationForm.siret, 'N° de Siret') }}
+					{{ form_errors(registrationForm.siret) }}
 				</div>
 				<div class="mb-3 form-floating position-relative" data-controller="autocomplete-address" data-autocomplete-address-theme-value="form">
 					{{ form_widget(registrationForm.adressecabinet, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Adresse du cabinet', 'data-autocomplete-address-target': 'input', 'data-action': 'input->autocomplete-address#search', 'autocomplete': 'off'}}) }}
 					{{ form_label(registrationForm.adressecabinet, 'Adresse du cabinet') }}
+					{{ form_errors(registrationForm.adressecabinet) }}
 					<div data-autocomplete-address-target="results" class="position-absolute start-0 end-0 top-100 z-3"></div>
 
 					{# Hidden coordinate fields #}

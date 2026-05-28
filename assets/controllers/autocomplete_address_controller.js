@@ -1,7 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
-    static targets = ["input", "results", "lat", "lon", "city", "postcode", "street"];
+    static targets = ["input", "results", "lat", "lon", "city", "postcode", "street", "cityDisplay", "postcodeDisplay"];
     static values = {
         theme: { type: String, default: 'search' } // 'search' or 'form'
     };
@@ -191,7 +191,11 @@ export default class extends Controller {
         if (this.hasLonTarget) this.lonTarget.value = feature.geometry.coordinates[0];
 
         if (this.hasCityTarget) this.cityTarget.value = feature.properties.city || '';
+        if (this.hasCityDisplayTarget) this.cityDisplayTarget.textContent = feature.properties.city || '—';
+
         if (this.hasPostcodeTarget) this.postcodeTarget.value = feature.properties.postcode || '';
+        if (this.hasPostcodeDisplayTarget) this.postcodeDisplayTarget.textContent = feature.properties.postcode || '—';
+
         if (this.hasStreetTarget) {
             if (feature.properties.type === 'housenumber' || feature.properties.type === 'street') {
                 this.streetTarget.value = feature.properties.name || '';

@@ -17,11 +17,22 @@ export default class extends Controller {
 
         const data = {};
         const inputs = this.element.querySelectorAll('input[data-editable-field-target="input"]');
+        let hasError = false;
+
         inputs.forEach(input => {
             if (input.name) {
+                if (input.type === 'email' && input.value) {
+                    const emailRegex = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+                    if (!emailRegex.test(input.value)) {
+                        this.showNotification('L\'adresse email n\'est pas au bon format.', 'danger');
+                        hasError = true;
+                    }
+                }
                 data[input.name] = input.value;
             }
         });
+
+        if (hasError) return;
         
         try {
             const response = await fetch(this.urlValue, {

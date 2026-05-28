@@ -1,0 +1,71 @@
+/* ============================================================
+   Search Vet Page — Page-specific styles
+   ============================================================ */
+
+/* Limit / Distance Dropdown Component */
+.limit-dropdown-btn[aria-expanded="true"] {
+    border-radius: 0 0 1rem 1rem !important;
+    border-top-color: transparent !important;
+}
+
+.limit-dropdown-menu {
+    margin-bottom: -1px !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    border-bottom: none !important;
+    transition: none !important;
+    transform: none !important;
+}
+
+.limit-dropdown-item:active,
+.limit-dropdown-item:focus {
+    background-color: #f8f9fa !important;
+    color: #212529 !important;
+}
+
+/* Hover transitions */
+.transition-hover {
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
+}
+.transition-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+.custom-hover-lift {
+    transition: transform 0.2s;
+}
+.custom-hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.hover-scale {
+    transition: transform 0.2s;
+}
+.hover-scale:hover {
+    transform: scale(1.1);
+}
+
+/* Remove Bootstrap dropdown caret */
+.remove-caret::after {
+    display: none !important;
+}
+
+/* Dropdown visibility fix (Bootstrap doesn't animate cleanly) */
+.dropdown-menu {
+    display: none;
+}
+.dropdown-menu.show {
+    display: block;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Modal map — backdrop sombre et flou */
+.modal-backdrop.show {
+    backdrop-filter: blur(4px);
+    background-color: rgba(0, 0, 0, 0.65);
+    opacity: 1 !important;
+}
