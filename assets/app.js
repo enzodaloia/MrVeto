@@ -8,6 +8,16 @@ import { Toast } from 'bootstrap';
 import './bootstrap.js';
 import './lucide.js';
 import './stimulus_bootstrap.js';
+import { Calendar } from '@fullcalendar/core';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import frLocale from '@fullcalendar/core/locales/fr';
+
+// Expose FullCalendar for inline availability script.
+window.FullCalendar = {
+	Calendar,
+	timeGridPlugin,
+	frLocale,
+};
 
 const initToasts = () => {
 	document.querySelectorAll('[data-auto-init="toast"]').forEach((element) => {
