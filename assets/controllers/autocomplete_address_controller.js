@@ -64,6 +64,7 @@ export default class extends Controller {
 
     async search() {
         const query = this.inputTarget.value;
+        const trimmedQuery = query.trim();
         const inputWrapper = this.inputTarget.parentElement;
 
         // Clear previous timeout if user is still typing
@@ -71,7 +72,7 @@ export default class extends Controller {
             clearTimeout(this.timeout);
         }
 
-        if (query.length < 3) {
+        if (trimmedQuery.length < 3 || !/^[0-9A-Za-z]/.test(trimmedQuery)) {
             this.resultsTarget.innerHTML = '';
             this.resetStyles(inputWrapper);
             return;
@@ -80,7 +81,7 @@ export default class extends Controller {
         // Set a new timeout for 1 second (1000ms)
         this.timeout = setTimeout(async () => {
             try {
-                let url = `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=10`;
+                let url = `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(trimmedQuery)}&limit=10`;
                 if (this.themeValue === 'search') {
                     url += `&type=municipality`;
                 }
