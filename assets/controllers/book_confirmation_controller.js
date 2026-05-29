@@ -1,7 +1,29 @@
 import { Controller } from '@hotwired/stimulus';
+import * as bootstrap from 'bootstrap';
 
 export default class extends Controller {
     static targets = ["form", "submitBtn", "modalTrigger"];
+    connect() {
+        this.cancelHref = null;
+    }
+
+    openCancelConfirm(event) {
+        const btn = event.currentTarget;
+        this.cancelHref = btn.dataset.cancelHref || null;
+        const modalEl = document.getElementById('cancelConfirmModal');
+        if (!modalEl) {
+            if (this.cancelHref) window.location.href = this.cancelHref;
+            return;
+        }
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+    }
+
+    confirmCancel() {
+        if (this.cancelHref) {
+            window.location.href = this.cancelHref;
+        }
+    }
 
     submit(event) {
         event.preventDefault();
