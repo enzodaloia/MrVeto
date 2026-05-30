@@ -93,9 +93,9 @@
 
     <!-- ACTION BUTTONS -->
     <div class="d-flex justify-content-center gap-4 mt-5 mb-5">
-        <a href="{{ path('app_vet_book', {slug: vet.slug}) }}" class="btn bg-danger text-white rounded-pill px-5 py-3 fw-medium shadow-sm fs-6" style="border: none;">
+        <button type="button" class="btn bg-danger text-white rounded-pill px-5 py-3 fw-medium shadow-sm fs-6" style="border: none;" data-action="click->book-confirmation#openCancelConfirm" data-cancel-href="{{ path('app_vet_book', {slug: vet.slug}) }}">
             Annuler
-        </a>
+        </button>
         <form id="confirmSaveForm" data-action="{{ path('app_vet_book_save', {slug: vet.slug}) }}">
             <input type="hidden" name="selectedDate" value="{{ selectedDate }}">
             <input type="hidden" name="selectedSlot" value="{{ selectedSlot }}">
@@ -106,6 +106,32 @@
                 Confirmer mon Rendez-vous
             </button>
         </form>
+    </div>
+
+    <!-- CANCEL CONFIRM MODAL -->
+    <div class="modal fade" id="cancelConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-body p-4 p-md-5 text-center">
+                    <div class="mb-4">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-danger text-white rounded-circle mb-3" style="width: 80px; height: 80px; background-color: #dc3545 !important;">
+                            <i class="bi bi-x-circle" style="font-size: 2.5rem;"></i>
+                        </div>
+                    </div>
+                    <h4 class="text-info fw-bold text-dark mb-3">Annuler la prise de rendez-vous</h4>
+                    <p class="text-info text-muted mb-4">Etes-vous sur(e) de vouloir annuler ? Vous reviendrez a l'etape precedente.</p>
+
+                    <div class="d-flex flex-column flex-sm-row gap-2">
+                        <button type="button" class="btn btn-info text-white border-0 rounded-3 fw-bold w-50 py-3" data-bs-dismiss="modal">
+                            Rester ici
+                        </button>
+                        <button type="button" class="btn btn-danger text-white border-0 rounded-3 fw-bold w-50 py-3" data-action="click->book-confirmation#confirmCancel">
+                            Annuler
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
 </div>

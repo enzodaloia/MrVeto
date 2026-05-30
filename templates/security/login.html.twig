@@ -44,9 +44,11 @@
                 <button class="btn w-50 mb-3" style="background-color: #36BDAF; color: white;" type="submit">Se connecter</button>
             </center>
 
-            <div class="text-center small text-muted">
-                Nouveau sur Mr Veto? Créer un compte <a href="{{ path('app_register', {'type': 'utilisateur'}) }}">personnel</a> ou <a href="{{ path('app_register', {'type': 'veterinaire'}) }}">professionnel</a>
-            </div>
+            {% if not app.user %}
+                <div class="text-center small text-muted">
+                    Nouveau sur Mr Veto? Créer un compte <a href="{{ path('app_register', {'type': 'utilisateur'}) }}">personnel</a> ou <a href="{{ path('app_register', {'type': 'veterinaire'}) }}">professionnel</a>
+                </div>
+            {% endif %}
         </form>
     </main>
 </div>
