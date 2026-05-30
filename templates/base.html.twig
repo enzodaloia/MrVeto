@@ -338,20 +338,22 @@
 										Rechercher un vétérinaire
 									</a>
 
-									<div class="dropdown w-lg-auto">
-										<button class="btn dropdown-toggle text-start px-0 px-lg-3 text-muted" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-											S'inscrire
-										</button>
-										<ul class="dropdown-menu border-0 shadow-sm" aria-labelledby="dropdownMenuButton">
-											<li>
-												<a class="dropdown-item" href="{{ path('app_register', {'type': 'veterinaire'}) }}">Vétérinaire</a>
-											</li>
-											<li>
-												<a class="dropdown-item" href="{{ path('app_register', {'type': 'utilisateur'}) }}">Utilisateur</a>
-											</li>
-										</ul>
-									</div>
-									<a class="nav-link text-muted hover-text-primary" href="{{ path('app_login') }}">Me connecter</a>
+									{% if not app.user %}
+										<div class="dropdown w-lg-auto">
+											<button class="btn dropdown-toggle text-start px-0 px-lg-3 text-muted" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+												S'inscrire
+											</button>
+											<ul class="dropdown-menu border-0 shadow-sm" aria-labelledby="dropdownMenuButton">
+												<li>
+													<a class="dropdown-item" href="{{ path('app_register', {'type': 'veterinaire'}) }}">Vétérinaire</a>
+												</li>
+												<li>
+													<a class="dropdown-item" href="{{ path('app_register', {'type': 'utilisateur'}) }}">Utilisateur</a>
+												</li>
+											</ul>
+										</div>
+										<a class="nav-link text-muted hover-text-primary" href="{{ path('app_login') }}">Me connecter</a>
+									{% endif %}
 								</div>
 							</div>
 						</div>
