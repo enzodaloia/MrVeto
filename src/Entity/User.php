@@ -6,6 +6,7 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\VetProfile;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -83,6 +84,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $archivedAt = null;
+
+    #[ORM\OneToOne(mappedBy: 'user', targetEntity: VetProfile::class, cascade: ['persist', 'remove'])]
+    private ?VetProfile $vetProfile = null;
 
     /**
      * @var Collection<int, DayOfWork>
@@ -385,6 +389,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->archivedAt = $archivedAt;
 
+        return $this;
+    }
+
+    public function getVetProfile(): ?VetProfile { return $this->vetProfile; }
+
+    public function setVetProfile(?VetProfile $vetProfile): static
+    {
+        if ($vetProfile === null && $this->vetProfile !== null) {
+            $this->vetProfile->setUser(null);
+        }
+        if ($vetProfile !== null && $vetProfile->getUser() !== $this) {
+            $vetProfile->setUser($this);
+        }
+        $this->vetProfile = $vetProfile;
         return $this;
     }
 }
