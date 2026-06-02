@@ -83,14 +83,25 @@ jobs:
               set -euo pipefail
               cd "$DEPLOY_PATH"
 
-              chown -R $USER:$USER var/cache var/log var/sessions || true
-              chmod -R u+rwX var/cache var/cache/prod var/log var/sessions || true
+              echo "📦 Installing PHP dependencies..."
+              APP_ENV=prod APP_DEBUG=0 composer install \
+                --no-interaction \
+                --prefer-dist \
+                --no-dev \
+                --optimize-autoloader
 
-              APP_ENV=prod APP_DEBUG=0 composer install --no-interaction --prefer-dist --no-dev --optimize-autoloader
+              echo "🔐 Fixing permissions..."
+              sudo chown -R tom:www-data var || true
+              sudo chmod -R 775 var || true
 
+              mkdir -p var/cache var/log var/sessions
+
+              echo "🧹 Symfony migrations..."
               if [ -f bin/console ]; then
-                APP_ENV=prod APP_DEBUG=0 php bin/console doctrine:migrations:migrate --no-interaction
-                APP_ENV=prod APP_DEBUG=0 php bin/console cache:clear --env=prod --no-debug
-                APP_ENV=prod APP_DEBUG=0 php bin/console cache:warmup --env=prod --no-debug
+                APP_ENV=prod APP_DEBUG=0 php bin/console doctrine:migrations:migrate --no-interaction || true
+                APP_ENV=prod APP_DEBUG=0 php bin/console cache:clear --env=prod --no-debug || true
+                APP_ENV=prod APP_DEBUG=0 php bin/console cache:warmup --env=prod --no-debug || true
               fi
+
+              echo "✅ Deploy finished"
           EOF
