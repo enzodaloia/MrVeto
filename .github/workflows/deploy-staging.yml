@@ -80,28 +80,32 @@ jobs:
           set -euo pipefail
           ssh -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
             "DEPLOY_PATH='${{ secrets.DEPLOY_PATH }}' bash -s" << 'EOF'
+
               set -euo pipefail
               cd "$DEPLOY_PATH"
 
-              echo "📦 Installing PHP dependencies..."
+              echo "📦 Composer install"
               APP_ENV=prod APP_DEBUG=0 composer install \
                 --no-interaction \
                 --prefer-dist \
                 --no-dev \
                 --optimize-autoloader
 
-              echo "🔐 Fixing permissions..."
+              echo "🔐 Fix permissions (SAFE MODE)"
               sudo chown -R tom:www-data var || true
-              sudo chmod -R 775 var || true
+
+              sudo find var -type d -exec chmod 2775 {} \; || true
+              sudo find var -type f -exec chmod 664 {} \; || true
 
               mkdir -p var/cache var/log var/sessions
 
-              echo "🧹 Symfony migrations..."
-              if [ -f bin/console ]; then
-                APP_ENV=prod APP_DEBUG=0 php bin/console doctrine:migrations:migrate --no-interaction || true
-                APP_ENV=prod APP_DEBUG=0 php bin/console cache:clear --env=prod --no-debug || true
-                APP_ENV=prod APP_DEBUG=0 php bin/console cache:warmup --env=prod --no-debug || true
-              fi
+              echo "🧹 Symfony cache"
+              APP_ENV=prod APP_DEBUG=0 php bin/console cache:clear --env=prod --no-debug || true
+              APP_ENV=prod APP_DEBUG=0 php bin/console cache:warmup --env=prod --no-debug || true
+
+              echo "🧬 Migrations"
+              APP_ENV=prod APP_DEBUG=0 php bin/console doctrine:migrations:migrate --no-interaction || true
 
               echo "✅ Deploy finished"
+
           EOF
