@@ -28,7 +28,6 @@
 								<h1 class="h3 fw-medium mb-1 text-dark" style="letter-spacing: -0.5px;">Dr.
 									{{ vet.prenom }}
 									{{ vet.nom }}</h1>
-								<p class="fs-5 text-muted mb-1 fw-normal">Vétérinaire Généraliste</p>
 								<div class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-2 mb-3 mb-md-0">
 									<a href="#" class="text-decoration-none fw-medium text-primary">
 										{{ vet.adressecabinet }}
@@ -67,53 +66,358 @@
 		<div
 			class="row g-4">
 
-			<!-- LEFT COLUMN (Main Info) -->
-			<div class="col-lg-7">
-				<div
-					class="card border-0 shadow-sm p-4 p-md-5 h-100 rounded-4 bg-white">
+		<!-- LEFT COLUMN (Main Info) -->
+		<div class="col-lg-7">
+			<div
+				class="card border-0 shadow-sm p-4 p-md-5 h-100 rounded-4 bg-white"
+				{% if app.user is not null and app.user.id == vet.id %}
+					data-controller="vet-profile-edit"
+					data-vet-profile-edit-patch-url-value="{{ path('app_vet_profile_patch', {slug: vet.slug}) }}"
+				{% endif %}
+			>
 
-					<!-- A PROPOS -->
-					<div class="mb-5">
-						<h2 class="h4 fw-medium mb-4 text-dark" style="letter-spacing: -0.5px;">A propos</h2>
-						<p class="text-dark lh-lg mb-0" style="font-size: 1.05rem;">
-							Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+			{# ── Macros locales ──────────────────────────────────────────────── #}
+			{% set isOwner = app.user is not null and app.user.id == vet.id %}
+			{% set profile = vetProfile %}
+
+			{# Options pour les SearchableSelect #}
+			{% set optionsPaiement = [
+				{value: 'cb',           label: 'Carte bancaire'},
+				{value: 'especes',      label: 'Espèces'},
+				{value: 'cheque',       label: 'Chèque'},
+				{value: 'virement',     label: 'Virement bancaire'},
+				{value: 'mutuelle',     label: 'Mutuelle animale'},
+				{value: 'paypal',       label: 'PayPal'},
+				{value: 'apple_pay',    label: 'Apple Pay'},
+				{value: 'google_pay',   label: 'Google Pay'},
+				{value: 'ticket_resto', label: 'Ticket restaurant'},
+			] %}
+
+			{% set optionsAnimaux = [
+				{value: 'chien',      label: 'Chien',         category: 'Carnivores domestiques'},
+				{value: 'chat',       label: 'Chat',           category: 'Carnivores domestiques'},
+				{value: 'furet',      label: 'Furet',          category: 'Carnivores domestiques'},
+				{value: 'lapin',      label: 'Lapin',          category: 'NAC – Petits mammifères / Rongeurs'},
+				{value: 'cochon_inde',label: 'Cochon d\'Inde', category: 'NAC – Petits mammifères / Rongeurs'},
+				{value: 'hamster',    label: 'Hamster',        category: 'NAC – Petits mammifères / Rongeurs'},
+				{value: 'rat',        label: 'Rat',            category: 'NAC – Petits mammifères / Rongeurs'},
+				{value: 'souris',     label: 'Souris',         category: 'NAC – Petits mammifères / Rongeurs'},
+				{value: 'chinchilla', label: 'Chinchilla',     category: 'NAC – Petits mammifères / Rongeurs'},
+				{value: 'perroquet',  label: 'Perroquet',      category: 'NAC – Oiseaux'},
+				{value: 'perruche',   label: 'Perruche',       category: 'NAC – Oiseaux'},
+				{value: 'poule',      label: 'Poule / Canard', category: 'NAC – Oiseaux'},
+				{value: 'tortue',     label: 'Tortue',         category: 'NAC – Reptiles & Amphibiens'},
+				{value: 'serpent',    label: 'Serpent',        category: 'NAC – Reptiles & Amphibiens'},
+				{value: 'lezard',     label: 'Lézard',         category: 'NAC – Reptiles & Amphibiens'},
+				{value: 'cheval',     label: 'Cheval',         category: 'Équidés'},
+				{value: 'poney',      label: 'Poney',          category: 'Équidés'},
+				{value: 'ane',        label: 'Âne',            category: 'Équidés'},
+				{value: 'bovin',      label: 'Bovin',          category: 'Animaux ruraux'},
+				{value: 'ovin',       label: 'Ovin',           category: 'Animaux ruraux'},
+				{value: 'caprin',     label: 'Caprin',         category: 'Animaux ruraux'},
+				{value: 'porcin',     label: 'Porcin',         category: 'Animaux ruraux'},
+			] %}
+
+			{% set optionsLangues = [
+				{value: 'fr',  label: 'Français',    flag: '🇫🇷'},
+				{value: 'en',  label: 'Anglais',     flag: '🇬🇧'},
+				{value: 'es',  label: 'Espagnol',    flag: '🇪🇸'},
+				{value: 'de',  label: 'Allemand',    flag: '🇩🇪'},
+				{value: 'it',  label: 'Italien',     flag: '🇮🇹'},
+				{value: 'pt',  label: 'Portugais',   flag: '🇵🇹'},
+				{value: 'nl',  label: 'Néerlandais', flag: '🇳🇱'},
+				{value: 'ar',  label: 'Arabe',       flag: '🇸🇦'},
+				{value: 'zh',  label: 'Mandarin',    flag: '🇨🇳'},
+				{value: 'ru',  label: 'Russe',       flag: '🇷🇺'},
+				{value: 'pl',  label: 'Polonais',    flag: '🇵🇱'},
+				{value: 'tr',  label: 'Turc',        flag: '🇹🇷'},
+				{value: 'ro',  label: 'Roumain',     flag: '🇷🇴'},
+				{value: 'uk',  label: 'Ukrainien',   flag: '🇺🇦'},
+				{value: 'sv',  label: 'Suédois',     flag: '🇸🇪'},
+				{value: 'da',  label: 'Danois',      flag: '🇩🇰'},
+				{value: 'no',  label: 'Norvégien',   flag: '🇳🇴'},
+				{value: 'fi',  label: 'Finnois',     flag: '🇫🇮'},
+				{value: 'he',  label: 'Hébreu',      flag: '🇮🇱'},
+				{value: 'fa',  label: 'Persan',      flag: '🇮🇷'},
+				{value: 'ja',  label: 'Japonais',    flag: '🇯🇵'},
+				{value: 'ko',  label: 'Coréen',      flag: '🇰🇷'},
+				{value: 'hi',  label: 'Hindi',       flag: '🇮🇳'},
+			] %}
+
+			{% set optionsSpecialites = [
+				{value: 'medecine_generale',         label: 'Médecine générale'},
+				{value: 'vaccination_identif',       label: 'Vaccination et Identification'},
+				{value: 'pediatrie',                 label: 'Pédiatrie vétérinaire'},
+				{value: 'geriatrie',                 label: 'Gériatrie vétérinaire'},
+				{value: 'chir_convenance',           label: 'Chirurgie de convenance'},
+				{value: 'chir_tissus_mous',          label: 'Chirurgie des tissus mous'},
+				{value: 'chir_orthopedique',         label: 'Chirurgie orthopédique et traumatologie'},
+				{value: 'neurochirurgie',            label: 'Neurochirurgie'},
+				{value: 'gastro_enterologie',        label: 'Gastro-entérologie'},
+				{value: 'cardiologie',               label: 'Cardiologie'},
+				{value: 'pneumologie',               label: 'Pneumologie'},
+				{value: 'endocrinologie',            label: 'Endocrinologie'},
+				{value: 'urologie_nephrologie',      label: 'Urologie et Néphrologie'},
+				{value: 'oncologie',                 label: 'Oncologie / Cancérologie'},
+				{value: 'hematologie_immunologie',   label: 'Hématologie et Immunologie'},
+				{value: 'dermatologie',              label: 'Dermatologie'},
+				{value: 'ophtalmologie',             label: 'Ophtalmologie'},
+				{value: 'neurologie',                label: 'Neurologie'},
+				{value: 'stomatologie_dentisterie',  label: 'Stomatologie et Dentisterie'},
+				{value: 'imagerie_medicale',         label: 'Imagerie médicale'},
+				{value: 'biologie_medicale',         label: 'Biologie médicale'},
+				{value: 'medecine_comportement',     label: 'Médecine du comportement'},
+				{value: 'physiotherapie',            label: 'Physiothérapie et Rééducation fonctionnelle'},
+				{value: 'osteopathie',               label: 'Ostéopathie vétérinaire'},
+				{value: 'nutrition',                 label: 'Nutrition et Diététique'},
+				{value: 'nac',                       label: 'Médecine et chirurgie des NAC'},
+				{value: 'equine',                    label: 'Médecine équine'},
+				{value: 'theriogenologie',           label: 'Thériogénologie'},
+			] %}
+
+				{# ── À propos ─────────────────────────────────────────────── #}
+				<div class="mb-5" data-vet-profile-edit-target="section" data-field="aPropos">
+
+					<div class="d-flex align-items-center gap-2 mb-4">
+						<h2 class="h4 fw-medium mb-0 text-dark" style="letter-spacing: -0.5px;">À propos</h2>
+						{% if isOwner %}
+							<button class="btn btn-sm btn-link text-muted p-0 ms-1 hover-scale" title="Modifier"
+									data-action="click->vet-profile-edit#startEdit" data-field="aPropos">
+								<twig:ux:icon name="lucide:pencil" class="fs-6"/>
+							</button>
+						{% endif %}
+					</div>
+
+					{# Affichage #}
+					<div data-vet-profile-edit-target="display">
+						<p class="text-dark lh-lg mb-0" style="font-size: 1.05rem;" data-display-content>
+							{{ profile and profile.aPropos ? profile.aPropos : 'Aucune description renseignée.' }}
 						</p>
 					</div>
 
-					<!-- SPECIALITES -->
-					<div class="mb-5">
-						<h2 class="h4 fw-medium mb-4 text-dark" style="letter-spacing: -0.5px;">Spécialités</h2>
-						<div class="d-flex flex-wrap gap-3">
-							<twig:Badge type="primary" text="Dermatologie"/>
-							<twig:Badge type="primary" text="Gastroentérologie"/>
-							<twig:Badge type="primary" text="Lorem"/>
+					{# Formulaire inline #}
+					{% if isOwner %}
+					<div data-vet-profile-edit-target="form" class="d-none">
+						<textarea class="form-control mb-3" rows="5" data-edit-field
+							placeholder="Décrivez votre pratique, votre expérience…">{{ profile and profile.aPropos ? profile.aPropos : '' }}</textarea>
+						<div class="d-flex gap-2">
+							<button class="btn btn-sm rounded-pill px-3 text-white" style="background-color: #36BDAF; border: none;" data-action="click->vet-profile-edit#save" data-field="aPropos">Enregistrer</button>
+							<button class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-action="click->vet-profile-edit#cancel" data-field="aPropos">Annuler</button>
 						</div>
 					</div>
-
-					<!-- DETAILS (List) -->
-					<div class="vstack gap-4">
-						<div>
-							<span class="d-block h5 fw-medium mb-2 text-dark" style="letter-spacing: -0.3px;">Moyens de paiement</span>
-							<span class="fw-normal" style="color: #40A8A4; font-size: 1.05rem;">CB / espèces / mutuelle animale</span>
-						</div>
-
-						<div>
-							<span class="d-block h5 fw-medium mb-2 text-dark" style="letter-spacing: -0.3px;">Types d'animaux acceptés</span>
-							<span class="fw-normal" style="color: #40A8A4; font-size: 1.05rem;">Chiens / Chats / NAC / Chevaux</span>
-						</div>
-
-						<div>
-							<span class="d-block h5 fw-medium mb-2 text-dark" style="letter-spacing: -0.3px;">Durée moyenne de consultation</span>
-							<span class="fw-normal" style="color: #40A8A4; font-size: 1.05rem;">20 minutes</span>
-						</div>
-
-						<div>
-							<span class="d-block h5 fw-medium mb-2 text-dark" style="letter-spacing: -0.3px;">Langues parlées</span>
-							<span class="fw-normal" style="color: #40A8A4; font-size: 1.05rem;">FR / ENG</span>
-						</div>
-					</div>
+					{% endif %}
 				</div>
+
+				{# ── Spécialités ──────────────────────────────────────────── #}
+				<div class="mb-5" data-vet-profile-edit-target="section" data-field="specialites">
+
+					<div class="d-flex align-items-center gap-2 mb-4">
+						<h2 class="h4 fw-medium mb-0 text-dark" style="letter-spacing: -0.5px;">Spécialités</h2>
+						{% if isOwner %}
+							<button class="btn btn-sm btn-link text-muted p-0 ms-1 hover-scale" title="Modifier"
+									data-action="click->vet-profile-edit#startEdit" data-field="specialites">
+								<twig:ux:icon name="lucide:pencil" class="fs-6"/>
+							</button>
+						{% endif %}
+					</div>
+
+					{# Affichage #}
+					<div data-vet-profile-edit-target="display">
+						<div class="d-flex flex-wrap gap-2" data-display-content data-display-type="tags">
+							{% if profile and profile.specialites|length > 0 %}
+								{% for s in profile.specialites %}
+									<twig:Badge type="primary" text="{{ s.label }}"/>
+								{% endfor %}
+							{% else %}
+								<span class="text-muted fst-italic">Non renseigné</span>
+							{% endif %}
+						</div>
+					</div>
+
+					{# Formulaire inline #}
+					{% if isOwner %}
+					<div data-vet-profile-edit-target="form" class="d-none">
+						{% set selectedSlugs = [] %}
+						{% if profile %}
+							{% for s in profile.specialites %}
+								{% set selectedSlugs = selectedSlugs|merge([s.slug]) %}
+							{% endfor %}
+						{% endif %}
+						<twig:SearchableSelect
+							name="specialites"
+							:options="optionsSpecialites"
+							:selected="selectedSlugs"
+							:multiple="true"
+							placeholder="Rechercher une spécialité…"
+						/>
+						<div class="d-flex gap-2 mt-3">
+							<button class="btn btn-sm rounded-pill px-3 text-white" style="background-color: #36BDAF; border: none;" data-action="click->vet-profile-edit#save" data-field="specialites">Enregistrer</button>
+							<button class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-action="click->vet-profile-edit#cancel" data-field="specialites">Annuler</button>
+						</div>
+					</div>
+					{% endif %}
+				</div>
+
+				{# ── Détails ─────────────────────────────────────────────── #}
+				<div class="vstack gap-4">
+
+					{# Moyens de paiement #}
+					<div data-vet-profile-edit-target="section" data-field="moyensPaiement">
+						<div class="d-flex align-items-center gap-2 mb-2">
+							<span class="h5 fw-medium mb-0 text-dark" style="letter-spacing: -0.3px;">Moyens de paiement</span>
+							{% if isOwner %}
+								<button class="btn btn-sm btn-link text-muted p-0 ms-1 hover-scale" title="Modifier"
+										data-action="click->vet-profile-edit#startEdit" data-field="moyensPaiement">
+									<twig:ux:icon name="lucide:pencil" class="fs-6"/>
+								</button>
+							{% endif %}
+						</div>
+						<div data-vet-profile-edit-target="display">
+							<div class="d-flex flex-wrap gap-2" data-display-content data-display-type="tags">
+								{% if profile and profile.moyensPaiement %}
+									{% for val in profile.moyensPaiement %}
+										{% set found = optionsPaiement|filter(o => o.value == val)|first %}
+										<twig:Badge type="primary" text="{{ found ? found.label : val }}"/>
+									{% endfor %}
+								{% else %}
+									<span class="text-muted fst-italic">Non renseigné</span>
+								{% endif %}
+							</div>
+						</div>
+						{% if isOwner %}
+						<div data-vet-profile-edit-target="form" class="d-none mt-2">
+							<twig:SearchableSelect
+								name="moyensPaiement"
+								:options="optionsPaiement"
+								:selected="profile and profile.moyensPaiement ? profile.moyensPaiement : []"
+								:multiple="true"
+								placeholder="Sélectionner les moyens de paiement…"
+							/>
+							<div class="d-flex gap-2 mt-3">
+								<button class="btn btn-sm rounded-pill px-3 text-white" style="background-color: #36BDAF; border: none;" data-action="click->vet-profile-edit#save" data-field="moyensPaiement">Enregistrer</button>
+								<button class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-action="click->vet-profile-edit#cancel" data-field="moyensPaiement">Annuler</button>
+							</div>
+						</div>
+						{% endif %}
+					</div>
+
+					{# Types d'animaux #}
+					<div data-vet-profile-edit-target="section" data-field="animauxAcceptes">
+						<div class="d-flex align-items-center gap-2 mb-2">
+							<span class="h5 fw-medium mb-0 text-dark" style="letter-spacing: -0.3px;">Types d'animaux acceptés</span>
+							{% if isOwner %}
+								<button class="btn btn-sm btn-link text-muted p-0 ms-1 hover-scale" title="Modifier"
+										data-action="click->vet-profile-edit#startEdit" data-field="animauxAcceptes">
+									<twig:ux:icon name="lucide:pencil" class="fs-6"/>
+								</button>
+							{% endif %}
+						</div>
+						<div data-vet-profile-edit-target="display">
+							<div class="d-flex flex-wrap gap-2" data-display-content data-display-type="tags">
+								{% if profile and profile.animauxAcceptes %}
+									{% for val in profile.animauxAcceptes %}
+										{% set found = optionsAnimaux|filter(o => o.value == val)|first %}
+										<twig:Badge type="primary" text="{{ found ? found.label : val }}"/>
+									{% endfor %}
+								{% else %}
+									<span class="text-muted fst-italic">Non renseigné</span>
+								{% endif %}
+							</div>
+						</div>
+						{% if isOwner %}
+						<div data-vet-profile-edit-target="form" class="d-none mt-2">
+							<twig:SearchableSelect
+								name="animauxAcceptes"
+								:options="optionsAnimaux"
+								:selected="profile and profile.animauxAcceptes ? profile.animauxAcceptes : []"
+								:multiple="true"
+								:allowCustom="true"
+								placeholder="Rechercher ou ajouter une espèce…"
+							/>
+							<div class="d-flex gap-2 mt-3">
+								<button class="btn btn-sm rounded-pill px-3 text-white" style="background-color: #36BDAF; border: none;" data-action="click->vet-profile-edit#save" data-field="animauxAcceptes">Enregistrer</button>
+								<button class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-action="click->vet-profile-edit#cancel" data-field="animauxAcceptes">Annuler</button>
+							</div>
+						</div>
+						{% endif %}
+					</div>
+
+					{# Durée moyenne #}
+					<div data-vet-profile-edit-target="section" data-field="dureeConsultation">
+						<div class="d-flex align-items-center gap-2 mb-2">
+							<span class="h5 fw-medium mb-0 text-dark" style="letter-spacing: -0.3px;">Durée moyenne de consultation</span>
+							{% if isOwner %}
+								<button class="btn btn-sm btn-link text-muted p-0 ms-1 hover-scale" title="Modifier"
+										data-action="click->vet-profile-edit#startEdit" data-field="dureeConsultation">
+									<twig:ux:icon name="lucide:pencil" class="fs-6"/>
+								</button>
+							{% endif %}
+						</div>
+						<div data-vet-profile-edit-target="display">
+							<span class="fw-normal" style="color: #40A8A4; font-size: 1.05rem;" data-display-content>
+								{{ profile and profile.dureeConsultation ? profile.dureeConsultation : 'Non renseigné' }}
+							</span>
+						</div>
+						{% if isOwner %}
+						<div data-vet-profile-edit-target="form" class="d-none mt-2">
+							<input type="text" class="form-control mb-3" data-edit-field
+								placeholder="ex : 20 minutes"
+								value="{{ profile and profile.dureeConsultation ? profile.dureeConsultation : '' }}">
+							<div class="d-flex gap-2">
+								<button class="btn btn-sm rounded-pill px-3 text-white" style="background-color: #36BDAF; border: none;" data-action="click->vet-profile-edit#save" data-field="dureeConsultation">Enregistrer</button>
+								<button class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-action="click->vet-profile-edit#cancel" data-field="dureeConsultation">Annuler</button>
+							</div>
+						</div>
+						{% endif %}
+					</div>
+
+					{# Langues parlées #}
+					<div data-vet-profile-edit-target="section" data-field="langues">
+						<div class="d-flex align-items-center gap-2 mb-2">
+							<span class="h5 fw-medium mb-0 text-dark" style="letter-spacing: -0.3px;">Langues parlées</span>
+							{% if isOwner %}
+								<button class="btn btn-sm btn-link text-muted p-0 ms-1 hover-scale" title="Modifier"
+										data-action="click->vet-profile-edit#startEdit" data-field="langues">
+									<twig:ux:icon name="lucide:pencil" class="fs-6"/>
+								</button>
+							{% endif %}
+						</div>
+						<div data-vet-profile-edit-target="display">
+							<div class="d-flex flex-wrap gap-2" data-display-content data-display-type="tags">
+								{% if profile and profile.langues %}
+									{% for val in profile.langues %}
+										{% set found = optionsLangues|filter(o => o.value == val)|first %}
+										{% if found %}
+											<twig:Badge type="primary" text="{{ found.flag }} {{ found.label }}"/>
+										{% else %}
+											<twig:Badge type="primary" text="{{ val }}"/>
+										{% endif %}
+									{% endfor %}
+								{% else %}
+									<span class="text-muted fst-italic">Non renseigné</span>
+								{% endif %}
+							</div>
+						</div>
+						{% if isOwner %}
+						<div data-vet-profile-edit-target="form" class="d-none mt-2">
+							<twig:SearchableSelect
+								name="langues"
+								:options="optionsLangues"
+								:selected="profile and profile.langues ? profile.langues : []"
+								:multiple="true"
+								placeholder="Rechercher une langue…"
+							/>
+							<div class="d-flex gap-2 mt-3">
+								<button class="btn btn-sm rounded-pill px-3 text-white" style="background-color: #36BDAF; border: none;" data-action="click->vet-profile-edit#save" data-field="langues">Enregistrer</button>
+								<button class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-action="click->vet-profile-edit#cancel" data-field="langues">Annuler</button>
+							</div>
+						</div>
+						{% endif %}
+					</div>
+
+				</div>{# /vstack details #}
 			</div>
+		</div>
 
 			<!-- RIGHT COLUMN (Widgets) -->
 			<div class="col-lg-5">

@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\DayOfWork;
+use App\Entity\VetProfile;
+use App\Repository\SpecialiteRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,7 +22,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class VetInfoController extends AbstractController
 {
     #[Route('/veterinaire/{slug}', name: 'app_vet_info')]
-    public function index(#[MapEntity(mapping: ['slug' => 'slug'])] User $vet = null, DayOfWorkRepository $dayOfWorkRepository): Response
+    public function index(#[MapEntity(mapping: ['slug' => 'slug'])] User $vet = null, DayOfWorkRepository $dayOfWorkRepository, SpecialiteRepository $specialiteRepository): Response
     {
         if (!$vet || !in_array('ROLE_VETO', $vet->getRoles())) {
             throw new NotFoundHttpException('Vétérinaire non trouvé.');
@@ -67,16 +69,111 @@ class VetInfoController extends AbstractController
         }
 
         return $this->render('vet-info/vetinfo.html.twig', [
-            'vet' => $vet,
-            'status' => $status,
-            'weekAvailability' => $weekAvailability,
-            'todaySlots' => $todaySlots,
-            'selectedDayLabel' => $dayLabels[$selectedDayOrder] ?? strtolower($selectedDate->format('l')),
+            'vet'               => $vet,
+            'vetProfile'        => $vet->getVetProfile(),
+            'allSpecialites'    => $specialiteRepository->findAllOrdered(),
+            'status'            => $status,
+            'weekAvailability'  => $weekAvailability,
+            'todaySlots'        => $todaySlots,
+            'selectedDayLabel'  => $dayLabels[$selectedDayOrder] ?? strtolower($selectedDate->format('l')),
             'selectedDayDisplay' => $dayDisplaysByOffset[$selectedDayOffset] ?? (($dayLabels[$selectedDayOrder] ?? strtolower($selectedDate->format('l'))) . ' ' . $selectedDate->format('j')),
-            'daySlotsByOffset' => $daySlotsByOffset,
+            'daySlotsByOffset'  => $daySlotsByOffset,
             'dayLabelsByOffset' => $dayLabelsByOffset,
             'dayDisplaysByOffset' => $dayDisplaysByOffset,
         ]);
+    }
+
+    /**
+     * PATCH /veterinaire/{slug}/profil
+     * Sauvegarde un champ du profil vétérinaire (inline edit).
+     * Réservé au vétérinaire propriétaire de la fiche.
+     */
+    #[Route('/veterinaire/{slug}/profil', name: 'app_vet_profile_patch', methods: ['PATCH'])]
+    public function patchProfile(
+        #[MapEntity(mapping: ['slug' => 'slug'])] User $vet,
+        Request $request,
+        EntityManagerInterface $em,
+        SpecialiteRepository $specialiteRepository,
+    ): JsonResponse {
+        if (!$vet || !in_array('ROLE_VETO', $vet->getRoles())) {
+            return $this->json(['error' => 'Vétérinaire introuvable.'], 404);
+        }
+
+        /** @var User|null $currentUser */
+        $currentUser = $this->getUser();
+        if ($currentUser === null || $currentUser->getId() !== $vet->getId()) {
+            return $this->json(['error' => 'Accès refusé.'], 403);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $field = $data['field'] ?? null;
+        $value = $data['value'] ?? null;
+
+        $allowedFields = ['aPropos', 'specialites', 'moyensPaiement', 'animauxAcceptes', 'dureeConsultation', 'langues'];
+        if (!in_array($field, $allowedFields, true)) {
+            return $this->json(['error' => 'Champ non autorisé.'], 400);
+        }
+
+        $profile = $vet->getVetProfile();
+        if ($profile === null) {
+            $profile = new VetProfile();
+            $profile->setUser($vet);
+            $vet->setVetProfile($profile);
+            $em->persist($profile);
+        }
+
+        // Cas particulier : spécialités → ManyToMany Specialite
+        if ($field === 'specialites') {
+            $items = $this->syncSpecialites($profile, is_array($value) ? $value : [], $specialiteRepository, $em);
+            $em->flush();
+            return $this->json([
+                'success' => true,
+                'field'   => 'specialites',
+                'items'   => $items,
+            ]);
+        }
+
+        $setter = 'set' . ucfirst($field);
+        $profile->$setter($value);
+        $em->flush();
+
+        return $this->json(['success' => true, 'field' => $field, 'value' => $value]);
+    }
+
+    /**
+     * Synchronise la liste de spécialités du VetProfile à partir des slugs reçus.
+     * Seuls les slugs correspondant à une Specialite existante en BDD sont accept\u00e9s
+     * (pas de cr\u00e9ation de spécialités custom).
+     *
+     * @param string[] $values
+     * @return array<int, array{slug: string, label: string}>
+     */
+    private function syncSpecialites(
+        VetProfile $profile,
+        array $values,
+        SpecialiteRepository $repo,
+        EntityManagerInterface $em,
+    ): array {
+        // Vider la collection actuelle
+        foreach ($profile->getSpecialites()->toArray() as $existing) {
+            $profile->removeSpecialite($existing);
+        }
+
+        $result = [];
+        foreach ($values as $raw) {
+            $slug = trim((string) $raw);
+            if ($slug === '') continue;
+
+            $sp = $repo->findOneBySlug($slug);
+            if ($sp === null) {
+                continue; // slug inconnu : ignor\u00e9
+            }
+
+            $profile->addSpecialite($sp);
+            $result[] = ['slug' => $sp->getSlug(), 'label' => $sp->getLabel()];
+        }
+
+        return $result;
     }
 
     /**
