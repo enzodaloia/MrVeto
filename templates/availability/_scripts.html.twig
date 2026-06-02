@@ -18,6 +18,8 @@
 			document.getElementById("calendar"),
 			{
 				locale: "fr",
+				plugins: [FullCalendar.timeGridPlugin],
+				locale: FullCalendar.frLocale,
 				initialView: window.innerWidth < 768 ? "timeGridDay" : "timeGridWeek",
 				headerToolbar: {
 					left: "prev,next today",
