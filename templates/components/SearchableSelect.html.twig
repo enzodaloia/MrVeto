@@ -1,0 +1,85 @@
+{% props
+    name,
+    options = [],
+    selected = [],
+    multiple = false,
+    searchable = true,
+    allowCustom = false,
+    placeholder = 'Sélectionner...',
+    disabled = false
+%}
+{#
+    options  : [{value, label, flag?, category?}]  — tableau plat, groupé par category en JS
+    selected : [string]                             — tableau de valeurs (strings)
+    multiple : bool                                 — multi-sélection avec tags
+    searchable  : bool                              — barre de recherche dans le dropdown
+    allowCustom : bool                              — appuyer Entrée pour ajouter une valeur absente
+    disabled    : bool                              — composant non interactif
+#}
+<div
+    data-controller="searchable-select"
+    data-searchable-select-multiple-value="{{ multiple ? 'true' : 'false' }}"
+    data-searchable-select-allow-custom-value="{{ allowCustom ? 'true' : 'false' }}"
+    data-searchable-select-selected-value="{{ selected|json_encode }}"
+    data-searchable-select-all-options-value="{{ options|json_encode }}"
+    data-searchable-select-name-value="{{ name }}"
+    data-searchable-select-placeholder-text-value="{{ placeholder }}"
+    class="position-relative"
+    style="min-width: 0;"
+>
+    {# ── Trigger (tags + placeholder) ──────────────────────────────────── #}
+    <div
+        class="form-control d-flex flex-wrap gap-1 align-items-center {{ disabled ? 'bg-light pe-none opacity-75' : 'cursor-pointer' }}"
+        style="min-height: 42px; padding: 6px 10px;"
+        data-action="click->searchable-select#toggle"
+        data-searchable-select-target="trigger"
+    >
+        <div data-searchable-select-target="tags" class="d-contents"></div>
+        <span
+            data-searchable-select-target="placeholderEl"
+            class="text-muted user-select-none"
+            style="font-size: 0.93rem;"
+        >{{ placeholder }}</span>
+    </div>
+
+    {# ── Dropdown ───────────────────────────────────────────────────────── #}
+    <div
+        data-searchable-select-target="dropdown"
+        class="position-absolute start-0 w-100 bg-white border rounded-3 shadow mt-1 d-none"
+        style="z-index: 1055;"
+    >
+        {% if searchable %}
+        <div class="p-2 border-bottom bg-white rounded-top-3">
+            <input
+                type="text"
+                class="form-control form-control-sm border-0 bg-light rounded-2"
+                placeholder="Rechercher..."
+                autocomplete="off"
+                data-searchable-select-target="search"
+                data-action="input->searchable-select#onSearch keydown->searchable-select#onKeydown"
+            >
+        </div>
+        {% endif %}
+
+        <div
+            data-searchable-select-target="optionsList"
+            class="py-1"
+            style="max-height: 240px; overflow-y: auto;"
+        ></div>
+
+        {% if allowCustom %}
+        <div
+            data-searchable-select-target="customHint"
+            class="px-3 py-2 border-top text-muted d-none"
+            style="font-size: 0.82rem;"
+        >
+            <i class="bi bi-plus-circle me-1"></i>
+            Appuyer sur <kbd>Entrée</kbd> pour ajouter
+            "<strong data-searchable-select-target="customLabel"></strong>"
+        </div>
+        {% endif %}
+    </div>
+
+    {# ── Hidden inputs (gérés par le controller JS) ─────────────────────── #}
+    <div data-searchable-select-target="hiddenInputs"></div>
+</div>

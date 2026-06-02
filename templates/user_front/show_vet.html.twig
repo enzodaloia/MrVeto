@@ -14,11 +14,17 @@
     data-profile-form-url-value="{{ path('app_user_front_update_vet', {slug: user.slug}) }}">
     <h1 class="text-center text-info fw-bold mb-5">Mon compte professionnel</h1>
 
-    <div class="text-center mb-4">
+    <div class="text-center mb-4 d-flex justify-content-center flex-wrap gap-2">
         <a class="btn btn-outline-primary rounded-pill px-4" href="{{ path('app_vet_cabinet_index') }}">
-            Gérer mon cabinet et mes secrétaires
+            <i class="bi bi-building me-1"></i>Gérer mon cabinet et mes secrétaires
+        </a>
+        <a class="btn btn-outline-primary rounded-pill px-4" href="{{ path('app_vet_info', {slug: user.slug}) }}">
+            <i class="bi bi-person-badge me-1"></i>Mon profil public
         </a>
     </div>
+    <style>
+        .btn-outline-primary:hover, .btn-outline-primary:focus { color: #fff !important; }
+    </style>
 
     {# Profile Picture Section #}
     <div class="card border-0 shadow-sm mb-5 rounded-4 bg-secondary-bg">
