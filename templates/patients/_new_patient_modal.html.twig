@@ -43,7 +43,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label small fw-medium text-dark">Téléphone</label>
-                                <input type="tel" name="owner_telephone" class="form-control" placeholder="06 00 00 00 00">
+                                <input type="tel" name="owner_telephone" class="form-control" placeholder="06 00 00 00 00" data-controller="phone-input" data-action="input->phone-input#format" minlength="10" maxlength="12">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label small fw-medium text-dark">Email</label>
@@ -90,8 +90,8 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label small fw-medium text-dark">Date de naissance</label>
-                                <input type="date" name="animal_naissance" class="form-control">
+                                <label class="form-label small fw-medium text-dark">Âge</label>
+                                <input type="text" name="animal_naissance" class="form-control" placeholder="Ex: 3 ans ou 6 mois">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label small fw-medium text-dark d-block mb-2">Sexe</label>

@@ -88,6 +88,7 @@
             {% if selectedDate is not null %}
                 <div id="horaires" class="card border-0 shadow-sm rounded-4 mb-4 p-4 p-md-5 bg-white text-center mx-auto" style="max-width: 800px;">
                     <h3 class="h5 fw-bold mb-4 text-dark">Choisir un horaire</h3>
+                    <input type="hidden" id="selectedSlotInput" value="">
 
                     {% if morningSlots is empty and afternoonSlots is empty %}
                         <div class="alert alert-info">Aucun créneau disponible pour cette date.</div>

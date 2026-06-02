@@ -46,7 +46,7 @@ security:
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/veterinaire/cabinet, roles: ROLE_VETO }
         - { path: ^/app, roles: [ROLE_USER, ROLE_SECRETARY] }
-        - { path: ^/mes-rendez-vous, roles: ROLE_USER }
+        - { path: ^/mes-rendez-vous, roles: [ROLE_USER, ROLE_SECRETARY, ROLE_VETO] }
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
 

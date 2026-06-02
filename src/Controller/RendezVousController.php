@@ -69,8 +69,8 @@ class RendezVousController extends AbstractController
 
         $rdv = $rendezVousRepository->findOneBy(['slug' => $slug]);
 
-        if (!$rdv || $rdv->getClient() !== $user) {
-            return $this->json(['error' => 'Rendez-vous introuvable'], 404);
+        if (!$this->hasAccessToRdv($user, $rdv, $rendezVousRepository)) {
+            return $this->json(['error' => 'Rendez-vous introuvable ou non autorisé'], 404);
         }
 
         $vet = $rdv->getVeterinaire();
@@ -203,8 +203,8 @@ class RendezVousController extends AbstractController
 
         $rdv = $rendezVousRepository->findOneBy(['slug' => $slug]);
 
-        if (!$rdv || $rdv->getClient() !== $user) {
-            return $this->json(['error' => 'Rendez-vous introuvable'], 404);
+        if (!$this->hasAccessToRdv($user, $rdv, $rendezVousRepository)) {
+            return $this->json(['error' => 'Rendez-vous introuvable ou non autorisé'], 404);
         }
 
         if ($rdv->getDateHeure() > new \DateTime()) {
@@ -229,8 +229,8 @@ class RendezVousController extends AbstractController
 
         $rdv = $rendezVousRepository->findOneBy(['slug' => $slug]);
 
-        if (!$rdv || $rdv->getClient() !== $user) {
-            return $this->json(['error' => 'Rendez-vous introuvable'], 404);
+        if (!$this->hasAccessToRdv($user, $rdv, $rendezVousRepository)) {
+            return $this->json(['error' => 'Rendez-vous introuvable ou non autorisé'], 404);
         }
 
         if ($rdv->getDateHeure() <= new \DateTime()) {
@@ -299,5 +299,20 @@ class RendezVousController extends AbstractController
         }
 
         return RendezVousEntity::ACTION_BY_CLIENT;
+    }
+
+    private function hasAccessToRdv($user, ?RendezVousEntity $rdv, RendezVousRepository $repo): bool
+    {
+        if (!$rdv) return false;
+        if ($rdv->getClient() === $user) return true;
+        
+        $roles = $user->getRoles();
+        $isVet = in_array('ROLE_VETO', $roles, true);
+        $isSecretary = in_array('ROLE_SECRETARY', $roles, true) || in_array('ROLE_SECRETAIRE', $roles, true);
+        
+        if ($isVet && $repo->vetHasRdvWithAnimal($user, $rdv->getAnimal())) return true;
+        if ($isSecretary && $repo->secretaryHasAccessToAnimal($user, $rdv->getAnimal())) return true;
+        
+        return false;
     }
 }

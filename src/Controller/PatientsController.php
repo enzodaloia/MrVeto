@@ -143,7 +143,7 @@ final class PatientsController extends AbstractController
         $entityManager->flush();
 
         $this->addFlash('success', 'Dossier patient enregistré avec succès.');
-        return $this->redirectToRoute('app_vet_patients');
+        return $this->redirectToRoute('app_vet_patients_book', ['slug' => $animal->getSlug()]);
     }
 
     #[Route('/api/search-all', name: 'app_vet_patients_search_all', methods: ['GET'])]

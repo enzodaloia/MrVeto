@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block body %}
-<div class="carnet-sante-page p-3 p-lg-4">
+<div class="carnet-sante-page p-3 p-lg-4" data-controller="rendezvous">
     <div class="container-fluid p-0">
 
         <!-- Breadcrumb -->
@@ -261,6 +261,27 @@
                                             <div class="text-neutral-80 fw-medium">{{ rdv.motif|default('Consultation') }}</div>
 
                                             <!-- Compte-rendu / remarque -->
+                                            {% if not isFinished %}
+                                                <div class="d-flex gap-2 mt-3 mb-2">
+                                                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-medium"
+                                                            data-action="click->rendezvous#openEditModal"
+                                                            data-slug="{{ rdv.slug }}"
+                                                            data-vet="{{ rdv.veterinaire.prenom|default('') }} {{ rdv.veterinaire.nom|default('') }}"
+                                                            data-motif="{{ rdv.motif|default('Consultation générale') }}"
+                                                            data-statut="{{ rdv.statut }}"
+                                                            data-date="{{ rdv.dateHeure|date('Y-m-d') }}"
+                                                            data-time="{{ rdv.dateHeure|date('H:i') }}">
+                                                        Modifier
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-medium"
+                                                            data-action="click->rendezvous#openCancelModal"
+                                                            data-slug="{{ rdv.slug }}"
+                                                            data-date="{{ rdv.dateHeure|date('Y-m-d') }}"
+                                                            data-time="{{ rdv.dateHeure|date('H:i') }}">
+                                                        Annuler
+                                                    </button>
+                                                </div>
+                                            {% endif %}
                                             {% if isOwnRdv and not isReadOnly %}
                                                 <div class="mt-2">
                                                     <button
@@ -406,6 +427,8 @@
             </div>
 
         </div>
+        
+        {% include 'rendez_vous/_modals.html.twig' %}
     </div>
 </div>
 
@@ -465,7 +488,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-medium">Poids (kg)</label>
-                                <input type="text" name="poids" class="form-control" value="{{ animal.poids|default('') }}" placeholder="Ex: 4.5">
+                                <input type="number" step="0.01" name="poids" class="form-control" value="{{ animal.poids|default('') }}" placeholder="Ex: 4.5">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-medium">Vaccins à jour</label>
@@ -533,6 +556,8 @@
         </div>
     </div>
 {% endif %}
+
+
 
 {% block javascripts %}
 {{ parent() }}
