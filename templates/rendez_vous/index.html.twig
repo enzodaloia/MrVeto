@@ -69,12 +69,27 @@
                                 </span>
                             </div>
                             <h6 class="fw-bold text-dark mb-1 fs-5">{{ rdv.motif|default('Consultation classique') }}</h6>
-                            <div class="text-muted d-flex align-items-center gap-1" style="font-size: 0.9rem;">
-                                <i class="bi bi-person-badge"></i> Dr. {{ rdv.veterinaire.nom }} • Clinique Vétérinaire
+                            <div class="text-muted d-flex flex-wrap align-items-center gap-2" style="font-size: 0.9rem;">
+                                <span><i class="bi bi-person-badge"></i> Dr. {{ rdv.veterinaire.nom }}</span>
+                                {% if rdv.animal %}
+                                    <span>•</span>
+                                    <span><i class="bi bi-heart"></i> Patient : <span class="fw-medium text-dark">{{ rdv.animal.nom }}</span></span>
+                                    {% if is_granted('ROLE_SECRETARY') or is_granted('ROLE_SECRETAIRE') or is_granted('ROLE_VETO') %}
+                                        <span>•</span>
+                                        <span><i class="bi bi-person"></i> Client : {{ rdv.client.prenom }} {{ rdv.client.nom }}</span>
+                                    {% endif %}
+                                {% endif %}
                             </div>
                         </div>
 
                         <div class="d-flex gap-2 mt-3 mt-md-0">
+                            {% if (is_granted('ROLE_SECRETARY') or is_granted('ROLE_SECRETAIRE') or is_granted('ROLE_VETO')) and rdv.statut != 'confirme' %}
+                                <button class="btn btn-success text-white rounded-pill px-4 fw-medium border-0"
+                                        data-action="click->rendezvous#confirmRdv"
+                                        data-slug="{{ rdv.slug }}">
+                                    Valider
+                                </button>
+                            {% endif %}
                             <button class="btn btn-primary text-white rounded-pill px-4 fw-medium border-0"
                                     data-action="click->rendezvous#openEditModal"
                                     data-slug="{{ rdv.slug }}"
@@ -117,7 +132,7 @@
                 <thead>
                     <tr class="border-bottom border-light-subtle">
                         <th class="text-muted fs-7 fw-bold pb-2" style="font-size: 0.75rem;">DATE</th>
-                        <th class="text-muted fs-7 fw-bold pb-2" style="font-size: 0.75rem;">VÉTÉRINAIRE</th>
+                        <th class="text-muted fs-7 fw-bold pb-2" style="font-size: 0.75rem;">PATIENT & VÉTÉRINAIRE</th>
                         <th class="text-muted fs-7 fw-bold pb-2" style="font-size: 0.75rem;">MOTIF & STATUT</th>
                         <th class="text-muted fs-7 fw-bold pb-2 text-end" style="font-size: 0.75rem;">DOCUMENTS</th>
                     </tr>
@@ -132,12 +147,17 @@
                                 </div>
                             </td>
                             <td class="py-3">
-                                <div class="d-flex align-items-center gap-2">
-                                    <div class="rounded-circle overflow-hidden bg-light" style="width: 35px; height: 35px;">
-                                        <img src="https://ui-avatars.com/api/?name={{ rdv.veterinaire.prenom }}+{{ rdv.veterinaire.nom }}&background=random" class="w-100 h-100 object-fit-cover" alt="Dr. {{ rdv.veterinaire.nom }}">
-                                    </div>
-                                    <span class="fw-bold text-dark text-nowrap">Dr. <br>{{ rdv.veterinaire.nom }}</span>
+                                <div class="fw-bold text-dark mb-1">
+                                    <i class="bi bi-heart text-primary me-1"></i> {{ rdv.animal ? rdv.animal.nom : 'Inconnu' }}
                                 </div>
+                                <div class="text-muted" style="font-size: 0.8rem;">
+                                    <i class="bi bi-person-badge"></i> Dr. {{ rdv.veterinaire.nom }}
+                                </div>
+                                {% if is_granted('ROLE_SECRETARY') or is_granted('ROLE_SECRETAIRE') or is_granted('ROLE_VETO') %}
+                                    <div class="text-muted mt-1" style="font-size: 0.8rem;">
+                                        <i class="bi bi-person"></i> Client : {{ rdv.client.prenom }} {{ rdv.client.nom }}
+                                    </div>
+                                {% endif %}
                             </td>
                             <td class="py-3">
                                 <div class="fw-bold text-dark">{{ rdv.motif|default('Consultation') }}</div>
