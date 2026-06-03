@@ -549,12 +549,14 @@ final class PatientsController extends AbstractController
         return $this->redirectToRoute('app_vet_patients_show', ['slug' => $animal->getSlug()]);
     }
 
-    #[Route('/rdv/{slug}/remarque', name: 'app_vet_patients_update_remarque', methods: ['POST'])]
-    public function updateRemarque(
+    #[Route('/rdv/{slug}/compte-rendu', name: 'app_vet_patients_update_compte_rendu', methods: ['POST'])]
+    public function updateCompteRendu(
         string $slug,
         Request $request,
         RendezVousRepository $rendezVousRepository,
         EntityManagerInterface $entityManager,
+        \App\Service\PdfGeneratorService $pdfGeneratorService,
+        \Twig\Environment $twig,
     ): Response {
         $this->denyAccessUnlessGranted('ROLE_VETO');
 
@@ -570,17 +572,81 @@ final class PatientsController extends AbstractController
             throw $this->createAccessDeniedException('Vous ne pouvez modifier que vos propres rendez-vous.');
         }
 
-        if (!$this->isCsrfTokenValid('remarque_' . $rdv->getId(), (string) $request->request->get('_token'))) {
+
+
+        if ($rdv->isCompteRenduValidated()) {
+            $this->addFlash('danger', 'Le compte-rendu a déjà été validé et ne peut plus être modifié.');
+            return $this->redirectToRoute('app_vet_patients_show', ['slug' => $rdv->getAnimal()?->getSlug()]);
+        }
+
+        if (!$this->isCsrfTokenValid('compte_rendu_' . $rdv->getId(), (string) $request->request->get('_token'))) {
             $this->addFlash('danger', 'Token CSRF invalide.');
             return $this->redirectToRoute('app_vet_patients_show', ['slug' => $rdv->getAnimal()?->getSlug()]);
         }
 
-        $remarque = trim((string) $request->request->get('remarque', ''));
-        $rdv->setRemarque($remarque !== '' ? $remarque : null);
+        $action = $request->request->get('action', 'draft');
+        $compteRendu = trim((string) $request->request->get('compte_rendu', ''));
+        $rdv->setCompteRendu($compteRendu !== '' ? $compteRendu : null);
+
+        if ($action === 'validate') {
+            $rdv->setIsCompteRenduValidated(true);
+            if ($rdv->getCompteRendu()) {
+                $html = $twig->render('pdf/compte_rendu.html.twig', [
+                    'rdv' => $rdv,
+                ]);
+                $pdfContent = $pdfGeneratorService->generatePdfFromHtml($html);
+                $filename = 'CR_' . $rdv->getSlug() . '_' . date('Ymd_His') . '.pdf';
+                $rdv->setCompteRenduPdfData($pdfContent);
+                $rdv->setCompteRenduPdf($filename);
+            } else {
+                $rdv->setCompteRenduPdfData(null);
+                $rdv->setCompteRenduPdf(null);
+            }
+            $this->addFlash('success', 'Compte-rendu validé définitivement et PDF généré.');
+        } else {
+            $this->addFlash('success', 'Compte-rendu sauvegardé en tant que brouillon.');
+        }
+
         $entityManager->flush();
 
-        $this->addFlash('success', 'Compte-rendu mis à jour.');
         return $this->redirectToRoute('app_vet_patients_show', ['slug' => $rdv->getAnimal()?->getSlug()]);
+    }
+
+    #[Route('/rdv/{slug}/download-pdf', name: 'app_rdv_download_pdf', methods: ['GET'])]
+    public function downloadPdf(
+        string $slug,
+        RendezVousRepository $rendezVousRepository
+    ): Response {
+        $rdv = $rendezVousRepository->findOneBy(['slug' => $slug]);
+        if (!$rdv || !$rdv->getCompteRenduPdfData()) {
+            throw $this->createNotFoundException('Aucun PDF disponible.');
+        }
+
+        /** @var User $user */
+        $user = $this->getUser();
+        if (!$user) {
+            throw $this->createAccessDeniedException('Vous devez être connecté.');
+        }
+
+        $roles = $user->getRoles();
+        $isVet = $rdv->getVeterinaire() === $user;
+        $isClient = $rdv->getClient() === $user;
+        $isSecretary = in_array('ROLE_SECRETARY', $roles, true) || in_array('ROLE_SECRETAIRE', $roles, true);
+
+        if (!$isVet && !$isClient && !$isSecretary) {
+            throw $this->createAccessDeniedException('Vous n\'avez pas accès à ce compte-rendu.');
+        }
+
+        $pdfContent = $rdv->getCompteRenduPdfData();
+        if (is_resource($pdfContent)) {
+            $pdfContent = stream_get_contents($pdfContent);
+        }
+
+        $response = new Response($pdfContent);
+        $response->headers->set('Content-Type', 'application/pdf');
+        $response->headers->set('Content-Disposition', 'inline; filename="' . ($rdv->getCompteRenduPdf() ?: 'compte-rendu.pdf') . '"');
+
+        return $response;
     }
 
     #[Route('/{slug}/traitement/new', name: 'app_vet_patients_traitement_new', methods: ['POST'])]

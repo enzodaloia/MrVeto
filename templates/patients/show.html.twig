@@ -282,47 +282,62 @@
                                                     </button>
                                                 </div>
                                             {% endif %}
-                                            {% if isOwnRdv and not isReadOnly %}
+                                            {% if isOwnRdv and not isReadOnly and not rdv.isCompteRenduValidated %}
                                                 <div class="mt-2">
                                                     <button
-                                                        id="toggle-remarque-{{ rdv.id }}"
+                                                        id="toggle-compte-rendu-{{ rdv.id }}"
                                                         class="btn btn-sm btn-link p-0 text-primary text-decoration-none fw-medium"
                                                         type="button"
                                                         data-bs-toggle="collapse"
-                                                        data-bs-target="#remarque-form-{{ rdv.id }}"
+                                                        data-bs-target="#compte-rendu-form-{{ rdv.id }}"
                                                     >
                                                         <i class="bi bi-pencil me-1"></i>
-                                                        {% if rdv.remarque %}Modifier le compte-rendu{% else %}Ajouter un compte-rendu{% endif %}
+                                                        {% if rdv.compteRendu %}Modifier le brouillon{% else %}Ajouter un compte-rendu{% endif %}
                                                     </button>
-                                                    {% if rdv.remarque %}
-                                                        <div class="mt-1 p-2 bg-neutral-20 rounded small text-neutral-80">{{ rdv.remarque }}</div>
+                                                    
+                                                    {% if rdv.compteRendu %}
+                                                    <div class="mt-1 p-2 bg-neutral-20 rounded small text-neutral-80">
+                                                        <span class="badge bg-secondary mb-1">Brouillon</span><br>
+                                                        {{ rdv.compteRendu|nl2br }}
+                                                    </div>
                                                     {% endif %}
-                                                    <div class="collapse mt-2" id="remarque-form-{{ rdv.id }}">
+
+                                                    <div class="collapse mt-2" id="compte-rendu-form-{{ rdv.id }}">
                                                         <form
                                                             method="POST"
-                                                            action="{{ path('app_vet_patients_update_remarque', {'slug': rdv.slug}) }}"
+                                                            action="{{ path('app_vet_patients_update_compte_rendu', {'slug': rdv.slug}) }}"
                                                         >
-                                                            <input type="hidden" name="_token" value="{{ csrf_token('remarque_' ~ rdv.id) }}">
+                                                            <input type="hidden" name="_token" value="{{ csrf_token('compte_rendu_' ~ rdv.id) }}">
                                                             <textarea
-                                                                name="remarque"
+                                                                name="compte_rendu"
                                                                 class="form-control form-control-sm mb-2"
                                                                 rows="3"
                                                                 placeholder="Observations, diagnostic, prescription..."
-                                                            >{{ rdv.remarque|default('') }}</textarea>
-                                                            <div class="d-flex gap-2">
-                                                                <button class="btn btn-sm btn-primary rounded-pill px-3" type="submit">Enregistrer</button>
+                                                            >{{ rdv.compteRendu|default('') }}</textarea>
+                                                            <div class="d-flex gap-2 flex-wrap">
+                                                                <button class="btn btn-sm btn-light rounded-pill px-3" name="action" value="draft" type="submit">Sauvegarder Brouillon</button>
+                                                                <button class="btn btn-sm btn-primary rounded-pill px-3" name="action" value="validate" type="submit">Valider définitivement</button>
                                                                 <button
-                                                                    class="btn btn-sm btn-light rounded-pill px-3"
+                                                                    class="btn btn-sm btn-link text-muted px-2"
                                                                     type="button"
                                                                     data-bs-toggle="collapse"
-                                                                    data-bs-target="#remarque-form-{{ rdv.id }}"
+                                                                    data-bs-target="#compte-rendu-form-{{ rdv.id }}"
                                                                 >Annuler</button>
                                                             </div>
                                                         </form>
                                                     </div>
                                                 </div>
-                                            {% elseif rdv.remarque %}
-                                                <div class="mt-2 p-2 bg-neutral-20 rounded small text-neutral-80">{{ rdv.remarque }}</div>
+                                            {% elseif rdv.compteRendu %}
+                                                <div class="mt-2 p-2 bg-neutral-20 rounded small text-neutral-80">
+                                                    {{ rdv.compteRendu|nl2br }}
+                                                    {% if rdv.compteRenduPdf %}
+                                                        <div class="mt-2">
+                                                            <a href="{{ path('app_rdv_download_pdf', {'slug': rdv.slug}) }}" target="_blank" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 py-1" style="font-size: 0.75rem;">
+                                                                <i class="bi bi-file-earmark-pdf"></i> PDF
+                                                            </a>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -564,9 +579,9 @@
 <script>
 (function () {
     // ── Masquer le bouton "modifier compte-rendu" quand le formulaire est ouvert ──
-    document.querySelectorAll('[id^="remarque-form-"]').forEach(function (collapseEl) {
-        const id = collapseEl.id.replace('remarque-form-', '');
-        const btn = document.getElementById('toggle-remarque-' + id);
+    document.querySelectorAll('[id^="compte-rendu-form-"]').forEach(function (collapseEl) {
+        const id = collapseEl.id.replace('compte-rendu-form-', '');
+        const btn = document.getElementById('toggle-compte-rendu-' + id);
         if (!btn) return;
         collapseEl.addEventListener('show.bs.collapse', function () { btn.classList.add('d-none'); });
         collapseEl.addEventListener('hide.bs.collapse', function () { btn.classList.remove('d-none'); });

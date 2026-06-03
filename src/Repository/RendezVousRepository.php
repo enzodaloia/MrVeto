@@ -199,4 +199,20 @@ class RendezVousRepository extends ServiceEntityRepository
             ->getQuery()
             ->execute();
     }
+
+    /**
+     * @return RendezVous[]
+     */
+    public function findArchivesForVeterinaire(User $vet): array
+    {
+        return $this->createQueryBuilder('r')
+            ->leftJoin('r.client', 'c')->addSelect('c')
+            ->leftJoin('r.animal', 'a')->addSelect('a')
+            ->andWhere('r.veterinaire = :vet')
+            ->andWhere('r.compteRenduPdf IS NOT NULL')
+            ->setParameter('vet', $vet)
+            ->orderBy('r.dateHeure', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

@@ -165,8 +165,11 @@
                             </td>
                             <td class="py-3 text-end">
                                 <div class="d-flex justify-content-end gap-2 text-muted">
-                                    <button class="btn btn-sm btn-light rounded p-1 text-muted hover-bg-primary-bg hover-text-primary"><i class="bi bi-file-earmark-pdf fs-5 lh-1"></i></button>
-                                    <button class="btn btn-sm btn-light rounded p-1 text-muted hover-bg-primary-bg hover-text-primary"><i class="bi bi-image fs-5 lh-1"></i></button>
+                                    {% if rdv.compteRenduPdf %}
+                                        <a href="{{ path('app_rdv_download_pdf', {'slug': rdv.slug}) }}" target="_blank" class="btn btn-sm btn-light rounded p-1 text-primary hover-bg-primary-bg hover-text-primary" title="Télécharger le compte-rendu"><i class="bi bi-file-earmark-pdf fs-5 lh-1"></i></a>
+                                    {% else %}
+                                        <button class="btn btn-sm btn-light rounded p-1 text-muted opacity-50" disabled><i class="bi bi-file-earmark-pdf fs-5 lh-1"></i></button>
+                                    {% endif %}
                                 </div>
                             </td>
                         </tr>
