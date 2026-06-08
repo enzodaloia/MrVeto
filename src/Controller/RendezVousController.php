@@ -20,26 +20,53 @@ class RendezVousController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        $upcomingRendezVous = $rendezVousRepository->createQueryBuilder('r')
-            ->andWhere('r.client = :user')
-            ->andWhere('r.dateHeure >= :now')
-            ->andWhere('r.statut != :annule')
-            ->setParameter('user', $user)
-            ->setParameter('now', new \DateTime())
-            ->setParameter('annule', 'annule')
-            ->orderBy('r.dateHeure', 'ASC')
-            ->getQuery()
-            ->getResult();
+        $roles = $user->getRoles();
+        $isSecretary = in_array('ROLE_SECRETARY', $roles, true) || in_array('ROLE_SECRETAIRE', $roles, true);
 
-        $pastRendezVous = $rendezVousRepository->createQueryBuilder('r')
-            ->andWhere('r.client = :user')
-            ->andWhere('r.dateHeure < :now OR r.statut = :annule')
-            ->setParameter('user', $user)
-            ->setParameter('now', new \DateTime())
-            ->setParameter('annule', 'annule')
-            ->orderBy('r.dateHeure', 'DESC')
-            ->getQuery()
-            ->getResult();
+        if ($isSecretary) {
+            $upcomingQb = $rendezVousRepository->createQueryBuilder('r')
+                ->innerJoin(\App\Entity\CabinetUser::class, 'cuVet', 'WITH', 'cuVet.user = r.veterinaire AND cuVet.roleInCabinet = :vetRole')
+                ->innerJoin(\App\Entity\CabinetUser::class, 'cuSec', 'WITH', 'cuSec.cabinet = cuVet.cabinet AND cuSec.user = :user AND cuSec.roleInCabinet = :secRole')
+                ->andWhere('r.dateHeure >= :now')
+                ->andWhere('r.statut != :annule')
+                ->setParameter('user', $user)
+                ->setParameter('now', new \DateTime())
+                ->setParameter('annule', 'annule')
+                ->setParameter('vetRole', \App\Entity\CabinetUser::ROLE_VETERINAIRE)
+                ->setParameter('secRole', \App\Entity\CabinetUser::ROLE_SECRETAIRE)
+                ->orderBy('r.dateHeure', 'ASC');
+
+            $pastQb = $rendezVousRepository->createQueryBuilder('r')
+                ->innerJoin(\App\Entity\CabinetUser::class, 'cuVet', 'WITH', 'cuVet.user = r.veterinaire AND cuVet.roleInCabinet = :vetRole')
+                ->innerJoin(\App\Entity\CabinetUser::class, 'cuSec', 'WITH', 'cuSec.cabinet = cuVet.cabinet AND cuSec.user = :user AND cuSec.roleInCabinet = :secRole')
+                ->andWhere('r.dateHeure < :now OR r.statut = :annule')
+                ->setParameter('user', $user)
+                ->setParameter('now', new \DateTime())
+                ->setParameter('annule', 'annule')
+                ->setParameter('vetRole', \App\Entity\CabinetUser::ROLE_VETERINAIRE)
+                ->setParameter('secRole', \App\Entity\CabinetUser::ROLE_SECRETAIRE)
+                ->orderBy('r.dateHeure', 'DESC');
+        } else {
+            $upcomingQb = $rendezVousRepository->createQueryBuilder('r')
+                ->andWhere('r.client = :user')
+                ->andWhere('r.dateHeure >= :now')
+                ->andWhere('r.statut != :annule')
+                ->setParameter('user', $user)
+                ->setParameter('now', new \DateTime())
+                ->setParameter('annule', 'annule')
+                ->orderBy('r.dateHeure', 'ASC');
+
+            $pastQb = $rendezVousRepository->createQueryBuilder('r')
+                ->andWhere('r.client = :user')
+                ->andWhere('r.dateHeure < :now OR r.statut = :annule')
+                ->setParameter('user', $user)
+                ->setParameter('now', new \DateTime())
+                ->setParameter('annule', 'annule')
+                ->orderBy('r.dateHeure', 'DESC');
+        }
+
+        $upcomingRendezVous = $upcomingQb->getQuery()->getResult();
+        $pastRendezVous = $pastQb->getQuery()->getResult();
 
         $hasUpdates = false;
         foreach ($pastRendezVous as $rdv) {
@@ -69,8 +96,8 @@ class RendezVousController extends AbstractController
 
         $rdv = $rendezVousRepository->findOneBy(['slug' => $slug]);
 
-        if (!$rdv || $rdv->getClient() !== $user) {
-            return $this->json(['error' => 'Rendez-vous introuvable'], 404);
+        if (!$this->hasAccessToRdv($user, $rdv, $rendezVousRepository)) {
+            return $this->json(['error' => 'Rendez-vous introuvable ou non autorisé'], 404);
         }
 
         $vet = $rdv->getVeterinaire();
@@ -203,8 +230,8 @@ class RendezVousController extends AbstractController
 
         $rdv = $rendezVousRepository->findOneBy(['slug' => $slug]);
 
-        if (!$rdv || $rdv->getClient() !== $user) {
-            return $this->json(['error' => 'Rendez-vous introuvable'], 404);
+        if (!$this->hasAccessToRdv($user, $rdv, $rendezVousRepository)) {
+            return $this->json(['error' => 'Rendez-vous introuvable ou non autorisé'], 404);
         }
 
         if ($rdv->getDateHeure() > new \DateTime()) {
@@ -219,6 +246,40 @@ class RendezVousController extends AbstractController
         return $this->json(['error' => 'Impossible d\'annuler un rendez-vous passé'], 400);
     }
 
+    #[Route('/mes-rendez-vous/{slug}/confirmer', name: 'app_rendezvous_confirmer', methods: ['POST'])]
+    public function confirmer(string $slug, RendezVousRepository $rendezVousRepository, EntityManagerInterface $entityManager): Response
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->json(['error' => 'Non autorisé'], 403);
+        }
+
+        $rdv = $rendezVousRepository->findOneBy(['slug' => $slug]);
+
+        if (!$this->hasAccessToRdv($user, $rdv, $rendezVousRepository)) {
+            return $this->json(['error' => 'Rendez-vous introuvable ou accès refusé'], 404);
+        }
+
+        if ($rdv->getStatut() === 'annule') {
+            return $this->json(['error' => 'Rendez-vous déjà annulé'], 400);
+        }
+
+        if ($rdv->getDateHeure() <= new \DateTime()) {
+            return $this->json(['error' => 'Impossible de confirmer un rendez-vous passé'], 400);
+        }
+
+        if ($rdv->getStatut() === 'confirme') {
+            return $this->json(['error' => 'Rendez-vous déjà confirmé'], 400);
+        }
+
+        $rdv->setStatut('confirme');
+        $rdv->setLastActionByRole($this->resolveActionActorRole($user));
+        $rdv->setLastActionAt(new \DateTime());
+        $entityManager->flush();
+
+        return $this->json(['success' => true]);
+    }
+
     #[Route('/mes-rendez-vous/{slug}/modifier', name: 'app_rendezvous_modifier', methods: ['POST'])]
     public function modifier(string $slug, \Symfony\Component\HttpFoundation\Request $request, RendezVousRepository $rendezVousRepository, EntityManagerInterface $entityManager): Response
     {
@@ -229,8 +290,8 @@ class RendezVousController extends AbstractController
 
         $rdv = $rendezVousRepository->findOneBy(['slug' => $slug]);
 
-        if (!$rdv || $rdv->getClient() !== $user) {
-            return $this->json(['error' => 'Rendez-vous introuvable'], 404);
+        if (!$this->hasAccessToRdv($user, $rdv, $rendezVousRepository)) {
+            return $this->json(['error' => 'Rendez-vous introuvable ou non autorisé'], 404);
         }
 
         if ($rdv->getDateHeure() <= new \DateTime()) {
@@ -299,5 +360,20 @@ class RendezVousController extends AbstractController
         }
 
         return RendezVousEntity::ACTION_BY_CLIENT;
+    }
+
+    private function hasAccessToRdv($user, ?RendezVousEntity $rdv, RendezVousRepository $repo): bool
+    {
+        if (!$rdv) return false;
+        if ($rdv->getClient() === $user) return true;
+        
+        $roles = $user->getRoles();
+        $isVet = in_array('ROLE_VETO', $roles, true);
+        $isSecretary = in_array('ROLE_SECRETARY', $roles, true) || in_array('ROLE_SECRETAIRE', $roles, true);
+        
+        if ($isVet && $repo->vetHasRdvWithAnimal($user, $rdv->getAnimal())) return true;
+        if ($isSecretary && $repo->secretaryHasAccessToAnimal($user, $rdv->getAnimal())) return true;
+        
+        return false;
     }
 }

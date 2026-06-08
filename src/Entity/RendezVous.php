@@ -60,8 +60,20 @@ class RendezVous
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTime $lastActionAt = null;
 
-    #[ORM\Column(length: 255, unique: true)]
+    #[ORM\Column(length: 255, unique: true, nullable: true)]
     private ?string $slug = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $compteRendu = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $compteRenduPdf = null;
+
+    #[ORM\Column(type: Types::BLOB, nullable: true)]
+    private mixed $compteRenduPdfData = null;
+
+    #[ORM\Column]
+    private ?bool $isCompteRenduValidated = false;
 
     public function __construct()
     {
@@ -158,6 +170,54 @@ class RendezVous
     public function setSlug(?string $slug): static
     {
         $this->slug = $slug;
+        return $this;
+    }
+
+    public function getCompteRendu(): ?string
+    {
+        return $this->compteRendu;
+    }
+
+    public function setCompteRendu(?string $compteRendu): static
+    {
+        $this->compteRendu = $compteRendu;
+
+        return $this;
+    }
+
+    public function getCompteRenduPdf(): ?string
+    {
+        return $this->compteRenduPdf;
+    }
+
+    public function setCompteRenduPdf(?string $compteRenduPdf): static
+    {
+        $this->compteRenduPdf = $compteRenduPdf;
+
+        return $this;
+    }
+
+    public function getCompteRenduPdfData(): mixed
+    {
+        return $this->compteRenduPdfData;
+    }
+
+    public function setCompteRenduPdfData(mixed $compteRenduPdfData): static
+    {
+        $this->compteRenduPdfData = $compteRenduPdfData;
+
+        return $this;
+    }
+
+    public function isCompteRenduValidated(): ?bool
+    {
+        return $this->isCompteRenduValidated;
+    }
+
+    public function setIsCompteRenduValidated(bool $isCompteRenduValidated): static
+    {
+        $this->isCompteRenduValidated = $isCompteRenduValidated;
+
         return $this;
     }
 }
