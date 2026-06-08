@@ -19,7 +19,7 @@ class Jour
     #[ORM\Column]
     private ?int $ordre = null;
 
-    #[ORM\Column(length: 255, unique: true)]
+    #[ORM\Column(length: 255, unique: true, nullable: true)]
     private ?string $slug = null;
 
     public function getId(): ?int

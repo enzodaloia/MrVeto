@@ -33,7 +33,7 @@ class AnimalRepository extends ServiceEntityRepository
             ->orderBy('a.nom', 'ASC');
 
         if ($search !== '') {
-            $qb->andWhere('a.nom LIKE :search OR a.espece LIKE :search OR a.race LIKE :search')
+            $qb->andWhere('a.nom LIKE :search OR a.espece LIKE :search OR a.race LIKE :search OR p.nom LIKE :search OR p.prenom LIKE :search')
                 ->setParameter('search', '%' . $search . '%');
         }
 
@@ -63,7 +63,7 @@ class AnimalRepository extends ServiceEntityRepository
             ->orderBy('a.nom', 'ASC');
 
         if ($search !== '') {
-            $qb->andWhere('a.nom LIKE :search OR a.espece LIKE :search OR a.race LIKE :search')
+            $qb->andWhere('a.nom LIKE :search OR a.espece LIKE :search OR a.race LIKE :search OR p.nom LIKE :search OR p.prenom LIKE :search')
                 ->setParameter('search', '%' . $search . '%');
         }
 

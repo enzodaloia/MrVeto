@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block body %}
-<div class="carnet-sante-page p-3 p-lg-4">
+<div class="carnet-sante-page p-3 p-lg-4" data-controller="rendezvous">
     <div class="container-fluid p-0">
 
         <!-- Breadcrumb -->
@@ -100,6 +100,13 @@
                                         Modifier la fiche
                                     </button>
                                 {% endif %}
+                                <a
+                                    class="btn btn-primary text-white rounded-3 d-flex align-items-center justify-content-center gap-2 w-100 {% if not isReadOnly %}mt-2{% endif %}"
+                                    href="{{ path('app_vet_patients_book', {'slug': animal.slug}) }}"
+                                >
+                                    <i class="bi bi-calendar-plus"></i>
+                                    Créer un RDV
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -254,47 +261,83 @@
                                             <div class="text-neutral-80 fw-medium">{{ rdv.motif|default('Consultation') }}</div>
 
                                             <!-- Compte-rendu / remarque -->
-                                            {% if isOwnRdv and not isReadOnly %}
+                                            {% if not isFinished %}
+                                                <div class="d-flex gap-2 mt-3 mb-2">
+                                                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-medium"
+                                                            data-action="click->rendezvous#openEditModal"
+                                                            data-slug="{{ rdv.slug }}"
+                                                            data-vet="{{ rdv.veterinaire.prenom|default('') }} {{ rdv.veterinaire.nom|default('') }}"
+                                                            data-motif="{{ rdv.motif|default('Consultation générale') }}"
+                                                            data-statut="{{ rdv.statut }}"
+                                                            data-date="{{ rdv.dateHeure|date('Y-m-d') }}"
+                                                            data-time="{{ rdv.dateHeure|date('H:i') }}">
+                                                        Modifier
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-medium"
+                                                            data-action="click->rendezvous#openCancelModal"
+                                                            data-slug="{{ rdv.slug }}"
+                                                            data-date="{{ rdv.dateHeure|date('Y-m-d') }}"
+                                                            data-time="{{ rdv.dateHeure|date('H:i') }}">
+                                                        Annuler
+                                                    </button>
+                                                </div>
+                                            {% endif %}
+                                            {% if isOwnRdv and not isReadOnly and not rdv.isCompteRenduValidated %}
                                                 <div class="mt-2">
                                                     <button
-                                                        id="toggle-remarque-{{ rdv.id }}"
+                                                        id="toggle-compte-rendu-{{ rdv.id }}"
                                                         class="btn btn-sm btn-link p-0 text-primary text-decoration-none fw-medium"
                                                         type="button"
                                                         data-bs-toggle="collapse"
-                                                        data-bs-target="#remarque-form-{{ rdv.id }}"
+                                                        data-bs-target="#compte-rendu-form-{{ rdv.id }}"
                                                     >
                                                         <i class="bi bi-pencil me-1"></i>
-                                                        {% if rdv.remarque %}Modifier le compte-rendu{% else %}Ajouter un compte-rendu{% endif %}
+                                                        {% if rdv.compteRendu %}Modifier le brouillon{% else %}Ajouter un compte-rendu{% endif %}
                                                     </button>
-                                                    {% if rdv.remarque %}
-                                                        <div class="mt-1 p-2 bg-neutral-20 rounded small text-neutral-80">{{ rdv.remarque }}</div>
+                                                    
+                                                    {% if rdv.compteRendu %}
+                                                    <div class="mt-1 p-2 bg-neutral-20 rounded small text-neutral-80">
+                                                        <span class="badge bg-secondary mb-1">Brouillon</span><br>
+                                                        {{ rdv.compteRendu|nl2br }}
+                                                    </div>
                                                     {% endif %}
-                                                    <div class="collapse mt-2" id="remarque-form-{{ rdv.id }}">
+
+                                                    <div class="collapse mt-2" id="compte-rendu-form-{{ rdv.id }}">
                                                         <form
                                                             method="POST"
-                                                            action="{{ path('app_vet_patients_update_remarque', {'slug': rdv.slug}) }}"
+                                                            action="{{ path('app_vet_patients_update_compte_rendu', {'slug': rdv.slug}) }}"
                                                         >
-                                                            <input type="hidden" name="_token" value="{{ csrf_token('remarque_' ~ rdv.id) }}">
+                                                            <input type="hidden" name="_token" value="{{ csrf_token('compte_rendu_' ~ rdv.id) }}">
                                                             <textarea
-                                                                name="remarque"
+                                                                name="compte_rendu"
                                                                 class="form-control form-control-sm mb-2"
                                                                 rows="3"
                                                                 placeholder="Observations, diagnostic, prescription..."
-                                                            >{{ rdv.remarque|default('') }}</textarea>
-                                                            <div class="d-flex gap-2">
-                                                                <button class="btn btn-sm btn-primary rounded-pill px-3" type="submit">Enregistrer</button>
+                                                            >{{ rdv.compteRendu|default('') }}</textarea>
+                                                            <div class="d-flex gap-2 flex-wrap">
+                                                                <button class="btn btn-sm btn-light rounded-pill px-3" name="action" value="draft" type="submit">Sauvegarder Brouillon</button>
+                                                                <button class="btn btn-sm btn-primary rounded-pill px-3" name="action" value="validate" type="submit">Valider définitivement</button>
                                                                 <button
-                                                                    class="btn btn-sm btn-light rounded-pill px-3"
+                                                                    class="btn btn-sm btn-link text-muted px-2"
                                                                     type="button"
                                                                     data-bs-toggle="collapse"
-                                                                    data-bs-target="#remarque-form-{{ rdv.id }}"
+                                                                    data-bs-target="#compte-rendu-form-{{ rdv.id }}"
                                                                 >Annuler</button>
                                                             </div>
                                                         </form>
                                                     </div>
                                                 </div>
-                                            {% elseif rdv.remarque %}
-                                                <div class="mt-2 p-2 bg-neutral-20 rounded small text-neutral-80">{{ rdv.remarque }}</div>
+                                            {% elseif rdv.compteRendu %}
+                                                <div class="mt-2 p-2 bg-neutral-20 rounded small text-neutral-80">
+                                                    {{ rdv.compteRendu|nl2br }}
+                                                    {% if rdv.compteRenduPdf %}
+                                                        <div class="mt-2">
+                                                            <a href="{{ path('app_rdv_download_pdf', {'slug': rdv.slug}) }}" target="_blank" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 py-1" style="font-size: 0.75rem;">
+                                                                <i class="bi bi-file-earmark-pdf"></i> PDF
+                                                            </a>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -399,6 +442,8 @@
             </div>
 
         </div>
+        
+        {% include 'rendez_vous/_modals.html.twig' %}
     </div>
 </div>
 
@@ -458,7 +503,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-medium">Poids (kg)</label>
-                                <input type="text" name="poids" class="form-control" value="{{ animal.poids|default('') }}" placeholder="Ex: 4.5">
+                                <input type="number" step="0.01" name="poids" class="form-control" value="{{ animal.poids|default('') }}" placeholder="Ex: 4.5">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-medium">Vaccins à jour</label>
@@ -527,14 +572,16 @@
     </div>
 {% endif %}
 
+
+
 {% block javascripts %}
 {{ parent() }}
 <script>
 (function () {
     // ── Masquer le bouton "modifier compte-rendu" quand le formulaire est ouvert ──
-    document.querySelectorAll('[id^="remarque-form-"]').forEach(function (collapseEl) {
-        const id = collapseEl.id.replace('remarque-form-', '');
-        const btn = document.getElementById('toggle-remarque-' + id);
+    document.querySelectorAll('[id^="compte-rendu-form-"]').forEach(function (collapseEl) {
+        const id = collapseEl.id.replace('compte-rendu-form-', '');
+        const btn = document.getElementById('toggle-compte-rendu-' + id);
         if (!btn) return;
         collapseEl.addEventListener('show.bs.collapse', function () { btn.classList.add('d-none'); });
         collapseEl.addEventListener('hide.bs.collapse', function () { btn.classList.remove('d-none'); });

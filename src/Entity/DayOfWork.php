@@ -38,7 +38,7 @@ class DayOfWork
     #[ORM\OneToMany(mappedBy: 'dayOfWork', targetEntity: Horaire::class, orphanRemoval: true)]
     private Collection $horaires;
 
-    #[ORM\Column(length: 255, unique: true)]
+    #[ORM\Column(length: 255, unique: true, nullable: true )]
     private ?string $slug = null;
 
     public function __construct()

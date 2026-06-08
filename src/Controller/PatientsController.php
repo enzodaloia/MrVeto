@@ -8,7 +8,11 @@ use App\Entity\User;
 use App\Repository\AnimalRepository;
 use App\Repository\RendezVousRepository;
 use App\Repository\TraitementRepository;
+use App\Repository\UserRepository;
+use App\Repository\CabinetUserRepository;
+use App\Entity\RendezVous;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -48,11 +52,150 @@ final class PatientsController extends AbstractController
         ]);
     }
 
+    #[Route('/nouveau-dossier', name: 'app_vet_patients_new_dossier', methods: ['POST'])]
+    public function newDossier(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        UserRepository $userRepository,
+        UserPasswordHasherInterface $passwordHasher,
+    ): Response {
+        $currentUser = $this->getUser();
+        if (!$currentUser instanceof User) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $roles = $currentUser->getRoles();
+        $isVet = in_array('ROLE_VETO', $roles, true);
+        $isSecretary = in_array('ROLE_SECRETARY', $roles, true) || in_array('ROLE_SECRETAIRE', $roles, true);
+
+        if (!$isVet && !$isSecretary) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if (!$this->isCsrfTokenValid('new_dossier', (string) $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Token CSRF invalide.');
+            return $this->redirectToRoute('app_vet_patients');
+        }
+
+        $email = trim((string) $request->request->get('owner_email'));
+        $owner = $userRepository->findOneBy(['email' => $email]);
+
+        if (!$owner) {
+            $owner = new User();
+            $owner->setEmail($email);
+            $owner->setNom(trim((string) $request->request->get('owner_nom')));
+            $owner->setPrenom(trim((string) $request->request->get('owner_prenom')));
+            $owner->setTelephone(trim((string) $request->request->get('owner_telephone')));
+            $owner->setRoles(['ROLE_USER']);
+            $owner->setPassword($passwordHasher->hashPassword($owner, bin2hex(random_bytes(10))));
+            
+            $baseSlug = mb_strtolower($owner->getPrenom() . '-' . $owner->getNom());
+            $baseSlug = preg_replace('/[^a-z0-9]+/', '-', $baseSlug);
+            $baseSlug = trim($baseSlug, '-');
+            $slug = $baseSlug;
+            $counter = 1;
+            while ($userRepository->findOneBy(['slug' => $slug])) {
+                $slug = $baseSlug . '-' . $counter;
+                $counter++;
+            }
+            $owner->setSlug($slug);
+            
+            $entityManager->persist($owner);
+        }
+
+        $existingAnimalId = $request->request->get('existing_animal_id');
+        $animal = null;
+        if ($existingAnimalId) {
+            $animal = $entityManager->getRepository(Animal::class)->find($existingAnimalId);
+        }
+        
+        $isNewAnimal = false;
+        if (!$animal) {
+            $animal = new Animal();
+            $isNewAnimal = true;
+        }
+
+        $animal->setProprietaire($owner);
+        $animal->setNom(trim((string) $request->request->get('animal_nom')));
+        $animal->setEspece(trim((string) $request->request->get('animal_espece')));
+        $animal->setRace(trim((string) $request->request->get('animal_race')));
+        $animal->setPoids(trim((string) $request->request->get('animal_poids')));
+        
+        $dateNaissanceStr = trim((string) $request->request->get('animal_naissance'));
+        if ($dateNaissanceStr) {
+            $animal->setAge($dateNaissanceStr);
+        }
+
+        if ($isNewAnimal) {
+            $baseSlug = mb_strtolower($animal->getNom());
+            $baseSlug = preg_replace('/[^a-z0-9]+/', '-', $baseSlug);
+            $baseSlug = trim($baseSlug, '-');
+            $slug = $baseSlug;
+            $counter = 1;
+            while ($entityManager->getRepository(Animal::class)->findOneBy(['slug' => $slug])) {
+                $slug = $baseSlug . '-' . $counter;
+                $counter++;
+            }
+            $animal->setSlug($slug);
+            $entityManager->persist($animal);
+        }
+
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Dossier patient enregistré avec succès.');
+        return $this->redirectToRoute('app_vet_patients_book', ['slug' => $animal->getSlug()]);
+    }
+
+    #[Route('/api/search-all', name: 'app_vet_patients_search_all', methods: ['GET'])]
+    public function searchAll(Request $request, AnimalRepository $animalRepository): Response
+    {
+        $currentUser = $this->getUser();
+        if (!$currentUser) {
+            return $this->json([], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $q = trim((string) $request->query->get('q', ''));
+        if (strlen($q) < 2) {
+            return $this->json([]);
+        }
+
+        $qb = $animalRepository->createQueryBuilder('a')
+            ->leftJoin('a.proprietaire', 'p')
+            ->addSelect('p')
+            ->where('a.nom LIKE :q')
+            ->orWhere('p.email LIKE :q')
+            ->orWhere('p.nom LIKE :q')
+            ->orWhere('p.prenom LIKE :q')
+            ->setParameter('q', '%' . $q . '%')
+            ->setMaxResults(10);
+
+        $animals = $qb->getQuery()->getResult();
+        $results = [];
+        foreach ($animals as $a) {
+            $owner = $a->getProprietaire();
+            $results[] = [
+                'id' => $a->getId(),
+                'animal_nom' => $a->getNom(),
+                'animal_espece' => $a->getEspece(),
+                'animal_race' => $a->getRace(),
+                'animal_naissance' => $a->getAge(),
+                'animal_poids' => $a->getPoids(),
+                'owner_nom' => $owner ? $owner->getNom() : '',
+                'owner_prenom' => $owner ? $owner->getPrenom() : '',
+                'owner_email' => $owner ? $owner->getEmail() : '',
+                'owner_telephone' => $owner ? $owner->getTelephone() : '',
+            ];
+        }
+
+        return $this->json($results);
+    }
+
     #[Route('/{slug}', name: 'app_vet_patients_show', methods: ['GET'])]
     public function show(
         #[MapEntity(mapping: ['slug' => 'slug'])] Animal $animal,
         RendezVousRepository $rendezVousRepository,
         TraitementRepository $traitementRepository,
+        CabinetUserRepository $cabinetUserRepository,
     ): Response {
         $currentUser = $this->getUser();
         if (!$currentUser instanceof User) {
@@ -79,6 +222,16 @@ final class PatientsController extends AbstractController
         $traitements = $traitementRepository->findByAnimal($animal);
         $lastVisit = !empty($rdvHistory) ? $rdvHistory[0] : null;
 
+        $vets = [];
+        if ($isVet) {
+            $vets[] = $currentUser;
+        } else if ($isSecretary) {
+            $cabinet = $cabinetUserRepository->findCabinetForUserRole($currentUser, \App\Entity\CabinetUser::ROLE_SECRETAIRE);
+            if ($cabinet) {
+                $vets = $cabinetUserRepository->findUsersByCabinetRole($cabinet, \App\Entity\CabinetUser::ROLE_VETERINAIRE);
+            }
+        }
+
         return $this->render('patients/show.html.twig', [
             'animal' => $animal,
             'rdvHistory' => $rdvHistory,
@@ -86,7 +239,256 @@ final class PatientsController extends AbstractController
             'lastVisit' => $lastVisit,
             'vet' => $isVet ? $currentUser : null,
             'isReadOnly' => $isSecretary,
+            'vets' => $vets,
         ]);
+    }
+
+    #[Route('/{slug}/nouveau-rdv', name: 'app_vet_patients_new_rdv', methods: ['POST'])]
+    public function newRdv(
+        #[MapEntity(mapping: ['slug' => 'slug'])] Animal $animal,
+        Request $request,
+        UserRepository $userRepository,
+        EntityManagerInterface $entityManager,
+    ): Response {
+        $currentUser = $this->getUser();
+        $isVet = in_array('ROLE_VETO', $currentUser->getRoles(), true);
+        $isSecretary = in_array('ROLE_SECRETARY', $currentUser->getRoles(), true) || in_array('ROLE_SECRETAIRE', $currentUser->getRoles(), true);
+
+        if (!$isVet && !$isSecretary) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if (!$this->isCsrfTokenValid('new_rdv_' . $animal->getId(), (string) $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Token CSRF invalide.');
+            return $this->redirectToRoute('app_vet_patients_show', ['slug' => $animal->getSlug()]);
+        }
+
+        $vetId = $request->request->get('vet_id');
+        $vet = $userRepository->find($vetId);
+        
+        if (!$vet || !in_array('ROLE_VETO', $vet->getRoles(), true)) {
+            $this->addFlash('danger', 'Vétérinaire invalide.');
+            return $this->redirectToRoute('app_vet_patients_show', ['slug' => $animal->getSlug()]);
+        }
+
+        $dateStr = $request->request->get('selectedDate');
+        $timeStr = $request->request->get('selectedSlot');
+        $motif = $request->request->get('rdvMotif');
+        $remarque = $request->request->get('rdvRemarque');
+
+        try {
+            if (!$dateStr || !$timeStr) throw new \Exception();
+            $dateHeure = new \DateTime($dateStr . ' ' . $timeStr);
+        } catch (\Exception $e) {
+            $this->addFlash('danger', 'Veuillez sélectionner une date et un créneau horaire.');
+            return $this->redirectToRoute('app_vet_patients_show', ['slug' => $animal->getSlug()]);
+        }
+
+        $rdv = new RendezVous();
+        $rdv->setClient($animal->getProprietaire());
+        $rdv->setVeterinaire($vet);
+        $rdv->setAnimal($animal);
+        $rdv->setDateHeure($dateHeure);
+        $rdv->setStatut('confirme');
+        if ($motif) $rdv->setMotif($motif);
+        if ($remarque) $rdv->setRemarque($remarque);
+
+        $rdv->setLastActionByRole($isVet ? RendezVous::ACTION_BY_VETERINAIRE : RendezVous::ACTION_BY_SECRETAIRE);
+        $rdv->setLastActionAt(new \DateTime());
+
+        $entityManager->persist($rdv);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Rendez-vous créé avec succès.');
+        return $this->redirectToRoute('app_vet_patients_show', ['slug' => $animal->getSlug()]);
+    }
+
+    #[Route('/{slug}/reserver', name: 'app_vet_patients_book', methods: ['GET'])]
+    public function book(
+        #[MapEntity(mapping: ['slug' => 'slug'])] Animal $animal,
+        Request $request,
+        CabinetUserRepository $cabinetUserRepository,
+        UserRepository $userRepository,
+        \App\Repository\DayOfWorkRepository $dayOfWorkRepository,
+        EntityManagerInterface $em
+    ): Response {
+        $currentUser = $this->getUser();
+        $isVet = in_array('ROLE_VETO', $currentUser->getRoles(), true);
+        $isSecretary = in_array('ROLE_SECRETARY', $currentUser->getRoles(), true) || in_array('ROLE_SECRETAIRE', $currentUser->getRoles(), true);
+
+        if (!$isVet && !$isSecretary) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $vets = [];
+        if ($isVet) {
+            $vets[] = $currentUser;
+        } else {
+            $cabinet = $cabinetUserRepository->findCabinetForUserRole($currentUser, \App\Entity\CabinetUser::ROLE_SECRETAIRE);
+            if ($cabinet) {
+                $vets = $cabinetUserRepository->findUsersByCabinetRole($cabinet, \App\Entity\CabinetUser::ROLE_VETERINAIRE);
+            }
+        }
+
+        $vetId = $request->query->get('vet_id');
+        $vet = null;
+        if ($vetId) {
+            $vet = $userRepository->find($vetId);
+        }
+        if (!$vet && !empty($vets)) {
+            $vet = $vets[0];
+        }
+
+        $monthParam = $request->query->get('month');
+        $selectedDateParam = $request->query->get('date');
+
+        $workingDays = [];
+        if ($vet) {
+            $daysOfWork = $dayOfWorkRepository->createQueryBuilder('d')
+                ->innerJoin('d.jour', 'j')->addSelect('j')
+                ->leftJoin('d.horaires', 'h')->addSelect('h')
+                ->andWhere('d.user = :u')->setParameter('u', $vet)
+                ->orderBy('j.ordre', 'ASC')
+                ->getQuery()->getResult();
+
+            foreach ($daysOfWork as $dow) {
+                if (!$dow->isWorking()) continue;
+                $ordre = $dow->getJour()->getOrdre();
+                $horaire = $dow->getHoraires()->first();
+                $workingDays[$ordre] = [
+                    'jourLibelle' => $dow->getJour()->getLibelle(),
+                    'morningStart' => $horaire ? $horaire->getMorningStart() : null,
+                    'morningEnd' => $horaire ? $horaire->getMorningEnd() : null,
+                    'afternoonStart' => $horaire ? $horaire->getAfternoonStart() : null,
+                    'afternoonEnd' => $horaire ? $horaire->getAfternoonEnd() : null,
+                ];
+            }
+        }
+
+        $today = new \DateTime('today');
+        if ($monthParam && preg_match('/^\d{4}-\d{2}$/', $monthParam)) {
+            $year = (int) substr($monthParam, 0, 4);
+            $month = (int) substr($monthParam, 5, 2);
+        } else {
+            $year = (int) $today->format('Y');
+            $month = (int) $today->format('m');
+        }
+
+        $firstDay = new \DateTime("$year-$month-01");
+        $daysInMonth = (int) $firstDay->format('t');
+        $firstDayOfWeek = (int) $firstDay->format('N');
+
+        $weeks = [];
+        $currentWeek = array_fill(0, 7, null);
+        $dayNumber = 1;
+
+        for ($i = $firstDayOfWeek - 1; $i < 7 && $dayNumber <= $daysInMonth; $i++) {
+            $date = new \DateTime("$year-$month-$dayNumber");
+            $dayOfWeekIso = (int) $date->format('N');
+            $isWorking = isset($workingDays[$dayOfWeekIso]);
+            $isPast = $date < $today;
+            $currentWeek[$i] = [
+                'number' => $dayNumber,
+                'date' => $date->format('Y-m-d'),
+                'isWorking' => $isWorking,
+                'isPast' => $isPast,
+                'isToday' => $date->format('Y-m-d') === $today->format('Y-m-d'),
+            ];
+            $dayNumber++;
+        }
+        $weeks[] = $currentWeek;
+
+        while ($dayNumber <= $daysInMonth) {
+            $currentWeek = array_fill(0, 7, null);
+            for ($i = 0; $i < 7 && $dayNumber <= $daysInMonth; $i++) {
+                $date = new \DateTime("$year-$month-$dayNumber");
+                $dayOfWeekIso = (int) $date->format('N');
+                $isWorking = isset($workingDays[$dayOfWeekIso]);
+                $isPast = $date < $today;
+                $currentWeek[$i] = [
+                    'number' => $dayNumber,
+                    'date' => $date->format('Y-m-d'),
+                    'isWorking' => $isWorking,
+                    'isPast' => $isPast,
+                    'isToday' => $date->format('Y-m-d') === $today->format('Y-m-d'),
+                ];
+                $dayNumber++;
+            }
+            $weeks[] = $currentWeek;
+        }
+
+        $prevMonth = (clone $firstDay)->modify('-1 month');
+        $nextMonth = (clone $firstDay)->modify('+1 month');
+
+        $selectedDate = null;
+        $morningSlots = [];
+        $afternoonSlots = [];
+
+        if ($selectedDateParam && preg_match('/^\d{4}-\d{2}-\d{2}$/', $selectedDateParam)) {
+            $selectedDate = new \DateTime($selectedDateParam);
+            $selectedDayOfWeek = (int) $selectedDate->format('N');
+
+            if (isset($workingDays[$selectedDayOfWeek]) && $selectedDate >= $today && $vet) {
+                $dayData = $workingDays[$selectedDayOfWeek];
+
+                $startOfDay = clone $selectedDate;
+                $startOfDay->setTime(0, 0, 0);
+                $endOfDay = clone $selectedDate;
+                $endOfDay->setTime(23, 59, 59);
+
+                $appointments = $em->getRepository(RendezVous::class)->createQueryBuilder('r')
+                    ->where('r.veterinaire = :vet')
+                    ->andWhere('r.dateHeure >= :start')
+                    ->andWhere('r.dateHeure <= :end')
+                    ->andWhere('r.statut != :cancelled')
+                    ->setParameter('vet', $vet)
+                    ->setParameter('start', $startOfDay)
+                    ->setParameter('end', $endOfDay)
+                    ->setParameter('cancelled', 'annule')
+                    ->getQuery()
+                    ->getResult();
+
+                $bookedSlots = [];
+                foreach ($appointments as $appt) {
+                    $bookedSlots[] = $appt->getDateHeure()->format('H:i');
+                }
+
+                if ($dayData['morningStart'] && $dayData['morningEnd']) {
+                    $morningSlots = $this->generateTimeSlots($dayData['morningStart'], $dayData['morningEnd'], 30, $bookedSlots);
+                }
+                if ($dayData['afternoonStart'] && $dayData['afternoonEnd']) {
+                    $afternoonSlots = $this->generateTimeSlots($dayData['afternoonStart'], $dayData['afternoonEnd'], 30, $bookedSlots);
+                }
+            }
+        }
+
+        return $this->render('patients/book.html.twig', [
+            'animal' => $animal,
+            'vets' => $vets,
+            'selectedVet' => $vet,
+            'weeks' => $weeks,
+            'prevMonth' => $prevMonth,
+            'nextMonth' => $nextMonth,
+            'currentMonth' => $firstDay,
+            'selectedDate' => $selectedDate ? $selectedDate->format('Y-m-d') : null,
+            'morningSlots' => $morningSlots,
+            'afternoonSlots' => $afternoonSlots,
+        ]);
+    }
+
+    private function generateTimeSlots(\DateTime $start, \DateTime $end, int $intervalMinutes, array $bookedSlots = []): array
+    {
+        $slots = [];
+        $current = clone $start;
+        while ($current < $end) {
+            $timeString = $current->format('H:i');
+            $slots[] = [
+                'time' => $timeString,
+                'available' => !in_array($timeString, $bookedSlots)
+            ];
+            $current->modify("+{$intervalMinutes} minutes");
+        }
+        return $slots;
     }
 
     #[Route('/{slug}/update', name: 'app_vet_patients_update_animal', methods: ['POST'])]
@@ -147,12 +549,14 @@ final class PatientsController extends AbstractController
         return $this->redirectToRoute('app_vet_patients_show', ['slug' => $animal->getSlug()]);
     }
 
-    #[Route('/rdv/{slug}/remarque', name: 'app_vet_patients_update_remarque', methods: ['POST'])]
-    public function updateRemarque(
+    #[Route('/rdv/{slug}/compte-rendu', name: 'app_vet_patients_update_compte_rendu', methods: ['POST'])]
+    public function updateCompteRendu(
         string $slug,
         Request $request,
         RendezVousRepository $rendezVousRepository,
         EntityManagerInterface $entityManager,
+        \App\Service\PdfGeneratorService $pdfGeneratorService,
+        \Twig\Environment $twig,
     ): Response {
         $this->denyAccessUnlessGranted('ROLE_VETO');
 
@@ -168,17 +572,81 @@ final class PatientsController extends AbstractController
             throw $this->createAccessDeniedException('Vous ne pouvez modifier que vos propres rendez-vous.');
         }
 
-        if (!$this->isCsrfTokenValid('remarque_' . $rdv->getId(), (string) $request->request->get('_token'))) {
+
+
+        if ($rdv->isCompteRenduValidated()) {
+            $this->addFlash('danger', 'Le compte-rendu a déjà été validé et ne peut plus être modifié.');
+            return $this->redirectToRoute('app_vet_patients_show', ['slug' => $rdv->getAnimal()?->getSlug()]);
+        }
+
+        if (!$this->isCsrfTokenValid('compte_rendu_' . $rdv->getId(), (string) $request->request->get('_token'))) {
             $this->addFlash('danger', 'Token CSRF invalide.');
             return $this->redirectToRoute('app_vet_patients_show', ['slug' => $rdv->getAnimal()?->getSlug()]);
         }
 
-        $remarque = trim((string) $request->request->get('remarque', ''));
-        $rdv->setRemarque($remarque !== '' ? $remarque : null);
+        $action = $request->request->get('action', 'draft');
+        $compteRendu = trim((string) $request->request->get('compte_rendu', ''));
+        $rdv->setCompteRendu($compteRendu !== '' ? $compteRendu : null);
+
+        if ($action === 'validate') {
+            $rdv->setIsCompteRenduValidated(true);
+            if ($rdv->getCompteRendu()) {
+                $html = $twig->render('pdf/compte_rendu.html.twig', [
+                    'rdv' => $rdv,
+                ]);
+                $pdfContent = $pdfGeneratorService->generatePdfFromHtml($html);
+                $filename = 'CR_' . $rdv->getSlug() . '_' . date('Ymd_His') . '.pdf';
+                $rdv->setCompteRenduPdfData($pdfContent);
+                $rdv->setCompteRenduPdf($filename);
+            } else {
+                $rdv->setCompteRenduPdfData(null);
+                $rdv->setCompteRenduPdf(null);
+            }
+            $this->addFlash('success', 'Compte-rendu validé définitivement et PDF généré.');
+        } else {
+            $this->addFlash('success', 'Compte-rendu sauvegardé en tant que brouillon.');
+        }
+
         $entityManager->flush();
 
-        $this->addFlash('success', 'Compte-rendu mis à jour.');
         return $this->redirectToRoute('app_vet_patients_show', ['slug' => $rdv->getAnimal()?->getSlug()]);
+    }
+
+    #[Route('/rdv/{slug}/download-pdf', name: 'app_rdv_download_pdf', methods: ['GET'])]
+    public function downloadPdf(
+        string $slug,
+        RendezVousRepository $rendezVousRepository
+    ): Response {
+        $rdv = $rendezVousRepository->findOneBy(['slug' => $slug]);
+        if (!$rdv || !$rdv->getCompteRenduPdfData()) {
+            throw $this->createNotFoundException('Aucun PDF disponible.');
+        }
+
+        /** @var User $user */
+        $user = $this->getUser();
+        if (!$user) {
+            throw $this->createAccessDeniedException('Vous devez être connecté.');
+        }
+
+        $roles = $user->getRoles();
+        $isVet = $rdv->getVeterinaire() === $user;
+        $isClient = $rdv->getClient() === $user;
+        $isSecretary = in_array('ROLE_SECRETARY', $roles, true) || in_array('ROLE_SECRETAIRE', $roles, true);
+
+        if (!$isVet && !$isClient && !$isSecretary) {
+            throw $this->createAccessDeniedException('Vous n\'avez pas accès à ce compte-rendu.');
+        }
+
+        $pdfContent = $rdv->getCompteRenduPdfData();
+        if (is_resource($pdfContent)) {
+            $pdfContent = stream_get_contents($pdfContent);
+        }
+
+        $response = new Response($pdfContent);
+        $response->headers->set('Content-Type', 'application/pdf');
+        $response->headers->set('Content-Disposition', 'inline; filename="' . ($rdv->getCompteRenduPdf() ?: 'compte-rendu.pdf') . '"');
+
+        return $response;
     }
 
     #[Route('/{slug}/traitement/new', name: 'app_vet_patients_traitement_new', methods: ['POST'])]

@@ -7,15 +7,22 @@
     <div class="container-fluid p-0">
 
         <!-- Header -->
-        <div class="mb-3">
-            <h1 class="fw-black text-dark mb-1" style="font-weight: 900;">Mes Patients</h1>
-            <p class="text-muted mb-0">
-                {% if isReadOnly %}
-                    Animaux suivis par votre cabinet
-                {% else %}
-                    Animaux que vous avez pris en charge
-                {% endif %}
-            </p>
+        <div class="mb-3 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="fw-black text-dark mb-1" style="font-weight: 900;">Mes Patients</h1>
+                <p class="text-muted mb-0">
+                    {% if isReadOnly %}
+                        Animaux suivis par votre cabinet
+                    {% else %}
+                        Animaux que vous avez pris en charge
+                    {% endif %}
+                </p>
+            </div>
+            <div>
+                <button type="button" class="btn btn-primary text-white d-flex align-items-center gap-2 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#newPatientModal" style="border-radius: 8px;">
+                    <i class="bi bi-person-plus-fill"></i> <span class="d-none d-md-inline">Créer un dossier</span>
+                </button>
+            </div>
         </div>
 
         {% if isReadOnly %}
@@ -33,7 +40,7 @@
                         type="text"
                         name="q"
                         class="form-control border-0 shadow-none"
-                        placeholder="Nom, espèce, race..."
+                        placeholder="Nom de l'animal, propriétaire, espèce..."
                         value="{{ search }}"
                         autocomplete="off"
                         list="patients-datalist"
@@ -43,7 +50,7 @@
                             <i class="bi bi-x-circle-fill fs-5"></i>
                         </a>
                     {% endif %}
-                    <button type="submit" class="btn btn-primary rounded-pill px-4 flex-shrink-0">Rechercher</button>
+                    <button type="submit" class="btn btn-primary text-white rounded-pill px-4 flex-shrink-0">Rechercher</button>
                 </div>
             </form>
             <datalist id="patients-datalist">
@@ -93,7 +100,9 @@
                                             height="54"
                                         >
                                         <div class="min-w-0">
-                                            <div class="fw-bold text-dark fs-6 text-truncate">{{ animal.nom }}</div>
+                                            <div class="fw-bold text-dark fs-6 text-truncate">
+                                                {{ animal.proprietaire ? (animal.proprietaire.prenom ~ ' ' ~ animal.proprietaire.nom) : 'Propriétaire inconnu' }} - {{ animal.nom }}
+                                            </div>
                                             <div class="text-muted small text-truncate">
                                                 {{ animal.espece|default('Espèce inconnue') }}{% if animal.race %} · {{ animal.race }}{% endif %}
                                             </div>
@@ -134,4 +143,7 @@
 
     </div>
 </div>
+
+{% include 'patients/_new_patient_modal.html.twig' %}
+
 {% endblock %}

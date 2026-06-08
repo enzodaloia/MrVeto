@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Compte-rendu</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; color: #333; line-height: 1.4; }
+        .header { width: 100%; margin-bottom: 30px; }
+        .header td { vertical-align: top; }
+        .header-left { width: 50%; }
+        .header-right { width: 50%; text-align: right; }
+        .title { text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 30px; text-decoration: underline; }
+        .info-table { width: 100%; margin-bottom: 30px; }
+        .info-table td { vertical-align: top; width: 50%; }
+        .section-title { font-weight: bold; font-size: 12px; margin-bottom: 5px; }
+        .section-content { border: 1px solid #eee; padding: 10px; min-height: 40px; margin-bottom: 20px; border-radius: 4px; }
+        .footer { text-align: center; font-size: 11px; margin-top: 50px; }
+    </style>
+</head>
+<body>
+
+    <table class="header">
+        <tr>
+            <td class="header-left">
+                <h1 style="margin: 0; font-size: 24px; color: #5a5a5a; font-weight: normal;">Mr<span style="font-weight: bold;">Veto</span></h1>
+                <div style="font-size: 10px; color: #777; margin-bottom: 10px;">Votre Clinique Vétérinaire</div>
+                <div>
+                    {{ null|default('24 Ave. Joannès Masset') }}<br>
+                    {{ null|default('69009') }} {{ null|default('Lyon') }}<br>
+                    France
+                </div>
+            </td>
+            <td class="header-right">
+                <div style="margin-bottom: 10px;">Le {{ rdv.dateHeure|format_date('long', locale='fr') }}</div>
+                <div style="font-weight: bold;">Clinique Vétérinaire {{ rdv.veterinaire.cabinetUsers[0].cabinet.nom|default('') }}</div>
+                <div>
+                    {{ rdv.veterinaire.adresse|default('') }}<br>
+                    {{ rdv.veterinaire.codepostal|default('') }} {{ rdv.veterinaire.ville|default('') }}<br>
+                    Tél. : {{ rdv.veterinaire.telephone|default('') }}<br>
+                    e-mail : {{ rdv.veterinaire.email }}
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <div style="font-size: 10px; margin-bottom: 20px;">Ref : {{ 234245 + rdv.id }} {{ rdv.animal.proprietaire.nom }}^{{ rdv.animal.nom }}</div>
+
+    <div class="title">Compte-rendu de consultation</div>
+
+    <table class="info-table">
+        <tr>
+            <td>
+                <div class="section-title">Propriétaire</div>
+                <div>{{ rdv.animal.proprietaire.prenom }} {{ rdv.animal.proprietaire.nom }}</div>
+            </td>
+            <td>
+                <div class="section-title">Patient</div>
+                <div>
+                    {{ rdv.animal.nom }} : {{ rdv.animal.espece|default('Animal') }} {{ rdv.animal.race|default('') }}<br>
+                    {{ rdv.animal.age|default('Age inconnu') }}
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="section-title">Motif (Anamnèse)</div>
+    <div class="section-content">
+        {{ rdv.motif|default('Consultation générale') }}
+    </div>
+
+    <div class="section-title">Compte-rendu (Résultats / Synthèse)</div>
+    <div class="section-content">
+        {{ rdv.compteRendu|nl2br }}
+    </div>
+
+    <div class="footer">
+        Compte rendu écrit par<br>
+        <span style="font-weight: bold;">Dr Vet {{ rdv.veterinaire.prenom }} {{ rdv.veterinaire.nom }}</span><br>
+        e-mail : {{ rdv.veterinaire.email }}
+    </div>
+
+</body>
+</html>
