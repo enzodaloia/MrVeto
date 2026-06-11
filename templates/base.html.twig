@@ -367,7 +367,69 @@
 
 				{% block body %}{% endblock %}
 
-					<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999999;">
+				{# ── Bouton SOS Urgence (visible sur toutes les pages) ── #}
+				<div data-controller="urgence"
+				     data-urgence-nearest-url-value="{{ path('app_urgence_nearest') }}"
+				     style="position:fixed; bottom:1.5rem; right:1.5rem; z-index:9998;">
+					<button data-urgence-target="btn"
+					        data-action="click->urgence#find"
+					        class="btn rounded-circle d-flex align-items-center justify-content-center shadow-lg border-0 text-white"
+					        style="width:58px;height:58px;background:#e84545;"
+					        title="Trouver un vétérinaire urgentiste proche">
+						<span data-urgence-target="icon">🚨</span>
+						<span data-urgence-target="spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+					</button>
+				</div>
+
+				{# ── Modal résultat urgence ── #}
+				<div class="modal fade" id="urgenceModal" tabindex="-1" aria-labelledby="urgenceModalLabel" aria-hidden="true">
+					<div class="modal-dialog modal-dialog-centered">
+						<div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+							<div class="modal-header border-0 pb-0" style="background:#e84545;">
+								<h5 class="modal-title text-white fw-bold" id="urgenceModalLabel">🚨 Urgence vétérinaire</h5>
+								<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
+							</div>
+							<div class="modal-body pt-3">
+								{# Erreur #}
+								<div data-urgence-target="errorWrapper" class="d-none">
+									<div class="alert alert-warning border-0 rounded-3 d-flex align-items-start gap-2">
+										<span class="fs-5">⚠️</span>
+										<span data-urgence-target="errorMsg"></span>
+									</div>
+								</div>
+
+								{# Résultat #}
+								<div data-urgence-target="resultWrapper" class="d-none">
+									<p class="text-muted small mb-3">Vétérinaire urgentiste le plus proche&nbsp;:</p>
+									<h5 class="fw-bold text-dark mb-1" data-urgence-target="vetName"></h5>
+									<p class="text-muted small mb-1 d-flex align-items-center gap-1">
+										<i class="bi bi-geo-alt-fill text-danger"></i>
+										<span data-urgence-target="vetAddress"></span>
+									</p>
+									<p class="fw-medium text-danger small mb-3" data-urgence-target="vetDistance"></p>
+
+									<div data-urgence-target="vetPhoneWrapper" class="d-none mb-3">
+										<a data-urgence-target="vetPhone" href="#"
+										   class="btn btn-danger w-100 rounded-pill fw-bold d-flex align-items-center justify-content-center gap-2">
+											<i class="bi bi-telephone-fill"></i>
+											Appeler maintenant
+										</a>
+									</div>
+
+									<div data-urgence-target="vetProfileWrapper" class="d-none">
+										<a data-urgence-target="vetProfileLink" href="#"
+										   class="btn btn-outline-secondary w-100 rounded-pill fw-medium d-flex align-items-center justify-content-center gap-2">
+											<i class="bi bi-person-badge"></i>
+											Voir le profil
+										</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999999;">
 						{% for flash in app.flashes('success') %}
 							<twig:Toast type="success" message="{{ flash }}"/>
 						{% endfor %}

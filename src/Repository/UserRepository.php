@@ -59,11 +59,20 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 //        ;
 //    }
     /**
-     * Returns a QueryBuilder for vets, with optional bounding-box distance filtering.
+     * Returns a QueryBuilder for vets, with optional geo and profile filters.
      * Pass to KnpPaginator so it can handle pagination itself.
+     *
+     * @param string[] $specialites slugs to filter on (OR on each)
+     * @param string[] $animaux     animal values to filter on (OR on each)
      */
-    public function createVetsQueryBuilder(?float $lat = null, ?float $lon = null, ?int $distance = null): \Doctrine\ORM\QueryBuilder
-    {
+    public function createVetsQueryBuilder(
+        ?float $lat = null,
+        ?float $lon = null,
+        ?int $distance = null,
+        bool $urgentiste = false,
+        array $specialites = [],
+        array $animaux = []
+    ): \Doctrine\ORM\QueryBuilder {
         $qb = $this->createQueryBuilder('u')
             ->andWhere('u.roles LIKE :role')
             ->andWhere('u.isVerified = :isVerified')
@@ -90,7 +99,57 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
                 ->setParameter('lonMax', $lonMax);
         }
 
+        // Profile-based filters: single LEFT JOIN on vetProfile
+        if ($urgentiste || $animaux !== []) {
+            $qb->leftJoin('u.vetProfile', 'vp');
+
+            if ($urgentiste) {
+                $qb->andWhere('vp.isUrgentiste = :urgentiste')
+                    ->setParameter('urgentiste', true);
+            }
+
+            if ($animaux !== []) {
+                $orX = $qb->expr()->orX();
+                foreach ($animaux as $i => $animal) {
+                    $param = 'animal_' . $i;
+                    $orX->add($qb->expr()->like('vp.animauxAcceptes', ':' . $param));
+                    $qb->setParameter($param, '%"' . addslashes($animal) . '"%');
+                }
+                $qb->andWhere($orX);
+            }
+        }
+
+        // Specialites: correlated EXISTS to avoid duplicate rows
+        if ($specialites !== []) {
+            $qb->andWhere(
+                'EXISTS (SELECT 1 FROM App\Entity\VetProfile vp_s JOIN vp_s.specialites spec WHERE vp_s.user = u AND spec.slug IN (:specialites))'
+            )->setParameter('specialites', $specialites);
+        }
+
         return $qb;
+    }
+
+    /**
+     * Returns all urgentiste vets that have coordinates, ordered by nom.
+     *
+     * @return User[]
+     */
+    public function findAllUrgentistes(): array
+    {
+        return $this->createQueryBuilder('u')
+            ->join('u.vetProfile', 'vp')
+            ->addSelect('vp')
+            ->andWhere('u.roles LIKE :role')
+            ->andWhere('u.isVerified = :isVerified')
+            ->andWhere('vp.isUrgentiste = :urgentiste')
+            ->andWhere('u.latitude IS NOT NULL')
+            ->andWhere('u.longitude IS NOT NULL')
+            ->setParameter('role', '%"ROLE_VETO"%')
+            ->setParameter('isVerified', true)
+            ->setParameter('urgentiste', true)
+            ->orderBy('u.nom', 'ASC')
+            ->getQuery()
+            ->getResult();
     }
 
     /**
