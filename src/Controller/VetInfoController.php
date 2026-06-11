@@ -109,7 +109,7 @@ class VetInfoController extends AbstractController
         $field = $data['field'] ?? null;
         $value = $data['value'] ?? null;
 
-        $allowedFields = ['aPropos', 'specialites', 'moyensPaiement', 'animauxAcceptes', 'dureeConsultation', 'langues'];
+        $allowedFields = ['aPropos', 'specialites', 'moyensPaiement', 'animauxAcceptes', 'dureeConsultation', 'langues', 'isUrgentiste'];
         if (!in_array($field, $allowedFields, true)) {
             return $this->json(['error' => 'Champ non autorisé.'], 400);
         }
@@ -134,6 +134,9 @@ class VetInfoController extends AbstractController
         }
 
         $setter = 'set' . ucfirst($field);
+        if ($field === 'isUrgentiste') {
+            $value = (bool) $value;
+        }
         $profile->$setter($value);
         $em->flush();
 
