@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import * as bootstrap from 'bootstrap';
 
 export default class extends Controller {
     static targets = [
@@ -78,7 +79,7 @@ export default class extends Controller {
 
     _openModal() {
         const modalEl = document.getElementById('urgenceModal');
-        if (modalEl && window.bootstrap) {
+        if (modalEl) {
             bootstrap.Modal.getOrCreateInstance(modalEl).show();
         }
     }
