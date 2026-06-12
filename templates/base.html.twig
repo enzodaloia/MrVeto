@@ -367,19 +367,19 @@
 
 				{% block body %}{% endblock %}
 
-				{# ── Bouton SOS Urgence (visible sur toutes les pages) ── #}
+				{# ── Bouton SOS Urgence + Modal (même contrôleur Stimulus) ── #}
 				<div data-controller="urgence"
-				     data-urgence-nearest-url-value="{{ path('app_urgence_nearest') }}"
-				     style="position:fixed; bottom:1.5rem; right:1.5rem; z-index:9998;">
-					<button data-urgence-target="btn"
-					        data-action="click->urgence#find"
-					        class="btn rounded-circle d-flex align-items-center justify-content-center shadow-lg border-0 text-white"
-					        style="width:58px;height:58px;background:#e84545;"
-					        title="Trouver un vétérinaire urgentiste proche">
-						<span data-urgence-target="icon">🚨</span>
-						<span data-urgence-target="spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-					</button>
-				</div>
+				     data-urgence-nearest-url-value="{{ path('app_urgence_nearest') }}">
+					<div style="position:fixed; bottom:1.5rem; right:1.5rem; z-index:9998;">
+						<button data-urgence-target="btn"
+						        data-action="click->urgence#find"
+						        class="btn rounded-circle d-flex align-items-center justify-content-center shadow-lg border-0 text-white"
+						        style="width:58px;height:58px;background:#e84545;"
+						        title="Trouver un vétérinaire urgentiste proche">
+							<span data-urgence-target="icon">🚨</span>
+							<span data-urgence-target="spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+						</button>
+					</div>
 
 				{# ── Modal résultat urgence ── #}
 				<div class="modal fade" id="urgenceModal" tabindex="-1" aria-labelledby="urgenceModalLabel" aria-hidden="true">
@@ -428,6 +428,7 @@
 						</div>
 					</div>
 				</div>
+				</div>{# fin data-controller="urgence" #}
 
 				<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999999;">
 						{% for flash in app.flashes('success') %}
