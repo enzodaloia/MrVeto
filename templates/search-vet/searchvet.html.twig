@@ -32,7 +32,7 @@
     <div class="container-xxl d-flex flex-column gap-4 py-4">
 
         {# Sticky Search Bar #}
-        <div class="sticky-top pt-2 pb-1 bg-secondary-bg" style="top: 0; z-index: 1030;">
+        <div class="sticky-top pt-2 pb-1" style="top: 0;">
             <div class="d-flex justify-content-center mb-2">
                 <form action="{{ path('app_search_vet') }}" method="get" class="bg-secondary-bg p-2 ps-4 pe-2 rounded-pill shadow d-flex align-items-center gap-3 w-100" style="max-width: 900px;" data-controller="autocomplete-address" data-action="submit->autocomplete-address#onSubmit">
 
@@ -50,39 +50,29 @@
                     </div>
 
                     {# Distance Dropdown (Custom Design) #}
-                    <div class="d-none d-md-block position-relative">
+                    <div class="d-none d-md-block">
                         <div class="dropdown">
-                            <button class="btn bg-white rounded-pill px-3 py-2 d-flex align-items-center justify-content-between gap-2 shadow-sm border-0 dropdown-toggle remove-caret limit-dropdown-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-display="static" style="min-width: 11rem;">
-                                <div class="d-flex align-items-center gap-2">
-                                    <twig:ux:icon class="text-secondary fs-5" name="lucide:radar"/>
-                                    <div
-                                        class="position-relative d-inline-block">
-                                        <!-- Invisible spacer to force width to the maximum possible value "100 km" -->
-                                        <span class="fw-medium text-dark invisible" aria-hidden="true">100 km</span>
-                                        <!-- Actual absolute positioned label that updates -->
-                                        <span class="text-dark fw-medium text-truncate position-absolute start-0 top-0 w-100" id="distanceLabel" data-searchmap-target="distanceLabel">{{ distance }}
-											km</span>
-                                    </div>
-                                </div>
-                                <twig:ux:icon class="text-muted fs-5" name="lucide:chevron-down"/>
+                            <button class="filter-btn btn rounded-pill px-3 py-2 fw-medium d-inline-flex align-items-center gap-2"
+                                    type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                                <twig:ux:icon class="text-secondary fs-5" name="lucide:radar"/>
+                                <span id="distanceLabel" data-searchmap-target="distanceLabel">{{ distance }} km</span>
+                                <i class="bi bi-chevron-down filter-chevron ms-1" style="font-size:0.7rem; transition:transform .2s;"></i>
                             </button>
-                            <ul class="dropdown-menu border-0 shadow-sm rounded-bottom-4 mt-0 p-0 w-100 limit-dropdown-menu">
-                                <li>
-                                    <a class="dropdown-item limit-dropdown-item py-2 fw-medium" href="#" data-action="click->searchmap#updateDistance" data-searchmap-distance-value-param="5" data-searchmap-distance-label-param="5 km">5 km</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item limit-dropdown-item py-2 fw-medium" href="#" data-action="click->searchmap#updateDistance" data-searchmap-distance-value-param="10" data-searchmap-distance-label-param="10 km">10 km</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item limit-dropdown-item py-2 fw-medium" href="#" data-action="click->searchmap#updateDistance" data-searchmap-distance-value-param="20" data-searchmap-distance-label-param="20 km">20 km</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item limit-dropdown-item py-2 fw-medium" href="#" data-action="click->searchmap#updateDistance" data-searchmap-distance-value-param="50" data-searchmap-distance-label-param="50 km">50 km</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item limit-dropdown-item rounded-bottom-4 py-2 fw-medium" href="#" data-action="click->searchmap#updateDistance" data-searchmap-distance-value-param="100" data-searchmap-distance-label-param="100 km">100 km</a>
-                                </li>
-                            </ul>
+                            <div class="dropdown-menu border-0 shadow-lg rounded-4 p-0 mt-2" style="min-width:160px;">
+                                <ul class="filter-option-list list-unstyled mb-0 py-1">
+                                    {% for d in [5, 10, 20, 50, 100] %}
+                                    <li>
+                                        <label class="filter-option d-flex align-items-center gap-3 px-3 py-2 cursor-pointer w-100 mb-0 {{ distance == d ? 'selected' : '' }}"
+                                               data-action="click->searchmap#updateDistance"
+                                               data-searchmap-distance-value-param="{{ d }}"
+                                               data-searchmap-distance-label-param="{{ d }} km">
+                                            <span class="flex-grow-1" style="font-size:0.88rem;">{{ d }} km</span>
+                                            <i class="bi bi-check2 filter-check-icon text-primary"></i>
+                                        </label>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
                             <input type="hidden" name="distance" id="distanceInput" data-searchmap-target="distanceInput" value="{{ distance }}">
                         </div>
                     </div>
@@ -352,7 +342,7 @@
 
             {# Right Column: Map #}
             <div class="col-lg-4 d-none d-lg-block">
-                <div class="sticky-top" style="top: 100px;">
+                <div class="sticky-top" style="top: 100px; z-index: 2;">
                     <div id="search-map-wrapper" class="rounded-4 shadow-sm overflow-hidden position-relative" style="height: 480px;" data-searchmap-target="mapWrapper">
                         <div id="search-map" style="height: 100%; width: 100%;" data-searchmap-target="map"></div>
                         <button id="map-expand-btn" class="btn bg-white border-0 position-absolute top-0 end-0 m-2 rounded-circle shadow-sm p-2 d-flex align-items-center justify-content-center hover-scale" style="width: 32px; height: 32px; z-index: 1000;" title="Agrandir la carte" data-action="click->searchmap#toggleMapExpand">
