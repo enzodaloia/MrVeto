@@ -4,9 +4,11 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Repository\DayOfWorkRepository;
+use App\Repository\SpecialiteRepository;
 use App\Repository\UserRepository;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -15,7 +17,7 @@ use Knp\Component\Pager\PaginatorInterface;
 final class SearchVetController extends AbstractController
 {
     #[Route('/recherche', name: 'app_search_vet')]
-    public function index(Request $request, UserRepository $userRepository, DayOfWorkRepository $dayOfWorkRepository, PaginatorInterface $paginator): Response
+    public function index(Request $request, UserRepository $userRepository, DayOfWorkRepository $dayOfWorkRepository, PaginatorInterface $paginator, SpecialiteRepository $specialiteRepository): Response
     {
         $page = max(1, $request->query->getInt('page', 1));
         $limit = max(1, $request->query->getInt('limit', 10));
@@ -27,10 +29,17 @@ final class SearchVetController extends AbstractController
         $lat = ($lat !== null && $lat !== '') ? (float) $lat : null;
         $lon = ($lon !== null && $lon !== '') ? (float) $lon : null;
 
+        $filterUrgentiste = $request->query->getBoolean('urgentiste');
+        $filterSpecialites = array_values(array_filter(array_map('strval', (array) $request->query->all('spec'))));
+        $filterAnimaux = array_values(array_filter(array_map('strval', (array) $request->query->all('animaux'))));
+
         $query = $userRepository->createVetsQueryBuilder(
             $lat,
             $lon,
-            $lat !== null ? $distance : null
+            $lat !== null ? $distance : null,
+            $filterUrgentiste,
+            $filterSpecialites,
+            $filterAnimaux
         );
 
         $pagination = $paginator->paginate($query, $page, $limit);
@@ -48,6 +57,63 @@ final class SearchVetController extends AbstractController
             'lon' => $lon,
             'distance' => $distance,
             'location' => $request->query->get('location'),
+            'filterUrgentiste' => $filterUrgentiste,
+            'filterSpecialites' => $filterSpecialites,
+            'filterAnimaux' => $filterAnimaux,
+            'allSpecialites' => $specialiteRepository->findAllOrdered(),
+        ]);
+    }
+
+    #[Route('/urgence/nearest', name: 'app_urgence_nearest')]
+    public function nearestUrgentiste(Request $request, UserRepository $userRepository): JsonResponse
+    {
+        $latParam = $request->query->get('lat');
+        $lonParam = $request->query->get('lon');
+
+        if ($latParam === null || $latParam === '' || $lonParam === null || $lonParam === '') {
+            return $this->json(['error' => 'Coordonnées manquantes.'], 400);
+        }
+
+        $lat = (float) $latParam;
+        $lon = (float) $lonParam;
+
+        $vets = $userRepository->findAllUrgentistes();
+
+        if ($vets === []) {
+            return $this->json(['error' => 'Aucun vétérinaire urgentiste disponible pour le moment.'], 404);
+        }
+
+        // Compute Haversine distance for each vet and pick the nearest
+        $nearest = null;
+        $nearestDistance = PHP_FLOAT_MAX;
+
+        foreach ($vets as $vet) {
+            $vetLat = (float) $vet->getLatitude();
+            $vetLon = (float) $vet->getLongitude();
+
+            $dlat = deg2rad($vetLat - $lat);
+            $dlon = deg2rad($vetLon - $lon);
+            $a = sin($dlat / 2) ** 2 + cos(deg2rad($lat)) * cos(deg2rad($vetLat)) * sin($dlon / 2) ** 2;
+            $km = 6371 * 2 * asin(sqrt($a));
+
+            if ($km < $nearestDistance) {
+                $nearestDistance = $km;
+                $nearest = $vet;
+            }
+        }
+
+        if ($nearest === null) {
+            return $this->json(['error' => 'Aucun vétérinaire urgentiste disponible pour le moment.'], 404);
+        }
+
+        return $this->json([
+            'nom' => $nearest->getNom(),
+            'prenom' => $nearest->getPrenom(),
+            'telephone' => $nearest->getTelephone(),
+            'adresse' => $nearest->getAdressecabinet(),
+            'distance' => round($nearestDistance, 1),
+            'slug' => $nearest->getSlug(),
+            'profileUrl' => $this->generateUrl('app_vet_info', ['slug' => $nearest->getSlug()]),
         ]);
     }
 

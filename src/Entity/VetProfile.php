@@ -38,6 +38,9 @@ class VetProfile
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $dureeConsultation = null;
 
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $isUrgentiste = false;
+
     /** @var string[]|null */
     #[ORM\Column(type: 'json', nullable: true)]
     private ?array $langues = null;
@@ -109,6 +112,14 @@ class VetProfile
     public function setDureeConsultation(?string $dureeConsultation): static
     {
         $this->dureeConsultation = $dureeConsultation;
+        return $this;
+    }
+
+    public function isUrgentiste(): bool { return $this->isUrgentiste; }
+
+    public function setIsUrgentiste(bool $isUrgentiste): static
+    {
+        $this->isUrgentiste = $isUrgentiste;
         return $this;
     }
 

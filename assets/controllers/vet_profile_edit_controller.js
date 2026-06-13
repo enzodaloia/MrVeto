@@ -101,7 +101,10 @@ export default class extends Controller {
         if (textarea) return textarea.value;
 
         const input = section.querySelector('input[data-edit-field]');
-        if (input) return input.value;
+        if (input) {
+            if (input.type === 'checkbox') return input.checked;
+            return input.value;
+        }
 
         // SearchableSelect : lit les hidden inputs générés
         const hiddenInputs = section.querySelectorAll(`input[type="hidden"][name="${field}[]"]`);
@@ -134,6 +137,14 @@ export default class extends Controller {
     #updateDisplay(section, field, value, items = null) {
         const display = section.querySelector('[data-vet-profile-edit-target="display"]');
         if (!display) return;
+
+        // Cas booléen : re-render le display directement
+        if (typeof value === 'boolean') {
+            display.innerHTML = value
+                ? `<span class="badge rounded-pill text-white px-3 py-2" style="background-color: #e84545; font-size: 0.87rem;">🚨 Urgences 24h</span>`
+                : `<span class="text-muted fst-italic">Non renseigné</span>`;
+            return;
+        }
 
         const container = display.querySelector('[data-display-content]');
         if (!container) return;
