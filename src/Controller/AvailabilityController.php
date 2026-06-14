@@ -122,28 +122,27 @@ final class AvailabilityController extends AbstractController
 
         $horairesList = [];
         foreach ($daysOfWork as $dow) {
-            if ($dow->getHoraires()->isEmpty()) {
-                $h = new Horaire();
-                $dow->addHoraire($h);
-                $em->persist($h);
-            } else {
-                $h = $dow->getHoraires()->first();
-            }
 
-            // Dans les deux cas, on applique les défauts si les valeurs sont null
-            if ($h->getMorningStart() === null)
-                $h->setMorningStart(new \DateTime('08:00'));
-            if ($h->getMorningEnd() === null)
-                $h->setMorningEnd(new \DateTime('12:00'));
-            if ($h->getAfternoonStart() === null)
-                $h->setAfternoonStart(new \DateTime('13:00'));
-            if ($h->getAfternoonEnd() === null)
-                $h->setAfternoonEnd(new \DateTime('18:00'));
+    if ($dow->getHoraires()->isEmpty()) {
 
-            $horairesList[] = $h;
+        $h = new Horaire();
 
+        $h->setMorningStart(new \DateTime('08:00'));
+        $h->setMorningEnd(new \DateTime('12:00'));
+        $h->setAfternoonStart(new \DateTime('13:00'));
+        $h->setAfternoonEnd(new \DateTime('18:00'));
 
-        }
+        $dow->addHoraire($h);
+        $em->persist($h);
+
+    } else {
+
+        $h = $dow->getHoraires()->first();
+
+    }
+
+    $horairesList[] = $h;
+}
         $form = $this->createForm(DisponibiliteType::class, ['horaires' => $horairesList], [
             'user' => $user,
         ]);

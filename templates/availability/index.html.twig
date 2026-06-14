@@ -1,44 +1,607 @@
 {% extends 'base.html.twig' %}
 
-{% block stylesheets %}
-	{{ parent() }}
-	{{ encore_entry_link_tags('availability') }}
-{% endblock %}
-
 {% block body %}
+	<style>
+		.slot-btn {
+			width: 42px;
+			height: 42px;
+			flex-shrink: 0;
+		}
+		.afternoon-row {
+			display: none;
+		}
+		.week-header {
+			max-width: 1106px;
+			margin: 0 auto 2rem;
+		}
+
+		#btn-show-form i {
+			width: 16px;
+			height: 16px;
+		}
+
+		.week-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+			gap: 1.5rem;
+		}
+
+		.day-card {
+			background: white;
+			border: 1px solid #EAEAEA;
+			border-radius: 24px;
+			padding: 1.25rem;
+			min-height: 220px;
+		}
+		.tw {
+			position: relative;
+			display: inline-flex;
+			align-items: center;
+			width: 140px;
+			max-width: 100%;
+		}
+		.tw input {
+			padding-right: 36px;
+			width: 100%;
+			height: 38px;
+			background-color: transparent !important;
+		}
+		.status-label {
+			white-space: nowrap;
+			min-width: 52px;
+			font-size: 0.85rem;
+		}
+		.open-fields {
+			display: none;
+		}
+		.day-card {
+			background: white;
+			border: 1px solid #EAEAEA;
+			border-radius: 24px;
+			padding: 1.25rem;
+			min-height: 220px;
+		}
+
+		.day-card-header {
+			color: var(--bs-primary);
+			font-weight: 700;
+			font-size: 1rem;
+			margin-bottom: 1rem;
+			padding-bottom: 0.75rem;
+			border-bottom: 1px solid #F2F2F2;
+		}
+
+		.slot-card {
+			background: rgba(72, 201, 176, 0.1);
+			border-radius: 16px;
+			padding: 0.9rem;
+			margin-bottom: 0.75rem;
+		}
+
+		.slot-label {
+			font-size: 0.8rem;
+			color: #8C8C8C;
+		}
+
+		.slot-time {
+			color: var(--bs-primary);
+			font-weight: 600;
+		}
+
+		.closed-card {
+			background: #F5F5F5;
+			color: #999;
+			border-radius: 16px;
+			padding: 1rem;
+			text-align: center;
+		}
+	</style>
+
+
 	<div class="container-fluid py-3 py-md-4 px-3 px-md-4">
-		<div id="calendar-view">
-			<div class="d-flex flex-column flex-lg-row justify-content-between align-items-stretch align-items-lg-center gap-3 my-3 mx-auto w-100" style="max-width:1106px;">
-				<div>
-					<h1 class="h4 fw-bold text-primary mb-1">Mes disponibilités</h1>
-					<p class="text-muted small mb-0">Consultez votre planning récurrent et ajustez vos horaires.</p>
-				</div>
+		<div id="week-view" class="mx-auto w-100" style="max-width:1106px;">
 
-				<div class="calendar-actions-bar d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2 px-2 py-2 border-0">
-					<label for="calendar-date-picker" class="visually-hidden">Choisir une date dans le calendrier</label>
 
-					<button class="btn btn-light border rounded-pill px-3 py-2 text-info w-100 w-sm-auto" type="button" onclick="document.getElementById('calendar-date-picker').showPicker()">
-						<i class="bi bi-calendar3 me-1"></i>
-						Date
-						<i class="bi bi-chevron-down ms-1"></i>
-					</button>
+			<div class="week-header mb-4">
 
-					<button type="button" id="btn-show-form" class="btn btn-primary rounded-pill px-3 py-2 text-white w-100 w-sm-auto text-nowrap">
-						<i class="bi bi-pencil me-1"></i>
-						Modifier mes horaires
-					</button>
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-2">
 
-					<input type="date" id="calendar-date-picker" aria-label="Choisir une date dans le calendrier" style="position:absolute; opacity:0; pointer-events:none; width:0; height:0;">
-				</div>
+        <div>
+            <h2 class="fw-bold text-primary mb-1">
+                Mes disponibilités
+            </h2>
+
+            <p class="text-muted mb-0">
+                Consultez votre planning récurrent.
+            </p>
+        </div>
+
+        <button type="button"
+                id="btn-show-form"
+                class="btn btn-primary rounded-pill d-inline-flex align-items-center gap-2 text-white">
+            <i data-lucide="pencil"></i>
+            Modifier mes horaires
+        </button>
+
+    </div>
+
+</div>
+
+			<div class="week-grid">
+
+				{% for horaire in form.horaires %}
+					{% set data = horaire.vars.data %}
+
+					<div class="day-card">
+
+						<div class="day-card-header">
+							{{ data.dayOfWork.jour.libelle }}
+						</div>
+
+						{% if data.dayOfWork.isWorking %}
+
+							{% if horaire.morningStart.vars.value and horaire.morningEnd.vars.value %}
+								<div class="slot-card">
+									<div class="slot-label">
+										Matin
+									</div>
+
+									<div class="slot-time">
+										{{ horaire.morningStart.vars.value }}
+										-
+										{{ horaire.morningEnd.vars.value }}
+									</div>
+								</div>
+							{% endif %}
+
+							{% if horaire.afternoonStart.vars.value and horaire.afternoonEnd.vars.value %}
+								<div class="slot-card">
+									<div class="slot-label">
+										Après-midi
+									</div>
+
+									<div class="slot-time">
+										{{ horaire.afternoonStart.vars.value }}
+										-
+										{{ horaire.afternoonEnd.vars.value }}
+									</div>
+								</div>
+							{% endif %}
+
+						{% else %}
+
+							<div class="closed-card">
+								Absent
+							</div>
+
+						{% endif %}
+
+					</div>
+
+				{% endfor %}
+
 			</div>
 
-			<div class="mx-auto w-100" style="max-width:1106px;">
-				<div id="calendar"></div>
-			</div>
 		</div>
 
-		{% include 'availability/_form_view.html.twig' %}
+		<div id="form-view" style="display:none;">
+			<div class="d-flex flex-column flex-xl-row justify-content-between align-items-stretch align-items-xl-start gap-3 mb-4 mx-auto w-100" style="max-width:1106px;">
+				<div class="flex-grow-1">
+					<h2 class="h3 fw-bold text-primary mb-1">Gestion des disponibilités</h2>
+					<p class="text-muted mb-0">Configurez vos horaires hebdomadaires et vos plages de consultation.</p>
+				</div>
+
+				<div class="d-grid d-sm-flex gap-2 align-items-stretch flex-shrink-0">
+					<button type="submit" form="disponibilite-form" class="btn btn-primary text-white rounded-4 px-4 fw-semibold" aria-label="Enregistrer les disponibilités">
+						<i class="bi bi-save me-2" aria-hidden="true"></i>Enregistrer
+					</button>
+
+					<div class="dropdown">
+						<button type="button" class="btn btn-light border rounded-4 px-3 text-primary w-100 h-100" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Afficher les actions secondaires">
+							<i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
+						</button>
+						<ul class="dropdown-menu dropdown-menu-end shadow-sm">
+							<li>
+								<button type="button" id="btn-apply-week-menu" class="dropdown-item">
+									Appliquer lundi à tous les jours
+								</button>
+							</li>
+							<li>
+								<button type="button" id="btn-close-all" class="dropdown-item text-danger">
+									Fermer tous les jours
+								</button>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+
+			<div class="rounded-4 mx-auto w-100 overflow-hidden" style="max-width:1106px;">
+				{{ form_start(form, { attr: { novalidate: 'novalidate', id: 'disponibilite-form' } }) }}
+
+				<div class="table-responsive">
+					<table class="table align-middle availability-table mb-0" style="--bs-table-bg: transparent;">
+						<thead class="border-bottom">
+							<tr class="text-uppercase small text-muted text-neutral-80">
+								<th class="fw-semibold ps-4 py-3 text-nowrap" style="width:240px;">Jour de la semaine</th>
+								<th class="fw-semibold py-3" style="width:200px;">Statut</th>
+								<th class="fw-semibold py-3">Plages horaires</th>
+								<th class="fw-semibold py-3 pe-4 text-center" style="width:72px;">Actions</th>
+							</tr>
+						</thead>
+
+						<tbody>
+							{% for horaire in form.horaires %}
+								{% set data = horaire.vars.data %}
+								{% set hasAfternoon = horaire.afternoonStart.vars.value and horaire.afternoonStart.vars.value != '00:00' %}
+								{% set errorId = 'errors-' ~ data.dayOfWork.id %}
+								{% set statusId = 'status-' ~ data.dayOfWork.id %}
+								{% set morningStartId = 'morning-start-' ~ data.dayOfWork.id %}
+								{% set morningEndId = 'morning-end-' ~ data.dayOfWork.id %}
+								{% set afternoonStartId = 'afternoon-start-' ~ data.dayOfWork.id %}
+								{% set afternoonEndId = 'afternoon-end-' ~ data.dayOfWork.id %}
+
+								<tr class="day-row {{ data.dayOfWork.isWorking ? '' : 'day-closed' }}" data-day-id="{{ data.dayOfWork.id }}" data-afternoon-visible="{{ hasAfternoon ? '1' : '0' }}">
+									<td class="fw-semibold ps-lg-4 day-name-cell">
+										<span class="mobile-label d-none">Jour</span>
+										{{ data.dayOfWork.jour.libelle }}
+									</td>
+
+									<td>
+										<span class="mobile-label d-none">Statut</span>
+										<div class="form-check form-switch d-flex align-items-center gap-2 mb-0">
+											<input class="form-check-input day-checkbox" type="checkbox" name="working_days[]" value="{{ data.dayOfWork.id }}" id="day_{{ data.dayOfWork.id }}" data-day-id="{{ data.dayOfWork.id }}" role="switch" aria-label="Activer ou désactiver les disponibilités du {{ data.dayOfWork.jour.libelle }}" aria-describedby="{{ statusId }}" {{ data.dayOfWork.isWorking ? 'checked' : '' }}>
+											<label class="form-check-label fw-medium mb-0 status-label" for="day_{{ data.dayOfWork.id }}" id="{{ statusId }}" aria-live="polite">
+												{{ data.dayOfWork.isWorking ? 'OUVERT' : 'FERMÉ' }}
+											</label>
+										</div>
+									</td>
+
+									<td class="py-3">
+										<span class="mobile-label d-none">Plages horaires</span>
+
+										<div class="open-fields">
+											<div class="d-flex align-items-center flex-wrap gap-2">
+												<label for="{{ morningStartId }}" class="visually-hidden">Heure de début du matin pour
+													{{ data.dayOfWork.jour.libelle }}</label>
+												<div class="tw">
+													{{ form_widget(horaire.morningStart, {
+                                                        attr: {
+                                                            id: morningStartId,
+                                                            class: 'form-control time-no-icon morning-start',
+                                                            'aria-label': 'Heure de début du matin pour ' ~ data.dayOfWork.jour.libelle,
+                                                            'aria-describedby': errorId
+                                                        }
+                                                    }) }}
+
+												</div>
+
+												<span class="text-neutral-60" aria-hidden="true">à</span>
+
+												<label for="{{ morningEndId }}" class="visually-hidden">Heure de fin du matin pour
+													{{ data.dayOfWork.jour.libelle }}</label>
+												<div class="tw">
+													{{ form_widget(horaire.morningEnd, {
+                                                        attr: {
+                                                            id: morningEndId,
+                                                            class: 'form-control time-no-icon morning-end',
+                                                            'aria-label': 'Heure de fin du matin pour ' ~ data.dayOfWork.jour.libelle,
+                                                            'aria-describedby': errorId
+                                                        }
+                                                    }) }}
+
+												</div>
+
+												<button type="button" class="btn btn-light rounded-circle slot-btn add-afternoon-btn d-flex align-items-center justify-content-center" aria-label="Ajouter un créneau l'après-midi pour {{ data.dayOfWork.jour.libelle }}" title="Ajouter un créneau l'après-midi">
+													<i data-lucide="plus" aria-hidden="true"></i>
+												</button>
+											</div>
+
+											<div class="afternoon-row mt-2 align-items-center flex-wrap gap-2">
+												<label for="{{ afternoonStartId }}" class="visually-hidden">Heure de début de l'après-midi pour
+													{{ data.dayOfWork.jour.libelle }}</label>
+												<div class="tw">
+													{{ form_widget(horaire.afternoonStart, {
+                                                        attr: {
+                                                            id: afternoonStartId,
+                                                            class: 'form-control time-no-icon afternoon-start',
+                                                            'aria-label': 'Heure de début de l\'après-midi pour ' ~ data.dayOfWork.jour.libelle,
+                                                            'aria-describedby': errorId
+                                                        }
+                                                    }) }}
+                                                    
+                                                </div>
+
+                                                <span class="text-neutral-60" aria-hidden="true">à</span>
+
+                                                <label for="{{ afternoonEndId }}" class="visually-hidden">Heure de fin de l'après-midi pour {{ data.dayOfWork.jour.libelle }}</label>
+												<div class="tw">
+													{{ form_widget(horaire.afternoonEnd, {
+                                                        attr: {
+                                                            id: afternoonEndId,
+                                                            class: 'form-control time-no-icon afternoon-end',
+                                                            'aria-label': 'Heure de fin de l\'après-midi pour ' ~ data.dayOfWork.jour.libelle,
+                                                            'aria-describedby': errorId
+                                                        }
+                                                    }) }}
+                                                    
+                                                </div>
+
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-light rounded-circle slot-btn remove-afternoon-btn d-flex align-items-center justify-content-center"
+                                                    aria-label="Supprimer le créneau de l'après-midi pour {{ data.dayOfWork.jour.libelle }}"
+																																							                                                                                                                                                            title="Supprimer le créneau de l'après-midi">
+													<i data-lucide="x" style="width:18px;height:18px;" aria-hidden="true"></i>
+												</button>
+											</div>
+										</div>
+
+										<p class="closed-text small text-neutral-50 mb-0">Aucune plage horaire définie</p>
+
+										<div class="d-none">
+											{{ form_widget(horaire.dayOfWork) }}
+										</div>
+
+										<div class="mt-1" id="{{ errorId }}" aria-live="polite">
+											{{ form_errors(horaire.morningEnd) }}
+											{{ form_errors(horaire.afternoonEnd) }}
+										</div>
+									</td>
+
+									<td class="text-center pe-lg-4 actions-cell">
+										<span class="mobile-label d-none">Actions</span>
+										<button type="button" class="btn btn-link text-neutral-50 reset-day-btn p-0" aria-label="Réinitialiser les horaires de {{ data.dayOfWork.jour.libelle }}" title="Réinitialiser la journée">
+											<i data-lucide="trash-2" aria-hidden="true"></i>
+										</button>
+									</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+
+				{{ form_end(form) }}
+			</div>
+
+			<div class="mx-auto w-100" style="max-width:1106px; margin-top:1.5rem;">
+				<div class="rounded-3 p-3 p-md-4 note-importante-box">
+					<p class="fw-bold text-info mb-2">
+						<i class="bi bi-info-circle me-1" aria-hidden="true"></i>
+						Note importante
+					</p>
+					<p class="mb-0 text-muted">
+						Toute modification de vos disponibilités est prise en compte immédiatement pour la prise de rendez-vous en ligne.
+
+					</p>
+				</div>
+			</div>
+
+			<div class="d-grid d-md-flex justify-content-md-end gap-2 gap-md-3 mt-4 pb-4 mx-auto w-100" style="max-width:1106px;">
+				<button type="button" id="btn-back-calendar" class="btn bg-light text-neutral-60 rounded-4 px-4 px-md-5 fw-semibold" aria-label="Revenir à la vue calendrier">
+					ANNULER
+				</button>
+
+				<button type="submit" form="disponibilite-form" class="btn btn-primary text-white rounded-4 px-4 px-md-5 fw-semibold" aria-label="Enregistrer mes disponibilités">
+					Enregistrer mes disponibilités
+				</button>
+			</div>
+		</div>
 	</div>
 
-	{% include 'availability/_scripts.html.twig' %}
+	 <script src="https://unpkg.com/lucide@latest"></script>
+
+	 <script>
+			                document.addEventListener("DOMContentLoaded", function () {
+			        const weekView = document.getElementById("week-view");
+			                    const formView = document.getElementById("form-view");
+			                    const btnShowForm = document.getElementById("btn-show-form");
+			                    const btnBackCalendar = document.getElementById("btn-back-calendar");
+			                    const btnApplyWeekMenu = document.getElementById("btn-apply-week-menu");
+			                    const btnCloseAll = document.getElementById("btn-close-all");
+			                    const formEl = document.getElementById("disponibilite-form");
+		
+								function getRowValues(row) {
+									return {
+										morningStart: row.querySelector(".morning-start").value,
+										morningEnd: row.querySelector(".morning-end").value,
+										afternoonStart: row.querySelector(".afternoon-start").value,
+										afternoonEnd: row.querySelector(".afternoon-end").value
+									};
+								}
+			        
+			                    
+			        
+			        btnShowForm?.addEventListener("click", () => {
+			            weekView.style.display = "none";
+			            formView.style.display = "block";
+			        });
+			        
+			        btnBackCalendar?.addEventListener("click", () => {
+			            formView.style.display = "none";
+			            weekView.style.display = "block";
+			        });
+			                    
+			        
+			                    function updateRow(row) {
+			                        const checkbox = row.querySelector(".day-checkbox");
+			                        const status = row.querySelector(".status-label");
+			                        const openFields = row.querySelector(".open-fields");
+			                        const closedText = row.querySelector(".closed-text");
+			                        const afternoon = row.querySelector(".afternoon-row");
+			                        const isOpen = checkbox.checked;
+			                        const hasAfternoon = row.dataset.afternoonVisible === "1";
+			        
+			                        status.textContent = isOpen ? "OUVERT" : "FERMÉ";
+			                        status.classList.toggle("text-primary", isOpen);
+			                        status.classList.toggle("text-neutral-50", !isOpen);
+			        
+			                        if (hasAfternoon) {
+			                            afternoon.classList.remove("d-none");
+			                        } else {
+			                            afternoon.classList.add("d-none");
+			                        }
+			        
+			                        if (isOpen) {
+			                            row.classList.remove("day-closed");
+			                            openFields.style.display = "block";
+			                            closedText.style.display = "none";
+			                            afternoon.style.display = hasAfternoon ? "flex" : "none";
+			                        } else {
+			                            row.classList.add("day-closed");
+			                            openFields.style.display = "none";
+			                            closedText.style.display = "block";
+			                            afternoon.style.display = "none";
+			                        }
+			                    }
+			        
+			                    document.querySelectorAll(".day-row").forEach(function (row) {
+			                        const checkbox = row.querySelector(".day-checkbox");
+			                        const addBtn = row.querySelector(".add-afternoon-btn");
+			                        const removeBtn = row.querySelector(".remove-afternoon-btn");
+			                        const resetBtn = row.querySelector(".reset-day-btn");
+			                        const afternoonStart = row.querySelector(".afternoon-start");
+			                        const afternoonEnd = row.querySelector(".afternoon-end");
+			                        const morningStart = row.querySelector(".morning-start");
+			                        const morningEnd = row.querySelector(".morning-end");
+			        
+			                        updateRow(row);
+			        
+			                        checkbox.addEventListener("change", () => {
+			                            updateRow(row);
+			                        });
+			        
+			                        addBtn.addEventListener("click", function () {
+			    checkbox.checked = true;
+			    row.dataset.afternoonVisible = "1";
+			    row.querySelector(".afternoon-row").style.display = "flex";
+			
+			    updateRow(row);
+			});
+			        
+			                        removeBtn.addEventListener("click", function () {
+			                            row.dataset.afternoonVisible = "0";
+			                            afternoonStart.value = "";
+			                            afternoonEnd.value = "";
+			                            row.querySelector(".afternoon-row").classList.add("d-none");
+			                            updateRow(row);
+			                        });
+			        
+			                        resetBtn.addEventListener("click", function () {
+			                            checkbox.checked = false;
+			                            row.dataset.afternoonVisible = "0";
+			                            morningStart.value = "";
+			                            morningEnd.value = "";
+			                            afternoonStart.value = "";
+			                            afternoonEnd.value = "";
+			                            updateRow(row);
+			                        });
+			                    });
+			        
+			                    function applyFirstDaySchedule() {
+			                        const rows = document.querySelectorAll(".day-row");
+			                        const monday = rows[0];
+			                        if (!monday) return;
+			        
+			                        const srcOpen = monday.querySelector(".day-checkbox").checked;
+			                        const srcMorningStart = monday.querySelector(".morning-start").value;
+			                        const srcMorningEnd = monday.querySelector(".morning-end").value;
+			                        const srcAfternoonStart = monday.querySelector(".afternoon-start").value;
+			                        const srcAfternoonEnd = monday.querySelector(".afternoon-end").value;
+			                        const srcAfternoon = monday.dataset.afternoonVisible;
+			        
+			                        rows.forEach(function (row, index) {
+			                            if (index === 0) return;
+			                            row.querySelector(".day-checkbox").checked = srcOpen;
+			                            row.querySelector(".morning-start").value = srcMorningStart;
+			                            row.querySelector(".morning-end").value = srcMorningEnd;
+			                            row.querySelector(".afternoon-start").value = srcAfternoonStart;
+			                            row.querySelector(".afternoon-end").value = srcAfternoonEnd;
+			                            row.dataset.afternoonVisible = srcAfternoon;
+			                            updateRow(row);
+			                        });
+			                    }
+			        
+			                    function closeAllDays() {
+			                        document.querySelectorAll(".day-row").forEach(function (row) {
+			                            row.querySelector(".day-checkbox").checked = false;
+			                            updateRow(row);
+			                        });
+			                    }
+			        
+			                    btnApplyWeekMenu?.addEventListener("click", applyFirstDaySchedule);
+			                    btnCloseAll?.addEventListener("click", closeAllDays);
+			        
+			                    formEl?.addEventListener("submit", function (e) {
+			                        e.preventDefault();
+			        
+			                        let hasError = false;
+			        
+			                        document.querySelectorAll(".day-row").forEach(function (row) {
+			                            const checkbox = row.querySelector(".day-checkbox");
+		
+										const {
+										morningStart,
+										morningEnd,
+										afternoonStart,
+										afternoonEnd
+									} = getRowValues(row);
+			        
+			                            if (!checkbox.checked) {
+			                                row.querySelector(".morning-start").value = "";
+			                                row.querySelector(".morning-end").value = "";
+			                                row.querySelector(".afternoon-start").value = "";
+			                                row.querySelector(".afternoon-end").value = "";
+			                                return;
+			                            }
+			                           // Vérification du créneau du matin
+			if (morningStart && morningEnd && morningStart >= morningEnd) {
+			    hasError = true;
+			}
+			
+			// Vérification du créneau de l'après-midi
+			if (
+			    row.dataset.afternoonVisible === "1" &&
+			    afternoonStart &&
+			    afternoonEnd &&
+			    afternoonStart >= afternoonEnd
+			) {
+			    hasError = true;
+			}
+			
+			// Vérification du chevauchement matin / après-midi
+			if (
+			    row.dataset.afternoonVisible === "1" &&
+			    morningEnd &&
+			    afternoonStart &&
+			    afternoonStart <= morningEnd
+			) {
+			    hasError = true;
+			}
+			                        });
+			        
+			                        if (hasError) {
+			                            document.querySelector(".toast-container")?.insertAdjacentHTML("beforeend", `<div class="toast show border shadow rounded-4 overflow-hidden border-danger-border bg-danger-bg text-danger" role="alert" aria-live="assertive" aria-atomic="true" data-auto-init="toast" data-bs-delay="4500" data-bs-autohide="true" style="backdrop-filter: blur(3px); min-width: 23rem;"><div class="d-flex align-items-start" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.25));"><div class="toast-body d-flex align-items-center gap-2 py-3" style="font-size: 1.02rem;"><i class="bi bi-x-octagon-fill" style="font-size: 1.05rem;"></i><div>Les plages horaires se chevauchent. L'heure de début de l'après-midi doit être après la fin du matin.</div></div><button type="button" class="btn border-0 bg-transparent p-0 me-2 mt-2 d-inline-flex align-items-center justify-content-center" data-bs-dismiss="toast" aria-label="Close" style="color: currentColor; width: 1.75rem; height: 1.75rem; line-height: 1;"><i class="bi bi-x-lg" aria-hidden="true" style="font-size: .95rem;"></i></button></div></div>`);
+			                            return;
+			                        }
+			        
+			        fetch(window.location.href, {
+			            method: "POST",
+			            body: new FormData(formEl),
+			            headers: {
+			                "X-Requested-With": "XMLHttpRequest"
+			            }
+			        })
+			        .then(res => res.json())
+			        .then(data => {
+			    if (data.success) {
+			        window.location.reload();
+			    }
+			})
+			        });
+			                    if (window.lucide) {
+			                        lucide.createIcons();
+			                    }
+			                });
+			            </script>
 {% endblock %}

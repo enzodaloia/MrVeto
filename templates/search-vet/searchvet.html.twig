@@ -32,10 +32,8 @@
     <div class="container-xxl d-flex flex-column gap-4 py-4">
 
         {# Sticky Search Bar #}
-        <div
-            class="sticky-top pt-2 pb-3" style="top: 0; z-index: 1030;">
-            {# Increased z-index to ensure dropdown is above content #}
-            <div class="d-flex justify-content-center">
+        <div class="sticky-top pt-2 pb-1" style="top: 0;">
+            <div class="d-flex justify-content-center mb-2">
                 <form action="{{ path('app_search_vet') }}" method="get" class="bg-secondary-bg p-2 ps-4 pe-2 rounded-pill shadow d-flex align-items-center gap-3 w-100" style="max-width: 900px;" data-controller="autocomplete-address" data-action="submit->autocomplete-address#onSubmit">
 
                     <input type="hidden" name="lat" data-autocomplete-address-target="lat" value="{{ lat }}">
@@ -52,39 +50,29 @@
                     </div>
 
                     {# Distance Dropdown (Custom Design) #}
-                    <div class="d-none d-md-block position-relative">
+                    <div class="d-none d-md-block">
                         <div class="dropdown">
-                            <button class="btn bg-white rounded-pill px-3 py-2 d-flex align-items-center justify-content-between gap-2 shadow-sm border-0 dropdown-toggle remove-caret limit-dropdown-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-display="static" style="min-width: 11rem;">
-                                <div class="d-flex align-items-center gap-2">
-                                    <twig:ux:icon class="text-secondary fs-5" name="lucide:radar"/>
-                                    <div
-                                        class="position-relative d-inline-block">
-                                        <!-- Invisible spacer to force width to the maximum possible value "100 km" -->
-                                        <span class="fw-medium text-dark invisible" aria-hidden="true">100 km</span>
-                                        <!-- Actual absolute positioned label that updates -->
-                                        <span class="text-dark fw-medium text-truncate position-absolute start-0 top-0 w-100" id="distanceLabel" data-searchmap-target="distanceLabel">{{ distance }}
-											km</span>
-                                    </div>
-                                </div>
-                                <twig:ux:icon class="text-muted fs-5" name="lucide:chevron-down"/>
+                            <button class="filter-btn btn rounded-pill px-3 py-2 fw-medium d-inline-flex align-items-center gap-2"
+                                    type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                                <twig:ux:icon class="text-secondary fs-5" name="lucide:radar"/>
+                                <span id="distanceLabel" data-searchmap-target="distanceLabel">{{ distance }} km</span>
+                                <i class="bi bi-chevron-down filter-chevron ms-1" style="font-size:0.7rem; transition:transform .2s;"></i>
                             </button>
-                            <ul class="dropdown-menu border-0 shadow-sm rounded-bottom-4 mt-0 p-0 w-100 limit-dropdown-menu">
-                                <li>
-                                    <a class="dropdown-item limit-dropdown-item py-2 fw-medium" href="#" data-action="click->searchmap#updateDistance" data-searchmap-distance-value-param="5" data-searchmap-distance-label-param="5 km">5 km</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item limit-dropdown-item py-2 fw-medium" href="#" data-action="click->searchmap#updateDistance" data-searchmap-distance-value-param="10" data-searchmap-distance-label-param="10 km">10 km</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item limit-dropdown-item py-2 fw-medium" href="#" data-action="click->searchmap#updateDistance" data-searchmap-distance-value-param="20" data-searchmap-distance-label-param="20 km">20 km</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item limit-dropdown-item py-2 fw-medium" href="#" data-action="click->searchmap#updateDistance" data-searchmap-distance-value-param="50" data-searchmap-distance-label-param="50 km">50 km</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item limit-dropdown-item rounded-bottom-4 py-2 fw-medium" href="#" data-action="click->searchmap#updateDistance" data-searchmap-distance-value-param="100" data-searchmap-distance-label-param="100 km">100 km</a>
-                                </li>
-                            </ul>
+                            <div class="dropdown-menu border-0 shadow-lg rounded-4 p-0 mt-2" style="min-width:160px;">
+                                <ul class="filter-option-list list-unstyled mb-0 py-1">
+                                    {% for d in [5, 10, 20, 50, 100] %}
+                                    <li>
+                                        <label class="filter-option d-flex align-items-center gap-3 px-3 py-2 cursor-pointer w-100 mb-0 {{ distance == d ? 'selected' : '' }}"
+                                               data-action="click->searchmap#updateDistance"
+                                               data-searchmap-distance-value-param="{{ d }}"
+                                               data-searchmap-distance-label-param="{{ d }} km">
+                                            <span class="flex-grow-1" style="font-size:0.88rem;">{{ d }} km</span>
+                                            <i class="bi bi-check2 filter-check-icon text-primary"></i>
+                                        </label>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
                             <input type="hidden" name="distance" id="distanceInput" data-searchmap-target="distanceInput" value="{{ distance }}">
                         </div>
                     </div>
@@ -95,69 +83,133 @@
                     </button>
                 </form>
             </div>
+
+            {# ── Filter Bar ── #}
+            {% set activeCount = (filterUrgentiste ? 1 : 0) + filterSpecialites|length + filterAnimaux|length %}
+            {% set animauxOptions = [
+                {value: 'chien',   label: '🐶 Chien'},
+                {value: 'chat',    label: '🐱 Chat'},
+                {value: 'lapin',   label: '🐰 Lapin / NAC'},
+                {value: 'oiseau',  label: '🐦 Oiseau'},
+                {value: 'reptile', label: '🦎 Reptile'},
+                {value: 'equin',   label: '🐴 Cheval'},
+                {value: 'bovin',   label: '🐄 Rural'},
+            ] %}
+            <div class="d-flex justify-content-center">
+                <form id="filters-form" action="{{ path('app_search_vet') }}" method="get"
+                      class="w-100 d-flex align-items-center flex-wrap gap-2 pb-1" style="max-width: 900px;">
+                    <input type="hidden" name="lat" value="{{ lat }}">
+                    <input type="hidden" name="lon" value="{{ lon }}">
+                    <input type="hidden" name="location" value="{{ location }}">
+                    <input type="hidden" name="distance" value="{{ distance }}">
+                    <input type="hidden" name="limit" value="{{ limit }}">
+
+                    {# Urgences pill #}
+                    <label class="cursor-pointer flex-shrink-0 filter-urgence-label">
+                        <input type="checkbox" name="urgentiste" value="1" id="filter_urgentiste"
+                               class="d-none filter-toggle" {{ filterUrgentiste ? 'checked' : '' }}>
+                        <span class="filter-btn filter-btn-urgence btn rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center gap-2
+                                     {{ filterUrgentiste ? 'active' : '' }}">
+                            🚨 Urgences 24h
+                        </span>
+                    </label>
+
+                    <div class="vr opacity-25 mx-1 d-none d-sm-block flex-shrink-0" style="height:28px; align-self:center;"></div>
+
+                    {# Spécialités dropdown #}
+                    {% if allSpecialites is not empty %}
+                    <div class="dropdown flex-shrink-0">
+                        <button class="filter-btn btn rounded-pill px-3 py-2 fw-medium d-inline-flex align-items-center gap-2
+                                       {{ filterSpecialites|length > 0 ? 'active' : '' }}"
+                                type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                            <i class="bi bi-activity"></i>
+                            Spécialités
+                            {% if filterSpecialites|length > 0 %}
+                                <span class="filter-count-badge badge rounded-pill px-2">{{ filterSpecialites|length }}</span>
+                            {% endif %}
+                            <i class="bi bi-chevron-down filter-chevron ms-1" style="font-size:0.7rem; transition:transform .2s;"></i>
+                        </button>
+                        <div class="dropdown-menu border-0 shadow-lg rounded-4 p-0 mt-2" style="min-width:280px; width:300px;">
+                            <div class="p-2 border-bottom">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-light border-0 ps-2"><i class="bi bi-search text-muted"></i></span>
+                                    <input type="text" class="form-control bg-light border-0 shadow-none filter-search"
+                                           placeholder="Rechercher..." autocomplete="off" data-target="spec-list">
+                                </div>
+                            </div>
+                            <ul class="filter-option-list list-unstyled mb-0 py-1" id="spec-list"
+                                style="max-height:220px; overflow-y:auto;">
+                                {% for spec in allSpecialites %}
+                                <li>
+                                    <label class="filter-option d-flex align-items-center gap-3 px-3 py-2 cursor-pointer w-100 mb-0
+                                                  {{ spec.slug in filterSpecialites ? 'selected' : '' }}">
+                                        <input type="checkbox" name="spec[]" value="{{ spec.slug }}"
+                                               class="filter-toggle flex-shrink-0"
+                                               {{ spec.slug in filterSpecialites ? 'checked' : '' }}>
+                                        <span class="flex-grow-1" style="font-size:0.88rem;">{{ spec.label }}</span>
+                                        <i class="bi bi-check2 filter-check-icon text-primary"></i>
+                                    </label>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {# Animaux dropdown #}
+                    <div class="dropdown flex-shrink-0">
+                        <button class="filter-btn btn rounded-pill px-3 py-2 fw-medium d-inline-flex align-items-center gap-2
+                                       {{ filterAnimaux|length > 0 ? 'active' : '' }}"
+                                type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                            <i class="bi bi-heart"></i>
+                            Animaux
+                            {% if filterAnimaux|length > 0 %}
+                                <span class="filter-count-badge badge rounded-pill px-2">{{ filterAnimaux|length }}</span>
+                            {% endif %}
+                            <i class="bi bi-chevron-down filter-chevron ms-1" style="font-size:0.7rem; transition:transform .2s;"></i>
+                        </button>
+                        <div class="dropdown-menu border-0 shadow-lg rounded-4 p-0 mt-2" style="min-width:260px; width:280px;">
+                            <div class="p-2 border-bottom">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-light border-0 ps-2"><i class="bi bi-search text-muted"></i></span>
+                                    <input type="text" class="form-control bg-light border-0 shadow-none filter-search"
+                                           placeholder="Rechercher..." autocomplete="off" data-target="animaux-list">
+                                </div>
+                            </div>
+                            <ul class="filter-option-list list-unstyled mb-0 py-1" id="animaux-list"
+                                style="max-height:220px; overflow-y:auto;">
+                                {% for opt in animauxOptions %}
+                                <li>
+                                    <label class="filter-option d-flex align-items-center gap-3 px-3 py-2 cursor-pointer w-100 mb-0
+                                                  {{ opt.value in filterAnimaux ? 'selected' : '' }}">
+                                        <input type="checkbox" name="animaux[]" value="{{ opt.value }}"
+                                               class="filter-toggle flex-shrink-0"
+                                               {{ opt.value in filterAnimaux ? 'checked' : '' }}>
+                                        <span class="flex-grow-1" style="font-size:0.88rem;">{{ opt.label }}</span>
+                                        <i class="bi bi-check2 filter-check-icon text-primary"></i>
+                                    </label>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    {# Reset #}
+                    {% if activeCount > 0 %}
+                    <a href="{{ path('app_search_vet', {lat: lat, lon: lon, location: location, distance: distance, limit: limit}) }}"
+                       class="btn btn-sm text-danger d-inline-flex align-items-center gap-1 flex-shrink-0 ms-auto text-nowrap">
+                        <i class="bi bi-x-lg"></i> Effacer ({{ activeCount }})
+                    </a>
+                    {% endif %}
+                </form>
+            </div>
         </div>
 
         {# Content Grid #}
-        <div
-            class="row g-4 justify-content-center">
+        <div class="row g-4">
 
-            {# Left Column: Filters #}
-            <div class="col-lg-3 col-xl-2">
-                <div class="sticky-top" style="top: 100px; max-height: calc(100vh - 120px); overflow-y: auto;">
-                    <div
-                        class="card border-0 shadow-sm p-4 h-100">
-                        {# Emergency #}
-                        <div class="mb-4">
-                            <h4 class="h6 fw-bold mb-3 text-secondary">Urgence</h4>
-                            <div class="form-check">
-                                <input class="form-check-input border-secondary" type="checkbox" name="emergency" id="emergency">
-                                <label class="form-check-label small" for="emergency">Urgences 24/7</label>
-                            </div>
-                        </div>
-
-                        {# Specialities #}
-                        <div class="mb-4">
-                            <h4 class="h6 fw-bold mb-3 text-secondary">Spécialités</h4>
-                            <div class="d-flex flex-column gap-2">
-                                <div class="form-check">
-                                    <input class="form-check-input border-secondary" type="checkbox" name="spec[]" value="general" id="spec_gen">
-                                    <label class="form-check-label small" for="spec_gen">Généraliste</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input border-secondary" type="checkbox" name="spec[]" value="surgery" id="spec_surg">
-                                    <label class="form-check-label small" for="spec_surg">Chirurgie</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input border-secondary" type="checkbox" name="spec[]" value="derma" id="spec_derma">
-                                    <label class="form-check-label small" for="spec_derma">Dermatologie</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input border-secondary" type="checkbox" name="spec[]" value="nac" id="spec_nac">
-                                    <label class="form-check-label small" for="spec_nac">NAC</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        {# Availability #}
-                        <div>
-                            <h4 class="h6 fw-bold mb-3 text-secondary">Disponibilité</h4>
-                            <div class="d-flex flex-column gap-2">
-                                <div class="form-check">
-                                    <input class="form-check-input border-secondary" type="checkbox" name="avail" id="avail_today">
-                                    <label class="form-check-label small" for="avail_today">Rendez-vous aujourd'hui</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input border-secondary" type="checkbox" name="video" id="avail_video">
-                                    <label class="form-check-label small" for="avail_video">Téléconsultation</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {# Center Column: Results #}
-            <div class="col-lg-6 col-xl-7">
+            {# Results Column #}
+            <div class="col-12 col-lg-8">
                 <div class="d-flex flex-column gap-4">
                     {% for vet in pagination %}
                         <div class="card border-0 shadow-sm p-4 transition-hover cursor-pointer" onclick="window.location.href='{{ path('app_vet_info', {slug: vet.slug}) }}'">
@@ -170,9 +222,26 @@
                                 {# Info #}
                                 <div class="flex-grow-1">
                                     {% set availability = vetAvailability[vet.id]|default({'isOpen': false, 'label': 'Ferme', 'detail': 'Aucun horaire renseigne'}) %}
-                                    <h3 class="h5 text-primary fw-bold mb-2">Dr.
+                                    <h3 class="h5 text-primary fw-bold mb-1">Dr.
                                         {{ vet.prenom }}
                                         {{ vet.nom }}</h3>
+
+                                    {# Badges profil #}
+                                    {% set vp = vet.vetProfile %}
+                                    {% if vp %}
+                                    <div class="d-flex flex-wrap gap-1 mb-2">
+                                        {% if vp.isUrgentiste %}
+                                            <span class="badge rounded-pill text-white px-2 py-1" style="background-color:#e84545;font-size:0.72rem;">🚨 Urgences 24h</span>
+                                        {% endif %}
+                                        {% for spec in vp.specialites|slice(0, 2) %}
+                                            <span class="badge rounded-pill bg-primary-subtle text-primary px-2 py-1" style="font-size:0.72rem;">{{ spec.label }}</span>
+                                        {% endfor %}
+                                        {% if vp.specialites|length > 2 %}
+                                            <span class="badge rounded-pill bg-secondary-subtle text-secondary px-2 py-1" style="font-size:0.72rem;">+{{ vp.specialites|length - 2 }}</span>
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
+
                                     <div class="d-flex flex-column gap-1 text-muted small">
 										<span class="d-flex align-items-center gap-2">
 											<twig:ux:icon class="fs-6 text-primary" name="lucide:map-pin"/>
@@ -272,8 +341,8 @@
             </div>
 
             {# Right Column: Map #}
-            <div class="col-lg-3 d-none d-lg-block">
-                <div class="sticky-top" style="top: 100px;">
+            <div class="col-lg-4 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 2;">
                     <div id="search-map-wrapper" class="rounded-4 shadow-sm overflow-hidden position-relative" style="height: 480px;" data-searchmap-target="mapWrapper">
                         <div id="search-map" style="height: 100%; width: 100%;" data-searchmap-target="map"></div>
                         <button id="map-expand-btn" class="btn bg-white border-0 position-absolute top-0 end-0 m-2 rounded-circle shadow-sm p-2 d-flex align-items-center justify-content-center hover-scale" style="width: 32px; height: 32px; z-index: 1000;" title="Agrandir la carte" data-action="click->searchmap#toggleMapExpand">
@@ -301,4 +370,163 @@
     </div>
 
     </div>
+
+    <style>
+        /* ── Filter buttons ── */
+        .filter-btn {
+            background: #fff;
+            border: 1.5px solid #dee2e6;
+            color: #343a40;
+            transition: background .15s, border-color .15s, color .15s, box-shadow .15s;
+            box-shadow: 0 1px 3px rgba(0,0,0,.06);
+        }
+        .filter-btn:hover:not(.active) {
+            background: #f8f9fa;
+            border-color: #adb5bd;
+            box-shadow: 0 2px 6px rgba(0,0,0,.10);
+        }
+        .filter-btn.active {
+            background: var(--bs-primary);
+            border-color: var(--bs-primary);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(var(--bs-primary-rgb),.35);
+        }
+        .filter-btn.show {
+            background: #f0f0f0;
+            border-color: #adb5bd;
+            box-shadow: 0 2px 6px rgba(0,0,0,.10);
+        }
+        .filter-btn.active.show {
+            background: var(--bs-primary);
+            border-color: var(--bs-primary);
+            filter: brightness(1.08);
+        }
+        .filter-btn .filter-chevron { transition: transform .2s; }
+        .filter-btn.show .filter-chevron { transform: rotate(180deg); }
+
+        /* Urgences specifics */
+        .filter-btn-urgence {
+            border-color: #e84545;
+            color: #e84545;
+        }
+        .filter-btn-urgence:hover:not(.active) {
+            background: #fff5f5;
+            border-color: #e84545;
+        }
+        .filter-btn-urgence.active {
+            background: #e84545;
+            border-color: #e84545;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(232,69,69,.35);
+        }
+
+        /* Count badge */
+        .filter-count-badge {
+            background: rgba(255,255,255,0.25);
+            color: inherit;
+            font-size: 0.68rem;
+        }
+        .filter-btn:not(.active) .filter-count-badge {
+            background: var(--bs-primary);
+            color: #fff;
+        }
+
+        /* ── Dropdown option list ── */
+        .filter-option {
+            border-radius: 6px;
+            transition: background .12s;
+            user-select: none;
+        }
+        .filter-option:hover {
+            background: #f0f4ff;
+        }
+        .filter-option.selected {
+            background: #eef2ff;
+        }
+        .filter-option input[type="checkbox"] {
+            width: 16px; height: 16px;
+            accent-color: var(--bs-primary);
+            cursor: pointer;
+        }
+        .filter-check-icon {
+            opacity: 0;
+            font-size: 1rem;
+            transition: opacity .12s;
+        }
+        .filter-option.selected .filter-check-icon { opacity: 1; }
+
+        /* Search input in dropdown */
+        .filter-search:focus { box-shadow: none; background: #e9ecef !important; }
+    </style>
+
+    <script>
+        (function () {
+            const filtersForm = document.getElementById('filters-form');
+            if (!filtersForm) return;
+
+            // ── Urgences toggle ──
+            const urgCb = document.getElementById('filter_urgentiste');
+            if (urgCb) {
+                urgCb.addEventListener('change', function () {
+                    const btn = this.closest('label').querySelector('.filter-btn-urgence');
+                    btn.classList.toggle('active', this.checked);
+                    filtersForm.submit();
+                });
+            }
+
+            // ── Dropdown checkboxes (spec + animaux) ──
+            filtersForm.querySelectorAll('.filter-option-list .filter-toggle').forEach(function (cb) {
+                cb.addEventListener('change', function () {
+                    const row = this.closest('.filter-option');
+                    row.classList.toggle('selected', this.checked);
+                    // Update parent dropdown button state
+                    const list = this.closest('.filter-option-list');
+                    const btn = list?.closest('.dropdown')?.querySelector('.filter-btn');
+                    if (btn) {
+                        const anyChecked = list.querySelectorAll('.filter-toggle:checked').length > 0;
+                        btn.classList.toggle('active', anyChecked);
+                    }
+                    filtersForm.submit();
+                });
+            });
+
+            // ── Search inside dropdowns ──
+            filtersForm.querySelectorAll('.filter-search').forEach(function (input) {
+                input.addEventListener('input', function () {
+                    const targetId = this.dataset.target;
+                    const list = document.getElementById(targetId);
+                    if (!list) return;
+                    const q = this.value.toLowerCase().trim();
+                    list.querySelectorAll('li').forEach(function (li) {
+                        const label = li.querySelector('span')?.textContent.toLowerCase() ?? '';
+                        li.style.display = (!q || label.includes(q)) ? '' : 'none';
+                    });
+                });
+                // Prevent form submit on Enter inside search
+                input.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter') e.preventDefault();
+                });
+            });
+
+            // ── Carry active filters when location form is submitted ──
+            const locationForm = document.querySelector('form[data-controller="autocomplete-address"]');
+            if (locationForm) {
+                locationForm.addEventListener('submit', function () {
+                    filtersForm.querySelectorAll('.filter-toggle:checked').forEach(function (cb) {
+                        const hidden = document.createElement('input');
+                        hidden.type = 'hidden';
+                        hidden.name = cb.name;
+                        hidden.value = cb.value;
+                        locationForm.appendChild(hidden);
+                    });
+                    // Also carry urgentiste
+                    if (urgCb?.checked) {
+                        const h = document.createElement('input');
+                        h.type = 'hidden'; h.name = 'urgentiste'; h.value = '1';
+                        locationForm.appendChild(h);
+                    }
+                });
+            }
+        })();
+    </script>
 {% endblock %}

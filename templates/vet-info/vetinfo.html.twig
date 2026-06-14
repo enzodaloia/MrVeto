@@ -36,9 +36,20 @@
 							</div>
 
 							<!-- Badges -->
-							<div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-2 mt-4 mt-md-0">
-								<twig:Badge type="info" text="Urgence"/>
-								<twig:Badge type="info" text="Parking"/>
+							<div class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-2 mt-4 mt-md-0">
+								{% if app.user is not null and app.user.id == vet.id %}
+									<div class="d-flex align-items-center gap-2">
+										<span class="small text-muted">Urgences 24h</span>
+										<div class="form-check form-switch mb-0">
+											<input class="form-check-input" type="checkbox" role="switch"
+												id="urgentisteToggle"
+												{{ vetProfile and vetProfile.isUrgentiste ? 'checked' : '' }}
+												data-patch-url="{{ path('app_vet_profile_patch', {slug: vet.slug}) }}">
+										</div>
+									</div>
+								{% elseif vetProfile and vetProfile.isUrgentiste %}
+									<twig:Badge type="danger" text="Urgences"/>
+								{% endif %}
 							</div>
 						</div>
 
@@ -415,9 +426,10 @@
 						{% endif %}
 					</div>
 
-				</div>{# /vstack details #}
-			</div>
-		</div>
+					</div>{# /vstack details #}
+
+			</div>{# /card left column #}
+		</div>{# /col-lg-7 #}
 
 			<!-- RIGHT COLUMN (Widgets) -->
 			<div class="col-lg-5">
@@ -643,5 +655,18 @@
 				});
 			});
 		});
+	</script>
+
+	<script>
+		const urgentisteToggle = document.getElementById('urgentisteToggle');
+		if (urgentisteToggle) {
+			urgentisteToggle.addEventListener('change', function () {
+				fetch(this.dataset.patchUrl, {
+					method: 'PATCH',
+					headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+					body: JSON.stringify({ field: 'isUrgentiste', value: this.checked }),
+				}).then(() => location.reload());
+			});
+		}
 	</script>
 {% endblock %}
