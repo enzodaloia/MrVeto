@@ -332,7 +332,7 @@
                                                     {{ rdv.compteRendu|nl2br }}
                                                     {% if rdv.compteRenduPdf %}
                                                         <div class="mt-2">
-                                                            <a href="{{ path('app_rdv_download_pdf', {'slug': rdv.slug}) }}" target="_blank" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 py-1" style="font-size: 0.75rem;">
+                                                            <a href="{{ path('app_rdv_download_pdf', {'slug': rdv.slug}) }}" target="_blank" class="btn btn-sm btn-primary text-white d-inline-flex align-items-center gap-1 py-1" style="font-size: 0.75rem;">
                                                                 <i class="bi bi-file-earmark-pdf"></i> PDF
                                                             </a>
                                                         </div>
