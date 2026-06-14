@@ -1,9 +1,9 @@
 {% set modal_id = 'deleteModal' ~ (prefix|default('')) ~ user.id %}
-<button type="button" class="action-btn delete btn btn-link p-1 text-danger" data-bs-toggle="modal" data-bs-target="#{{ modal_id }}">
-    <i data-lucide="trash-2"></i>
+<button type="button" class="action-btn delete btn btn-link p-1 text-danger" data-bs-toggle="modal" data-bs-target="#{{ modal_id }}" aria-label="Supprimer l'utilisateur">
+    <i data-lucide="trash-2" aria-hidden="true"></i>
 </button>
 
-<div class="modal fade" id="{{ modal_id }}" tabindex="-1">
+<div class="modal fade" id="{{ modal_id }}" tabindex="-1" aria-labelledby="modalLabel_{{ modal_id }}" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow" style="border-radius: 35px; overflow: hidden;">
             <div class="modal-body p-5 text-center">
@@ -12,11 +12,11 @@
                 </div>
 
                 <div class="d-flex justify-content-center align-items-center gap-4 mb-4 text-primary">
-                    <span><i data-lucide="calendar" style="width:18px;height:18px;"></i></span>
+                    <span><i data-lucide="calendar" style="width:18px;height:18px;" aria-hidden="true"></i></span>
                     <span class="fw-medium">{{ "now"|date("d M, Y") }}</span>
                 </div>
 
-                <h5 class="fw-bold text-primary mb-4" style="font-size:1.1rem;">
+                <h5 id="modalLabel_{{ modal_id }}" class="fw-bold text-primary mb-4" style="font-size:1.1rem;">
                     Voulez-vous vraiment supprimer<br>cet utilisateur ?
                 </h5>
 
