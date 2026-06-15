@@ -25,8 +25,8 @@
                 <label for="inputPassword">Mot de passe</label>
 
                 <!-- Bouton toggle avec Font Awesome -->
-                <button type="button" id="togglePassword" class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2" style="z-index: 2;">
-                    <i class="fa-solid fa-eye"></i>
+                <button type="button" id="togglePassword" class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2" style="z-index: 2;" aria-label="Afficher le mot de passe">
+                    <i class="fa-solid fa-eye" aria-hidden="true"></i>
                 </button>
             </div>
 
@@ -40,9 +40,9 @@
                 <a href="{{ path('app_forgot_password_request') }}" class="text-danger small">Mot de passe oublié?</a>
             </div>
 
-            <center>
+            <div class="text-center">
                 <button class="btn w-50 mb-3" style="background-color: #36BDAF; color: white;" type="submit">Se connecter</button>
-            </center>
+            </div>
 
             {% if not app.user %}
                 <div class="text-center small text-muted">
@@ -65,6 +65,9 @@
         // Changer l'icône
         toggleIcon.classList.toggle('fa-eye');
         toggleIcon.classList.toggle('fa-eye-slash');
+
+        // Mettre à jour l'aria-label pour l'accessibilité
+        togglePassword.setAttribute('aria-label', type === 'text' ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
     });
 </script>
 {% endblock %}
