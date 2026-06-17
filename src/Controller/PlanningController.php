@@ -99,6 +99,7 @@ class PlanningController extends AbstractController
 
         $statusColors = [
             'en_attente' => ['bg' => '#FFCF00', 'border' => '#e6bb00', 'text' => '#212529'],
+            'confirme'   => ['bg' => '#1a73e8', 'border' => '#1557b0', 'text' => '#ffffff'],
             'termine'    => ['bg' => '#36BDAF', 'border' => '#2da89b', 'text' => '#ffffff'],
             'annule'     => ['bg' => '#9e9e9e', 'border' => '#757575', 'text' => '#ffffff'],
             'deplace'    => ['bg' => '#fd7e14', 'border' => '#e0710f', 'text' => '#ffffff'],
