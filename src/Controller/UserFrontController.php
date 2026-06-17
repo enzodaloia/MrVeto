@@ -164,6 +164,7 @@ final class UserFrontController extends AbstractController
             // Archiver l'utilisateur
             $user->setIsArchived(true);
             $user->setArchivedAt(new \DateTime());
+            $this->cancelFutureAppointments($user, $entityManager);
             $entityManager->flush();
             
             if ($isCurrentUser) {
@@ -185,6 +186,7 @@ final class UserFrontController extends AbstractController
                 // Pour un vétérinaire, on ne supprime pas complètement pour garder l'historique des documents pendant 20 ans
                 $user->setIsArchived(true);
                 $user->setArchivedAt(new \DateTime());
+                $this->cancelFutureAppointments($user, $entityManager);
                 // Eventuellement anonymiser si nécessaire, mais on garde en l'état pour les archives.
             } else {
                 $entityManager->remove($user);
@@ -199,5 +201,27 @@ final class UserFrontController extends AbstractController
         }
 
         return $this->redirectToRoute('app_home', [], Response::HTTP_SEE_OTHER);
+    }
+
+    private function cancelFutureAppointments(User $veterinaire, EntityManagerInterface $entityManager): void
+    {
+        if (!in_array('ROLE_VETO', $veterinaire->getRoles())) {
+            return;
+        }
+
+        $rendezVousRepository = $entityManager->getRepository(\App\Entity\RendezVous::class);
+        $futureRdvs = $rendezVousRepository->createQueryBuilder('r')
+            ->where('r.veterinaire = :vet')
+            ->andWhere('r.dateHeure > :now')
+            ->andWhere('r.statut != :annule')
+            ->setParameter('vet', $veterinaire)
+            ->setParameter('now', new \DateTime())
+            ->setParameter('annule', 'annule')
+            ->getQuery()
+            ->getResult();
+
+        foreach ($futureRdvs as $rdv) {
+            $rdv->setStatut('annule');
+        }
     }
 }
