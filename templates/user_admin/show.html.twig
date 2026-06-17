@@ -40,11 +40,22 @@
                             {{ user.prenom }} {{ user.nom }}
                         </div>
 
-                        <a href="{{ path('app_user_admin_edit', {'slug': user.slug}) }}"
-           class="btn btn-danger d-flex align-items-center gap-2 px-4">
-            <i class="bi bi-pencil"></i>
-            Modifier
-        </a>
+                        <div class="d-flex gap-2">
+                            <a href="{{ path('app_user_admin_edit', {'slug': user.slug}) }}"
+                               class="btn btn-danger d-flex align-items-center gap-2 px-4">
+                                <i class="bi bi-pencil"></i>
+                                Modifier
+                            </a>
+                            {% if user.archivedAt %}
+                                <form method="post" action="{{ path('app_user_admin_unarchive', {'slug': user.slug}) }}" style="display:inline-block;" onsubmit="return confirm('Voulez-vous vraiment remettre en place ce compte ?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('unarchive' ~ user.id) }}">
+                                    <button class="btn btn-success d-flex align-items-center gap-2 px-4">
+                                        <i class="bi bi-arrow-counterclockwise"></i>
+                                        Remettre en place
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
                     </div>
 
                     <div class="text-muted mb-2 text-break small">
@@ -62,14 +73,18 @@
                             <span class="badge rounded-pill px-3 py-2" style="background:#e0f2fe;color:#0369a1;">Utilisateur</span>
                         {% endif %}
 
-                        {% if 'ROLE_VETO' in user.roles %}
-                            {% if user.isVerified %}
-                                <span class="badge rounded-pill px-3 py-2" style="background:#e4f9f0;color:#16a34a;">Validé </span>
-                            {% else %}
-                                <span class="badge rounded-pill px-3 py-2" style="background:#fde8e8;color:#dc2626;">En attente admin</span>
-                            {% endif %}
+                        {% if user.archivedAt %}
+                            <span class="badge rounded-pill px-3 py-2" style="background:#fef3c7;color:#d97706;">Archivé le {{ user.archivedAt|date('d/m/Y') }}</span>
                         {% else %}
-                            <span class="badge rounded-pill px-3 py-2" style="background:#dcfce7;color:#166534;">Actif</span>
+                            {% if 'ROLE_VETO' in user.roles %}
+                                {% if user.isVerified %}
+                                    <span class="badge rounded-pill px-3 py-2" style="background:#e4f9f0;color:#16a34a;">Validé </span>
+                                {% else %}
+                                    <span class="badge rounded-pill px-3 py-2" style="background:#fde8e8;color:#dc2626;">En attente admin</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge rounded-pill px-3 py-2" style="background:#dcfce7;color:#166534;">Actif</span>
+                            {% endif %}
                         {% endif %}
                     </div>
 
