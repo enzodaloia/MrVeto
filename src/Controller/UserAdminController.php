@@ -192,13 +192,35 @@ final class UserAdminController extends AbstractController
                 $entityManager->remove($resetPasswordRequest);
             }
 
-            $entityManager->remove($user);
-            $entityManager->flush();
+            if (in_array('ROLE_VETO', $user->getRoles(), true)) {
+                $user->setIsArchived(true);
+                $user->setArchivedAt(new \DateTime());
+                $this->cancelFutureAppointments($user, $entityManager);
+                $this->addFlash('success', 'Le vétérinaire a été archivé (historique conservé).');
+            } else {
+                $entityManager->remove($user);
+                $this->addFlash('danger', 'Utilisateur supprimé.');
+            }
 
-            $this->addFlash('danger', 'Utilisateur supprimé.');
+            $entityManager->flush();
         }
 
         return $this->redirectToRoute('app_user_admin_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{slug}/unarchive', name: 'app_user_admin_unarchive', methods: ['POST'])]
+    public function unarchive(
+        Request $request,
+        #[MapEntity(mapping: ['slug' => 'slug'])] User $user,
+        EntityManagerInterface $entityManager
+    ): Response {
+        if ($this->isCsrfTokenValid('unarchive' . $user->getId(), $request->request->get('_token'))) {
+            $user->setArchivedAt(null);
+            $entityManager->flush();
+            $this->addFlash('success', 'Le compte a été désarchivé (remis en place) avec succès.');
+        }
+
+        return $this->redirectToRoute('app_user_admin_index');
     }
 
     private function buildSiretVerification(User $user, SiretVerificationService $siretVerificationService): ?array
@@ -208,5 +230,27 @@ final class UserAdminController extends AbstractController
         }
 
         return $siretVerificationService->verify($user->getSiret());
+    }
+
+    private function cancelFutureAppointments(User $veterinaire, EntityManagerInterface $entityManager): void
+    {
+        if (!in_array('ROLE_VETO', $veterinaire->getRoles())) {
+            return;
+        }
+
+        $rendezVousRepository = $entityManager->getRepository(\App\Entity\RendezVous::class);
+        $futureRdvs = $rendezVousRepository->createQueryBuilder('r')
+            ->where('r.veterinaire = :vet')
+            ->andWhere('r.dateHeure > :now')
+            ->andWhere('r.statut != :annule')
+            ->setParameter('vet', $veterinaire)
+            ->setParameter('now', new \DateTime())
+            ->setParameter('annule', 'annule')
+            ->getQuery()
+            ->getResult();
+
+        foreach ($futureRdvs as $rdv) {
+            $rdv->setStatut('annule');
+        }
     }
 }
