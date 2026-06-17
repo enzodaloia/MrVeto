@@ -15,6 +15,36 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class CarnetSanteController extends AbstractController
 {
+    #[Route('/app/animaux/a/{slug}/delete', name: 'app_animaux_animal_delete', methods: ['POST'])]
+    public function deleteAnimal(
+        string $slug,
+        Request $request,
+        AnimalRepository $animalRepository,
+        EntityManagerInterface $entityManager,
+    ): Response {
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $animal = $animalRepository->findOneBy(['slug' => $slug, 'proprietaire' => $user]);
+        if ($animal === null) {
+            throw $this->createNotFoundException('Animal introuvable.');
+        }
+
+        if (!$this->isCsrfTokenValid('delete_animal_' . $animal->getId(), $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Token CSRF invalide.');
+            return $this->redirectToRoute('app_animaux');
+        }
+
+        $nom = $animal->getNom();
+        $entityManager->remove($animal);
+        $entityManager->flush();
+
+        $this->addFlash('success', $nom . ' a été supprimé.');
+        return $this->redirectToRoute('app_animaux');
+    }
+
     #[Route('/app/animaux/a/{slug}/edit', name: 'app_animaux_animal_edit', methods: ['POST'])]
     public function editAnimal(
         string $slug,

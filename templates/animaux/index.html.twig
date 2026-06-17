@@ -87,8 +87,8 @@
 
             <div class="row g-3">
                 {% for animal in animals %}
-                    <div class="col-12 col-sm-6 col-xl-4">
-                        <a href="{{ path('app_animaux_animal', {slug: animal.slug}) }}" class="text-decoration-none">
+                    <div class="col-12 col-sm-6 col-xl-4 position-relative">
+                        <a href="{{ path('app_animaux_animal', {slug: animal.slug}) }}" class="text-decoration-none d-block h-100">
                             <div class="card border-0 shadow-sm h-100" style="transition: box-shadow .15s ease; border-radius: 12px;">
                                 <div class="card-body p-4">
                                     <div class="d-flex align-items-center gap-3 mb-3">
@@ -137,6 +137,15 @@
                                 </div>
                             </div>
                         </a>
+                        <button type="button"
+                                class="btn btn-sm btn-light border-0 shadow-sm rounded-3 position-absolute d-flex align-items-center justify-content-center"
+                                style="top: 10px; right: 22px; z-index: 1; width: 30px; height: 30px; padding: 0;"
+                                data-bs-toggle="modal" data-bs-target="#deleteAnimalModal"
+                                data-animal-nom="{{ animal.nom }}"
+                                data-animal-slug="{{ animal.slug }}"
+                                data-csrf-token="{{ csrf_token('delete_animal_' ~ animal.id) }}">
+                            <i class="bi bi-trash3 text-danger" style="font-size: 0.8rem;"></i>
+                        </button>
                     </div>
                 {% endfor %}
             </div>
@@ -208,4 +217,50 @@
         </div>
     </div>
 </div>
+
+{# Modal suppression animal #}
+<div class="modal fade" id="deleteAnimalModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0 px-4 pt-4">
+                <h2 class="h5 fw-bold mb-0">Supprimer l'animal</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body px-4 py-3">
+                <div class="d-flex align-items-start gap-3 p-3 bg-danger-bg rounded-3 mb-1">
+                    <i class="bi bi-exclamation-triangle-fill text-danger fs-5 mt-1 flex-shrink-0"></i>
+                    <p class="mb-0 text-danger-emphasis">
+                        Vous êtes sur le point de supprimer <strong id="deleteAnimalName"></strong>.
+                        <br><span class="small opacity-75">L'historique médical et les rendez-vous associés seront définitivement supprimés.</span>
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Annuler</button>
+                <form id="deleteAnimalForm" method="POST" action="">
+                    <input type="hidden" name="_token" id="deleteAnimalToken" value="">
+                    <button type="submit" class="btn btn-danger rounded-pill px-4">Supprimer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+(function () {
+    const modal = document.getElementById('deleteAnimalModal');
+    if (!modal) return;
+    modal.addEventListener('show.bs.modal', function (e) {
+        const btn = e.relatedTarget;
+        document.getElementById('deleteAnimalName').textContent = btn.dataset.animalNom;
+        document.getElementById('deleteAnimalToken').value = btn.dataset.csrfToken;
+        document.getElementById('deleteAnimalForm').action =
+            '/app/animaux/a/' + btn.dataset.animalSlug + '/delete';
+    });
+})();
+</script>
+{% endblock %}
+
 {% endblock %}
