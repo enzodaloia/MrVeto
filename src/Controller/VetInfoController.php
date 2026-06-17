@@ -762,7 +762,7 @@ class VetInfoController extends AbstractController
 
         $this->addFlash('success', 'Votre rendez-vous a été confirmé avec succès !');
 
-        return $this->redirectToRoute('app_vet_info', ['slug' => $vet->getSlug()]);
+        return $this->redirectToRoute('app_rendezvous');
     }
 
     /**
