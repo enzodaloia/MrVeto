@@ -87,14 +87,23 @@ jobs:
               # tom must be in the www-data group (no sudo required for chgrp)
               umask 002
 
-              fix_var_permissions() {
-                chgrp -R www-data var
-                chmod -R g+rwX var
-                find var -type d -exec chmod 2775 {} \;
+              ensure_var_dirs() {
+                mkdir -p var/cache var/log var/sessions
+                chgrp www-data var/cache var/log var/sessions
+                chmod 2775 var/cache var/log var/sessions
               }
 
+              echo "🧹 Clear stale cache"
+              if [ -d var/cache ] && ! rm -rf var/cache; then
+                echo "❌ Cannot remove var/cache (files owned by another user)."
+                echo "   Run once on the server as root:"
+                echo "   sudo rm -rf $DEPLOY_PATH/var/cache"
+                echo "   sudo chown -R tom:www-data $DEPLOY_PATH/var"
+                exit 1
+              fi
+
               echo "📁 Prepare var directories"
-              mkdir -p var/cache var/log var/sessions
+              ensure_var_dirs
 
               echo "📦 Composer install"
               APP_ENV=prod APP_DEBUG=0 composer install \
@@ -104,16 +113,10 @@ jobs:
                 --optimize-autoloader \
                 --no-scripts
 
-              echo "🔐 Fix permissions"
-              fix_var_permissions
-
               echo "🧹 Symfony cache"
               APP_ENV=prod APP_DEBUG=0 php bin/console assets:install public --no-interaction
               APP_ENV=prod APP_DEBUG=0 php bin/console cache:clear --env=prod --no-debug
               APP_ENV=prod APP_DEBUG=0 php bin/console cache:warmup --env=prod --no-debug
-
-              echo "🔐 Re-apply permissions after cache warmup"
-              fix_var_permissions
 
               echo "🧬 Migrations"
               APP_ENV=prod APP_DEBUG=0 php bin/console doctrine:migrations:migrate --no-interaction || true
