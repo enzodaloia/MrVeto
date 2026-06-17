@@ -93,14 +93,27 @@ jobs:
                 chmod 2775 var/cache var/log var/sessions
               }
 
-              echo "🧹 Clear stale cache"
-              if [ -d var/cache ] && ! rm -rf var/cache; then
-                echo "❌ Cannot remove var/cache (files owned by another user)."
+              rotate_stale_cache() {
+                if [ ! -d var/cache ]; then
+                  return 0
+                fi
+
+                backup="var/cache.bak.$(date +%s)"
+                if mv var/cache "$backup"; then
+                  echo "   stale cache moved to $backup"
+                  ls -1dt var/cache.bak.* 2>/dev/null | tail -n +3 | xargs -r rm -rf || true
+                  return 0
+                fi
+
+                echo "❌ Cannot rotate var/cache (no write access on var/)."
                 echo "   Run once on the server as root:"
                 echo "   sudo rm -rf $DEPLOY_PATH/var/cache"
                 echo "   sudo chown -R tom:www-data $DEPLOY_PATH/var"
                 exit 1
-              fi
+              }
+
+              echo "🧹 Clear stale cache"
+              rotate_stale_cache
 
               echo "📁 Prepare var directories"
               ensure_var_dirs
