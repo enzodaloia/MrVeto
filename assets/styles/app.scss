@@ -394,3 +394,17 @@ $theme-colors: $custom-colors;
         transform: translateY(-3px) rotate(45deg);
     }
 }
+
+// ── Bouton SOS urgence : abaissé au maximum sur mobile ──
+@include media-breakpoint-down(lg) {
+    [data-urgence-target="btn"] {
+        width: 44px !important;
+        height: 44px !important;
+    }
+
+    // Rester à droite, mais coller au bord bas
+    div:has(> [data-urgence-target="btn"]) {
+        right: 0.75rem !important;
+        bottom: 0.25rem !important;
+    }
+}
