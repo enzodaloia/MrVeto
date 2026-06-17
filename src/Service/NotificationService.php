@@ -86,22 +86,42 @@ class NotificationService
         $twoMonthsLater = (clone $now)->modify('+2 months');
 
         foreach ($user->getAnimals() as $animal) {
-            if ($animal->getProchainVaccin() !== null) {
-                // Remove the time portion from dates for a strict day/month/year comparison if needed, 
-                // or just check if it's strictly within the 2 months range.
-                // We'll check if the vaccine date is in the future, and within 60 days
-                $diff = $now->diff($animal->getProchainVaccin());
+            $vaccinDate = $animal->getProchainVaccin();
+
+            if ($vaccinDate === null) {
+                $notifications[] = [
+                    'type' => 'vaccin',
+                    'title' => 'Rappel de vaccin',
+                    'message' => sprintf(
+                        'Le vaccin de %s est à mettre à jour.',
+                        $animal->getNom()
+                    ),
+                    'date' => clone $now,
+                ];
+            } else {
+                $diff = $now->diff($vaccinDate);
                 $days = $diff->days;
                 $isInFuture = !$diff->invert;
 
-                if ($isInFuture && $days <= 60) {
-                     $notifications[] = [
+                if (!$isInFuture) {
+                    $notifications[] = [
+                        'type' => 'vaccin',
+                        'title' => 'Vaccin en retard',
+                        'message' => sprintf(
+                            'Le vaccin de %s aurait dû être fait le %s.',
+                            $animal->getNom(),
+                            $vaccinDate->format('d/m/Y')
+                        ),
+                        'date' => clone $now,
+                    ];
+                } elseif ($days <= 60) {
+                    $notifications[] = [
                         'type' => 'vaccin',
                         'title' => 'Rappel de vaccin',
                         'message' => sprintf(
                             'Le vaccin de %s est à faire pour le %s.',
                             $animal->getNom(),
-                            $animal->getProchainVaccin()->format('d/m/Y')
+                            $vaccinDate->format('d/m/Y')
                         ),
                         'date' => clone $now,
                     ];

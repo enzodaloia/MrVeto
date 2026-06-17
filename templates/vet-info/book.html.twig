@@ -1,16 +1,13 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Prendre RDV - Dr.
-	{{ vet.prenom }}
-	{{ vet.nom }}
-{% endblock %}
+{% block title %}Prendre RDV - Dr. {{ vet.prenom }} {{ vet.nom }} - MrVeto{% endblock %}
 
 {% block body %}
 	<div
 		class="container my-5 px-3 rounded-4 py-4" data-controller="book" data-book-animals-value="{{ animalsJson|e('html_attr') }}">
-
+		<h1 class="visually-hidden">Prendre rendez-vous avec le Dr. {{ vet.prenom }} {{ vet.nom }}</h1>
 		<!-- STEPPER -->
-		<div class="d-flex justify-content-center align-items-center mb-4 pt-3 gap-2">
+		<div class="d-flex justify-content-center align-items-center mb-4 pt-3 gap-2" aria-hidden="true">
 			<div class="rounded-circle bg-primary p-1" style="width: 8px; height: 8px;"></div>
 			<div class="bg-neutral-40 rounded" style="width: 40px; height: 2px;"></div>
 			<div class="rounded-circle bg-neutral-60 p-1" style="width: 8px; height: 8px;"></div>
@@ -20,18 +17,18 @@
 
 		<!-- VET SUMMARY CARD -->
 		<div class="card border border-secondary shadow-sm rounded-4 mb-4 bg-white">
-			<div class="card-body p-4 d-flex align-items-center gap-4">
+			<div class="card-body p-4 d-flex align-items-center flex-wrap gap-4">
 				<img src="https://ui-avatars.com/api/?name={{ vet.prenom }}+{{ vet.nom }}&background=random" alt="Dr. {{ vet.prenom }} {{ vet.nom }}" class="rounded-circle shadow-sm object-fit-cover" width="80" height="80">
 
 				<div class="flex-grow-1">
-					<div class="d-flex justify-content-between align-items-start">
+					<div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
 						<div>
 							<h2 class="h5 fw-bold mb-1 text-dark">Dr.
 								{{ vet.prenom }}
 								{{ vet.nom }}</h2>
 							<p class="text-muted mb-1 small">Vétérinaire Généraliste</p>
 							<p class="text-primary small mb-2">
-								<a class="text-decoration-none">{{ vet.adressecabinet|default('123 Rue de la Santé, 75000 ville') }}</a>
+								<span class="text-decoration-none">{{ vet.adressecabinet|default('123 Rue de la Santé, 75000 ville') }}</span>
 								• A 1.2 km</p>
 							<div class="d-flex gap-2 flex-wrap">
 								<span class="badge rounded-pill bg-neutral-20 text-dark fw-normal px-3 py-2">Urgence</span>
@@ -56,12 +53,12 @@
 			{% else %}
 				<!-- Month navigation -->
 				<div class="d-flex justify-content-center align-items-center mb-4">
-					<a href="{{ path('app_vet_book_month', {slug: vet.slug, month: prevMonth}) }}#calendar" class="btn btn-outline-secondary rounded-circle shadow-sm p-2 d-flex align-items-center justify-content-center me-3 border text-decoration-none border-neutral-30 text-neutral-60" style="width: 36px; height: 36px;">
-						<i class="bi bi-chevron-left"></i>
+					<a href="{{ path('app_vet_book_month', {slug: vet.slug, month: prevMonth}) }}#calendar" class="btn btn-outline-secondary rounded-circle shadow-sm p-2 d-flex align-items-center justify-content-center me-3 border text-decoration-none border-neutral-30 text-neutral-60" style="width: 36px; height: 36px;" aria-label="Mois précédent">
+						<i class="bi bi-chevron-left" aria-hidden="true"></i>
 					</a>
 					<span class="fw-semibold mx-3 text-dark">{{ monthLabel }}</span>
-					<a href="{{ path('app_vet_book_month', {slug: vet.slug, month: nextMonth}) }}#calendar" class="btn btn-primary rounded-circle shadow-sm p-2 d-flex align-items-center justify-content-center ms-3 text-white border-0 text-decoration-none" style="width: 36px; height: 36px;">
-						<i class="bi bi-chevron-right"></i>
+					<a href="{{ path('app_vet_book_month', {slug: vet.slug, month: nextMonth}) }}#calendar" class="btn btn-primary rounded-circle shadow-sm p-2 d-flex align-items-center justify-content-center ms-3 text-white border-0 text-decoration-none" style="width: 36px; height: 36px;" aria-label="Mois suivant">
+						<i class="bi bi-chevron-right" aria-hidden="true"></i>
 					</a>
 				</div>
 
@@ -118,7 +115,7 @@
 				{% if morningSlots is empty and afternoonSlots is empty %}
 					<div class="alert alert-info">Aucun créneau disponible pour cette date.</div>
 				{% else %}
-					<div class="row w-100 mt-2">
+					<div class="row mt-2 mx-0">
 						{% if morningSlots is not empty %}
 							<div class="col-md-6 {{ afternoonSlots is not empty ? 'border-end' : '' }}">
 								<h4 class="h6 fw-bold mb-3 text-start ps-3">Matin</h4>
@@ -178,7 +175,7 @@
 						</button>
 					{% endfor %}
 					<button type="button" class="btn bg-white border-neutral-40 text-primary rounded-pill px-3 py-2 fw-medium" id="newAnimalBtn">
-						<i class="bi bi-plus-lg"></i>
+						<i class="bi bi-plus-lg" aria-hidden="true"></i>
 						Nouvel animal
 					</button>
 				</div>
@@ -197,19 +194,19 @@
 
 				<div class="row g-4 mb-4">
 					<div class="col-md-6">
-						<label class="form-label fw-medium text-primary">Nom de l'animal
+						<label class="form-label fw-medium text-primary" for="animalNom">Nom de l'animal
 							<span class="text-danger">*</span>
 						</label>
 						<input type="text" id="animalNom" name="animalNom" class="form-control rounded-pill border-light-subtle shadow-sm px-3" placeholder="Saisir le nom de l'animal" required>
 					</div>
 					<div class="col-md-6">
-						<label class="form-label fw-medium text-primary">Espèce
+						<label class="form-label fw-medium text-primary" for="animalEspece">Espèce
 							<span class="text-danger">*</span>
 						</label>
 						<input type="text" id="animalEspece" name="animalEspece" class="form-control rounded-pill border-light-subtle shadow-sm px-3" placeholder="Saisir le nom de l'espèce" required>
 					</div>
 					<div class="col-md-6">
-						<label class="form-label fw-medium text-primary">Âge
+						<label class="form-label fw-medium text-primary" for="animalAge">Âge
 							<span class="text-danger">*</span>
 						</label>
 						<input type="text" id="animalAge" name="animalAge" class="form-control rounded-pill border-light-subtle shadow-sm px-3" placeholder="(ex: 10 ans)" required>
@@ -229,11 +226,11 @@
 					</div>
 
 					<div class="col-md-6">
-						<label class="form-label fw-medium text-primary">Race (optionnel)</label>
+						<label class="form-label fw-medium text-primary" for="animalRace">Race (optionnel)</label>
 						<input type="text" id="animalRace" name="animalRace" class="form-control rounded-pill border-light-subtle shadow-sm px-3" placeholder="Entrer race">
 					</div>
 					<div class="col-md-6">
-						<label class="form-label fw-medium text-primary">Poids (optionnel)</label>
+						<label class="form-label fw-medium text-primary" for="animalPoids">Poids (optionnel)</label>
 						<input type="text" id="animalPoids" name="animalPoids" class="form-control rounded-pill border-light-subtle shadow-sm px-3" placeholder="(ex: 12 kg)">
 					</div>
 				</div>
@@ -242,7 +239,7 @@
 
 				<div class="d-flex align-items-center gap-4">
 					<button type="button" class="btn btn-danger text-white rounded-pill px-4 py-2 fw-bold shadow-sm fs-6 border-0 d-flex align-items-center gap-2" id="clearAnimalFormBtn">
-						<i class="bi bi-x fs-5"></i>
+						<i class="bi bi-x fs-5" aria-hidden="true"></i>
 						Tout supprimer
 					</button>
 				</div>
@@ -254,13 +251,13 @@
 					<h3 class="h5 fw-bold mb-4 text-info-pressed">Détails de la consultation</h3>
 					<div class="row g-4">
 						<div class="col-12">
-							<label class="form-label fw-medium text-primary">Motif de consultation
+							<label class="form-label fw-medium text-primary" for="rdvMotif">Motif de consultation
 								<span class="text-danger">*</span>
 							</label>
 							<textarea id="rdvMotif" name="rdvMotif" class="form-control rounded-4 border-light-subtle shadow-sm p-3" rows="2" style="resize: none;" placeholder="Saisir le motif de consultation" required></textarea>
 						</div>
 						<div class="col-12">
-							<label class="form-label fw-medium text-primary">Remarque</label>
+							<label class="form-label fw-medium text-primary" for="rdvRemarque">Remarque</label>
 							<textarea id="rdvRemarque" name="rdvRemarque" class="form-control rounded-4 border-light-subtle shadow-sm p-3" rows="3" style="resize: none;" placeholder="Saisir vos remarques"></textarea>
 						</div>
 					</div>
