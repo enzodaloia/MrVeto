@@ -53,6 +53,7 @@
 
 	<div class="container-fluid py-4 px-4 min-vh-100">
 		<div class="mx-auto" style="max-width: 1200px;">
+			<h1 class="visually-hidden">Gestion des utilisateurs</h1>
 
 			{% for message in app.flashes('success') %}
 				<div class="alert alert-success rounded-3 border-0 shadow-sm mb-3">{{ message }}</div>
@@ -62,8 +63,9 @@
 				<div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
 					<div class="input-group rounded-pill overflow-hidden border border-info bg-white" style="max-width:320px;">
 						<span class="input-group-text bg-white border-0">
-							<i data-lucide="search" style="width:15px;height:15px;" class="text-info"></i>
+							<i data-lucide="search" style="width:15px;height:15px;" class="text-info" aria-hidden="true"></i>
 						</span>
+						<label for="search-input" class="visually-hidden">Rechercher par mail ou nom</label>
 						<input type="text" id="search-input" class="form-control border-0 shadow-none text-info" placeholder="Rechercher par mail/ nom">
 					</div>
 
@@ -228,11 +230,11 @@
 
 									<td class="text-end pe-4">
 										<div class="d-flex align-items-center justify-content-end gap-3 flex-nowrap">
-											<button type="button" class="action-btn btn btn-link p-0 btn-show-user" style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#userModal" data-url="{{ path('app_user_admin_show', {'slug': user.slug}) }}">
-												<i data-lucide="eye"></i>
+											<button type="button" class="action-btn btn btn-link p-0 btn-show-user" style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#userModal" data-url="{{ path('app_user_admin_show', {'slug': user.slug}) }}" aria-label="Voir l'utilisateur">
+												<i data-lucide="eye" aria-hidden="true"></i>
 											</button>
-											<a href="{{ path('app_user_admin_edit', {'slug': user.slug}) }}" class="action-btn btn btn-link p-0 text-info" style="cursor:pointer;" data-turbo="false">
-												<i data-lucide="pencil"></i>
+											<a href="{{ path('app_user_admin_edit', {'slug': user.slug}) }}" class="action-btn btn btn-link p-0 text-info" style="cursor:pointer;" data-turbo="false" aria-label="Modifier l'utilisateur">
+												<i data-lucide="pencil" aria-hidden="true"></i>
 											</a>
 
 											{{ include('user_admin/_delete_form.html.twig', { prefix: 'desktop' }) }}
@@ -252,8 +254,9 @@
 				<div class="d-flex flex-column gap-2 mb-4">
 					<div class="input-group rounded-pill overflow-hidden border border-info bg-white">
 						<span class="input-group-text bg-white border-0">
-							<i data-lucide="search" style="width:15px;height:15px;" class="text-info"></i>
+							<i data-lucide="search" style="width:15px;height:15px;" class="text-info" aria-hidden="true"></i>
 						</span>
+						<label for="search-input-mobile" class="visually-hidden">Rechercher par mail ou nom (mobile)</label>
 						<input type="text" id="search-input-mobile" class="form-control border-0 shadow-none text-info" placeholder="Rechercher par mail/ nom">
 					</div>
 
@@ -396,11 +399,11 @@
 							</div>
 
 							<div class="d-flex justify-content-end gap-2 border-top mt-3 pt-3">
-								<button type="button" class="action-btn btn btn-link p-1 btn-show-user" data-bs-toggle="modal" data-bs-target="#userModal" data-url="{{ path('app_user_admin_show', {'slug': user.slug}) }}">
-									<i data-lucide="eye"></i>
+								<button type="button" class="action-btn btn btn-link p-1 btn-show-user" data-bs-toggle="modal" data-bs-target="#userModal" data-url="{{ path('app_user_admin_show', {'slug': user.slug}) }}" aria-label="Voir l'utilisateur">
+									<i data-lucide="eye" aria-hidden="true"></i>
 								</button>
-								<a href="{{ path('app_user_admin_edit', {'slug': user.slug}) }}" class="action-btn btn btn-link p-1 text-info" data-turbo="false">
-									<i data-lucide="pencil"></i>
+								<a href="{{ path('app_user_admin_edit', {'slug': user.slug}) }}" class="action-btn btn btn-link p-1 text-info" data-turbo="false" aria-label="Modifier l'utilisateur">
+									<i data-lucide="pencil" aria-hidden="true"></i>
 								</a>
 
 								{{ include('user_admin/_delete_form.html.twig', { prefix: 'mobile' }) }}
@@ -417,10 +420,10 @@
 		</div>
 	</div>
 
-	<div class="modal fade" id="userModal" tabindex="-1">
+	<div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalTitle" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered modal-lg">
 			<div class="modal-content rounded-4 border-0 shadow">
-
+				<h2 id="userModalTitle" class="visually-hidden">Détails de l'utilisateur</h2>
 				<div class="modal-body" id="userModalContent">
 					<div class="text-center py-5 text-muted">
 						Chargement...

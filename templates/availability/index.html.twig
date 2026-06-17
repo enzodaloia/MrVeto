@@ -100,7 +100,7 @@
 
 	<div class="container-fluid py-3 py-md-4 px-3 px-md-4">
 		<div id="week-view" class="mx-auto w-100" style="max-width:1106px;">
-
+            <h1 class="visually-hidden">Disponibilités</h1>
 
 			<div class="week-header mb-4">
 
@@ -119,7 +119,7 @@
         <button type="button"
                 id="btn-show-form"
                 class="btn btn-primary rounded-pill d-inline-flex align-items-center gap-2 text-white">
-            <i data-lucide="pencil"></i>
+            <i data-lucide="pencil" aria-hidden="true"></i>
             Modifier mes horaires
         </button>
 
@@ -266,8 +266,8 @@
 													{{ data.dayOfWork.jour.libelle }}</label>
 												<div class="tw">
 													{{ form_widget(horaire.morningStart, {
+                                                        id: morningStartId,
                                                         attr: {
-                                                            id: morningStartId,
                                                             class: 'form-control time-no-icon morning-start',
                                                             'aria-label': 'Heure de début du matin pour ' ~ data.dayOfWork.jour.libelle,
                                                             'aria-describedby': errorId
@@ -282,8 +282,8 @@
 													{{ data.dayOfWork.jour.libelle }}</label>
 												<div class="tw">
 													{{ form_widget(horaire.morningEnd, {
+                                                        id: morningEndId,
                                                         attr: {
-                                                            id: morningEndId,
                                                             class: 'form-control time-no-icon morning-end',
                                                             'aria-label': 'Heure de fin du matin pour ' ~ data.dayOfWork.jour.libelle,
                                                             'aria-describedby': errorId
@@ -302,8 +302,8 @@
 													{{ data.dayOfWork.jour.libelle }}</label>
 												<div class="tw">
 													{{ form_widget(horaire.afternoonStart, {
+                                                        id: afternoonStartId,
                                                         attr: {
-                                                            id: afternoonStartId,
                                                             class: 'form-control time-no-icon afternoon-start',
                                                             'aria-label': 'Heure de début de l\'après-midi pour ' ~ data.dayOfWork.jour.libelle,
                                                             'aria-describedby': errorId
@@ -317,8 +317,8 @@
                                                 <label for="{{ afternoonEndId }}" class="visually-hidden">Heure de fin de l'après-midi pour {{ data.dayOfWork.jour.libelle }}</label>
 												<div class="tw">
 													{{ form_widget(horaire.afternoonEnd, {
+                                                        id: afternoonEndId,
                                                         attr: {
-                                                            id: afternoonEndId,
                                                             class: 'form-control time-no-icon afternoon-end',
                                                             'aria-label': 'Heure de fin de l\'après-midi pour ' ~ data.dayOfWork.jour.libelle,
                                                             'aria-describedby': errorId
@@ -339,8 +339,8 @@
 
 										<p class="closed-text small text-neutral-50 mb-0">Aucune plage horaire définie</p>
 
-										<div class="d-none">
-											{{ form_widget(horaire.dayOfWork) }}
+										<div class="d-none" aria-hidden="true">
+											{{ form_widget(horaire.dayOfWork, {'attr': {'aria-label': 'Jour de travail', 'tabindex': '-1'}}) }}
 										</div>
 
 										<div class="mt-1" id="{{ errorId }}" aria-live="polite">
