@@ -7,7 +7,7 @@
 
     <!-- Main Form -->
     <main class="d-flex justify-content-center align-items-center py-5" style="min-height: 90vh;">
-        <form method="post" class="w-100" style="max-width: 600px;">
+        <form method="post" class="w-100 px-4 px-sm-5" style="max-width: 600px;">
             
             <h2 class="text-center mb-4" style="color: #36BDAF;">Connexion</h2>
 
@@ -25,24 +25,24 @@
                 <label for="inputPassword">Mot de passe</label>
 
                 <!-- Bouton toggle avec Font Awesome -->
-                <button type="button" id="togglePassword" class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2" style="z-index: 2;">
-                    <i class="fa-solid fa-eye"></i>
+                <button type="button" id="togglePassword" class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2" style="z-index: 2;" aria-label="Afficher le mot de passe">
+                    <i class="fa-solid fa-eye" aria-hidden="true"></i>
                 </button>
             </div>
 
             <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="_remember_me" id="remember_me">
-                    <label class="form-check-label" for="remember_me">Se souvenir de moi</label>
-                </div>
+            <div class="mb-2 form-check">
+                <input class="form-check-input" type="checkbox" name="_remember_me" id="remember_me">
+                <label class="form-check-label" for="remember_me">Se souvenir de moi</label>
+            </div>
+            <div class="text-end mb-4">
                 <a href="{{ path('app_forgot_password_request') }}" class="text-danger small">Mot de passe oublié?</a>
             </div>
 
-            <center>
+            <div class="text-center">
                 <button class="btn w-50 mb-3" style="background-color: #36BDAF; color: white;" type="submit">Se connecter</button>
-            </center>
+            </div>
 
             {% if not app.user %}
                 <div class="text-center small text-muted">
@@ -65,6 +65,9 @@
         // Changer l'icône
         toggleIcon.classList.toggle('fa-eye');
         toggleIcon.classList.toggle('fa-eye-slash');
+
+        // Mettre à jour l'aria-label pour l'accessibilité
+        togglePassword.setAttribute('aria-label', type === 'text' ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
     });
 </script>
 {% endblock %}
