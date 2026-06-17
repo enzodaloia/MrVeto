@@ -1,9 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Modifier
-	{{ user.prenom }}
-	{{ user.nom }}
-{% endblock %}
+{% block title %}Modifier {{ user.prenom }} {{ user.nom }} - MrVeto{% endblock %}
 
 {% form_theme form 'bootstrap_5_layout.html.twig' %}
 
