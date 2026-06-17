@@ -79,7 +79,14 @@ class Animal
         return $this;
     }
 
-    public function isVaccinAJour(): ?bool { return $this->vaccinAJour; }
+    public function isVaccinAJour(): ?bool { 
+        if ($this->prochainVaccin === null) {
+            return false;
+        }
+        $now = new \DateTime();
+        $now->setTime(0, 0, 0);
+        return $this->prochainVaccin >= $now;
+    }
     public function setVaccinAJour(?bool $vaccinAJour): static
     {
         $this->vaccinAJour = $vaccinAJour;

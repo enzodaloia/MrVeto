@@ -4,10 +4,9 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>
-			{% block title %}Welcome!
-			{% endblock %}
+			{% block title %}MrVeto{% endblock %}
 		</title>
-		<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
+		<link rel="icon" type="image/png" href="{{ asset('assets/img/MrVeto.png') }}">
 		{% block stylesheets %}
 			{{ encore_entry_link_tags('app') }}
 		{% endblock %}
@@ -85,7 +84,7 @@
 								<i class="bi bi-people fs-5"></i> Patients
 							</a>
 							<a href="{{ path('app_rendezvous') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_rendezvous' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
-								<i class="bi bi-calendar-event fs-5"></i> Mes Rendez-vous
+								<i class="bi bi-calendar-event fs-5"></i> Rendez-vous
 							</a>
 
 						{% elseif is_granted('ROLE_ADMIN') %}
@@ -262,7 +261,7 @@
 								{% elseif is_granted('ROLE_SECRETARY') %}
 									<a href="{{ path('app_home') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-grid fs-5 w-20px text-center"></i> Tableau de bord</a>
 									<a href="{{ path('app_vet_patients') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route starts with 'app_vet_patients' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-people fs-5 w-20px text-center"></i> Carnets de santé</a>
-									<a href="{{ path('app_rendezvous') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_rendezvous' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-calendar-event fs-5 w-20px text-center"></i> Mes Rendez-vous</a>
+									<a href="{{ path('app_rendezvous') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_rendezvous' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-calendar-event fs-5 w-20px text-center"></i> Rendez-vous</a>
 								{% elseif is_granted('ROLE_ADMIN') %}
 									<a href="{{ path('app_home') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
 										<i class="bi bi-grid fs-5 w-20px text-center"></i>

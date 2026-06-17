@@ -1,8 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}
-    {{ user.prenom }} {{ user.nom }}
-{% endblock %}
+{% block title %}{{ user.prenom }} {{ user.nom }} - MrVeto{% endblock %}
 
 {% block body %}
     {{ block('page_content') }}
