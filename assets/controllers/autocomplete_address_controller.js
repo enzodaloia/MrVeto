@@ -1,7 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
-    static targets = ["input", "results", "lat", "lon", "city", "postcode", "street", "cityDisplay", "postcodeDisplay"];
+    static targets = ["input", "results", "lat", "lon", "city", "postcode", "street", "cityDisplay", "postcodeDisplay", "fullAddress"];
     static values = {
         theme: { type: String, default: 'search' } // 'search' or 'form'
     };
@@ -80,12 +80,22 @@ export default class extends Controller {
 
         // Set a new timeout for 1 second (1000ms)
         this.timeout = setTimeout(async () => {
+            // Re-vérification au moment de l'exécution (autofill navigateur, re-render Turbo)
+            const currentQuery = this.inputTarget.value.trim();
+            if (currentQuery.length < 3 || !/^[0-9A-Za-z]/.test(currentQuery)) {
+                return;
+            }
             try {
-                let url = `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(trimmedQuery)}&limit=10`;
+                let url = `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(currentQuery)}&limit=10`;
                 if (this.themeValue === 'search') {
                     url += `&type=municipality`;
                 }
                 const response = await fetch(url);
+                if (!response.ok) {
+                    this.resultsTarget.innerHTML = '';
+                    this.resetStyles(inputWrapper);
+                    return;
+                }
                 const data = await response.json();
 
                 this.resultsTarget.innerHTML = '';
@@ -203,6 +213,10 @@ export default class extends Controller {
             } else {
                 this.streetTarget.value = ''; // Don't put city name in street field
             }
+        }
+
+        if (this.hasFullAddressTarget) {
+            this.fullAddressTarget.value = label || feature.properties.label;
         }
 
         // Clear results

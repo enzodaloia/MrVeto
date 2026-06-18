@@ -14,6 +14,8 @@ use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\LessThanOrEqual;
+use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -29,18 +31,21 @@ class RegistrationFormType extends AbstractType
                 'required' => true,
                 'constraints' => [
                     new NotBlank(['message' => 'L\'email est obligatoire.']),
+                    new Email(['message' => 'L\'adresse email "{{ value }}" n\'est pas valide.']),
                 ],
             ])
             ->add('nom', TextType::class, [
                 'required' => true,
                 'constraints' => [
                     new NotBlank(['message' => 'Le nom est obligatoire.']),
+                    new Length(['min' => 2, 'minMessage' => 'Le nom doit comporter au moins {{ limit }} caractères.']),
                 ],
             ])
             ->add('prenom', TextType::class, [
                 'required' => true,
                 'constraints' => [
                     new NotBlank(['message' => 'Le prénom est obligatoire.']),
+                    new Length(['min' => 2, 'minMessage' => 'Le prénom doit comporter au moins {{ limit }} caractères.']),
                 ],
             ]);
 
@@ -80,7 +85,10 @@ class RegistrationFormType extends AbstractType
                 ])
                 ->add('siret', TextType::class, [
                     'required' => true,
-                    'constraints' => [new NotBlank(['message' => 'Le numéro SIRET est obligatoire.'])],
+                    'constraints' => [
+                        new NotBlank(['message' => 'Le numéro SIRET est obligatoire.']),
+                        new Regex(['pattern' => '/^\d{14}$/', 'message' => 'Le SIRET doit comporter exactement 14 chiffres.']),
+                    ],
                 ])
                 ->add('latitude', HiddenType::class, ['required' => false])
                 ->add('longitude', HiddenType::class, ['required' => false]);
