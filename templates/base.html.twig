@@ -291,7 +291,7 @@
 					<!-- Disconnected / Public Navbar -->
 					<nav class="navbar navbar-expand-lg navbar-light bg-warning-bg py-4 shadow-sm">
 						<div class="container-fluid px-lg-5">
-							<a class="navbar-brand fw-bold text-dark" href="{{ path('app_home') }}"><img src="{{ asset('assets/img/MrVeto.png') }}" alt="Logo MrVeto" class="img-fluid" width="100"></a>
+							<a class="navbar-brand fw-bold text-dark" href="{{ path('app_home') }}" aria-label="MrVeto, retour à l'accueil"><img src="{{ asset('assets/img/MrVeto.png') }}" alt="" class="img-fluid" width="100"></a>
 
 							<button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
 								<span class="navbar-toggler-icon"></span>
@@ -299,7 +299,7 @@
 
 							<div class="collapse navbar-collapse mt-3 mt-lg-0" id="navbarContent">
 								<div class="bg-white rounded-4 rounded-lg-pill px-4 py-3 py-lg-2 shadow-sm d-flex flex-column flex-lg-row gap-3 gap-lg-4 align-items-start align-items-lg-center mx-auto">
-									<a class="nav-link text-muted hover-text-primary d-flex align-items-center gap-2" href="{{ path('app_home') }}">
+									<a class="nav-link text-muted hover-text-primary d-flex align-items-center gap-2" href="{{ path('app_home') }}" {% if app.request.attributes.get('_route') == 'app_home' %}aria-current="page"{% endif %}>
 										<i class="bi bi-house d-inline-block d-lg-none"></i>
 										Accueil
 									</a>
