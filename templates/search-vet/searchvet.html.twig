@@ -109,7 +109,7 @@
                                class="d-none filter-toggle" {{ filterUrgentiste ? 'checked' : '' }}>
                         <span class="filter-btn filter-btn-urgence btn rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center gap-2
                                      {{ filterUrgentiste ? 'active' : '' }}">
-                            🚨 Urgences 24h
+                            <i class="bi bi-bell-fill" aria-hidden="true"></i> Urgences 24h
                         </span>
                     </label>
 
@@ -230,7 +230,7 @@
                                     {% if vp %}
                                     <div class="d-flex flex-wrap gap-1 mb-2">
                                         {% if vp.isUrgentiste %}
-                                            <span class="badge rounded-pill text-white px-2 py-1" style="background-color:#e84545;font-size:0.72rem;">🚨 Urgences 24h</span>
+                                            <span class="badge rounded-pill text-white px-2 py-1" style="background-color:#e84545;font-size:0.72rem;"><i class="bi bi-bell-fill me-1" aria-hidden="true"></i>Urgences 24h</span>
                                         {% endif %}
                                         {% for spec in vp.specialites|slice(0, 2) %}
                                             <span class="badge rounded-pill bg-primary-subtle text-primary px-2 py-1" style="font-size:0.72rem;">{{ spec.label }}</span>
