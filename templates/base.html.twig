@@ -48,10 +48,6 @@
 					</a>
 					<div class="d-flex flex-column gap-2 px-3 mt-3 flex-grow-1">
 						{% if is_granted('ROLE_VETO') %}
-							<a href="{{ path('app_home') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}" data-turbo="false">
-								<i class="bi bi-grid fs-5"></i>
-								Tableau de bord
-							</a>
 							<a href="{{ path('app_vet_planning') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route starts with 'app_vet_planning' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}" data-turbo="false">
 								<i class="bi bi-calendar-week fs-5"></i>
 								Planning
@@ -77,9 +73,6 @@
 								Cabinets
 							</a>
 						{% elseif is_granted('ROLE_SECRETARY') %}
-							<a href="{{ path('app_home') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
-								<i class="bi bi-grid fs-5"></i> Tableau de bord
-							</a>
 							<a href="{{ path('app_vet_patients') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route starts with 'app_vet_patients' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
 								<i class="bi bi-people fs-5"></i> Patients
 							</a>
@@ -88,10 +81,6 @@
 							</a>
 
 						{% elseif is_granted('ROLE_ADMIN') %}
-							<a href="{{ path('app_home') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
-								<i class="bi bi-grid fs-5"></i>
-								Tableau de bord
-							</a>
 							<a href="{{ path('app_admin_cabinet_index') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route starts with 'app_admin_cabinet_' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
 								<i class="bi bi-building fs-5"></i>
 								Cabinets
@@ -104,10 +93,6 @@
 							<a href="{{ path('app_search_vet') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_search_vet' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
 								<i class="bi bi-search fs-5"></i>
 								Recherche
-							</a>
-							<a href="#" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
-								<i class="bi bi-grid fs-5"></i>
-								Tableau de bord
 							</a>
 							<a href="{{ path('app_animaux') }}" class="text-decoration-none p-2 rounded fw-medium d-flex align-items-center gap-3 {% if current_route starts with 'app_animaux' %}bg-primary-bg text-primary fw-bold{% else %}text-muted hover-bg-light{% endif %}">
 								<i class="bi bi-heart fs-5"></i>
@@ -251,7 +236,6 @@
 
 							<div class="d-flex flex-column gap-2 mb-2">
 								{% if is_granted('ROLE_VETO') %}
-									<a href="{{ path('app_home') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-grid fs-5 w-20px text-center"></i> Tableau de bord</a>
 									<a href="{{ path('app_vet_planning') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route starts with 'app_vet_planning' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-calendar-week fs-5 w-20px text-center"></i> Planning</a>
 							<a href="{{ path('app_availability') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_availability' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-calendar-check fs-5 w-20px text-center"></i> Disponibilités</a>
 									<a href="{{ path('app_vet_patients') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route starts with 'app_vet_patients' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-people fs-5 w-20px text-center"></i> Patients</a>
@@ -259,13 +243,9 @@
 									<a href="{{ path('app_archives') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_archives' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-archive fs-5 w-20px text-center"></i> Archives</a>
 									<a href="{{ path('app_vet_cabinet_index') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route starts with 'app_vet_cabinet_' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-building fs-5 w-20px text-center"></i> Cabinets</a>
 								{% elseif is_granted('ROLE_SECRETARY') %}
-									<a href="{{ path('app_home') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-grid fs-5 w-20px text-center"></i> Tableau de bord</a>
 									<a href="{{ path('app_vet_patients') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route starts with 'app_vet_patients' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-people fs-5 w-20px text-center"></i> Carnets de santé</a>
 									<a href="{{ path('app_rendezvous') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_rendezvous' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}"><i class="bi bi-calendar-event fs-5 w-20px text-center"></i> Rendez-vous</a>
 								{% elseif is_granted('ROLE_ADMIN') %}
-									<a href="{{ path('app_home') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
-										<i class="bi bi-grid fs-5 w-20px text-center"></i>
-										Tableau de bord</a>
 									<a href="{{ path('app_admin_cabinet_index') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route starts with 'app_admin_cabinet_' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
 										<i class="bi bi-building fs-5 w-20px text-center"></i>
 										Cabinets</a>
@@ -276,9 +256,6 @@
 									<a href="{{ path('app_search_vet') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_search_vet' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
 										<i class="bi bi-search fs-5 w-20px text-center"></i>
 										Recherche</a>
-									<a href="#" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route == 'app_home' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
-										<i class="bi bi-grid fs-5 w-20px text-center"></i>
-										Tableau de bord</a>
 									<a href="{{ path('app_animaux') }}" class="nav-link fw-medium d-flex align-items-center gap-3 py-2 px-2 rounded {% if current_route starts with 'app_animaux' %}bg-primary-bg text-primary fw-bold{% else %}text-muted{% endif %}">
 										<i class="bi bi-heart fs-5 w-20px text-center"></i>
 										Mes Animaux</a>
@@ -369,7 +346,7 @@
 						        style="width:58px;height:58px;background:#e84545;"
 						        aria-label="Trouver un vétérinaire urgentiste proche"
 						        title="Trouver un vétérinaire urgentiste proche">
-							<span data-urgence-target="icon" aria-hidden="true">🚨</span>
+							<i data-lucide="siren" data-urgence-target="icon" style="width:26px;height:26px;" aria-hidden="true"></i>
 							<span data-urgence-target="spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
 						</button>
 					</div>
@@ -382,7 +359,9 @@
 							{# Header gradient #}
 							<div class="position-relative text-center px-4 pt-4 pb-3" style="background: linear-gradient(135deg, #c0392b 0%, #e84545 100%);">
 								<button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Fermer"></button>
-								<div class="mb-2" style="font-size:2.2rem; line-height:1; filter:drop-shadow(0 2px 6px rgba(0,0,0,.3));">🚨</div>
+								<div class="mb-2">
+								<i data-lucide="siren" style="width:48px;height:48px;color:#fff;filter:drop-shadow(0 2px 6px rgba(0,0,0,.3));" aria-hidden="true"></i>
+							</div>
 								<h5 class="text-white fw-bold mb-0 lh-1" id="urgenceModalLabel">Urgence vétérinaire</h5>
 								<p class="text-white opacity-75 small mb-0 mt-1">Vétérinaire urgentiste le plus proche</p>
 							</div>
@@ -392,7 +371,7 @@
 								{# Erreur #}
 								<div data-urgence-target="errorWrapper" class="d-none">
 									<div class="d-flex flex-column align-items-center text-center py-2 gap-3">
-										<span style="font-size:2rem;">😔</span>
+										<i data-lucide="circle-x" style="width:40px;height:40px;color:#adb5bd;" aria-hidden="true"></i>
 										<p class="text-muted small mb-0" data-urgence-target="errorMsg"></p>
 									</div>
 								</div>
