@@ -24,7 +24,7 @@ class VetInfoController extends AbstractController
     #[Route('/veterinaire/{slug}', name: 'app_vet_info')]
     public function index(#[MapEntity(mapping: ['slug' => 'slug'])] User $vet = null, DayOfWorkRepository $dayOfWorkRepository, SpecialiteRepository $specialiteRepository): Response
     {
-        if (!$vet || !in_array('ROLE_VETO', $vet->getRoles())) {
+        if (!$vet || !in_array('ROLE_VETO', $vet->getRoles()) || $vet->getArchivedAt() !== null) {
             throw new NotFoundHttpException('Vétérinaire non trouvé.');
         }
 
@@ -95,7 +95,7 @@ class VetInfoController extends AbstractController
         EntityManagerInterface $em,
         SpecialiteRepository $specialiteRepository,
     ): JsonResponse {
-        if (!$vet || !in_array('ROLE_VETO', $vet->getRoles())) {
+        if (!$vet || !in_array('ROLE_VETO', $vet->getRoles()) || $vet->getArchivedAt() !== null) {
             return $this->json(['error' => 'Vétérinaire introuvable.'], 404);
         }
 
@@ -378,7 +378,7 @@ class VetInfoController extends AbstractController
         AnimalRepository $animalRepository,
         EntityManagerInterface $em,
     ): Response {
-        if (!$vet || !in_array('ROLE_VETO', $vet->getRoles())) {
+        if (!$vet || !in_array('ROLE_VETO', $vet->getRoles()) || $vet->getArchivedAt() !== null) {
             throw new NotFoundHttpException('Vétérinaire non trouvé.');
         }
 
@@ -393,7 +393,7 @@ class VetInfoController extends AbstractController
         AnimalRepository $animalRepository,
         EntityManagerInterface $em,
     ): Response {
-        if (!$vet || !in_array('ROLE_VETO', $vet->getRoles())) {
+        if (!$vet || !in_array('ROLE_VETO', $vet->getRoles()) || $vet->getArchivedAt() !== null) {
             throw new NotFoundHttpException('Vétérinaire non trouvé.');
         }
 
@@ -407,7 +407,7 @@ class VetInfoController extends AbstractController
         AnimalRepository $animalRepository,
         EntityManagerInterface $em,
     ): Response {
-        if (!$vet || !in_array('ROLE_VETO', $vet->getRoles())) {
+        if (!$vet || !in_array('ROLE_VETO', $vet->getRoles()) || $vet->getArchivedAt() !== null) {
             throw new NotFoundHttpException('Vétérinaire non trouvé.');
         }
 
@@ -604,7 +604,7 @@ class VetInfoController extends AbstractController
     #[Route('/veterinaire/{slug}/reserver/confirmation', name: 'app_vet_book_confirm', methods: ['POST'])]
     public function confirmBooking(Request $request, #[MapEntity(mapping: ['slug' => 'slug'])] User $vet = null, AnimalRepository $animalRepository, EntityManagerInterface $em): Response
     {
-        if (!$vet || !in_array('ROLE_VETO', $vet->getRoles())) {
+        if (!$vet || !in_array('ROLE_VETO', $vet->getRoles()) || $vet->getArchivedAt() !== null) {
             throw new NotFoundHttpException('Vétérinaire non trouvé.');
         }
 
@@ -699,7 +699,7 @@ class VetInfoController extends AbstractController
     #[Route('/veterinaire/{slug}/reserver/sauvegarder', name: 'app_vet_book_save', methods: ['POST'])]
     public function saveRendezVous(Request $request, #[MapEntity(mapping: ['slug' => 'slug'])] User $vet = null, EntityManagerInterface $em, AnimalRepository $animalRepository): Response
     {
-        if (!$vet || !in_array('ROLE_VETO', $vet->getRoles())) {
+        if (!$vet || !in_array('ROLE_VETO', $vet->getRoles()) || $vet->getArchivedAt() !== null) {
             throw new NotFoundHttpException('Vétérinaire non trouvé.');
         }
 

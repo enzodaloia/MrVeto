@@ -12,7 +12,21 @@
             <h2 class="text-center mb-4" style="color: #36BDAF;">Connexion</h2>
 
             {% if error %}
-                <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                {% if error.messageKey == 'VOTRE_COMPTE_EN_ATTENTE' or error.messageData is defined %}
+                    <!-- DEBUG error key is {{ error.messageKey }} -->
+                {% endif %}
+
+                {% if error.messageKey == 'VOTRE_COMPTE_EN_ATTENTE' or error.messageKey == 'CustomUserMessageAccountStatusException' %}
+                    <button type="button" id="triggerPendingModal" class="d-none" data-bs-toggle="modal" data-bs-target="#pendingValidationModal"></button>
+                    <script>
+                        setTimeout(function() {
+                            var btn = document.getElementById('triggerPendingModal');
+                            if (btn) btn.click();
+                        }, 100);
+                    </script>
+                {% else %}
+                    <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                {% endif %}
             {% endif %}
 
             <div class="mb-3 form-floating">
@@ -70,4 +84,23 @@
         togglePassword.setAttribute('aria-label', type === 'text' ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
     });
 </script>
+
+<!-- Modal pour compte en attente -->
+<div class="modal fade" id="pendingValidationModal" tabindex="-1" aria-labelledby="pendingValidationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow">
+      <div class="modal-header border-0 pb-0">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body text-center pb-5 px-4">
+        <div class="mb-4 text-warning">
+            <i class="fa-solid fa-clock fa-4x"></i>
+        </div>
+        <h4 class="fw-bold mb-3" id="pendingValidationModalLabel" style="color: #36BDAF;">Compte en attente</h4>
+        <p class="text-muted">Votre compte vétérinaire est actuellement en cours de validation par notre équipe.<br><br>Merci pour votre patience !</p>
+        <button type="button" class="btn text-white w-100 mt-3" style="background-color: #36BDAF; border-radius: 12px; padding: 12px;" data-bs-dismiss="modal">J'ai compris</button>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
