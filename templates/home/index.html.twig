@@ -26,7 +26,7 @@
 				<div class="col-12 col-md-6">
 					<div class="p-3">
 						<h1 class="text-primary">Prendre rendez-vous chez un vétérinaire</h1>
-						<p class="text-info">Trouvez rapidement un vétérinaire disponible près de chez vous.</p>
+						<p class="text-body-secondary">Trouvez rapidement un vétérinaire disponible près de chez vous.</p>
 					</div>
 					<div class="p-3">
 						<form action="{{ path('app_search_vet') }}" method="get" data-controller="autocomplete-address" data-autocomplete-address-theme-value="search" data-action="submit->autocomplete-address#onSubmit">
@@ -44,13 +44,13 @@
 								<input type="hidden" name="lat" data-autocomplete-address-target="lat">
 								<input type="hidden" name="lon" data-autocomplete-address-target="lon">
 								<input type="hidden" name="distance" value="20">
-								<button type="submit" class="btn btn-secondary text-info px-4 fw-bold rounded-pill rounded-start-0" style="z-index: 4;">Rechercher</button>
+								<button type="submit" class="btn btn-secondary text-dark px-4 fw-bold rounded-pill rounded-start-0" style="z-index: 4;">Rechercher</button>
 								<div data-autocomplete-address-target="results" class="position-absolute start-0 end-0 top-100 z-3"></div>
 							</div>
 
 							<div class="form-check">
 								<input class="form-check-input" type="checkbox" id="autourDeMoi" data-action="change->autocomplete-address#locate">
-								<label class="form-check-label text-warning" for="autourDeMoi">
+								<label class="form-check-label text-dark" for="autourDeMoi">
 									Autour de moi
 								</label>
 							</div>
@@ -64,8 +64,8 @@
 			<div class="row justify-content-center">
 				<div class="col-12 col-md-8 col-lg-6">
 					<div class="p-3 text-center">
-						<h1 class="text-info">Comment ça marche ?</h1>
-						<p class="text-info">MrVeto simplifie la prise de rendez-vous chez le vétérinaire, en quelques étapes. Plus de panique, contactez rapidement les véto les plus proches de vous en cas d'urgence avec MrVeto.</p>
+				<h2 class="text-dark">Comment ça marche ?</h2>
+							<p class="text-body-secondary">MrVeto simplifie la prise de rendez-vous chez le vétérinaire, en quelques étapes. Plus de panique, contactez rapidement les véto les plus proches de vous en cas d'urgence avec MrVeto.</p>
 					</div>
 				</div>
 			</div>
@@ -82,8 +82,8 @@
 						<div class="mb-3">
 							<img src="{{ asset('images/home/paw_homepage.svg') }}" alt="Recherche">
 						</div>
-						<h3 class="text-primary">1. Rechercher un vétérinaire</h3>
-						<p class="text-info">Entrez votre ville ou code postal pour trouver les vétérinaires disponibles près de chez vous, qu'il s'agisse d'une consultation classique ou d'une urgence.</p>
+						<h3 class="text-dark">1. Rechercher un vétérinaire</h3>
+								<p class="text-body-secondary">Entrez votre ville ou code postal pour trouver les vétérinaires disponibles près de chez vous, qu'il s'agisse d'une consultation classique ou d'une urgence.</p>
 					</div>
 				</div>
 
@@ -92,8 +92,8 @@
 						<div class="mb-3">
 							<img src="{{ asset('images/home/calendar_homepage.svg') }}" alt="Calendrier">
 						</div>
-						<h3 class="text-primary">2. Choisir un créneau</h3>
-						<p class="text-info">Consultez les disponibilités en temps réel et réservez le créneau qui vous convient, directement en ligne, sans attente téléphonique.</p>
+						<h3 class="text-dark">2. Choisir un créneau</h3>
+								<p class="text-body-secondary">Consultez les disponibilités en temps réel et réservez le créneau qui vous convient, directement en ligne, sans attente téléphonique.</p>
 					</div>
 				</div>
 
@@ -102,8 +102,8 @@
 						<div class="mb-3">
 							<img src="{{ asset('images/home/bandage_homepage.svg') }}" alt="Vétérinaire">
 						</div>
-						<h3 class="text-primary">3. Consulter votre vétérinaire</h3>
-						<p class="text-info">Rendez-vous à votre cabinet au jour et à l'heure choisis. Votre vétérinaire vous attend, prêt à prendre soin de votre animal.</p>
+						<h3 class="text-dark">3. Consulter votre vétérinaire</h3>
+								<p class="text-body-secondary">Rendez-vous à votre cabinet au jour et à l'heure choisis. Votre vétérinaire vous attend, prêt à prendre soin de votre animal.</p>
 					</div>
 				</div>
 			</div>
