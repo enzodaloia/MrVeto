@@ -29,6 +29,7 @@
 
     {# Main Container #}
     <div class="container-xxl d-flex flex-column gap-4 py-4">
+        <h1 class="visually-hidden">Recherche de vétérinaires</h1>
 
         {# Sticky Search Bar #}
         <div class="sticky-top pt-2 pb-1" style="top: 0;">
@@ -52,8 +53,9 @@
                     <div class="d-none d-md-block">
                         <div class="dropdown">
                             <button class="filter-btn btn rounded-pill px-3 py-2 fw-medium d-inline-flex align-items-center gap-2"
-                                    type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
-                                <twig:ux:icon class="text-secondary fs-5" name="lucide:radar"/>
+                                    type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false"
+                                    aria-label="Rayon de recherche : {{ distance }} km">
+                                <twig:ux:icon class="text-secondary fs-5" name="lucide:radar" aria-hidden="true"/>
                                 <span id="distanceLabel" data-searchmap-target="distanceLabel">{{ distance }} km</span>
                                 <i class="bi bi-chevron-down filter-chevron ms-1" style="font-size:0.7rem; transition:transform .2s;"></i>
                             </button>
@@ -77,8 +79,8 @@
                     </div>
 
                     {# Submit Button #}
-                    <button type="submit" class="btn btn-secondary rounded-circle p-0 d-flex align-items-center justify-content-center flex-shrink-0 shadow shadow-hover text-dark" style="width: 48px; height: 48px;" title="Rechercher">
-                        <twig:ux:icon class="fs-5 text-light" name="lucide:search"/>
+                    <button type="submit" class="btn btn-secondary rounded-circle p-0 d-flex align-items-center justify-content-center flex-shrink-0 shadow shadow-hover text-dark" style="width: 48px; height: 48px;" aria-label="Lancer la recherche">
+                        <twig:ux:icon class="fs-5 text-light" name="lucide:search" aria-hidden="true"/>
                     </button>
                 </form>
             </div>
@@ -96,7 +98,8 @@
             ] %}
             <div class="d-flex justify-content-center">
                 <form id="filters-form" action="{{ path('app_search_vet') }}" method="get"
-                      class="w-100 d-flex align-items-center flex-wrap gap-2 pb-1" style="max-width: 900px;">
+                      class="w-100 d-flex align-items-center flex-wrap gap-2 pb-1" style="max-width: 900px;"
+                      aria-label="Filtres de recherche">
                     <input type="hidden" name="lat" value="{{ lat }}">
                     <input type="hidden" name="lon" value="{{ lon }}">
                     <input type="hidden" name="location" value="{{ location }}">
@@ -104,7 +107,7 @@
                     <input type="hidden" name="limit" value="{{ limit }}">
 
                     {# Urgences pill #}
-                    <label class="cursor-pointer flex-shrink-0 filter-urgence-label">
+                    <label class="cursor-pointer flex-shrink-0 filter-urgence-label" aria-label="Filtrer : Urgences 24h">
                         <input type="checkbox" name="urgentiste" value="1" id="filter_urgentiste"
                                class="d-none filter-toggle" {{ filterUrgentiste ? 'checked' : '' }}>
                         <span class="filter-btn filter-btn-urgence btn rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center gap-2
@@ -120,20 +123,22 @@
                     <div class="dropdown flex-shrink-0">
                         <button class="filter-btn btn rounded-pill px-3 py-2 fw-medium d-inline-flex align-items-center gap-2
                                        {{ filterSpecialites|length > 0 ? 'active' : '' }}"
-                                type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                            <i class="bi bi-activity"></i>
+                                type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"
+                                aria-label="Filtrer par spécialité{% if filterSpecialites|length > 0 %} ({{ filterSpecialites|length }} sélectionnée{{ filterSpecialites|length > 1 ? 's' : '' }}){% endif %}">
+                            <i class="bi bi-activity" aria-hidden="true"></i>
                             Spécialités
                             {% if filterSpecialites|length > 0 %}
                                 <span class="filter-count-badge badge rounded-pill px-2">{{ filterSpecialites|length }}</span>
                             {% endif %}
-                            <i class="bi bi-chevron-down filter-chevron ms-1" style="font-size:0.7rem; transition:transform .2s;"></i>
+                            <i class="bi bi-chevron-down filter-chevron ms-1" aria-hidden="true" style="font-size:0.7rem; transition:transform .2s;"></i>
                         </button>
                         <div class="dropdown-menu border-0 shadow-lg rounded-4 p-0 mt-2" style="min-width:280px; width:300px;">
                             <div class="p-2 border-bottom">
                                 <div class="input-group input-group-sm">
-                                    <span class="input-group-text bg-light border-0 ps-2"><i class="bi bi-search text-muted"></i></span>
+                                    <span class="input-group-text bg-light border-0 ps-2" aria-hidden="true"><i class="bi bi-search text-muted"></i></span>
                                     <input type="text" class="form-control bg-light border-0 shadow-none filter-search"
-                                           placeholder="Rechercher..." autocomplete="off" data-target="spec-list">
+                                           placeholder="Rechercher..." autocomplete="off" data-target="spec-list"
+                                           aria-label="Rechercher une spécialité">
                                 </div>
                             </div>
                             <ul class="filter-option-list list-unstyled mb-0 py-1" id="spec-list"
@@ -146,7 +151,7 @@
                                                class="filter-toggle flex-shrink-0"
                                                {{ spec.slug in filterSpecialites ? 'checked' : '' }}>
                                         <span class="flex-grow-1" style="font-size:0.88rem;">{{ spec.label }}</span>
-                                        <i class="bi bi-check2 filter-check-icon text-primary"></i>
+                                        <i class="bi bi-check2 filter-check-icon text-primary" aria-hidden="true"></i>
                                     </label>
                                 </li>
                                 {% endfor %}
@@ -159,20 +164,22 @@
                     <div class="dropdown flex-shrink-0">
                         <button class="filter-btn btn rounded-pill px-3 py-2 fw-medium d-inline-flex align-items-center gap-2
                                        {{ filterAnimaux|length > 0 ? 'active' : '' }}"
-                                type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                            <i class="bi bi-heart"></i>
+                                type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"
+                                aria-label="Filtrer par type d'animal{% if filterAnimaux|length > 0 %} ({{ filterAnimaux|length }} sélectionné{{ filterAnimaux|length > 1 ? 's' : '' }}){% endif %}">
+                            <i class="bi bi-heart" aria-hidden="true"></i>
                             Animaux
                             {% if filterAnimaux|length > 0 %}
                                 <span class="filter-count-badge badge rounded-pill px-2">{{ filterAnimaux|length }}</span>
                             {% endif %}
-                            <i class="bi bi-chevron-down filter-chevron ms-1" style="font-size:0.7rem; transition:transform .2s;"></i>
+                            <i class="bi bi-chevron-down filter-chevron ms-1" aria-hidden="true" style="font-size:0.7rem; transition:transform .2s;"></i>
                         </button>
                         <div class="dropdown-menu border-0 shadow-lg rounded-4 p-0 mt-2" style="min-width:260px; width:280px;">
                             <div class="p-2 border-bottom">
                                 <div class="input-group input-group-sm">
-                                    <span class="input-group-text bg-light border-0 ps-2"><i class="bi bi-search text-muted"></i></span>
+                                    <span class="input-group-text bg-light border-0 ps-2" aria-hidden="true"><i class="bi bi-search text-muted"></i></span>
                                     <input type="text" class="form-control bg-light border-0 shadow-none filter-search"
-                                           placeholder="Rechercher..." autocomplete="off" data-target="animaux-list">
+                                           placeholder="Rechercher..." autocomplete="off" data-target="animaux-list"
+                                           aria-label="Rechercher un type d'animal">
                                 </div>
                             </div>
                             <ul class="filter-option-list list-unstyled mb-0 py-1" id="animaux-list"
@@ -185,7 +192,7 @@
                                                class="filter-toggle flex-shrink-0"
                                                {{ opt.value in filterAnimaux ? 'checked' : '' }}>
                                         <span class="flex-grow-1" style="font-size:0.88rem;">{{ opt.label }}</span>
-                                        <i class="bi bi-check2 filter-check-icon text-primary"></i>
+                                        <i class="bi bi-check2 filter-check-icon text-primary" aria-hidden="true"></i>
                                     </label>
                                 </li>
                                 {% endfor %}
@@ -196,8 +203,9 @@
                     {# Reset #}
                     {% if activeCount > 0 %}
                     <a href="{{ path('app_search_vet', {lat: lat, lon: lon, location: location, distance: distance, limit: limit}) }}"
-                       class="btn btn-sm text-danger d-inline-flex align-items-center gap-1 flex-shrink-0 ms-auto text-nowrap">
-                        <i class="bi bi-x-lg"></i> Effacer ({{ activeCount }})
+                       class="btn btn-sm text-danger d-inline-flex align-items-center gap-1 flex-shrink-0 ms-auto text-nowrap"
+                       aria-label="Effacer tous les filtres ({{ activeCount }} actif{{ activeCount > 1 ? 's' : '' }})">
+                        <i class="bi bi-x-lg" aria-hidden="true"></i> Effacer ({{ activeCount }})
                     </a>
                     {% endif %}
                 </form>
@@ -216,7 +224,7 @@
                                 class="d-flex flex-column flex-sm-row gap-4 align-items-start align-items-sm-center">
                                 {# Avatar #}
                                 <img
-                                    src="https://ui-avatars.com/api/?name={{ vet.prenom }}+{{ vet.nom }}&background=random" alt="Avatar" class="rounded-circle flex-shrink-0 bg-light shadow-sm" style="width: 80px; height: 80px; object-fit: cover;">
+                                    src="https://ui-avatars.com/api/?name={{ vet.prenom }}+{{ vet.nom }}&background=random" alt="Photo de profil de Dr. {{ vet.prenom }} {{ vet.nom }}" class="rounded-circle flex-shrink-0 bg-light shadow-sm" style="width: 80px; height: 80px; object-fit: cover;">
 
                                 {# Info #}
                                 <div class="flex-grow-1">
@@ -256,7 +264,8 @@
 
                                 {# Actions #}
                                 <div class="mt-3 mt-sm-0 ms-sm-auto align-self-sm-center" onclick="event.stopPropagation();">
-                                    <a href="{{ path('app_vet_info', {slug: vet.slug}) }}" class="btn btn-primary rounded-pill hover-bg-secondary px-4 py-2 fw-medium shadow-sm custom-hover-lift text-light">
+                                    <a href="{{ path('app_vet_info', {slug: vet.slug}) }}" class="btn btn-primary rounded-pill hover-bg-secondary px-4 py-2 fw-medium shadow-sm custom-hover-lift text-light"
+                                       aria-label="Voir le profil de Dr. {{ vet.prenom }} {{ vet.nom }} et prendre rendez-vous">
                                         Voir / Prendre RDV
                                     </a>
                                 </div>
@@ -281,27 +290,29 @@
                             <div class="d-flex align-items-center gap-2 mb-3 mb-md-0 ms-2">
                                 <span class="text-muted small fw-medium">Nombre de résultats</span>
                                 <div class="dropup">
-                                    <button class="btn btn-white rounded-pill d-flex align-items-center justify-content-between gap-2 border px-3 limit-dropdown-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-display="static">
+                                    <button class="btn btn-white rounded-pill d-flex align-items-center justify-content-between gap-2 border px-3 limit-dropdown-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-display="static"
+                                            aria-label="Nombre de résultats par page : {{ limit }}">
                                         <span class="fw-medium text-dark pe-2">{{ limit }}</span>
-                                        <twig:ux:icon class="fs-6 text-muted" name="lucide:chevron-up"/>
+                                        <twig:ux:icon class="fs-6 text-muted" name="lucide:chevron-up" aria-hidden="true"/>
                                     </button>
                                     <ul class="dropdown-menu shadow-sm border rounded-top-4 mb-0 p-0 limit-dropdown-menu" style="min-width: 100%;">
-                                        <li><a class="dropdown-item limit-dropdown-item rounded-top-4 {% if limit == 10 %}bg-light fw-bold{% endif %} py-2 text-center text-dark" href="{{ path('app_search_vet', baseParams|merge({limit: 10, page: 1})) }}">10</a></li>
-                                        <li><a class="dropdown-item limit-dropdown-item {% if limit == 20 %}bg-light fw-bold{% endif %} py-2 text-center text-dark" href="{{ path('app_search_vet', baseParams|merge({limit: 20, page: 1})) }}">20</a></li>
-                                        <li><a class="dropdown-item limit-dropdown-item {% if limit == 50 %}bg-light fw-bold{% endif %} py-2 text-center text-dark" href="{{ path('app_search_vet', baseParams|merge({limit: 50, page: 1})) }}">50</a></li>
+                                        <li><a class="dropdown-item limit-dropdown-item rounded-top-4 {% if limit == 10 %}bg-light fw-bold{% endif %} py-2 text-center text-dark" href="{{ path('app_search_vet', baseParams|merge({limit: 10, page: 1})) }}" aria-label="Afficher 10 résultats par page">10</a></li>
+                                        <li><a class="dropdown-item limit-dropdown-item {% if limit == 20 %}bg-light fw-bold{% endif %} py-2 text-center text-dark" href="{{ path('app_search_vet', baseParams|merge({limit: 20, page: 1})) }}" aria-label="Afficher 20 résultats par page">20</a></li>
+                                        <li><a class="dropdown-item limit-dropdown-item {% if limit == 50 %}bg-light fw-bold{% endif %} py-2 text-center text-dark" href="{{ path('app_search_vet', baseParams|merge({limit: 50, page: 1})) }}" aria-label="Afficher 50 résultats par page">50</a></li>
                                     </ul>
                                 </div>
                                 <span class="text-muted ms-2 small">sur {{ totalItems }} lignes</span>
                             </div>
 
                             {# Page Nav Pills #}
+                            <nav aria-label="Pagination des résultats">
                             <div class="d-flex gap-2 pe-2">
                                 {# First & Prev #}
-                                <a href="{{ path('app_search_vet', baseParams|merge({limit: limit, page: 1})) }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage <= 1 %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;">
-                                    <twig:ux:icon class="fs-6 text-muted" name="lucide:chevrons-left"/>
+                                <a href="{{ path('app_search_vet', baseParams|merge({limit: limit, page: 1})) }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage <= 1 %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;" aria-label="Première page" {% if currentPage <= 1 %}aria-disabled="true"{% endif %}>
+                                    <twig:ux:icon class="fs-6 text-muted" name="lucide:chevrons-left" aria-hidden="true"/>
                                 </a>
-                                <a href="{{ path('app_search_vet', baseParams|merge({limit: limit, page: currentPage - 1})) }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage <= 1 %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;">
-                                    <twig:ux:icon class="fs-6 text-muted" name="lucide:chevron-left"/>
+                                <a href="{{ path('app_search_vet', baseParams|merge({limit: limit, page: currentPage - 1})) }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage <= 1 %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;" aria-label="Page précédente" {% if currentPage <= 1 %}aria-disabled="true"{% endif %}>
+                                    <twig:ux:icon class="fs-6 text-muted" name="lucide:chevron-left" aria-hidden="true"/>
                                 </a>
 
                                 {# Dynamic Pages #}
@@ -312,27 +323,28 @@
                                 {% endif %}
 
                                 {% for i in startPage..endPage %}
-                                    <a href="{{ path('app_search_vet', baseParams|merge({limit: limit, page: i})) }}" class="btn rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover fw-medium {% if i == currentPage %}bg-dark text-white border-0{% else %}btn-white text-muted{% endif %}" style="width: 40px; height: 40px; {% if i != currentPage %}border: 1px solid #dee2e6;{% endif %}">
+                                    <a href="{{ path('app_search_vet', baseParams|merge({limit: limit, page: i})) }}" class="btn rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover fw-medium {% if i == currentPage %}bg-dark text-white border-0{% else %}btn-white text-muted{% endif %}" style="width: 40px; height: 40px; {% if i != currentPage %}border: 1px solid #dee2e6;{% endif %}" aria-label="Page {{ i }}" {% if i == currentPage %}aria-current="page"{% endif %}>
                                         {{ i }}
                                     </a>
                                 {% endfor %}
 
                                 {# Ellipsis + last page #}
                                 {% if endPage < totalPages %}
-                                    <span class="d-flex align-items-center justify-content-center text-muted px-1">...</span>
-                                    <a href="{{ path('app_search_vet', baseParams|merge({limit: limit, page: totalPages})) }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover text-muted fw-medium" style="width: 40px; height: 40px; border: 1px solid #dee2e6;">
+                                    <span class="d-flex align-items-center justify-content-center text-muted px-1" aria-hidden="true">...</span>
+                                    <a href="{{ path('app_search_vet', baseParams|merge({limit: limit, page: totalPages})) }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover text-muted fw-medium" style="width: 40px; height: 40px; border: 1px solid #dee2e6;" aria-label="Dernière page ({{ totalPages }})">
                                         {{ totalPages }}
                                     </a>
                                 {% endif %}
 
                                 {# Next & Last #}
-                                <a href="{{ path('app_search_vet', baseParams|merge({limit: limit, page: currentPage + 1})) }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage >= totalPages %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;">
-                                    <twig:ux:icon class="fs-6 text-muted" name="lucide:chevron-right"/>
+                                <a href="{{ path('app_search_vet', baseParams|merge({limit: limit, page: currentPage + 1})) }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage >= totalPages %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;" aria-label="Page suivante" {% if currentPage >= totalPages %}aria-disabled="true"{% endif %}>
+                                    <twig:ux:icon class="fs-6 text-muted" name="lucide:chevron-right" aria-hidden="true"/>
                                 </a>
-                                <a href="{{ path('app_search_vet', baseParams|merge({limit: limit, page: totalPages})) }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage >= totalPages %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;">
-                                    <twig:ux:icon class="fs-6 text-muted" name="lucide:chevrons-right"/>
+                                <a href="{{ path('app_search_vet', baseParams|merge({limit: limit, page: totalPages})) }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage >= totalPages %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;" aria-label="Dernière page" {% if currentPage >= totalPages %}aria-disabled="true"{% endif %}>
+                                    <twig:ux:icon class="fs-6 text-muted" name="lucide:chevrons-right" aria-hidden="true"/>
                                 </a>
                             </div>
+                            </nav>
 
                         </div>
                     {% endif %}
@@ -344,8 +356,8 @@
                 <div class="sticky-top" style="top: 100px; z-index: 2;">
                     <div id="search-map-wrapper" class="rounded-4 shadow-sm overflow-hidden position-relative" style="height: 480px;" data-searchmap-target="mapWrapper">
                         <div id="search-map" style="height: 100%; width: 100%;" data-searchmap-target="map"></div>
-                        <button id="map-expand-btn" class="btn bg-white border-0 position-absolute top-0 end-0 m-2 rounded-circle shadow-sm p-2 d-flex align-items-center justify-content-center hover-scale" style="width: 32px; height: 32px; z-index: 1000;" title="Agrandir la carte" data-action="click->searchmap#toggleMapExpand">
-                            <twig:ux:icon class="fs-5 text-primary" name="lucide:expand"/>
+                        <button id="map-expand-btn" class="btn bg-white border-0 position-absolute top-0 end-0 m-2 rounded-circle shadow-sm p-2 d-flex align-items-center justify-content-center hover-scale" style="width: 32px; height: 32px; z-index: 1000;" aria-label="Agrandir la carte" data-action="click->searchmap#toggleMapExpand">
+                            <twig:ux:icon class="fs-5 text-primary" name="lucide:expand" aria-hidden="true"/>
                         </button>
                     </div>
                 </div>
@@ -354,14 +366,14 @@
         </div>
     </div>
 
-    <div class="modal fade" id="searchMapModal" tabindex="-1" aria-hidden="true" data-searchmap-target="modal">
+    <div class="modal fade" id="searchMapModal" tabindex="-1" aria-label="Carte interactive des vétérinaires" aria-hidden="true" data-searchmap-target="modal">
         <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 90vw;">
             <div class="modal-content border-0 shadow-lg overflow-hidden" style="height: 85vh; position: relative;">
                 <button type="button"
                         class="btn bg-white border-0 position-absolute top-0 end-0 m-2 rounded-circle shadow-sm p-2 d-flex align-items-center justify-content-center hover-scale"
                         style="width:32px;height:32px;z-index:1010;"
                         data-bs-dismiss="modal" aria-label="Fermer">
-                    <twig:ux:icon class="fs-5 text-primary" name="lucide:shrink"/>
+                        <twig:ux:icon class="fs-5 text-primary" name="lucide:shrink" aria-hidden="true"/>
                 </button>
                 <div data-searchmap-target="modalMap" style="height: 100%; width: 100%;"></div>
             </div>
