@@ -16,19 +16,29 @@
 				<h4 class="mb-4" style="color: #3688BD;">Informations personnelles</h4>
 			{% endif %}
 
-			{{ form_errors(registrationForm) }}
+			{% if registrationForm.vars.errors|length > 0 %}
+				<div class="alert alert-danger rounded-3 mb-4">
+					{% for error in registrationForm.vars.errors %}
+						<div>{{ error.message }}</div>
+					{% endfor %}
+				</div>
+			{% endif %}
 
 			<!-- Informations personnelles -->
 			<div class="row">
 				<div class="col-md-6 mb-3 form-floating">
-					{{ form_widget(registrationForm.nom, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Nom'}}) }}
-					{{ form_label(registrationForm.nom, 'Nom', {'label_attr': {'class': 'ps-4'}}) }}
-					{{ form_errors(registrationForm.nom) }}
+					{{ form_widget(registrationForm.nom, {'attr': {'class': 'form-control ps-4 pe-4' ~ (registrationForm.nom.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder': 'Nom'}}) }}
+					{{ form_label(registrationForm.nom, 'Nom *', {'label_attr': {'class': 'ps-4'}}) }}
+					{% for error in registrationForm.nom.vars.errors %}
+						<div class="invalid-feedback d-block">{{ error.message }}</div>
+					{% endfor %}
 				</div>
 				<div class="col-md-6 mb-3 form-floating">
-					{{ form_widget(registrationForm.prenom, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Prénom'}}) }}
-					{{ form_label(registrationForm.prenom, 'Prénom', {'label_attr': {'class': 'ps-4'}}) }}
-					{{ form_errors(registrationForm.prenom) }}
+					{{ form_widget(registrationForm.prenom, {'attr': {'class': 'form-control ps-4 pe-4' ~ (registrationForm.prenom.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder': 'Prénom'}}) }}
+					{{ form_label(registrationForm.prenom, 'Prénom *', {'label_attr': {'class': 'ps-4'}}) }}
+					{% for error in registrationForm.prenom.vars.errors %}
+						<div class="invalid-feedback d-block">{{ error.message }}</div>
+					{% endfor %}
 				</div>
 			</div>
 
@@ -44,19 +54,25 @@
 
 				<div class="row">
 					<div class="col-md-4 mb-3 form-floating">
-						{{ form_widget(registrationForm.adresse, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Adresse', 'data-autocomplete-address-target': 'street'}}) }}
-						{{ form_label(registrationForm.adresse, 'Adresse', {'label_attr': {'class': 'ps-4'}}) }}
-						{{ form_errors(registrationForm.adresse) }}
+						{{ form_widget(registrationForm.adresse, {'attr': {'class': 'form-control ps-4 pe-4' ~ (registrationForm.adresse.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder': 'Adresse', 'data-autocomplete-address-target': 'street'}}) }}
+						{{ form_label(registrationForm.adresse, 'Adresse *', {'label_attr': {'class': 'ps-4'}}) }}
+						{% for error in registrationForm.adresse.vars.errors %}
+							<div class="invalid-feedback d-block">{{ error.message }}</div>
+						{% endfor %}
 					</div>
 					<div class="col-md-4 mb-3 form-floating">
-						{{ form_widget(registrationForm.ville, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Ville', 'data-autocomplete-address-target': 'city'}}) }}
-						{{ form_label(registrationForm.ville, 'Ville', {'label_attr': {'class': 'ps-4'}}) }}
-						{{ form_errors(registrationForm.ville) }}
+						{{ form_widget(registrationForm.ville, {'attr': {'class': 'form-control ps-4 pe-4' ~ (registrationForm.ville.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder': 'Ville', 'data-autocomplete-address-target': 'city'}}) }}
+						{{ form_label(registrationForm.ville, 'Ville *', {'label_attr': {'class': 'ps-4'}}) }}
+						{% for error in registrationForm.ville.vars.errors %}
+							<div class="invalid-feedback d-block">{{ error.message }}</div>
+						{% endfor %}
 					</div>
 					<div class="col-md-4 mb-3 form-floating">
-						{{ form_widget(registrationForm.codepostal, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Code postal', 'data-autocomplete-address-target': 'postcode'}}) }}
-						{{ form_label(registrationForm.codepostal, 'Code postal', {'label_attr': {'class': 'ps-4'}}) }}
-						{{ form_errors(registrationForm.codepostal) }}
+						{{ form_widget(registrationForm.codepostal, {'attr': {'class': 'form-control ps-4 pe-4' ~ (registrationForm.codepostal.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder': 'Code postal', 'data-autocomplete-address-target': 'postcode'}}) }}
+						{{ form_label(registrationForm.codepostal, 'Code postal *', {'label_attr': {'class': 'ps-4'}}) }}
+						{% for error in registrationForm.codepostal.vars.errors %}
+							<div class="invalid-feedback d-block">{{ error.message }}</div>
+						{% endfor %}
 					</div>
 				</div>
 			</div>
@@ -64,50 +80,82 @@
 			{% if type == 'veterinaire' %}
 				<div class="row">
 					<div class="col-md-6 mb-3 form-floating">
-						{{ form_widget(registrationForm.email, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Adresse email', 'pattern': '[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$', 'title': 'Veuillez entrer une adresse email valide'}}) }}
+						{{ form_widget(registrationForm.email, {'attr': {'class': 'form-control ps-4 pe-4' ~ (registrationForm.email.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder': 'Adresse email', 'pattern': '[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$', 'title': 'Veuillez entrer une adresse email valide'}}) }}
 						{{ form_label(registrationForm.email, 'Adresse email *', {'label_attr': {'class': 'ps-4'}}) }}
-						{{ form_errors(registrationForm.email) }}
+						{% for error in registrationForm.email.vars.errors %}
+							<div class="invalid-feedback d-block">{{ error.message }}</div>
+						{% endfor %}
 					</div>
 					<div class="col-md-6 mb-3 form-floating">
-						{{ form_widget(registrationForm.telephone, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Téléphone', 'data-controller': 'phone-input', 'data-action': 'input->phone-input#format'}}) }}
-						{{ form_label(registrationForm.telephone, 'Téléphone', {'label_attr': {'class': 'ps-4'}}) }}
-						{{ form_errors(registrationForm.telephone) }}
+						{{ form_widget(registrationForm.telephone, {'attr': {'class': 'form-control ps-4 pe-4' ~ (registrationForm.telephone.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder': 'Téléphone', 'data-controller': 'phone-input', 'data-action': 'input->phone-input#format'}}) }}
+						{{ form_label(registrationForm.telephone, 'Téléphone *', {'label_attr': {'class': 'ps-4'}}) }}
+						{% for error in registrationForm.telephone.vars.errors %}
+							<div class="invalid-feedback d-block">{{ error.message }}</div>
+						{% endfor %}
 					</div>
 				</div>
 			{% else %}
 				<div class="row">
 					<div class="col-md-6 mb-3 form-floating">
-						{{ form_widget(registrationForm.datenaissance, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Date de naissance'}}) }}
-						{{ form_label(registrationForm.datenaissance, 'Date de naissance', {'label_attr': {'class': 'ps-4'}}) }}
-						{{ form_errors(registrationForm.datenaissance) }}
+						{{ form_widget(registrationForm.datenaissance, {'attr': {'class': 'form-control ps-4 pe-4' ~ (registrationForm.datenaissance.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder': 'Date de naissance'}}) }}
+						{{ form_label(registrationForm.datenaissance, 'Date de naissance *', {'label_attr': {'class': 'ps-4'}}) }}
+						{% for error in registrationForm.datenaissance.vars.errors %}
+							<div class="invalid-feedback d-block">{{ error.message }}</div>
+						{% endfor %}
 					</div>
 					<div class="col-md-6 mb-3 form-floating">
-						{{ form_widget(registrationForm.telephone, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Téléphone', 'data-controller': 'phone-input', 'data-action': 'input->phone-input#format'}}) }}
-						{{ form_label(registrationForm.telephone, 'Téléphone', {'label_attr': {'class': 'ps-4'}}) }}
-						{{ form_errors(registrationForm.telephone) }}
+						{{ form_widget(registrationForm.telephone, {'attr': {'class': 'form-control ps-4 pe-4' ~ (registrationForm.telephone.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder': 'Téléphone', 'data-controller': 'phone-input', 'data-action': 'input->phone-input#format'}}) }}
+						{{ form_label(registrationForm.telephone, 'Téléphone *', {'label_attr': {'class': 'ps-4'}}) }}
+						{% for error in registrationForm.telephone.vars.errors %}
+							<div class="invalid-feedback d-block">{{ error.message }}</div>
+						{% endfor %}
 					</div>
 				</div>
 				<div class="mb-3 form-floating">
-					{{ form_widget(registrationForm.email, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Adresse email', 'pattern': '[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$', 'title': 'Veuillez entrer une adresse email valide'}}) }}
-					{{ form_label(registrationForm.email, 'Adresse email') }}
-					{{ form_errors(registrationForm.email) }}
+					{{ form_widget(registrationForm.email, {'attr': {'class': 'form-control ps-4 pe-4' ~ (registrationForm.email.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder': 'Adresse email', 'pattern': '[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$', 'title': 'Veuillez entrer une adresse email valide'}}) }}
+					{{ form_label(registrationForm.email, 'Adresse email *') }}
+					{% for error in registrationForm.email.vars.errors %}
+						<div class="invalid-feedback d-block">{{ error.message }}</div>
+					{% endfor %}
 				</div>
 			{% endif %}
 
 			{% if type == 'veterinaire' %}
 				<hr class="my-5">
 				<h4 class="mb-4" style="color: #3688BD;">Informations professionnelles</h4>
-				<div class="mb-3 form-floating">
-					{{ form_widget(registrationForm.siret, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'N° de Siret'}}) }}
-					{{ form_label(registrationForm.siret, 'N° de Siret') }}
-					{{ form_errors(registrationForm.siret) }}
+				{# SIRET = SIREN (9) + NIC (5) — séparation visuelle dans un seul champ #}
+				<div class="mb-3 form-floating" data-controller="siret">
+					{{ form_widget(registrationForm.siret, {'attr': {
+						'style': 'display:none',
+						'tabindex': '-1',
+						'aria-hidden': 'true',
+						'data-siret-target': 'combined'
+					}}) }}
+					<input type="text" id="siret_display"
+						   class="form-control ps-4 pe-4{{ registrationForm.siret.vars.errors|length > 0 ? ' is-invalid' : '' }}"
+						   placeholder="N° de SIRET" maxlength="15" inputmode="numeric" autocomplete="off"
+						   data-siret-target="display"
+						   data-action="keydown->siret#block input->siret#format paste->siret#paste">
+					<label for="siret_display" class="ps-4">N° de SIRET *</label>
+					{% for error in registrationForm.siret.vars.errors %}
+						<div class="invalid-feedback d-block mt-1">{{ error.message }}</div>
+					{% endfor %}
 				</div>
-				<div class="mb-3 form-floating position-relative" data-controller="autocomplete-address" data-autocomplete-address-theme-value="form">
-					{{ form_widget(registrationForm.adressecabinet, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Adresse du cabinet', 'data-autocomplete-address-target': 'input', 'data-action': 'input->autocomplete-address#search', 'autocomplete': 'off'}}) }}
-					{{ form_label(registrationForm.adressecabinet, 'Adresse du cabinet') }}
-					{{ form_errors(registrationForm.adressecabinet) }}
-					<div data-autocomplete-address-target="results" class="position-absolute start-0 end-0 top-100 z-3"></div>
-
+				<div data-controller="autocomplete-address" data-autocomplete-address-theme-value="form">
+					<div class="mb-3 position-relative">
+						<div class="form-floating">
+							<input type="text" id="cabinet_address_search" class="form-control ps-4 pe-4" placeholder="Rechercher l'adresse du cabinet..." data-autocomplete-address-target="input" data-action="input->autocomplete-address#search" autocomplete="off">
+							<label for="cabinet_address_search">Rechercher l'adresse du cabinet</label>
+						</div>
+						<div data-autocomplete-address-target="results" class="position-absolute start-0 end-0 top-100 z-3"></div>
+					</div>
+					<div class="mb-3 form-floating">
+						{{ form_widget(registrationForm.adressecabinet, {'attr': {'class': 'form-control ps-4 pe-4' ~ (registrationForm.adressecabinet.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder': 'Adresse du cabinet', 'data-autocomplete-address-target': 'fullAddress'}}) }}
+						{{ form_label(registrationForm.adressecabinet, 'Adresse du cabinet *') }}
+						{% for error in registrationForm.adressecabinet.vars.errors %}
+							<div class="invalid-feedback d-block">{{ error.message }}</div>
+						{% endfor %}
+					</div>
 					{# Hidden coordinate fields #}
 					{{ form_widget(registrationForm.latitude, {'attr': {'data-autocomplete-address-target': 'lat'}}) }}
 					{{ form_widget(registrationForm.longitude, {'attr': {'data-autocomplete-address-target': 'lon'}}) }}
@@ -167,8 +215,11 @@
 
 			<!-- Conditions -->
 			<div class="form-check mb-4">
-				{{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
+				{{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input' ~ (registrationForm.agreeTerms.vars.errors|length > 0 ? ' is-invalid' : '')}}) }}
 				{{ form_label(registrationForm.agreeTerms, null, {'label_attr': {'class': 'form-check-label'}}) }}
+				{% for error in registrationForm.agreeTerms.vars.errors %}
+					<div class="invalid-feedback d-block">{{ error.message }}</div>
+				{% endfor %}
 			</div>
 
 			{{ form_rest(registrationForm) }}
