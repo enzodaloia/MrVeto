@@ -121,12 +121,12 @@
                         </h2>
                         {% if not isReadOnly %}
                             <button
-                                class="btn btn-sm btn-primary rounded-pill px-3"
+                                class="btn btn-sm btn-primary text-white rounded-pill px-3"
                                 data-bs-toggle="modal"
                                 data-bs-target="#addTraitementModal"
                                 type="button"
                             >
-                                <i class="bi bi-plus-lg me-1"></i>Ajouter
+                                <i class="bi bi-plus-lg  me-1"></i>Ajouter
                             </button>
                         {% endif %}
                     </div>
@@ -316,7 +316,7 @@
                                                             >{{ rdv.compteRendu|default('') }}</textarea>
                                                             <div class="d-flex gap-2 flex-wrap">
                                                                 <button class="btn btn-sm btn-light rounded-pill px-3" name="action" value="draft" type="submit">Sauvegarder Brouillon</button>
-                                                                <button class="btn btn-sm btn-primary rounded-pill px-3" name="action" value="validate" type="submit">Valider définitivement</button>
+                                                                <button class="btn btn-sm btn-primary text-white rounded-pill px-3" name="action" value="validate" type="submit">Valider définitivement</button>
                                                                 <button
                                                                     class="btn btn-sm btn-link text-muted px-2"
                                                                     type="button"
@@ -562,7 +562,7 @@
                             </div>
                         </div>
                         <div class="d-flex gap-2 mt-4">
-                            <button class="btn btn-primary rounded-pill px-4" type="submit">Ajouter</button>
+                            <button class="btn btn-primary text-white rounded-pill px-4" type="submit">Ajouter</button>
                             <button class="btn btn-light rounded-pill px-4" type="button" data-bs-dismiss="modal">Annuler</button>
                         </div>
                     </form>

@@ -55,13 +55,6 @@ class RegistrationController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
 
-            // connecter l'utilisateur automatiquement
-            $response = $userAuthenticator->authenticateUser(
-                $user,
-                $authenticator,
-                $request
-            );
-
             // envoyer le mail de confirmation
             $this->emailVerifier->sendEmailConfirmation(
                 'app_verify_email',
@@ -73,8 +66,17 @@ class RegistrationController extends AbstractController
                     ->htmlTemplate('registration/confirmation_email.html.twig')
             );
 
-            // retourne la réponse qui loggue l'utilisateur
-            return $response;
+            if ($type === 'veterinaire') {
+                $this->addFlash('success', 'Votre compte a été créé. Il est en attente de validation par notre équipe.');
+                return $this->redirectToRoute('app_login');
+            }
+
+            // connecter l'utilisateur automatiquement
+            return $userAuthenticator->authenticateUser(
+                $user,
+                $authenticator,
+                $request
+            );
         }
 
         return $this->render('registration/register.html.twig', [

@@ -76,6 +76,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $qb = $this->createQueryBuilder('u')
             ->andWhere('u.roles LIKE :role')
             ->andWhere('u.isVerified = :isVerified')
+            ->andWhere('u.archivedAt IS NULL')
             ->setParameter('role', '%"ROLE_VETO"%')
             ->setParameter('isVerified', true)
             ->orderBy('u.nom', 'ASC');
@@ -141,6 +142,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->addSelect('vp')
             ->andWhere('u.roles LIKE :role')
             ->andWhere('u.isVerified = :isVerified')
+            ->andWhere('u.archivedAt IS NULL')
             ->andWhere('vp.isUrgentiste = :urgentiste')
             ->andWhere('u.latitude IS NOT NULL')
             ->andWhere('u.longitude IS NOT NULL')
@@ -160,6 +162,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $qb = $this->createQueryBuilder('u')
             ->andWhere('u.roles LIKE :role')
             ->andWhere('u.isVerified = :isVerified')
+            ->andWhere('u.archivedAt IS NULL')
             ->setParameter('role', '%"ROLE_VETO"%')
             ->setParameter('isVerified', true)
             ->orderBy('u.nom', 'ASC')
