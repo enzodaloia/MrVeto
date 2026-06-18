@@ -494,10 +494,10 @@
 
 	{% if openCreateModal is defined and openCreateModal %}
 		 <script>
-														document.addEventListener('DOMContentLoaded', function () {
+														setTimeout(function () {
 															var myModal = new bootstrap.Modal(document.getElementById('createUserModal'));
 															myModal.show();
-														});
+														}, 50);
 													</script>
 	{% endif %}
 
@@ -554,7 +554,7 @@
 							</script>
 
  <script>
-					document.addEventListener('DOMContentLoaded', function () {
+					(function () {
 						const searchDesktop = document.getElementById('search-input');
 						const searchMobile = document.getElementById('search-input-mobile');
 						const emptyTableRow = document.getElementById('empty-table-row');
@@ -768,7 +768,7 @@
 						});
 			
 						filterRows();
-					});
+					})();
 				</script>
 
 	 <script>
