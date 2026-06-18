@@ -16,7 +16,7 @@
     <ol class="breadcrumb mb-0 small">
         <li class="breadcrumb-item">
             <a href="{{ path('app_animaux') }}" class="text-primary text-decoration-none">
-                <i class="bi bi-heart me-1"></i>Mes Animaux
+                <i class="bi bi-heart me-1" aria-hidden="true"></i>Mes Animaux
             </a>
         </li>
         <li class="breadcrumb-item active text-muted">{{ animal.nom }}</li>
@@ -65,28 +65,31 @@
                             {% endif %}
                             {% if animal.vaccinAJour %}
                                 <span class="badge bg-success-bg text-success rounded-pill fw-medium">
-                                    <i class="bi bi-shield-check me-1"></i>Vaccins à jour
+                                    <i class="bi bi-shield-check me-1" aria-hidden="true"></i>Vaccins à jour
                                 </span>
                             {% else %}
                                 <span class="badge bg-danger-bg text-danger rounded-pill fw-medium">
-                                    <i class="bi bi-shield-exclamation me-1"></i>Vaccins expirés
+                                    <i class="bi bi-shield-exclamation me-1" aria-hidden="true"></i>Vaccins expirés
                                 </span>
                             {% endif %}
                         </div>
                         <div class="mt-2 d-flex flex-wrap gap-3 text-muted small">
                             {% if animal.espece and animal.race %}
                                 <span class="d-inline-flex align-items-center gap-1">
-                                    <i class="bi bi-tag text-primary"></i>{{ animal.espece }}
+                                    <i class="bi bi-tag text-primary" aria-hidden="true"></i>
+                                    <span class="visually-hidden">Espèce :</span>{{ animal.espece }}
                                 </span>
                             {% endif %}
                             {% if animal.age %}
                                 <span class="d-inline-flex align-items-center gap-1">
-                                    <i class="bi bi-calendar text-primary"></i>{{ animal.age }}
+                                    <i class="bi bi-calendar text-primary" aria-hidden="true"></i>
+                                    <span class="visually-hidden">Âge :</span>{{ animal.age }}
                                 </span>
                             {% endif %}
                             {% if animal.poids %}
                                 <span class="d-inline-flex align-items-center gap-1">
-                                    <i class="bi bi-speedometer2 text-primary"></i>{{ animal.poids }} kg
+                                    <i class="bi bi-speedometer2 text-primary" aria-hidden="true"></i>
+                                    <span class="visually-hidden">Poids :</span>{{ animal.poids }} kg
                                 </span>
                             {% endif %}
                         </div>
@@ -100,8 +103,9 @@
                         </div>
                     {% endif %}
                     <button class="btn btn-outline-secondary rounded-3 d-flex align-items-center justify-content-center gap-2"
-                            data-bs-toggle="modal" data-bs-target="#editAnimalModal">
-                        <i class="bi bi-pencil"></i> Modifier la fiche
+                            data-bs-toggle="modal" data-bs-target="#editAnimalModal"
+                            aria-label="Modifier la fiche de {{ animal.nom }}">
+                        <i class="bi bi-pencil" aria-hidden="true"></i> Modifier la fiche
                     </button>
                 </div>
             </div>
@@ -112,7 +116,7 @@
     {% if rdvFuturs|length > 0 %}
         <div class="mb-4">
             <h2 class="h5 fw-bold d-flex align-items-center gap-2 mb-3 text-neutral-100">
-                <i class="bi bi-calendar-check text-primary"></i>
+                <i class="bi bi-calendar-check text-primary" aria-hidden="true"></i>
                 Prochains rendez-vous
                 <span class="badge bg-primary rounded-pill ms-1" style="font-size: 0.72rem;">{{ rdvFuturs|length }}</span>
             </h2>
@@ -137,8 +141,9 @@
                             </div>
                             {% if rdv.veterinaire and rdv.veterinaire.slug %}
                                 <a href="{{ path('app_vet_book', {'slug': rdv.veterinaire.slug}) }}"
-                                   class="btn btn-sm btn-outline-primary rounded-3 d-flex align-items-center gap-1 flex-shrink-0">
-                                    <i class="bi bi-arrow-repeat"></i> Modifier
+                                   class="btn btn-sm btn-outline-primary rounded-3 d-flex align-items-center gap-1 flex-shrink-0"
+                                   aria-label="Modifier le rendez-vous du {{ rdv.dateHeure|date('d/m/Y') }} avec Dr. {{ rdv.veterinaire.nom }}">
+                                    <i class="bi bi-arrow-repeat" aria-hidden="true"></i> Modifier
                                 </a>
                             {% endif %}
                         </div>
@@ -151,7 +156,7 @@
     {# Traitements #}
     <div class="mb-4">
         <h2 class="h5 fw-bold d-flex align-items-center gap-2 mb-3 text-neutral-100">
-            <i class="bi bi-clipboard-pulse text-primary"></i>
+            <i class="bi bi-clipboard-pulse text-primary" aria-hidden="true"></i>
             Traitements
         </h2>
         {% if traitements is empty %}
@@ -164,14 +169,15 @@
         {% else %}
             <div class="card border-0 shadow-sm overflow-hidden">
                 <div class="table-responsive">
-                    <table class="table table-borderless align-middle mb-0 cs-history-table">
+                    <table class="table table-borderless align-middle mb-0 cs-history-table" aria-label="Traitements de {{ animal.nom }}">
+                        <caption class="visually-hidden">Liste des traitements de {{ animal.nom }}</caption>
                         <thead>
                             <tr class="border-bottom border-light-subtle">
-                                <th class="text-muted cs-fs-7 fw-bold pb-2 ps-3">TRAITEMENT</th>
-                                <th class="text-muted cs-fs-7 fw-bold pb-2">POSOLOGIE</th>
-                                <th class="text-muted cs-fs-7 fw-bold pb-2">PÉRIODE</th>
-                                <th class="text-muted cs-fs-7 fw-bold pb-2">PRESCRIT PAR</th>
-                                <th class="text-muted cs-fs-7 fw-bold pb-2 text-end pe-3">STATUT</th>
+                                <th scope="col" class="text-muted cs-fs-7 fw-bold pb-2 ps-3">TRAITEMENT</th>
+                                <th scope="col" class="text-muted cs-fs-7 fw-bold pb-2">POSOLOGIE</th>
+                                <th scope="col" class="text-muted cs-fs-7 fw-bold pb-2">PÉRIODE</th>
+                                <th scope="col" class="text-muted cs-fs-7 fw-bold pb-2">PRESCRIT PAR</th>
+                                <th scope="col" class="text-muted cs-fs-7 fw-bold pb-2 text-end pe-3">STATUT</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -217,7 +223,7 @@
         {% set rdvNonAnnules = rdvHistory|filter(r => r.statut != 'annule') %}
         <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
             <h2 class="h5 fw-bold d-flex align-items-center gap-2 mb-0 text-neutral-100">
-                <i class="bi bi-clock-history text-primary"></i>
+                <i class="bi bi-clock-history text-primary" aria-hidden="true"></i>
                 Historique médical
             </h2>
             <span class="small text-muted">{{ rdvNonAnnules|length }} consultation{{ rdvNonAnnules|length > 1 ? 's' : '' }}</span>
@@ -228,14 +234,15 @@
             <div class="card border-0 shadow-sm mb-3">
                 <div class="card-body p-2 p-lg-3 d-flex gap-2 flex-wrap align-items-center">
                     <div class="input-group input-group-sm flex-grow-1" style="min-width: 200px; max-width: 320px;">
-                        <span class="input-group-text border-0 bg-neutral-20"><i class="bi bi-search text-muted"></i></span>
-                        <input type="text" id="rdv-search" class="form-control border-0 bg-neutral-20" placeholder="Rechercher motif, compte-rendu…">
+                        <span class="input-group-text border-0 bg-neutral-20" aria-hidden="true"><i class="bi bi-search text-muted"></i></span>
+                        <input type="text" id="rdv-search" class="form-control border-0 bg-neutral-20" placeholder="Rechercher motif, compte-rendu…" aria-label="Rechercher dans l'historique médical">
                     </div>
                     {# Dropdown vétérinaire #}
                     <div class="dropdown">
                         <button type="button" id="rdv-filter-vet" data-selected=""
                                 class="btn btn-sm rounded-pill bg-neutral-20 border-0 d-flex align-items-center gap-2 px-3 py-2"
-                                data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                                data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"
+                                aria-label="Filtrer par vétérinaire">
                             <span id="rdv-vet-label" class="small fw-medium text-neutral-80">Tous les vétérinaires</span>
                             <i class="bi bi-chevron-down text-muted" style="font-size: 0.65rem;"></i>
                         </button>
@@ -267,7 +274,8 @@
                     <div class="dropdown">
                         <button type="button" id="rdv-filter-year" data-selected=""
                                 class="btn btn-sm rounded-pill bg-neutral-20 border-0 d-flex align-items-center gap-2 px-3 py-2"
-                                data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                                data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"
+                                aria-label="Filtrer par année">
                             <span id="rdv-year-label" class="small fw-medium text-neutral-80">Toutes années</span>
                             <i class="bi bi-chevron-down text-muted" style="font-size: 0.65rem;"></i>
                         </button>
@@ -296,8 +304,8 @@
                         </ul>
                     </div>
 
-                    <button id="rdv-filter-reset" class="btn btn-sm rounded-pill border-0 text-muted bg-transparent d-none px-2" type="button">
-                        <i class="bi bi-x-circle me-1"></i>Réinitialiser
+                    <button id="rdv-filter-reset" class="btn btn-sm rounded-pill border-0 text-muted bg-transparent d-none px-2" type="button" aria-label="Réinitialiser les filtres">
+                        <i class="bi bi-x-circle me-1" aria-hidden="true"></i>Réinitialiser
                     </button>
                 </div>
             </div>
@@ -329,7 +337,7 @@
                                     <span class="badge bg-success-bg text-success rounded-pill" style="font-size: 0.7rem;">Terminé</span>
                                     {% if rdv.lastActionType == 'deplace' %}
                                         <span class="badge bg-warning-bg text-warning rounded-pill" style="font-size: 0.7rem;">
-                                            <i class="bi bi-arrow-left-right me-1"></i>Reporté
+                                            <i class="bi bi-arrow-left-right me-1" aria-hidden="true"></i>Reporté
                                         </span>
                                     {% endif %}
                                 </div>
@@ -355,8 +363,9 @@
                                     {% if rdv.veterinaire and rdv.veterinaire.slug %}
                                         <a href="{{ path('app_vet_book', {'slug': rdv.veterinaire.slug}) }}"
                                            class="btn btn-sm btn-primary text-white rounded-3 d-flex align-items-center gap-1 flex-shrink-0 py-1"
-                                           style="font-size: 0.78rem;">
-                                            <i class="bi bi-calendar-plus"></i> Reprendre RDV
+                                           style="font-size: 0.78rem;"
+                                           aria-label="Reprendre RDV avec Dr. {{ rdv.veterinaire.nom }} (consultation du {{ rdv.dateHeure|date('d/m/Y') }})">
+                                            <i class="bi bi-calendar-plus" aria-hidden="true"></i> Reprendre RDV
                                         </a>
                                     {% endif %}
                                 </div>
@@ -412,7 +421,7 @@
         <div class="card border-0 shadow-sm">
             <div class="card-body">
                 <h2 class="h6 fw-bold d-flex align-items-center gap-2 mb-3 text-neutral-100">
-                    <i class="bi bi-bar-chart text-primary"></i>
+                    <i class="bi bi-bar-chart text-primary" aria-hidden="true"></i>
                     En bref
                 </h2>
                 <div class="d-flex flex-column gap-2">
@@ -440,7 +449,7 @@
         <div class="card border-0 shadow-sm">
             <div class="card-body">
                 <h2 class="h6 fw-bold d-flex align-items-center gap-2 mb-3 text-neutral-100">
-                    <i class="bi bi-person-badge text-primary"></i>
+                    <i class="bi bi-person-badge text-primary" aria-hidden="true"></i>
                     Vétérinaire référent
                 </h2>
                 <div class="d-flex align-items-center gap-2 mb-2">
@@ -463,8 +472,9 @@
                 {% endif %}
                 {% if vetRef.vet.slug %}
                     <a href="{{ path('app_vet_book', {'slug': vetRef.vet.slug}) }}"
-                       class="btn btn-sm btn-primary text-white rounded-3 w-100 mt-2 d-flex align-items-center justify-content-center gap-1">
-                        <i class="bi bi-calendar-plus"></i> Reprendre RDV
+                       class="btn btn-sm btn-primary text-white rounded-3 w-100 mt-2 d-flex align-items-center justify-content-center gap-1"
+                       aria-label="Reprendre RDV avec Dr. {{ vetRef.vet.prenom }} {{ vetRef.vet.nom }}, vétérinaire référent">
+                        <i class="bi bi-calendar-plus" aria-hidden="true"></i> Reprendre RDV
                     </a>
                 {% endif %}
             </div>
@@ -477,13 +487,13 @@
         <div class="card border-0 shadow-sm">
             <div class="card-body">
                 <h2 class="h6 fw-bold d-flex align-items-center gap-2 mb-3 text-neutral-100">
-                    <i class="bi bi-clipboard-heart text-primary"></i>
+                    <i class="bi bi-clipboard-heart text-primary" aria-hidden="true"></i>
                     Traitements actifs
                 </h2>
                 <div class="d-flex flex-column gap-2">
                     {% for t in traitementsActifs %}
                         <div class="d-flex align-items-start gap-2">
-                            <i class="bi bi-capsule text-primary mt-1 flex-shrink-0"></i>
+                            <i class="bi bi-capsule text-primary mt-1 flex-shrink-0" aria-hidden="true"></i>
                             <div>
                                 <div class="fw-medium text-neutral-90 small">{{ t.libelle }}</div>
                                 {% if t.posologie %}
@@ -511,11 +521,11 @@
 </div>{# /carnet-sante-page #}
 
 {# Modal : Modifier la fiche animal #}
-<div class="modal fade" id="editAnimalModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="editAnimalModal" tabindex="-1" aria-labelledby="editAnimalModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content rounded-4 border-0 shadow-lg">
             <div class="modal-header border-0 pb-0 px-4 pt-4">
-                <h2 class="h5 fw-bold mb-0">Modifier la fiche de {{ animal.nom }}</h2>
+                <h2 class="h5 fw-bold mb-0" id="editAnimalModalLabel">Modifier la fiche de {{ animal.nom }}</h2>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
             <div class="modal-body p-4 pt-3">
@@ -523,20 +533,20 @@
                     <input type="hidden" name="_token" value="{{ csrf_token('edit_animal_' ~ animal.id) }}">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-medium">Espèce</label>
-                            <input type="text" name="espece" class="form-control" value="{{ animal.espece|default('') }}" placeholder="Chat, Chien, Lapin…">
+                            <label class="form-label fw-medium" for="edit-espece">Espèce</label>
+                            <input type="text" id="edit-espece" name="espece" class="form-control" value="{{ animal.espece|default('') }}" placeholder="Chat, Chien, Lapin…">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-medium">Race</label>
-                            <input type="text" name="race" class="form-control" value="{{ animal.race|default('') }}" placeholder="Labrador, Persan…">
+                            <label class="form-label fw-medium" for="edit-race">Race</label>
+                            <input type="text" id="edit-race" name="race" class="form-control" value="{{ animal.race|default('') }}" placeholder="Labrador, Persan…">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-medium">Âge</label>
-                            <input type="text" name="age" class="form-control" value="{{ animal.age|default('') }}" placeholder="3 ans, 6 mois…">
+                            <label class="form-label fw-medium" for="edit-age">Âge</label>
+                            <input type="text" id="edit-age" name="age" class="form-control" value="{{ animal.age|default('') }}" placeholder="3 ans, 6 mois…">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-medium">Poids (kg)</label>
-                            <input type="number" step="0.01" min="0" name="poids" class="form-control" value="{{ animal.poids|default('') }}" placeholder="4.5">
+                            <label class="form-label fw-medium" for="edit-poids">Poids (kg)</label>
+                            <input type="number" id="edit-poids" step="0.01" min="0" name="poids" class="form-control" value="{{ animal.poids|default('') }}" placeholder="4.5">
                         </div>
                     </div>
                     <div class="d-flex gap-2 mt-4">
