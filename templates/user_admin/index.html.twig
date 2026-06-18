@@ -435,6 +435,45 @@
 
 	{{ include('user_admin/new.html.twig') }}
 
+	{% for user in users %}
+		<div class="modal fade" id="deleteModal{{ user.id }}" tabindex="-1" aria-labelledby="modalLabel_deleteModal{{ user.id }}" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content border-0 shadow" style="border-radius: 35px; overflow: hidden;">
+					<div class="modal-body p-5 text-center">
+
+						<div class="mx-auto mb-4" style="width:80px;height:80px;border-radius:50%;background:var(--bs-danger);">
+						</div>
+
+						<div class="d-flex justify-content-center align-items-center gap-4 mb-4 text-primary">
+							<span><i data-lucide="calendar" style="width:18px;height:18px;" aria-hidden="true"></i></span>
+							<span class="fw-medium">{{ "now"|date("d M, Y") }}</span>
+						</div>
+
+						<h5 id="modalLabel_deleteModal{{ user.id }}" class="fw-bold text-primary mb-4" style="font-size:1.1rem;">
+							Voulez-vous vraiment supprimer<br>cet utilisateur ?
+						</h5>
+
+						<div class="d-flex gap-3">
+							<button class="btn fw-bold rounded-pill flex-grow-1 py-3" 
+								style="background:var(--bs-info); color:white;"
+								data-bs-dismiss="modal">
+								Retour
+							</button>
+							<form id="delete-user-form-{{ user.id }}" method="post" action="{{ path('app_user_admin_delete', {'slug': user.slug}) }}" class="flex-grow-1" data-turbo="false">
+								<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+								<button class="btn fw-bold rounded-pill w-100 py-3"
+									style="background:var(--bs-danger); color:white;">
+									Supprimer
+								</button>
+							</form>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endfor %}
+
 	{% if openCreateModal is defined and openCreateModal %}
 		 <script>
 														document.addEventListener('DOMContentLoaded', function () {

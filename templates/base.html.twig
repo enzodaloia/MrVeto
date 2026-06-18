@@ -133,7 +133,7 @@
 								Créer un RDV
 							</a>
 						{% endif %}
-						<a href="{{ path('app_logout') }}" class="text-decoration-none text-danger fw-bold d-flex align-items-center gap-2 justify-content-center p-2 rounded hover-bg-light">
+						<a href="{{ path('app_logout') }}" data-turbo="false" class="text-decoration-none text-danger fw-bold d-flex align-items-center gap-2 justify-content-center p-2 rounded hover-bg-light">
 							<i class="bi bi-box-arrow-right"></i>
 							Déconnexion
 						</a>
@@ -301,7 +301,7 @@
 									</div>
 								{% endif %}
 
-								<a href="{{ path('app_logout') }}" class="nav-link text-danger fw-bold d-flex align-items-center gap-3 py-2 mt-2 pt-3 border-top px-2">
+								<a href="{{ path('app_logout') }}" data-turbo="false" class="nav-link text-danger fw-bold d-flex align-items-center gap-3 py-2 mt-2 pt-3 border-top px-2">
 									<i class="bi bi-box-arrow-right fs-5 w-20px text-center"></i>
 									Déconnexion</a>
 							</div>
