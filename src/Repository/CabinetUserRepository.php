@@ -136,6 +136,7 @@ class CabinetUserRepository extends ServiceEntityRepository
             ->innerJoin(CabinetUser::class, 'cu', 'WITH', 'cu.user = u')
             ->where('cu.cabinet = :cabinet')
             ->andWhere('cu.roleInCabinet = :role')
+            ->andWhere('u.archivedAt IS NULL')
             ->setParameter('cabinet', $cabinet)
             ->setParameter('role', $roleInCabinet)
             ->orderBy('u.nom', 'ASC')

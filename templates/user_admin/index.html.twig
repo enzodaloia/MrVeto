@@ -110,6 +110,9 @@
 							<li>
 								<a class="dropdown-item filter-status-item" href="#" data-value="0">En attente admin</a>
 							</li>
+							<li>
+								<a class="dropdown-item filter-status-item" href="#" data-value="archived">Archivé</a>
+							</li>
 						</ul>
 					</div>
 
@@ -161,7 +164,9 @@
 						<tbody id="users-table-body">
 							{% for user in users %}
 								<tr class="user-row border-bottom" data-nom="{{ user.nom|lower }} {{ user.prenom|lower }}" data-email="{{ user.email|lower }}" data-role="{% if 'ROLE_ADMIN' in user.roles %}role_admin{% elseif 'ROLE_SECRETARY' in user.roles or 'ROLE_SECRETAIRE' in user.roles %}role_secretary{% elseif 'ROLE_VETO' in user.roles %}role_veto{% else %}role_user{% endif %}" data-verified="
-																																																																								{% if 'ROLE_VETO' in user.roles %}
+																																																																								{% if user.archivedAt %}
+																																																																									archived
+																																																																								{% elseif 'ROLE_VETO' in user.roles %}
 																																																																									{{ user.isVerified ? '1' : '0' }}
 																																																																								{% else %}
 																																																																									active
@@ -196,14 +201,18 @@
 									<td class="text-muted">{{ user.email }}</td>
 
 									<td>
-										{% if 'ROLE_VETO' in user.roles %}
-											{% if user.isVerified %}
-												<span class="badge rounded-pill px-3 py-2 bg-primary text-white" style="font-size:0.72rem;">Validé admin</span>
-											{% else %}
-												<span class="badge rounded-pill px-3 py-2 bg-warning text-white" style="font-size:0.72rem;">En attente admin</span>
-											{% endif %}
+										{% if user.archivedAt %}
+											<span class="badge rounded-pill px-3 py-2" style="background:#fef3c7;color:#d97706;font-size:0.72rem;">Archivé</span>
 										{% else %}
-											<span class="badge rounded-pill px-3 py-2 bg-info text-white" style="font-size:0.72rem;">Actif</span>
+											{% if 'ROLE_VETO' in user.roles %}
+												{% if user.isVerified %}
+													<span class="badge rounded-pill px-3 py-2 bg-primary text-white" style="font-size:0.72rem;">Validé admin</span>
+												{% else %}
+													<span class="badge rounded-pill px-3 py-2 bg-warning text-white" style="font-size:0.72rem;">En attente admin</span>
+												{% endif %}
+											{% else %}
+												<span class="badge rounded-pill px-3 py-2 bg-info text-white" style="font-size:0.72rem;">Actif</span>
+											{% endif %}
 										{% endif %}
 									</td>
 
@@ -305,6 +314,9 @@
 									<li>
 										<a class="dropdown-item filter-status-item" href="#" data-value="0">En attente admin</a>
 									</li>
+									<li>
+										<a class="dropdown-item filter-status-item" href="#" data-value="archived">Archivé</a>
+									</li>
 								</ul>
 							</div>
 						</div>
@@ -341,7 +353,9 @@
 				<div id="users-mobile-list">
 					{% for user in users %}
 						<div class="user-row bg-white rounded-4 shadow-sm p-3 mb-3" data-nom="{{ user.nom|lower }} {{ user.prenom|lower }}" data-email="{{ user.email|lower }}" data-role="{% if 'ROLE_ADMIN' in user.roles %}role_admin{% elseif 'ROLE_SECRETARY' in user.roles or 'ROLE_SECRETAIRE' in user.roles %}role_secretary{% elseif 'ROLE_VETO' in user.roles %}role_veto{% else %}role_user{% endif %}" data-verified="
-																																																								{% if 'ROLE_VETO' in user.roles %}
+																																																								{% if user.archivedAt %}
+																																																									archived
+																																																								{% elseif 'ROLE_VETO' in user.roles %}
 																																																									{{ user.isVerified ? '1' : '0' }}
 																																																								{% else %}
 																																																									active
@@ -362,14 +376,18 @@
 								<div class="d-flex justify-content-between align-items-center gap-3">
 									<span class="text-muted">Status</span>
 									<div>
-										{% if 'ROLE_VETO' in user.roles %}
-											{% if user.isVerified %}
-												<span class="badge rounded-pill px-3 py-2 bg-primary text-white" style="font-size:0.72rem;">Validé admin</span>
-											{% else %}
-												<span class="badge rounded-pill px-3 py-2 bg-warning text-white" style="font-size:0.72rem;">En attente admin</span>
-											{% endif %}
+										{% if user.archivedAt %}
+											<span class="badge rounded-pill px-3 py-2" style="background:#fef3c7;color:#d97706;font-size:0.72rem;">Archivé</span>
 										{% else %}
-											<span class="badge rounded-pill px-3 py-2 bg-success text-white" style="font-size:0.72rem;">Actif</span>
+											{% if 'ROLE_VETO' in user.roles %}
+												{% if user.isVerified %}
+													<span class="badge rounded-pill px-3 py-2 bg-primary text-white" style="font-size:0.72rem;">Validé admin</span>
+												{% else %}
+													<span class="badge rounded-pill px-3 py-2 bg-warning text-white" style="font-size:0.72rem;">En attente admin</span>
+												{% endif %}
+											{% else %}
+												<span class="badge rounded-pill px-3 py-2 bg-success text-white" style="font-size:0.72rem;">Actif</span>
+											{% endif %}
 										{% endif %}
 									</div>
 								</div>
@@ -476,10 +494,10 @@
 
 	{% if openCreateModal is defined and openCreateModal %}
 		 <script>
-														document.addEventListener('DOMContentLoaded', function () {
+														setTimeout(function () {
 															var myModal = new bootstrap.Modal(document.getElementById('createUserModal'));
 															myModal.show();
-														});
+														}, 50);
 													</script>
 	{% endif %}
 
@@ -536,7 +554,7 @@
 							</script>
 
  <script>
-					document.addEventListener('DOMContentLoaded', function () {
+					(function () {
 						const searchDesktop = document.getElementById('search-input');
 						const searchMobile = document.getElementById('search-input-mobile');
 						const emptyTableRow = document.getElementById('empty-table-row');
@@ -557,7 +575,8 @@
 						const statusLabels = {
 							active: 'Actif',
 							'1': 'Valide admin',
-							'0': 'En attente admin'
+							'0': 'En attente admin',
+							'archived': 'Archive'
 						};
 						const dateLabels = {
 							asc: 'Plus ancien',
@@ -749,7 +768,7 @@
 						});
 			
 						filterRows();
-					});
+					})();
 				</script>
 
 	 <script>
