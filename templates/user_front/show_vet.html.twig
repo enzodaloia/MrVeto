@@ -1,0 +1,223 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon compte professionnel - MrVeto{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+{% endblock %}
+
+{% block body %}
+
+<div class="container my-5" style="max-width: 900px;" 
+    data-controller="profile-form"
+    data-profile-form-url-value="{{ path('app_user_front_update_vet', {slug: user.slug}) }}">
+    <h1 class="text-center text-info fw-bold mb-5">Mon compte professionnel</h1>
+
+    <div class="text-center mb-4 d-flex justify-content-center flex-wrap gap-2">
+        <a class="btn btn-outline-primary rounded-pill px-4" href="{{ path('app_vet_cabinet_index') }}">
+            <i class="bi bi-building me-1"></i>Gérer mon cabinet et mes secrétaires
+        </a>
+        <a class="btn btn-outline-primary rounded-pill px-4" href="{{ path('app_vet_info', {slug: user.slug}) }}">
+            <i class="bi bi-person-badge me-1"></i>Mon profil public
+        </a>
+    </div>
+    <style>
+        .btn-outline-primary:hover, .btn-outline-primary:focus { color: #fff !important; }
+    </style>
+
+    {# Profile Picture Section #}
+    <div class="card border-0 shadow-sm mb-5 rounded-4 bg-secondary-bg">
+        <div class="card-body d-flex justify-content-center align-items-center py-4">
+            <div class="d-flex flex-wrap justify-content-center align-items-center gap-3 gap-sm-4">
+                 <div class="rounded-circle overflow-hidden border border-2 border-white shadow-sm flex-shrink-0" style="width: 80px; height: 80px;">
+                     <img src="https://ui-avatars.com/api/?name={{ user.prenom }}+{{ user.nom }}&background=random" class="w-100 h-100 object-fit-cover" alt="Avatar">
+                 </div>
+            </div>
+        </div>
+    </div>
+
+    {# Informations personnelles #}
+    <div class="card border-0 shadow-sm mb-4 rounded-3">
+        <div class="card-header text-white px-4 py-3 bg-primary-pressed">
+            <i class="bi bi-person-circle me-2 fs-4"></i> <span class="fw-bold fs-5">Informations personnelles</span>
+        </div>
+        <ul class="list-group list-group-flush" data-controller="autocomplete-address" data-autocomplete-address-theme-value="form">
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
+                <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center w-100 me-3">
+                    <span class="fs-6 fw-bold me-2 mb-1 mb-sm-0 text-nowrap">Nom :</span>
+                    <span class="fs-6 text-break" data-editable-field-target="display">{{ user.nom }}</span>
+                    <input type="text" name="nom" class="form-control d-none w-100 mt-2 mt-sm-0" style="max-width: 300px;" value="{{ user.nom }}" data-editable-field-target="input" aria-label="Nom">
+                </div>
+                <button class="bg-transparent border-0 text-primary fs-5 flex-shrink-0 align-self-start align-self-sm-center mt-1 mt-sm-0" aria-label="Modifier le nom" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
+                <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center w-100 me-3">
+                    <span class="fs-6 fw-bold me-2 mb-1 mb-sm-0 text-nowrap">Prénom :</span>
+                    <span class="fs-6 text-break" data-editable-field-target="display">{{ user.prenom }}</span>
+                    <input type="text" name="prenom" class="form-control d-none w-100 mt-2 mt-sm-0" style="max-width: 300px;" value="{{ user.prenom }}" data-editable-field-target="input" aria-label="Prénom">
+                </div>
+                <button class="bg-transparent border-0 text-primary fs-5 flex-shrink-0 align-self-start align-self-sm-center mt-1 mt-sm-0" aria-label="Modifier le prénom" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
+                <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center w-100 me-3">
+                    <span class="fs-6 fw-bold me-2 mb-1 mb-sm-0 text-nowrap">Adresse personnelle :</span>
+                    <span class="fs-6 text-break" data-editable-field-target="display">{{ user.adresse }}</span>
+                    <div class="position-relative w-100 mt-2 mt-sm-0" style="max-width: 300px;">
+                        <input type="text" name="adresse" class="form-control d-none w-100" value="{{ user.adresse }}" data-editable-field-target="input" data-autocomplete-address-target="input street" data-action="input->autocomplete-address#search" autocomplete="off" aria-label="Adresse personnelle">
+                        <div data-autocomplete-address-target="results" class="position-absolute start-0 end-0 top-100 z-3"></div>
+                    </div>
+                </div>
+                <button class="bg-transparent border-0 text-primary fs-5 flex-shrink-0 align-self-start align-self-sm-center mt-1 mt-sm-0" aria-label="Modifier l'adresse personnelle" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom">
+                <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center w-100 me-3">
+                    <span class="fs-6 fw-bold me-2 mb-1 mb-sm-0 text-nowrap">Ville :</span>
+                    <span class="fs-6 text-break text-muted" data-autocomplete-address-target="cityDisplay">{{ user.ville ?: '—' }}</span>
+                    <input type="hidden" name="ville" value="{{ user.ville }}" data-editable-field-target="input" data-autocomplete-address-target="city">
+                </div>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom">
+                <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center w-100 me-3">
+                    <span class="fs-6 fw-bold me-2 mb-1 mb-sm-0 text-nowrap">Code postal :</span>
+                    <span class="fs-6 text-break text-muted" data-autocomplete-address-target="postcodeDisplay">{{ user.codepostal ?: '—' }}</span>
+                    <input type="hidden" name="codepostal" value="{{ user.codepostal }}" data-editable-field-target="input" data-autocomplete-address-target="postcode">
+                </div>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
+                <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center w-100 me-3">
+                    <span class="fs-6 fw-bold me-2 mb-1 mb-sm-0 text-nowrap">Téléphone :</span>
+                    <span class="fs-6 text-break" data-editable-field-target="display">
+                        {{ user.telephone|format_phone }}
+                    </span>
+                    <input type="text" name="telephone" class="form-control d-none w-100 mt-2 mt-sm-0" style="max-width: 300px;" value="{{ user.telephone }}" data-editable-field-target="input" aria-label="Téléphone" data-controller="phone-input" data-action="input->phone-input#format">
+                </div>
+                <button class="bg-transparent border-0 text-primary fs-5 flex-shrink-0 align-self-start align-self-sm-center mt-1 mt-sm-0" aria-label="Modifier le téléphone" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
+            </li>
+        </ul>
+    </div>
+
+    {# Informations professionnelles #}
+    <div class="card border-0 shadow-sm mb-4 rounded-3">
+        <div class="card-header text-white px-4 py-3 bg-primary-pressed">
+            <i class="bi bi-briefcase-fill me-2 fs-4"></i> <span class="fw-bold fs-5">Informations professionnelles</span>
+        </div>
+        <ul class="list-group list-group-flush" data-controller="autocomplete-address" data-autocomplete-address-theme-value="form">
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
+                <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center w-100 me-3">
+                    <span class="fs-6 fw-bold me-2 mb-1 mb-sm-0 text-nowrap">N° de Siret :</span>
+                    <span class="fs-6 text-break" data-editable-field-target="display">{{ user.siret }}</span>
+                    <input type="text" name="siret" class="form-control d-none w-100 mt-2 mt-sm-0" style="max-width: 300px;" value="{{ user.siret }}" data-editable-field-target="input" aria-label="Numéro de Siret">
+                </div>
+                <button class="bg-transparent border-0 text-primary fs-5 flex-shrink-0 align-self-start align-self-sm-center mt-1 mt-sm-0" aria-label="Modifier le numéro de Siret" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
+                <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center w-100 me-3">
+                    <span class="fs-6 fw-bold me-2 mb-1 mb-sm-0 text-nowrap">Adresse du cabinet :</span>
+                    <span class="fs-6 text-break" data-editable-field-target="display">{{ user.adressecabinet }}</span>
+                    <div class="position-relative w-100 mt-2 mt-sm-0" style="max-width: 300px;">
+                        <input type="text" name="adressecabinet" class="form-control d-none w-100" value="{{ user.adressecabinet }}" data-editable-field-target="input" data-autocomplete-address-target="input" data-action="input->autocomplete-address#search" autocomplete="off" aria-label="Adresse du cabinet">
+                        <div data-autocomplete-address-target="results" class="position-absolute start-0 end-0 top-100 z-3"></div>
+                    </div>
+                </div>
+                <button class="bg-transparent border-0 text-primary fs-5 flex-shrink-0 align-self-start align-self-sm-center mt-1 mt-sm-0" aria-label="Modifier l'adresse du cabinet" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
+            </li>
+        </ul>
+    </div>
+
+    {# Sécurité #}
+    <div class="card border-0 shadow-sm mb-4 rounded-3">
+        <div class="card-header text-white px-4 py-3 bg-primary-pressed">
+             <i class="bi bi-shield-lock me-2 fs-4"></i> <span class="fw-bold fs-5">Sécurité</span>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-bottom" data-controller="editable-field" data-action="profile-form:save@window->editable-field#save profile-form:cancel@window->editable-field#cancel">
+                <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center w-100 me-3">
+                    <span class="fs-6 fw-bold me-2 mb-1 mb-sm-0 text-nowrap">Adresse email :</span>
+                    <span class="fs-6 text-break" data-editable-field-target="display">{{ user.email }}</span>
+                    <input type="email" name="email" class="form-control d-none w-100 mt-2 mt-sm-0" style="max-width: 300px;" value="{{ user.email }}" data-editable-field-target="input" aria-label="Adresse email">
+                </div>
+                <button class="bg-transparent border-0 text-primary fs-5 flex-shrink-0 align-self-start align-self-sm-center mt-1 mt-sm-0" aria-label="Modifier l'adresse email" data-action="click->editable-field#edit" data-editable-field-target="editButton"><i class="bi bi-pencil-fill"></i></button>
+            </li>
+            <li class="list-group-item text-center py-4">
+                <form method="post" action="{{ path('app_user_front_archive', {'slug': user.slug}) }}" id="archiveAccountForm" style="display: inline;">
+                    <input type="hidden" name="_token" value="{{ csrf_token('archive' ~ user.id) }}">
+                    <button type="button" class="btn text-danger bg-transparent border-0 px-4 py-2 fw-bold" data-bs-toggle="modal" data-bs-target="#archiveAccountModal">
+                        <i class="bi bi-archive-fill me-2"></i> Archiver mes informations
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </div>
+
+    {# Données #}
+    <div class="card border-0 shadow-sm mb-5 rounded-3">
+         <div class="card-header text-white px-4 py-3 bg-info">
+            <i class="bi bi-file-text me-2 fs-4"></i> <span class="fw-bold fs-5">Données</span>
+        </div>
+        <div class="card-body p-0">
+             <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center px-4 py-3 border-bottom bg-light bg-opacity-10 gap-3">
+                <span class="fs-6">J'accepte toutes les <strong>conditions</strong> et les <strong>politiques de confidentialité</strong>.</span>
+                <div class="form-check form-switch mb-0">
+                    <input class="form-check-input mt-0" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked style="width: 3em; height: 1.5em; cursor: pointer;" aria-label="Accepter les conditions et politiques de confidentialité">
+                </div>
+            </div>
+            <div class="text-center py-3">
+                 <button class="btn text-info fw-bold bg-transparent border-0 px-4 py-2"><i class="bi bi-download me-2"></i> Télécharger mes données</button>
+            </div>
+        </div>
+    </div>
+
+    {# Modal de confirmation d'archivage #}
+    <div class="modal fade" id="archiveAccountModal" tabindex="-1" aria-labelledby="archiveAccountModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header border-0 bg-warning-bg pt-4 px-4">
+                    <h5 class="modal-title fw-bold text-warning" id="archiveAccountModalLabel">
+                        <i class="bi bi-archive-fill me-2"></i>Confirmation d'archivage
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4 py-4">
+                    <p class="mb-3 fs-6">Êtes-vous sûr de vouloir archiver votre compte professionnel ?</p>
+                    <p class="text-warning fw-bold mb-0"><i class="bi bi-info-circle me-1"></i> Vos informations de vétérinaire seront gardées pendant 20 ans pour conserver l'historique des documents.</p>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-secondary-bg text-neutral-90 rounded-pill px-4 fw-bold" data-bs-dismiss="modal">
+                        Annuler
+                    </button>
+                    <button type="button" class="btn btn-warning text-white rounded-pill px-4 fw-bold" onclick="document.getElementById('archiveAccountForm').submit();">
+                        <i class="bi bi-archive-fill me-2"></i>Archiver
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    {# Reset Password Link #}
+    <div class="text-center mb-5">
+        <span class="text-muted">Mot de passe oublié?</span> <a href="/reset-password" class="text-danger fw-bold text-decoration-underline ms-1">Réinitialiser mon mot de passe</a>
+    </div>
+
+    {# Action Buttons #}
+    <div class="d-grid d-md-flex justify-content-center gap-3 gap-md-4 mb-5 pb-5 px-4 px-md-0">
+        <button class="btn btn-success-bg rounded-pill px-5 py-2 fw-bold shadow-sm text-info" data-action="click->profile-form#cancel">Annuler</button>
+        <button class="btn btn-success text-primary-bg rounded-pill px-4 py-2 fw-bold shadow-sm" data-action="click->profile-form#save">Enregistrer mes modifications</button>
+    </div>
+
+    {# Toast Notification Container #}
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="statusToast" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body fw-bold">
+                    Hello, world! This is a toast message.
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

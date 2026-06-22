@@ -1,0 +1,705 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ animal.nom }} – Mes Animaux - MrVeto{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('carnet_sante') }}
+{% endblock %}
+
+{% block body %}
+<div class="carnet-sante-page p-3 p-lg-4">
+<div class="container-fluid p-0">
+
+{# Breadcrumb #}
+<nav class="mb-4" aria-label="Fil d'Ariane">
+    <ol class="breadcrumb mb-0 small">
+        <li class="breadcrumb-item">
+            <a href="{{ path('app_animaux') }}" class="text-primary text-decoration-none">
+                <i class="bi bi-heart me-1" aria-hidden="true"></i>Mes Animaux
+            </a>
+        </li>
+        <li class="breadcrumb-item active text-muted">{{ animal.nom }}</li>
+    </ol>
+</nav>
+
+{# Alerte traitement finissant bientôt #}
+{% set traitementsAlerte = traitements|filter(t => t.isEnCours and t.dateFin is not null and t.dateFin|date('U') - 'now'|date('U') < 604800) %}
+{% if traitementsAlerte|length > 0 %}
+    <div class="alert alert-warning border-0 rounded-3 d-flex align-items-start gap-2 mb-4 shadow-sm" role="alert">
+        <i class="bi bi-exclamation-triangle-fill text-warning mt-1 flex-shrink-0"></i>
+        <div>
+            <strong>Traitement se terminant bientôt :</strong>
+            {% for t in traitementsAlerte %}
+                <span class="fw-medium">{{ t.libelle }}</span> (fin le {{ t.dateFin|date('d/m/Y') }}){% if not loop.last %}, {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
+
+<div class="row g-4 align-items-start">
+
+{# ═══════════════════════════════════════════════════════════════
+   COLONNE PRINCIPALE
+═══════════════════════════════════════════════════════════════ #}
+<div class="col-12 col-xl-9">
+
+    {# Fiche animal #}
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-3 p-lg-4">
+            <div class="d-flex flex-column flex-lg-row gap-3 align-items-lg-center justify-content-between">
+                <div class="d-flex align-items-center gap-3">
+                    <img
+                        src="https://ui-avatars.com/api/?name={{ animal.nom|url_encode }}&background=EBF4FC&color=36BDAF&bold=true&size=128"
+                        alt="{{ animal.nom }}"
+                        class="rounded-circle border border-2 border-white shadow-sm"
+                        width="84" height="84"
+                    >
+                    <div>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <h1 class="h4 fw-bold mb-0 text-neutral-100">{{ animal.nom }}</h1>
+                            {% if animal.espece %}
+                                <span class="badge rounded-pill bg-primary-bg text-primary fw-medium">
+                                    {{ animal.race ? animal.race : animal.espece }}
+                                </span>
+                            {% endif %}
+                            {% if animal.vaccinAJour %}
+                                <span class="badge bg-success-bg text-success rounded-pill fw-medium">
+                                    <i class="bi bi-shield-check me-1" aria-hidden="true"></i>Vaccins à jour
+                                </span>
+                            {% else %}
+                                <span class="badge bg-danger-bg text-danger rounded-pill fw-medium">
+                                    <i class="bi bi-shield-exclamation me-1" aria-hidden="true"></i>Vaccins expirés
+                                </span>
+                            {% endif %}
+                        </div>
+                        <div class="mt-2 d-flex flex-wrap gap-3 text-muted small">
+                            {% if animal.espece and animal.race %}
+                                <span class="d-inline-flex align-items-center gap-1">
+                                    <i class="bi bi-tag text-primary" aria-hidden="true"></i>
+                                    <span class="visually-hidden">Espèce :</span>{{ animal.espece }}
+                                </span>
+                            {% endif %}
+                            {% if animal.age %}
+                                <span class="d-inline-flex align-items-center gap-1">
+                                    <i class="bi bi-calendar text-primary" aria-hidden="true"></i>
+                                    <span class="visually-hidden">Âge :</span>{{ animal.age }}
+                                </span>
+                            {% endif %}
+                            {% if animal.poids %}
+                                <span class="d-inline-flex align-items-center gap-1">
+                                    <i class="bi bi-speedometer2 text-primary" aria-hidden="true"></i>
+                                    <span class="visually-hidden">Poids :</span>{{ animal.poids }} kg
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex flex-column gap-2 flex-shrink-0">
+                    {% if lastVisit %}
+                        <div class="text-center px-4 py-2 rounded-3 bg-neutral-20">
+                            <div class="text-muted fw-bold mb-1" style="font-size: 0.65rem; letter-spacing: 0.06em; text-transform: uppercase;">Dernière visite</div>
+                            <div class="fw-semibold text-neutral-90 small">{{ lastVisit.dateHeure|date('d/m/Y') }}</div>
+                        </div>
+                    {% endif %}
+                    <button class="btn btn-outline-secondary rounded-3 d-flex align-items-center justify-content-center gap-2"
+                            data-bs-toggle="modal" data-bs-target="#editAnimalModal"
+                            aria-label="Modifier la fiche de {{ animal.nom }}">
+                        <i class="bi bi-pencil" aria-hidden="true"></i> Modifier la fiche
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Prochains rendez-vous #}
+    {% if rdvFuturs|length > 0 %}
+        <div class="mb-4">
+            <h2 class="h5 fw-bold d-flex align-items-center gap-2 mb-3 text-neutral-100">
+                <i class="bi bi-calendar-check text-primary" aria-hidden="true"></i>
+                Prochains rendez-vous
+                <span class="badge bg-primary rounded-pill ms-1" style="font-size: 0.72rem;">{{ rdvFuturs|length }}</span>
+            </h2>
+            <div class="d-flex flex-column gap-2">
+                {% for rdv in rdvFuturs %}
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-3 d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="text-center px-3 py-2 bg-primary-bg rounded-3" style="min-width: 60px;">
+                                    <div class="fw-bold text-primary" style="font-size: 1.3rem; line-height: 1;">{{ rdv.dateHeure|date('d') }}</div>
+                                    <div class="text-primary small fw-medium" style="font-size: 0.7rem; text-transform: uppercase;">{{ rdv.dateHeure|date('M') }}</div>
+                                </div>
+                                <div>
+                                    <div class="fw-semibold text-neutral-100">{{ rdv.dateHeure|date('l') }} à {{ rdv.dateHeure|date('H:i') }}</div>
+                                    {% if rdv.veterinaire %}
+                                        <div class="small text-muted">Dr. {{ rdv.veterinaire.prenom }} {{ rdv.veterinaire.nom }}</div>
+                                    {% endif %}
+                                    {% if rdv.motif %}
+                                        <div class="small text-muted fst-italic">{{ rdv.motif }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if rdv.veterinaire and rdv.veterinaire.slug %}
+                                <a href="{{ path('app_vet_book', {'slug': rdv.veterinaire.slug}) }}"
+                                   class="btn btn-sm btn-outline-primary rounded-3 d-flex align-items-center gap-1 flex-shrink-0"
+                                   aria-label="Modifier le rendez-vous du {{ rdv.dateHeure|date('d/m/Y') }} avec Dr. {{ rdv.veterinaire.nom }}">
+                                    <i class="bi bi-arrow-repeat" aria-hidden="true"></i> Modifier
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    {# Traitements #}
+    <div class="mb-4">
+        <h2 class="h5 fw-bold d-flex align-items-center gap-2 mb-3 text-neutral-100">
+            <i class="bi bi-clipboard-pulse text-primary" aria-hidden="true"></i>
+            Traitements
+        </h2>
+        {% if traitements is empty %}
+            <div class="card border-0 shadow-sm">
+                <div class="card-body py-4 text-center text-muted">
+                    <i class="bi bi-clipboard-x display-6 d-block mb-2 opacity-40"></i>
+                    Aucun traitement enregistré pour cet animal.
+                </div>
+            </div>
+        {% else %}
+            <div class="card border-0 shadow-sm overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table table-borderless align-middle mb-0 cs-history-table" aria-label="Traitements de {{ animal.nom }}">
+                        <caption class="visually-hidden">Liste des traitements de {{ animal.nom }}</caption>
+                        <thead>
+                            <tr class="border-bottom border-light-subtle">
+                                <th scope="col" class="text-muted cs-fs-7 fw-bold pb-2 ps-3">TRAITEMENT</th>
+                                <th scope="col" class="text-muted cs-fs-7 fw-bold pb-2">POSOLOGIE</th>
+                                <th scope="col" class="text-muted cs-fs-7 fw-bold pb-2">PÉRIODE</th>
+                                <th scope="col" class="text-muted cs-fs-7 fw-bold pb-2">PRESCRIT PAR</th>
+                                <th scope="col" class="text-muted cs-fs-7 fw-bold pb-2 text-end pe-3">STATUT</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for traitement in traitements %}
+                                <tr class="border-bottom border-light-subtle">
+                                    <td class="ps-3">
+                                        <div class="fw-bold text-neutral-100">{{ traitement.libelle }}</div>
+                                    </td>
+                                    <td class="text-muted small">{{ traitement.posologie|default('—') }}</td>
+                                    <td class="text-muted small">
+                                        {{ traitement.dateDebut|date('d/m/Y') }}
+                                    {% if traitement.dateFin %}
+                                            → {{ traitement.dateFin|date('d/m/Y') }}
+                                        {% else %}
+                                            → <span class="text-success fw-medium">En cours</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if traitement.veterinaire %}
+                                            <span class="small text-muted">Dr. {{ traitement.veterinaire.nom }}</span>
+                                        {% else %}
+                                            <span class="small text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end pe-3">
+                                        {% if traitement.isEnCours %}
+                                            <span class="badge bg-success-bg text-success rounded-pill" style="font-size: 0.7rem;">Actif</span>
+                                        {% else %}
+                                            <span class="badge bg-neutral-20 text-neutral-70 rounded-pill" style="font-size: 0.7rem;">Terminé</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    {# Historique médical #}
+    <div>
+        {% set rdvNonAnnules = rdvHistory|filter(r => r.statut != 'annule') %}
+        <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+            <h2 class="h5 fw-bold d-flex align-items-center gap-2 mb-0 text-neutral-100">
+                <i class="bi bi-clock-history text-primary" aria-hidden="true"></i>
+                Historique médical
+            </h2>
+            <span class="small text-muted">{{ rdvNonAnnules|length }} consultation{{ rdvNonAnnules|length > 1 ? 's' : '' }}</span>
+        </div>
+
+        {# Barre recherche + filtres #}
+        {% if rdvNonAnnules|length > 0 %}
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-body p-2 p-lg-3 d-flex gap-2 flex-wrap align-items-center">
+                    <div class="input-group input-group-sm flex-grow-1" style="min-width: 200px; max-width: 320px;">
+                        <span class="input-group-text border-0 bg-neutral-20" aria-hidden="true"><i class="bi bi-search text-muted"></i></span>
+                        <input type="text" id="rdv-search" class="form-control border-0 bg-neutral-20" placeholder="Rechercher motif, compte-rendu…" aria-label="Rechercher dans l'historique médical">
+                    </div>
+                    {# Dropdown vétérinaire #}
+                    <div class="dropdown">
+                        <button type="button" id="rdv-filter-vet" data-selected=""
+                                class="btn btn-sm rounded-pill bg-neutral-20 border-0 d-flex align-items-center gap-2 px-3 py-2"
+                                data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"
+                                aria-label="Filtrer par vétérinaire">
+                            <span id="rdv-vet-label" class="small fw-medium text-neutral-80">Tous les vétérinaires</span>
+                            <i class="bi bi-chevron-down text-muted" style="font-size: 0.65rem;"></i>
+                        </button>
+                        <ul class="dropdown-menu border-0 shadow-lg rounded-4 mt-1 py-2" style="min-width: 210px;">
+                            <li>
+                                <button type="button" class="dropdown-item rounded-3 d-flex align-items-center gap-2 py-2 px-3 rdv-vet-opt"
+                                        data-value="" data-label="Tous les vétérinaires">
+                                    <span class="flex-grow-1 small">Tous les vétérinaires</span>
+                                    <i class="bi bi-check2 text-primary rdv-vet-check"></i>
+                                </button>
+                            </li>
+                            {% set vetsVus = [] %}
+                            {% for rdv in rdvNonAnnules %}
+                                {% if rdv.veterinaire and rdv.veterinaire.id not in vetsVus %}
+                                    {% set vetsVus = vetsVus|merge([rdv.veterinaire.id]) %}
+                                    <li>
+                                        <button type="button" class="dropdown-item rounded-3 d-flex align-items-center gap-2 py-2 px-3 rdv-vet-opt"
+                                                data-value="{{ rdv.veterinaire.id }}" data-label="Dr. {{ rdv.veterinaire.nom }}">
+                                            <span class="flex-grow-1 small">Dr. {{ rdv.veterinaire.nom }}</span>
+                                            <i class="bi bi-check2 text-primary rdv-vet-check" style="opacity:0;"></i>
+                                        </button>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    {# Dropdown année #}
+                    <div class="dropdown">
+                        <button type="button" id="rdv-filter-year" data-selected=""
+                                class="btn btn-sm rounded-pill bg-neutral-20 border-0 d-flex align-items-center gap-2 px-3 py-2"
+                                data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"
+                                aria-label="Filtrer par année">
+                            <span id="rdv-year-label" class="small fw-medium text-neutral-80">Toutes années</span>
+                            <i class="bi bi-chevron-down text-muted" style="font-size: 0.65rem;"></i>
+                        </button>
+                        <ul class="dropdown-menu border-0 shadow-lg rounded-4 mt-1 py-2" style="min-width: 140px;">
+                            <li>
+                                <button type="button" class="dropdown-item rounded-3 d-flex align-items-center gap-2 py-2 px-3 rdv-year-opt"
+                                        data-value="" data-label="Toutes années">
+                                    <span class="flex-grow-1 small">Toutes années</span>
+                                    <i class="bi bi-check2 text-primary rdv-year-check"></i>
+                                </button>
+                            </li>
+                            {% set annees = [] %}
+                            {% for rdv in rdvNonAnnules %}
+                                {% set yr = rdv.dateHeure|date('Y') %}
+                                {% if yr not in annees %}
+                                    {% set annees = annees|merge([yr]) %}
+                                    <li>
+                                        <button type="button" class="dropdown-item rounded-3 d-flex align-items-center gap-2 py-2 px-3 rdv-year-opt"
+                                                data-value="{{ yr }}" data-label="{{ yr }}">
+                                            <span class="flex-grow-1 small">{{ yr }}</span>
+                                            <i class="bi bi-check2 text-primary rdv-year-check" style="opacity:0;"></i>
+                                        </button>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <button id="rdv-filter-reset" class="btn btn-sm rounded-pill border-0 text-muted bg-transparent d-none px-2" type="button" aria-label="Réinitialiser les filtres">
+                        <i class="bi bi-x-circle me-1" aria-hidden="true"></i>Réinitialiser
+                    </button>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="card border-0 shadow-sm overflow-hidden">
+            {% if rdvNonAnnules is empty %}
+                <div class="card-body py-4 text-center text-muted">
+                    <i class="bi bi-calendar-x display-6 d-block mb-2 opacity-40"></i>
+                    Aucune consultation enregistrée pour cet animal.
+                </div>
+            {% else %}
+                <div id="rdv-no-result" class="card-body py-4 text-center text-muted d-none">
+                    <i class="bi bi-search display-6 d-block mb-2 opacity-40"></i>
+                    Aucune consultation ne correspond à votre recherche.
+                </div>
+                {% for rdv in rdvNonAnnules %}
+                    <div class="border-bottom border-light-subtle p-3 p-lg-4 rdv-item"
+                         data-vet-id="{{ rdv.veterinaire ? rdv.veterinaire.id : '' }}"
+                         data-year="{{ rdv.dateHeure|date('Y') }}"
+                         data-search="{{ (rdv.motif ~ ' ' ~ rdv.compteRendu ~ ' ' ~ rdv.remarque)|lower|default('') }}">
+                        <div class="d-flex flex-column flex-lg-row gap-3">
+
+                            {# Date + statuts #}
+                            <div style="min-width: 130px;">
+                                <div class="fw-bold text-neutral-100">{{ rdv.dateHeure|date('d M Y') }}</div>
+                                <div class="small text-muted">{{ rdv.dateHeure|date('H:i') }}</div>
+                                <div class="d-flex flex-wrap gap-1 mt-1">
+                                    <span class="badge bg-success-bg text-success rounded-pill" style="font-size: 0.7rem;">Terminé</span>
+                                    {% if rdv.lastActionType == 'deplace' %}
+                                        <span class="badge bg-warning-bg text-warning rounded-pill" style="font-size: 0.7rem;">
+                                            <i class="bi bi-arrow-left-right me-1" aria-hidden="true"></i>Reporté
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            {# Corps #}
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap mb-1">
+                                    <div class="d-flex align-items-center gap-2">
+                                        {% if rdv.veterinaire %}
+                                            <div class="cs-vet-avatar rounded-circle overflow-hidden bg-light flex-shrink-0">
+                                                <img
+                                                    src="https://ui-avatars.com/api/?name={{ (rdv.veterinaire.prenom|default(''))|url_encode }}+{{ (rdv.veterinaire.nom|default(''))|url_encode }}&background=random"
+                                                    class="w-100 h-100 object-fit-cover"
+                                                    alt="Dr. {{ rdv.veterinaire.nom }}"
+                                                >
+                                            </div>
+                                            <span class="fw-semibold text-neutral-100">Dr. {{ rdv.veterinaire.nom }}</span>
+                                        {% else %}
+                                            <span class="text-muted small">Vétérinaire inconnu</span>
+                                        {% endif %}
+                                    </div>
+                                    {% if rdv.veterinaire and rdv.veterinaire.slug %}
+                                        <a href="{{ path('app_vet_book', {'slug': rdv.veterinaire.slug}) }}"
+                                           class="btn btn-sm btn-primary text-white rounded-3 d-flex align-items-center gap-1 flex-shrink-0 py-1"
+                                           style="font-size: 0.78rem;"
+                                           aria-label="Reprendre RDV avec Dr. {{ rdv.veterinaire.nom }} (consultation du {{ rdv.dateHeure|date('d/m/Y') }})">
+                                            <i class="bi bi-calendar-plus" aria-hidden="true"></i> Reprendre RDV
+                                        </a>
+                                    {% endif %}
+                                </div>
+
+                                {% if rdv.motif %}
+                                    <div class="text-neutral-80 fw-medium">{{ rdv.motif }}</div>
+                                {% endif %}
+
+                                {% if rdv.remarque %}
+                                    <div class="small text-muted fst-italic mt-1">{{ rdv.remarque }}</div>
+                                {% endif %}
+
+                                {% if rdv.compteRendu %}
+                                    <div class="mt-2 p-2 bg-neutral-20 rounded small text-neutral-80">
+                                        {{ rdv.compteRendu|nl2br }}
+                                        {% if rdv.compteRenduPdf %}
+                                            <div class="mt-2">
+                                                <a href="{{ path('app_rdv_download_pdf', {'slug': rdv.slug}) }}" target="_blank"
+                                                   class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 py-1" style="font-size: 0.75rem;">
+                                                    <i class="bi bi-file-earmark-pdf"></i> PDF
+                                                </a>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                        </div>
+                    </div>
+                {% endfor %}
+
+                {# Pagination footer #}
+                <div class="d-flex align-items-center justify-content-between px-3 py-2 bg-neutral-20" id="rdv-pagination-footer">
+                    <span class="small text-muted" id="rdv-count-label"></span>
+                    <nav aria-label="Pagination consultations">
+                        <ul class="pagination pagination-sm mb-0 gap-1" id="rdv-pagination"></ul>
+                    </nav>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>{# /col principale #}
+
+{# ═══════════════════════════════════════════════════════════════
+   COLONNE LATÉRALE
+═══════════════════════════════════════════════════════════════ #}
+<div class="col-12 col-xl-3">
+<div class="d-flex flex-column gap-3">
+
+    {# Stats rapides #}
+    {% if stats.total > 0 %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h2 class="h6 fw-bold d-flex align-items-center gap-2 mb-3 text-neutral-100">
+                    <i class="bi bi-bar-chart text-primary" aria-hidden="true"></i>
+                    En bref
+                </h2>
+                <div class="d-flex flex-column gap-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">Consultations totales</span>
+                        <span class="fw-bold text-neutral-100">{{ stats.total }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">Cette année</span>
+                        <span class="fw-bold text-neutral-100">{{ stats.thisYear }}</span>
+                    </div>
+                    {% if stats.firstVisit %}
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted small">Suivi depuis</span>
+                            <span class="fw-medium text-neutral-90 small">{{ stats.firstVisit.dateHeure|date('m/Y') }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {# Véto référent #}
+    {% if vetRef %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h2 class="h6 fw-bold d-flex align-items-center gap-2 mb-3 text-neutral-100">
+                    <i class="bi bi-person-badge text-primary" aria-hidden="true"></i>
+                    Vétérinaire référent
+                </h2>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="cs-vet-avatar rounded-circle overflow-hidden bg-light flex-shrink-0">
+                        <img
+                            src="https://ui-avatars.com/api/?name={{ (vetRef.vet.prenom|default(''))|url_encode }}+{{ (vetRef.vet.nom|default(''))|url_encode }}&background=random"
+                            class="w-100 h-100 object-fit-cover"
+                            alt="Dr. {{ vetRef.vet.nom }}"
+                        >
+                    </div>
+                    <div>
+                        <div class="fw-semibold text-neutral-100 small">Dr. {{ vetRef.vet.prenom }} {{ vetRef.vet.nom }}</div>
+                        <div class="text-muted" style="font-size: 0.75rem;">{{ vetRef.count }} consultation{{ vetRef.count > 1 ? 's' : '' }}</div>
+                    </div>
+                </div>
+                {% if vetRef.lastDate %}
+                    <div class="text-muted" style="font-size: 0.75rem;">
+                        Dernière visite : {{ vetRef.lastDate|date('d/m/Y') }}
+                    </div>
+                {% endif %}
+                {% if vetRef.vet.slug %}
+                    <a href="{{ path('app_vet_book', {'slug': vetRef.vet.slug}) }}"
+                       class="btn btn-sm btn-primary text-white rounded-3 w-100 mt-2 d-flex align-items-center justify-content-center gap-1"
+                       aria-label="Reprendre RDV avec Dr. {{ vetRef.vet.prenom }} {{ vetRef.vet.nom }}, vétérinaire référent">
+                        <i class="bi bi-calendar-plus" aria-hidden="true"></i> Reprendre RDV
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
+    {# Traitements actifs #}
+    {% set traitementsActifs = traitements|filter(t => t.isEnCours) %}
+    {% if traitementsActifs|length > 0 %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h2 class="h6 fw-bold d-flex align-items-center gap-2 mb-3 text-neutral-100">
+                    <i class="bi bi-clipboard-heart text-primary" aria-hidden="true"></i>
+                    Traitements actifs
+                </h2>
+                <div class="d-flex flex-column gap-2">
+                    {% for t in traitementsActifs %}
+                        <div class="d-flex align-items-start gap-2">
+                            <i class="bi bi-capsule text-primary mt-1 flex-shrink-0" aria-hidden="true"></i>
+                            <div>
+                                <div class="fw-medium text-neutral-90 small">{{ t.libelle }}</div>
+                                {% if t.posologie %}
+                                    <div class="text-muted" style="font-size: 0.78rem;">{{ t.posologie }}</div>
+                                {% endif %}
+                                {% if t.dateFin %}
+                                    <div class="text-muted" style="font-size: 0.75rem;">
+                                        Fin : {{ t.dateFin|date('d/m/Y') }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+
+</div>
+</div>{# /col latérale #}
+
+</div>{# /row #}
+</div>{# /container #}
+</div>{# /carnet-sante-page #}
+
+{# Modal : Modifier la fiche animal #}
+<div class="modal fade" id="editAnimalModal" tabindex="-1" aria-labelledby="editAnimalModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0 px-4 pt-4">
+                <h2 class="h5 fw-bold mb-0" id="editAnimalModalLabel">Modifier la fiche de {{ animal.nom }}</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body p-4 pt-3">
+                <form method="POST" action="{{ path('app_animaux_animal_edit', {'slug': animal.slug}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('edit_animal_' ~ animal.id) }}">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-medium" for="edit-espece">Espèce</label>
+                            <input type="text" id="edit-espece" name="espece" class="form-control" value="{{ animal.espece|default('') }}" placeholder="Chat, Chien, Lapin…">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-medium" for="edit-race">Race</label>
+                            <input type="text" id="edit-race" name="race" class="form-control" value="{{ animal.race|default('') }}" placeholder="Labrador, Persan…">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-medium" for="edit-age">Âge</label>
+                            <input type="text" id="edit-age" name="age" class="form-control" value="{{ animal.age|default('') }}" placeholder="3 ans, 6 mois…">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-medium" for="edit-poids">Poids (kg)</label>
+                            <input type="number" id="edit-poids" step="0.01" min="0" name="poids" class="form-control" value="{{ animal.poids|default('') }}" placeholder="4.5">
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button class="btn btn-primary rounded-pill px-4" type="submit">Enregistrer</button>
+                        <button class="btn btn-light rounded-pill px-4" type="button" data-bs-dismiss="modal">Annuler</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+(function () {
+    // ── Recherche + filtres historique ─────────────────────────────
+    const searchInput  = document.getElementById('rdv-search');
+    const filterVet    = document.getElementById('rdv-filter-vet');
+    const filterYear   = document.getElementById('rdv-filter-year');
+    const resetBtn     = document.getElementById('rdv-filter-reset');
+    const noResult     = document.getElementById('rdv-no-result');
+    const paginationEl = document.getElementById('rdv-pagination');
+    const countLabel   = document.getElementById('rdv-count-label');
+    const allItems     = Array.from(document.querySelectorAll('.rdv-item'));
+
+    let visibleItems = [...allItems];
+
+    function applyFilters() {
+        const q    = searchInput  ? searchInput.value.trim().toLowerCase()  : '';
+        const vet  = filterVet  ? filterVet.dataset.selected  : '';
+        const year = filterYear ? filterYear.dataset.selected : '';
+
+        visibleItems = allItems.filter(item => {
+            const matchQ    = !q    || item.dataset.search.includes(q);
+            const matchVet  = !vet  || item.dataset.vetId  === vet;
+            const matchYear = !year || item.dataset.year   === year;
+            return matchQ && matchVet && matchYear;
+        });
+
+        const hasFilter = q || vet || year;
+        if (resetBtn) resetBtn.classList.toggle('d-none', !hasFilter);
+        if (noResult) noResult.classList.toggle('d-none', visibleItems.length > 0);
+
+        currentPage = 0;
+        renderPage(0);
+    }
+
+    if (searchInput) searchInput.addEventListener('input', applyFilters);
+
+    // ── Dropdown vétérinaire ──────────────────────────────────────
+    document.querySelectorAll('.rdv-vet-opt').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (!filterVet) return;
+            filterVet.dataset.selected = btn.dataset.value;
+            document.getElementById('rdv-vet-label').textContent = btn.dataset.label;
+            document.querySelectorAll('.rdv-vet-check').forEach(i => i.style.opacity = '0');
+            btn.querySelector('.rdv-vet-check').style.opacity = '1';
+            bootstrap.Dropdown.getOrCreateInstance(filterVet).hide();
+            applyFilters();
+        });
+    });
+
+    // ── Dropdown année ────────────────────────────────────────────
+    document.querySelectorAll('.rdv-year-opt').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (!filterYear) return;
+            filterYear.dataset.selected = btn.dataset.value;
+            document.getElementById('rdv-year-label').textContent = btn.dataset.label;
+            document.querySelectorAll('.rdv-year-check').forEach(i => i.style.opacity = '0');
+            btn.querySelector('.rdv-year-check').style.opacity = '1';
+            bootstrap.Dropdown.getOrCreateInstance(filterYear).hide();
+            applyFilters();
+        });
+    });
+
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            if (searchInput) searchInput.value = '';
+            if (filterVet) {
+                filterVet.dataset.selected = '';
+                document.getElementById('rdv-vet-label').textContent = 'Tous les vétérinaires';
+                document.querySelectorAll('.rdv-vet-check').forEach((i, idx) => i.style.opacity = idx === 0 ? '1' : '0');
+            }
+            if (filterYear) {
+                filterYear.dataset.selected = '';
+                document.getElementById('rdv-year-label').textContent = 'Toutes années';
+                document.querySelectorAll('.rdv-year-check').forEach((i, idx) => i.style.opacity = idx === 0 ? '1' : '0');
+            }
+            applyFilters();
+        });
+    }
+
+    // ── Pagination (5 par page) ────────────────────────────────────
+    const PER_PAGE = 5;
+    let currentPage = 0;
+
+    function renderPage(page) {
+        currentPage = page;
+
+        // Masquer tous les items, puis afficher la page courante
+        allItems.forEach(item => item.style.display = 'none');
+        const start = page * PER_PAGE;
+        visibleItems.slice(start, start + PER_PAGE).forEach(item => item.style.display = '');
+
+        const total = visibleItems.length;
+        const totalPages = Math.ceil(total / PER_PAGE);
+
+        if (countLabel) {
+            const from = total > 0 ? start + 1 : 0;
+            const to   = Math.min(start + PER_PAGE, total);
+            countLabel.textContent = total > 0
+                ? `${from}–${to} sur ${total} consultation${total > 1 ? 's' : ''}`
+                : '0 consultation';
+        }
+
+        if (!paginationEl) return;
+        paginationEl.innerHTML = '';
+
+        if (totalPages <= 1) {
+            document.getElementById('rdv-pagination-footer')?.classList.add('d-none');
+            return;
+        }
+        document.getElementById('rdv-pagination-footer')?.classList.remove('d-none');
+
+        // Précédent
+        const prev = document.createElement('li');
+        prev.className = 'page-item' + (page === 0 ? ' disabled' : '');
+        prev.innerHTML = '<button class="page-link rounded-3 border-0 bg-transparent" aria-label="Précédent"><i class="bi bi-chevron-left"></i></button>';
+        if (page > 0) prev.querySelector('button').addEventListener('click', () => renderPage(page - 1));
+        paginationEl.appendChild(prev);
+
+        for (let p = 0; p < totalPages; p++) {
+            const li  = document.createElement('li');
+            li.className = 'page-item' + (p === page ? ' active' : '');
+            const btn = document.createElement('button');
+            btn.className = 'page-link rounded-3 border-0' + (p === page ? ' bg-primary text-white' : ' bg-transparent text-muted');
+            btn.textContent = p + 1;
+            btn.addEventListener('click', () => renderPage(p));
+            li.appendChild(btn);
+            paginationEl.appendChild(li);
+        }
+
+        // Suivant
+        const next = document.createElement('li');
+        next.className = 'page-item' + (page === totalPages - 1 ? ' disabled' : '');
+        next.innerHTML = '<button class="page-link rounded-3 border-0 bg-transparent" aria-label="Suivant"><i class="bi bi-chevron-right"></i></button>';
+        if (page < totalPages - 1) next.querySelector('button').addEventListener('click', () => renderPage(page + 1));
+        paginationEl.appendChild(next);
+    }
+
+    renderPage(0);
+})();
+</script>
+{% endblock %}
+{% endblock %}

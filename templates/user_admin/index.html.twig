@@ -1,0 +1,818 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des utilisateurs - MrVeto{% endblock %}
+
+{% block body %}
+	<style>
+		.action-btn {
+			color: var(--bs-primary);
+			text-decoration: none;
+		}
+		.action-btn svg {
+			width: 16px;
+			height: 16px;
+		}
+		#search-input::placeholder,
+		#search-input-mobile::placeholder {
+			color: var(--bs-info);
+			opacity: 1;
+		}
+			.user-name {
+				min-width: 0;
+			}
+			.user-name-text {
+				display: inline-block;
+				max-width: 180px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				vertical-align: bottom;
+			}
+			.filter-chip {
+				background: #f6f8fb;
+				border: 1px solid rgba(2, 62, 138, 0.12);
+				color: #1f2a44;
+				border-radius: 999px;
+				padding: 0.25rem 0.6rem 0.25rem 0.75rem;
+				font-weight: 600;
+				font-size: 0.82rem;
+				transition: all 0.15s ease-in-out;
+			}
+			.filter-chip:hover {
+				background: #eef2f8;
+			}
+			.filter-chip i {
+				margin-left: 0.4rem;
+			}
+			.filter-chip-clear {
+				border-radius: 999px;
+				padding: 0.2rem 0.65rem;
+			}
+	</style>
+
+	<div class="container-fluid py-4 px-4 min-vh-100">
+		<div class="mx-auto" style="max-width: 1200px;">
+			<h1 class="visually-hidden">Gestion des utilisateurs</h1>
+
+			{% for message in app.flashes('success') %}
+				<div class="alert alert-success rounded-3 border-0 shadow-sm mb-3">{{ message }}</div>
+			{% endfor %}
+
+			<div class="d-none d-lg-block">
+				<div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
+					<div class="input-group rounded-pill overflow-hidden border border-info bg-white" style="max-width:320px;">
+						<span class="input-group-text bg-white border-0">
+							<i data-lucide="search" style="width:15px;height:15px;" class="text-info" aria-hidden="true"></i>
+						</span>
+						<label for="search-input" class="visually-hidden">Rechercher par mail ou nom</label>
+						<input type="text" id="search-input" class="form-control border-0 shadow-none text-info" placeholder="Rechercher par mail/ nom">
+					</div>
+
+					<div class="dropdown">
+						<button class="btn btn-outline-info rounded-pill px-3 d-inline-flex align-items-center gap-2 bg-white dropdown-toggle" data-bs-toggle="dropdown">
+							<i data-lucide="user" style="width:14px;height:14px;"></i>
+							Rôle
+						</button>
+						<ul class="dropdown-menu">
+							<li>
+								<a class="dropdown-item filter-role-item" href="#" data-value="">Tous</a>
+							</li>
+							<li>
+								<a class="dropdown-item filter-role-item" href="#" data-value="role_admin">Admin</a>
+							</li>
+							<li>
+								<a class="dropdown-item filter-role-item" href="#" data-value="role_secretary">Secrétaire</a>
+							</li>
+							<li>
+								<a class="dropdown-item filter-role-item" href="#" data-value="role_veto">Vétérinaire</a>
+							</li>
+							<li>
+								<a class="dropdown-item filter-role-item" href="#" data-value="role_user">Utilisateur</a>
+							</li>
+						</ul>
+					</div>
+
+					<div class="dropdown">
+						<button class="btn btn-outline-info rounded-pill px-3 d-inline-flex align-items-center gap-2 bg-white dropdown-toggle" data-bs-toggle="dropdown">
+							<i data-lucide="award" style="width:14px;height:14px;"></i>
+							Status
+						</button>
+						<ul class="dropdown-menu">
+							<li>
+								<a class="dropdown-item filter-status-item" href="#" data-value="">Tous</a>
+							</li>
+							<li>
+								<a class="dropdown-item filter-status-item" href="#" data-value="active">Actif</a>
+							</li>
+							<li>
+								<a class="dropdown-item filter-status-item" href="#" data-value="1">Validé admin</a>
+							</li>
+							<li>
+								<a class="dropdown-item filter-status-item" href="#" data-value="0">En attente admin</a>
+							</li>
+							<li>
+								<a class="dropdown-item filter-status-item" href="#" data-value="archived">Archivé</a>
+							</li>
+						</ul>
+					</div>
+
+					<div class="dropdown">
+						<button class="btn btn-outline-info rounded-pill px-3 d-inline-flex align-items-center gap-2 bg-white dropdown-toggle" data-bs-toggle="dropdown">
+							<i data-lucide="calendar" style="width:14px;height:14px;"></i>
+							Date d'inscription
+						</button>
+						<ul class="dropdown-menu">
+							<li>
+								<a class="dropdown-item filter-date-item" href="#" data-value="">Tous</a>
+							</li>
+							<li>
+								<a class="dropdown-item filter-date-item" href="#" data-value="asc">Plus ancien</a>
+							</li>
+							<li>
+								<a class="dropdown-item filter-date-item" href="#" data-value="desc">Plus récent</a>
+							</li>
+						</ul>
+					</div>
+
+					<button type="button" class="btn btn-primary text-white rounded-pill px-4 fw-semibold ms-auto d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createUserModal">
+						<i data-lucide="plus" style="width:15px;height:15px;"></i>
+						Créer un utilisateur
+					</button>
+				</div>
+
+				<div id="active-filters" class="d-flex align-items-center flex-wrap gap-2 mb-3"></div>
+
+				<div class="bg-white rounded-4 shadow-sm overflow-hidden">
+					<table class="table align-middle mb-0" style="--bs-table-bg: transparent;">
+						<thead class="border-bottom">
+							<tr class="text-primary fw-bold small">
+
+								<th class="py-3" style="width:250px">Nom
+								</th>
+								<th class="py-3">Adresse email
+								</th>
+								<th class="py-3">Status
+								</th>
+								<th class="py-3">Role
+								</th>
+								<th class="py-3">Date inscription
+								</th>
+								<th class="py-3 text-center pe-4">Actions
+								</th>
+							</tr>
+						</thead>
+						<tbody id="users-table-body">
+							{% for user in users %}
+								<tr class="user-row border-bottom" data-nom="{{ user.nom|lower }} {{ user.prenom|lower }}" data-email="{{ user.email|lower }}" data-role="{% if 'ROLE_ADMIN' in user.roles %}role_admin{% elseif 'ROLE_SECRETARY' in user.roles or 'ROLE_SECRETAIRE' in user.roles %}role_secretary{% elseif 'ROLE_VETO' in user.roles %}role_veto{% else %}role_user{% endif %}" data-verified="
+																																																																								{% if user.archivedAt %}
+																																																																									archived
+																																																																								{% elseif 'ROLE_VETO' in user.roles %}
+																																																																									{{ user.isVerified ? '1' : '0' }}
+																																																																								{% else %}
+																																																																									active
+																																																																								{% endif %}
+																																																				" data-date="{{ user.createdAt ? user.createdAt|date('Y-m-d') : '' }}">
+
+
+									<td>
+										{% set colors = [
+    'bg-primary',
+    'bg-success',
+    'bg-danger',
+    'bg-warning',
+    'bg-info',
+    'bg-secondary'
+] %}
+
+										{% set color = colors[user.id % colors|length] %}
+
+										<div class="d-flex align-items-center gap-2 user-name">
+											<div class="d-flex align-items-center justify-content-center rounded-circle {{ color }} text-white" style="width:24px;height:24px;font-size:0.6rem;font-weight:700;flex-shrink:0;">
+												{{ user.prenom|first|upper }}{{ user.nom|first|upper }}
+											</div>
+
+											<span class="fw-medium fs-6 user-name-text" title="{{ user.prenom }} {{ user.nom }}">
+												{{ user.prenom }}
+												{{ user.nom }}
+											</span>
+										</div>
+									</td>
+
+									<td class="text-muted">{{ user.email }}</td>
+
+									<td>
+										{% if user.archivedAt %}
+											<span class="badge rounded-pill px-3 py-2" style="background:#fef3c7;color:#d97706;font-size:0.72rem;">Archivé</span>
+										{% else %}
+											{% if 'ROLE_VETO' in user.roles %}
+												{% if user.isVerified %}
+													<span class="badge rounded-pill px-3 py-2 bg-primary text-white" style="font-size:0.72rem;">Validé admin</span>
+												{% else %}
+													<span class="badge rounded-pill px-3 py-2 bg-warning text-white" style="font-size:0.72rem;">En attente admin</span>
+												{% endif %}
+											{% else %}
+												<span class="badge rounded-pill px-3 py-2 bg-info text-white" style="font-size:0.72rem;">Actif</span>
+											{% endif %}
+										{% endif %}
+									</td>
+
+									<td>
+										{% if 'ROLE_ADMIN' in user.roles %}
+											<span class="badge rounded-pill px-3 py-2 bg-danger-bg text-danger">Admin</span>
+
+										{% elseif 'ROLE_VETO' in user.roles %}
+											<span class="badge rounded-pill px-3 py-2 bg-primary-bg text-primary ">Vétérinaire</span>
+										{% elseif 'ROLE_SECRETARY' in user.roles or 'ROLE_SECRETAIRE' in user.roles %}
+											<span class="badge rounded-pill px-3 py-2 bg-secondary-bg text-secondary ">Secrétaire</span>
+
+										{% else %}
+											<span class="badge rounded-pill px-3 py-2 bg-info-bg text-info">
+												Utilisateur
+											</span>
+										{% endif %}
+									</td>
+
+									<td class="text-muted">
+										{{ user.createdAt ? user.createdAt|date('d/m/Y') : '—' }}
+									</td>
+
+									<td class="text-end pe-4">
+										<div class="d-flex align-items-center justify-content-end gap-3 flex-nowrap">
+											<button type="button" class="action-btn btn btn-link p-0 btn-show-user" style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#userModal" data-url="{{ path('app_user_admin_show', {'slug': user.slug}) }}" aria-label="Voir l'utilisateur">
+												<i data-lucide="eye" aria-hidden="true"></i>
+											</button>
+											<a href="{{ path('app_user_admin_edit', {'slug': user.slug}) }}" class="action-btn btn btn-link p-0 text-info" style="cursor:pointer;" data-turbo="false" aria-label="Modifier l'utilisateur">
+												<i data-lucide="pencil" aria-hidden="true"></i>
+											</a>
+
+											{{ include('user_admin/_delete_form.html.twig', { prefix: 'desktop' }) }}
+									</td>
+								</tr>
+							{% else %}
+								<tr id="empty-table-row">
+									<td colspan="7" class="text-center text-muted py-5">Aucun utilisateur trouvé</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div class="d-lg-none">
+				<div class="d-flex flex-column gap-2 mb-4">
+					<div class="input-group rounded-pill overflow-hidden border border-info bg-white">
+						<span class="input-group-text bg-white border-0">
+							<i data-lucide="search" style="width:15px;height:15px;" class="text-info" aria-hidden="true"></i>
+						</span>
+						<label for="search-input-mobile" class="visually-hidden">Rechercher par mail ou nom (mobile)</label>
+						<input type="text" id="search-input-mobile" class="form-control border-0 shadow-none text-info" placeholder="Rechercher par mail/ nom">
+					</div>
+
+					<div class="row g-2">
+						<div class="col-12 col-md-4">
+							<div class="dropdown">
+								<button class="btn btn-outline-info rounded-pill px-3 d-inline-flex align-items-center justify-content-center gap-2 bg-white dropdown-toggle w-100" data-bs-toggle="dropdown">
+									<i data-lucide="user" style="width:14px;height:14px;"></i>
+									Rôle
+								</button>
+								<ul class="dropdown-menu w-100">
+									<li>
+										<a class="dropdown-item filter-role-item" href="#" data-value="">Tous</a>
+									</li>
+									<li>
+										<a class="dropdown-item filter-role-item" href="#" data-value="role_admin">Admin</a>
+									</li>
+									<li>
+										<a class="dropdown-item filter-role-item" href="#" data-value="role_secretary">Secrétaire</a>
+									</li>
+									<li>
+										<a class="dropdown-item filter-role-item" href="#" data-value="role_veto">Vétérinaire</a>
+									</li>
+									<li>
+										<a class="dropdown-item filter-role-item" href="#" data-value="role_user">Utilisateur</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="col-12 col-md-4">
+							<div class="dropdown">
+								<button class="btn btn-outline-info rounded-pill px-3 d-inline-flex align-items-center justify-content-center gap-2 bg-white dropdown-toggle w-100" data-bs-toggle="dropdown">
+									<i data-lucide="award" style="width:14px;height:14px;"></i>
+									Status
+								</button>
+								<ul class="dropdown-menu w-100">
+									<li>
+										<a class="dropdown-item filter-status-item" href="#" data-value="">Tous</a>
+									</li>
+									<li>
+										<a class="dropdown-item filter-status-item" href="#" data-value="active">Actif</a>
+									</li>
+									<li>
+										<a class="dropdown-item filter-status-item" href="#" data-value="1">Validé admin</a>
+									</li>
+									<li>
+										<a class="dropdown-item filter-status-item" href="#" data-value="0">En attente admin</a>
+									</li>
+									<li>
+										<a class="dropdown-item filter-status-item" href="#" data-value="archived">Archivé</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="col-12 col-md-4">
+							<div class="dropdown">
+								<button class="btn btn-outline-info rounded-pill px-3 d-inline-flex align-items-center justify-content-center gap-2 bg-white dropdown-toggle w-100" data-bs-toggle="dropdown">
+									<i data-lucide="calendar" style="width:14px;height:14px;"></i>
+									Date d'inscription
+								</button>
+								<ul class="dropdown-menu w-100">
+									<li>
+										<a class="dropdown-item filter-date-item" href="#" data-value="">Tous</a>
+									</li>
+									<li>
+										<a class="dropdown-item filter-date-item" href="#" data-value="asc">Plus ancien</a>
+									</li>
+									<li>
+										<a class="dropdown-item filter-date-item" href="#" data-value="desc">Plus récent</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+
+					<button type="button" class="btn btn-primary text-white rounded-pill px-4 fw-semibold d-inline-flex align-items-center justify-content-center gap-2 w-100" data-bs-toggle="modal" data-bs-target="#createUserModal">
+						<i data-lucide="plus" style="width:15px;height:15px;"></i>
+						Créer un utilisateur
+					</button>
+				</div>
+
+				<div id="active-filters-mobile" class="d-flex align-items-center flex-wrap gap-2 mb-3"></div>
+
+				<div id="users-mobile-list">
+					{% for user in users %}
+						<div class="user-row bg-white rounded-4 shadow-sm p-3 mb-3" data-nom="{{ user.nom|lower }} {{ user.prenom|lower }}" data-email="{{ user.email|lower }}" data-role="{% if 'ROLE_ADMIN' in user.roles %}role_admin{% elseif 'ROLE_SECRETARY' in user.roles or 'ROLE_SECRETAIRE' in user.roles %}role_secretary{% elseif 'ROLE_VETO' in user.roles %}role_veto{% else %}role_user{% endif %}" data-verified="
+																																																								{% if user.archivedAt %}
+																																																									archived
+																																																								{% elseif 'ROLE_VETO' in user.roles %}
+																																																									{{ user.isVerified ? '1' : '0' }}
+																																																								{% else %}
+																																																									active
+																																																								{% endif %}
+																																																								" data-date="{{ user.createdAt ? user.createdAt|date('Y-m-d') : '' }}">
+							<div class="d-flex align-items-start gap-3 mb-3">
+								<div style="width:12px;height:12px;border-radius:50%;background:var(--bs-primary-bg);color:var(--bs-primary);font-weight:700;font-size:0.8rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+									{{ user.prenom|first|upper }}{{ user.nom|first|upper }}
+								</div>
+								<div class="flex-grow-1">
+									<div class="fw-medium user-name-text" title="{{ user.prenom }} {{ user.nom }}">{{ user.prenom }}
+										{{ user.nom }}</div>
+									<div class="text-muted small text-break">{{ user.email }}</div>
+								</div>
+							</div>
+
+							<div class="d-flex flex-column gap-2 small">
+								<div class="d-flex justify-content-between align-items-center gap-3">
+									<span class="text-muted">Status</span>
+									<div>
+										{% if user.archivedAt %}
+											<span class="badge rounded-pill px-3 py-2" style="background:#fef3c7;color:#d97706;font-size:0.72rem;">Archivé</span>
+										{% else %}
+											{% if 'ROLE_VETO' in user.roles %}
+												{% if user.isVerified %}
+													<span class="badge rounded-pill px-3 py-2 bg-primary text-white" style="font-size:0.72rem;">Validé admin</span>
+												{% else %}
+													<span class="badge rounded-pill px-3 py-2 bg-warning text-white" style="font-size:0.72rem;">En attente admin</span>
+												{% endif %}
+											{% else %}
+												<span class="badge rounded-pill px-3 py-2 bg-success text-white" style="font-size:0.72rem;">Actif</span>
+											{% endif %}
+										{% endif %}
+									</div>
+								</div>
+
+								<div class="d-flex justify-content-between align-items-center gap-3">
+									<span class="text-muted">Role</span>
+									<div class="text-end">
+										{% if 'ROLE_ADMIN' in user.roles %}
+											<span class="badge rounded-pill px-3 py-2 bg-primary-bg text-white">Admin</span>
+										{% elseif 'ROLE_VETO' in user.roles %}
+											<span class="fw-medium text-info">Vétérinaire</span>
+										{% elseif 'ROLE_SECRETARY' in user.roles or 'ROLE_SECRETAIRE' in user.roles %}
+											<span class="badge rounded-pill px-3 py-2 bg-secondary text-white">Secrétaire</span>
+										{% else %}
+											<span class="fw-medium text-info">Utilisateur</span>
+										{% endif %}
+									</div>
+								</div>
+
+								<div class="d-flex align-items-center justify-content-between">
+									<th class="py-3">
+										<span class="text-nowrap d-inline-block">Date inscription</span>
+									</th>
+									<span class="text-muted text-end">{{ user.createdAt ? user.createdAt|date('d M Y') : '—' }}</span>
+								</div>
+							</div>
+
+							<div class="d-flex justify-content-end gap-2 border-top mt-3 pt-3">
+								<button type="button" class="action-btn btn btn-link p-1 btn-show-user" data-bs-toggle="modal" data-bs-target="#userModal" data-url="{{ path('app_user_admin_show', {'slug': user.slug}) }}" aria-label="Voir l'utilisateur">
+									<i data-lucide="eye" aria-hidden="true"></i>
+								</button>
+								<a href="{{ path('app_user_admin_edit', {'slug': user.slug}) }}" class="action-btn btn btn-link p-1 text-info" data-turbo="false" aria-label="Modifier l'utilisateur">
+									<i data-lucide="pencil" aria-hidden="true"></i>
+								</a>
+
+								{{ include('user_admin/_delete_form.html.twig', { prefix: 'mobile' }) }}
+							</div>
+						</div>
+					{% else %}
+						<div id="empty-mobile-row" class="bg-white rounded-4 shadow-sm text-center text-muted py-5">
+							Aucun utilisateur trouvé
+						</div>
+					{% endfor %}
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	<div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalTitle" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered modal-lg">
+			<div class="modal-content rounded-4 border-0 shadow">
+				<h2 id="userModalTitle" class="visually-hidden">Détails de l'utilisateur</h2>
+				<div class="modal-body" id="userModalContent">
+					<div class="text-center py-5 text-muted">
+						Chargement...
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	{{ include('user_admin/new.html.twig') }}
+
+	{% for user in users %}
+		<div class="modal fade" id="deleteModal{{ user.id }}" tabindex="-1" aria-labelledby="modalLabel_deleteModal{{ user.id }}" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content border-0 shadow" style="border-radius: 35px; overflow: hidden;">
+					<div class="modal-body p-5 text-center">
+
+						<div class="mx-auto mb-4" style="width:80px;height:80px;border-radius:50%;background:var(--bs-danger);">
+						</div>
+
+						<div class="d-flex justify-content-center align-items-center gap-4 mb-4 text-primary">
+							<span><i data-lucide="calendar" style="width:18px;height:18px;" aria-hidden="true"></i></span>
+							<span class="fw-medium">{{ "now"|date("d M, Y") }}</span>
+						</div>
+
+						<h5 id="modalLabel_deleteModal{{ user.id }}" class="fw-bold text-primary mb-4" style="font-size:1.1rem;">
+							Voulez-vous vraiment supprimer<br>cet utilisateur ?
+						</h5>
+
+						<div class="d-flex gap-3">
+							<button class="btn fw-bold rounded-pill flex-grow-1 py-3" 
+								style="background:var(--bs-info); color:white;"
+								data-bs-dismiss="modal">
+								Retour
+							</button>
+							<form id="delete-user-form-{{ user.id }}" method="post" action="{{ path('app_user_admin_delete', {'slug': user.slug}) }}" class="flex-grow-1" data-turbo="false">
+								<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+								<button class="btn fw-bold rounded-pill w-100 py-3"
+									style="background:var(--bs-danger); color:white;">
+									Supprimer
+								</button>
+							</form>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endfor %}
+
+	{% if openCreateModal is defined and openCreateModal %}
+		 <script>
+														setTimeout(function () {
+															var myModal = new bootstrap.Modal(document.getElementById('createUserModal'));
+															myModal.show();
+														}, 50);
+													</script>
+	{% endif %}
+
+	 <script>
+								function modalShowForm(role) {
+									document.getElementById('modal-step-1').style.display = 'none';
+									document.getElementById('modal-step-2').style.display = 'block';
+									document.getElementById('modal-selected-role').value = role;
+									document.querySelector('#createUserModal .modal-dialog').classList.add('modal-lg');
+						
+									const titles = {
+										'ROLE_VETO': 'Créer un compte vétérinaire',
+										'ROLE_ADMIN': 'Créer un compte administrateur',
+										'ROLE_SECRETARY': 'Créer un compte secrétaire',
+										'ROLE_USER': 'Créer un compte utilisateur'
+									};
+									document.getElementById('modal-title').textContent = titles[role] || 'Créer un compte';
+									document.getElementById('modal-fields-veto').style.display = role === 'ROLE_VETO' ? 'block' : 'none';
+						
+									const rolesSelect = document.getElementById('modal-roles-select');
+									Array.from(rolesSelect.options).forEach(opt => {
+										opt.selected = opt.value === role;
+									});
+						
+									const isVerifiedWrapper = document.getElementById('modal-is-verified-wrapper');
+									const isVerifiedCheckbox = document.getElementById('modal-is-verified');
+						
+									const siretInput = document.getElementById('modal-siret');
+									const cabinetInput = document.getElementById('modal-adressecabinet');
+									const codePostalInput = document.getElementById('modal-codepostal');
+
+									// afficher uniquement pour veto
+									if (role === 'ROLE_VETO') {
+									    isVerifiedWrapper.style.display = 'block';
+									    isVerifiedCheckbox.checked = true;
+									    if (siretInput) siretInput.setAttribute('required', 'required');
+									    if (cabinetInput) cabinetInput.setAttribute('required', 'required');
+									    if (codePostalInput) codePostalInput.setAttribute('required', 'required');
+									} else {
+									    isVerifiedWrapper.style.display = 'none';
+									    isVerifiedCheckbox.checked = false;
+									    if (siretInput) siretInput.removeAttribute('required');
+									    if (cabinetInput) cabinetInput.removeAttribute('required');
+									    if (codePostalInput) codePostalInput.removeAttribute('required');
+									}
+								}
+						
+								function modalShowStep1() {
+									document.getElementById('modal-step-1').style.display = 'block';
+									document.getElementById('modal-step-2').style.display = 'none';
+									document.getElementById('modal-title').textContent = 'Créer un compte';
+									document.querySelector('#createUserModal .modal-dialog').classList.remove('modal-lg');
+								}
+							</script>
+
+ <script>
+					(function () {
+						const searchDesktop = document.getElementById('search-input');
+						const searchMobile = document.getElementById('search-input-mobile');
+						const emptyTableRow = document.getElementById('empty-table-row');
+						const emptyMobileRow = document.getElementById('empty-mobile-row');
+						const activeFilters = document.getElementById('active-filters');
+						const activeFiltersMobile = document.getElementById('active-filters-mobile');
+			
+						let activeRoles = new Set();
+						let activeStatuses = new Set();
+						let activeDate = '';
+
+						const roleLabels = {
+							role_admin: 'Admin',
+							role_secretary: 'Secretaire',
+							role_veto: 'Veterinaire',
+							role_user: 'Utilisateur'
+						};
+						const statusLabels = {
+							active: 'Actif',
+							'1': 'Valide admin',
+							'0': 'En attente admin',
+							'archived': 'Archive'
+						};
+						const dateLabels = {
+							asc: 'Plus ancien',
+							desc: 'Plus recent'
+						};
+			
+						function getSearchValue() {
+							return (searchDesktop?.value || searchMobile?.value || '').toLowerCase();
+						}
+			
+						function syncSearchInputs(source) {
+							if (searchDesktop && source !== searchDesktop) {
+								searchDesktop.value = source.value;
+							}
+							if (searchMobile && source !== searchMobile) {
+								searchMobile.value = source.value;
+							}
+						}
+			
+						function getRows(selector) {
+							return Array.from(document.querySelectorAll(selector));
+						}
+			
+						function updateEmptyStates() {
+							const desktopRows = getRows('#users-table-body .user-row');
+							const mobileRows = getRows('#users-mobile-list .user-row');
+			
+							const visibleDesktop = desktopRows.filter(row => row.style.display !== 'none');
+							const visibleMobile = mobileRows.filter(row => row.style.display !== 'none');
+			
+							if (emptyTableRow) {
+								emptyTableRow.style.display = visibleDesktop.length === 0 ? '' : 'none';
+							}
+							if (emptyMobileRow) {
+								emptyMobileRow.style.display = visibleMobile.length === 0 ? '' : 'none';
+							}
+						}
+			
+						function sortContainerRows(containerSelector) {
+							if (!activeDate) return;
+			
+							const container = document.querySelector(containerSelector);
+							if (!container) return;
+			
+							const rows = Array.from(container.querySelectorAll('.user-row'));
+			
+							rows.sort(function (a, b) {
+								const dateA = new Date(a.dataset.date || '1900-01-01');
+								const dateB = new Date(b.dataset.date || '1900-01-01');
+								return activeDate === 'asc' ? dateA - dateB : dateB - dateA;
+							});
+			
+							rows.forEach(row => container.appendChild(row));
+						}
+			
+						function filterRows() {
+							const search = getSearchValue();
+			
+							document.querySelectorAll('.user-row').forEach(function (row) {
+								const matchSearch = ((row.dataset.nom || '') + ' ' + (row.dataset.email || '')).includes(search);
+								const matchRole =
+									activeRoles.size === 0 ||
+									(activeRoles.has(row.dataset.role && row.dataset.role.trim()));
+								const matchStatus =
+									activeStatuses.size === 0 ||
+									activeStatuses.has(row.dataset.verified && row.dataset.verified.trim());
+			
+								row.style.display = matchSearch && matchRole && matchStatus ? '' : 'none';
+							});
+			
+							updateEmptyStates();
+							updateFilterChips();
+						}
+
+						function createChip(label, onRemove) {
+							const chip = document.createElement('button');
+							chip.type = 'button';
+							chip.className = 'filter-chip d-inline-flex align-items-center';
+							chip.innerHTML = `<span>${label}</span><i data-lucide="x" style="width:14px;height:14px;"></i>`;
+							chip.addEventListener('click', onRemove);
+							return chip;
+						}
+
+						function updateFilterChips() {
+							const containers = [activeFilters, activeFiltersMobile].filter(Boolean);
+							containers.forEach(container => container.replaceChildren());
+
+							const chips = [];
+							if (activeRoles.size) {
+								Array.from(activeRoles).forEach(role => {
+									chips.push({
+										label: `Role: ${roleLabels[role] || role}`,
+										clear: () => { activeRoles.delete(role); filterRows(); }
+									});
+								});
+							}
+							if (activeStatuses.size) {
+								Array.from(activeStatuses).forEach(status => {
+									chips.push({
+										label: `Status: ${statusLabels[status] || status}`,
+										clear: () => { activeStatuses.delete(status); filterRows(); }
+									});
+								});
+							}
+							if (activeDate) {
+								chips.push({
+									label: `Date: ${dateLabels[activeDate] || activeDate}`,
+									clear: () => { activeDate = ''; filterRows(); }
+								});
+							}
+
+							containers.forEach(container => {
+								chips.forEach(chip => container.appendChild(createChip(chip.label, chip.clear)));
+							});
+
+							if (chips.length && containers.length) {
+								containers.forEach(container => {
+									const clearAll = document.createElement('button');
+									clearAll.type = 'button';
+									clearAll.className = 'btn btn-sm btn-outline-danger filter-chip-clear';
+									clearAll.textContent = 'Tout annuler';
+									clearAll.addEventListener('click', () => {
+										activeRoles = new Set();
+										activeStatuses = new Set();
+										activeDate = '';
+										filterRows();
+									});
+									container.appendChild(clearAll);
+								});
+							}
+
+							if (window.lucide) {
+								lucide.createIcons({ icons: lucide.icons });
+							}
+						}
+			
+						searchDesktop?.addEventListener('input', function () {
+							syncSearchInputs(this);
+							filterRows();
+						});
+			
+						searchMobile?.addEventListener('input', function () {
+							syncSearchInputs(this);
+							filterRows();
+						});
+			
+						document.querySelectorAll('.filter-role-item').forEach(function (item) {
+							item.addEventListener('click', function (e) {
+								e.preventDefault();
+								const value = this.dataset.value;
+								if (!value) {
+									activeRoles = new Set();
+								} else if (activeRoles.has(value)) {
+									activeRoles.delete(value);
+								} else {
+									activeRoles.add(value);
+								}
+								filterRows();
+							});
+						});
+			
+						document.querySelectorAll('.filter-status-item').forEach(function (item) {
+							item.addEventListener('click', function (e) {
+								e.preventDefault();
+								const value = this.dataset.value;
+								if (!value) {
+									activeStatuses = new Set();
+								} else if (activeStatuses.has(value)) {
+									activeStatuses.delete(value);
+								} else {
+									activeStatuses.add(value);
+								}
+								filterRows();
+							});
+						});
+			
+						document.querySelectorAll('.filter-date-item').forEach(function (item) {
+							item.addEventListener('click', function (e) {
+								e.preventDefault();
+								activeDate = this.dataset.value;
+			
+								if (activeDate) {
+									sortContainerRows('#users-table-body');
+									sortContainerRows('#users-mobile-list');
+								}
+			
+								filterRows();
+							});
+						});
+			
+						filterRows();
+					})();
+				</script>
+
+	 <script>
+											function bindUserShowButtons() {
+												document.querySelectorAll('.btn-show-user').forEach(function (btn) {
+													if (btn.dataset.showBound === '1') {
+														return;
+													}
+													btn.dataset.showBound = '1';
+													btn.addEventListener('click', function () {
+														const url = this.getAttribute('data-url');
+														const modalContent = document.getElementById('userModalContent');
+									
+														modalContent.innerHTML = `
+															<div class="text-center py-5 text-muted">
+																Chargement...
+															</div>
+														`;
+									
+														fetch(url)
+															.then(response => response.text())
+															.then(html => {
+																const parser = new DOMParser();
+																const doc = parser.parseFromString(html, 'text/html');
+									
+																const content = doc.querySelector('#user-show-content') || doc.querySelector('main .container-fluid') || doc.querySelector('.container-fluid');
+																modalContent.innerHTML = content ? content.outerHTML : html;
+									
+																if (window.lucide) {
+																	lucide.createIcons({ icons: lucide.icons });
+																}
+															})
+															.catch(() => {
+																modalContent.innerHTML = `
+																	<div class="text-center py-5 text-danger">
+																		Erreur de chargement
+																	</div>
+																`;
+															});
+													});
+												});
+											}
+						
+											document.addEventListener('DOMContentLoaded', bindUserShowButtons);
+											document.addEventListener('turbo:load', bindUserShowButtons);
+										</script>
+{% endblock %}

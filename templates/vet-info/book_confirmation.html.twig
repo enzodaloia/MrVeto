@@ -1,0 +1,168 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Confirmation RDV - Dr. {{ vet.prenom }} {{ vet.nom }} - MrVeto{% endblock %}
+
+{% block body %}
+<div class="container my-5 px-3" data-controller="book-confirmation">
+
+    <!-- STEPPER (step 2 active) -->
+    <div class="d-flex justify-content-center align-items-center mb-5 pt-3 gap-2">
+        <div class="rounded-circle bg-primary p-1" style="width: 8px; height: 8px;"></div>
+        <div class="bg-primary rounded" style="width: 40px; height: 2px;"></div>
+        <div class="rounded-circle bg-primary p-1" style="width: 8px; height: 8px;"></div>
+        <div class="bg-neutral-60 rounded" style="width: 40px; height: 2px;"></div>
+        <div class="rounded-circle bg-neutral-60 p-1" style="width: 8px; height: 8px;"></div>
+    </div>
+
+    <!-- VET SUMMARY CARD -->
+    <div class="card border border-secondary shadow-sm rounded-4 border-2 mb-5 bg-white">
+        <div class="card-body p-4 d-flex align-items-center gap-4">
+            <img src="https://ui-avatars.com/api/?name={{ vet.prenom }}+{{ vet.nom }}&background=random" alt="Dr. {{ vet.prenom }} {{ vet.nom }}" class="rounded-circle shadow-sm object-fit-cover" width="80" height="80">
+
+            <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h2 class="h5 fw-bold mb-1 text-dark">Dr. {{ vet.prenom }} {{ vet.nom }}</h2>
+                        <p class="text-muted mb-1 medium">Vétérinaire Généraliste</p>
+                        <p class="text-primary small mb-3"><a class="text-decoration-none">{{ vet.adressecabinet|default('123 Rue de la Santé, 75000 ville') }}</a> <span class="text-muted">• A 1.2 km</span></p>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <span class="badge rounded-pill bg-info-bg text-neutral-80 fw-medium px-3 py-2">Urgence</span>
+                            <span class="badge rounded-pill bg-neutral-20 text-neutral-80 fw-medium px-3 py-2">Parking</span>
+                        </div>
+                    </div>
+					<button class="btn btn-outline-secondary rounded-pill btn-sm d-flex align-items-center gap-2 text-primary border-neutral-30">
+                        <i class="bi bi-heart text-info-main"></i>
+                        Ajouter aux favoris
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RECAP CARD -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4 p-4 p-md-5 bg-white" style="border-radius: 1.5rem !important;">
+        <h3 class="h4 fw-bold mb-4 text-dark">Récapitulatif du Rendez-vous</h3>
+
+        <!-- Date et heure -->
+        <div class="d-flex justify-content-between align-items-center py-3 border-bottom border-neutral-30">
+            <div>
+                <p class="fw-bold mb-2">Date et heure</p>
+                <p class="text-neutral-60 mb-0">{{ dateDisplay|default('Non sélectionné') }}</p>
+            </div>
+            <a href="{{ path('app_vet_book_day', {slug: vet.slug, date: selectedDate}) }}" class="btn btn-outline-secondary text-neutral-80 border-neutral-30 rounded-pill px-4 py-2">Modifier</a>
+        </div>
+
+        <!-- Animal -->
+        <div class="d-flex justify-content-between align-items-center py-3 border-bottom border-neutral-30">
+            <div>
+                <p class="fw-bold mb-2">Animal</p>
+                <p class="text-neutral-60 mb-0">{{ animalName }}</p>
+            </div>
+            <a href="{{ path('app_vet_book_day', {slug: vet.slug, date: selectedDate}) }}" class="btn btn-outline-secondary text-neutral-80 border-neutral-30 rounded-pill px-4 py-2">Modifier</a>
+        </div>
+
+        <!-- Cabinet -->
+        <div class="d-flex justify-content-between align-items-center py-3">
+            <div>
+                <p class="fw-bold mb-2">Cabinet</p>
+                <p class="text-info-main mb-0">{{ vet.adressecabinet|default('123 Rue de la Santé, 75000 ville') }}</p>
+            </div>
+            <a href="{{ path('app_vet_info', {slug: vet.slug}) }}" class="btn btn-outline-secondary text-neutral-80 border-neutral-30 rounded-pill px-4 py-2">Modifier</a>
+        </div>
+
+        {% if rdvMotif %}
+        <!-- Motif -->
+        <div class="d-flex justify-content-between align-items-center py-3 border-top border-neutral-30">
+            <div>
+                <p class="fw-bold mb-2">Motif de consultation</p>
+                <p class="text-neutral-60 mb-0">{{ rdvMotif }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if rdvRemarque %}
+        <!-- Remarque -->
+        <div class="d-flex justify-content-between align-items-center py-3 border-top border-neutral-30">
+            <div>
+                <p class="fw-bold mb-2">Remarque</p>
+                <p class="text-neutral-60 mb-0">{{ rdvRemarque }}</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="d-flex justify-content-center gap-4 mt-5 mb-5">
+        <button type="button" class="btn bg-danger text-white rounded-pill px-5 py-3 fw-medium shadow-sm fs-6" style="border: none;" data-action="click->book-confirmation#openCancelConfirm" data-cancel-href="{{ path('app_vet_book', {slug: vet.slug}) }}">
+            Annuler
+        </button>
+        <form id="confirmSaveForm" data-action="{{ path('app_vet_book_save', {slug: vet.slug}) }}">
+            <input type="hidden" name="selectedDate" value="{{ selectedDate }}">
+            <input type="hidden" name="selectedSlot" value="{{ selectedSlot }}">
+            <input type="hidden" name="animalId" value="{{ animalId }}">
+            <input type="hidden" name="rdvMotif" value="{{ rdvMotif }}">
+            <input type="hidden" name="rdvRemarque" value="{{ rdvRemarque }}">
+            <button type="button" id="confirmAjaxBtn" data-action="click->book-confirmation#submit" class="btn bg-primary-hover text-white rounded-pill px-5 py-3 fw-medium shadow-sm fs-6" style="border: none;">
+                Confirmer mon Rendez-vous
+            </button>
+        </form>
+    </div>
+
+    <!-- CANCEL CONFIRM MODAL -->
+    <div class="modal fade" id="cancelConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-body p-4 p-md-5 text-center">
+                    <div class="mb-4">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-danger text-white rounded-circle mb-3" style="width: 80px; height: 80px; background-color: #dc3545 !important;">
+                            <i class="bi bi-x-circle" style="font-size: 2.5rem;"></i>
+                        </div>
+                    </div>
+                    <h4 class="text-info fw-bold text-dark mb-3">Annuler la prise de rendez-vous</h4>
+                    <p class="text-info text-muted mb-4">Etes-vous sur(e) de vouloir annuler ? Vous reviendrez a l'etape precedente.</p>
+
+                    <div class="d-flex flex-column flex-sm-row gap-2">
+                        <button type="button" class="btn btn-info text-white border-0 rounded-3 fw-bold w-50 py-3" data-bs-dismiss="modal">
+                            Rester ici
+                        </button>
+                        <button type="button" class="btn btn-danger text-white border-0 rounded-3 fw-bold w-50 py-3" data-action="click->book-confirmation#confirmCancel">
+                            Annuler
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- SUCCESS MODAL -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg px-4 py-5 text-center">
+            
+            <div class="mb-4">
+                <div class="rounded-circle bg-success d-inline-flex justify-content-center align-items-center" style="width: 80px; height: 80px;">
+                    <i class="bi bi-check2 text-white" style="font-size: 3rem;"></i>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-center align-items-center gap-4 mb-4 fw-medium text-neutral-80">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-calendar-event text-secondary-pressed fs-5"></i>
+                    <span>{{ dateDisplay|split(' à ')[0] | default('') }}</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-clock text-secondary-pressed fs-5"></i>
+                    <span>{{ selectedSlot }}</span>
+                </div>
+            </div>
+
+            <h4 class="h5 fw-bold text-neutral-80 mb-2">Votre rendez-vous est confirmée !</h4>
+            <p class="text-neutral-60 fw-medium mb-4">Un e-mail contenant les détails de votre<br>réservation vous a été envoyé.</p>
+
+            <a href="{{ path('app_rendezvous') }}" class="btn bg-success text-white rounded-pill px-5 py-3 fw-medium w-100 fs-6" style="border: none;">Accepter</a>
+        </div>
+<button type="button" class="d-none" id="triggerSuccessModalBtn" data-bs-toggle="modal" data-bs-target="#successModal"></button>
+
+{% endblock %}

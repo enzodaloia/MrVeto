@@ -1,0 +1,298 @@
+.calendar-actions-bar {
+    border: 1px solid var(--bs-border-color);
+}
+
+.fc .fc-toolbar {
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem !important;
+}
+
+.fc .fc-toolbar-chunk {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.fc-toolbar-title {
+    font-size: 1.55rem !important;
+    font-weight: 700 !important;
+    color: var(--bs-primary) !important;
+    text-align: center;
+}
+
+.fc .fc-toolbar-chunk:first-child {
+    border: 1px solid var(--bs-border-color);
+    border-radius: 999px;
+    background: #fff;
+    padding: 0.25rem;
+}
+
+.fc .fc-toolbar-chunk:first-child .fc-button-group {
+    display: contents;
+}
+
+.fc .fc-toolbar-chunk:first-child .fc-button {
+    border: 0 !important;
+    border-radius: 999px !important;
+    background: transparent !important;
+    color: var(--bs-info) !important;
+    box-shadow: none !important;
+    padding: 0.35rem 0.75rem !important;
+}
+
+.fc .fc-toolbar-chunk:first-child .fc-prev-button {
+    order: 1;
+}
+
+.fc .fc-toolbar-chunk:first-child .fc-today-button {
+    order: 2;
+    background: var(--bs-primary-bg) !important;
+    color: var(--bs-primary) !important;
+    font-weight: 600 !important;
+}
+
+.fc .fc-toolbar-chunk:first-child .fc-next-button {
+    order: 3;
+}
+
+.fc .fc-toolbar-chunk:last-child .fc-button-group {
+    border: 1px solid var(--bs-border-color);
+    border-radius: 999px;
+    background: #fff;
+    padding: 0.25rem;
+    gap: 0.25rem;
+}
+
+.fc .fc-toolbar-chunk:last-child .fc-button {
+    border: 0 !important;
+    border-radius: 999px !important;
+    background: transparent !important;
+    color: var(--bs-info) !important;
+    box-shadow: none !important;
+    padding: 0.35rem 0.85rem !important;
+}
+
+.fc .fc-toolbar-chunk:last-child .fc-button-active {
+    background: var(--bs-primary) !important;
+    color: #fff !important;
+}
+
+.slot-btn {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+}
+
+.afternoon-row {
+    display: none;
+}
+
+.closed-text {
+    display: none;
+}
+
+.day-row.day-closed td {
+    background-color: var(--bs-neutral-20, #EEEEEE);
+    height: 73px;
+}
+
+.day-row.day-closed td:first-child {
+    color: var(--bs-neutral-50);
+}
+
+.status-label {
+    white-space: nowrap;
+    min-width: 52px;
+    font-size: 0.85rem;
+}
+
+.note-importante-box {
+    border: 2px dashed var(--bs-info) !important;
+}
+
+.tw {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: 140px;
+    max-width: 100%;
+}
+
+.tw input {
+    padding-right: 36px;
+    width: 100%;
+    height: 38px;
+    background-color: transparent !important;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    position: absolute;
+    right: 8px;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.tw .time-icon {
+    position: absolute;
+    right: 8px;
+    color: #6c757d;
+    pointer-events: none;
+}
+
+.tw.is-invalid input {
+    border-color: var(--bs-danger) !important;
+}
+
+.add-afternoon-btn svg {
+    width: 20px !important;
+    height: 20px !important;
+    stroke: var(--bs-primary);
+    flex-shrink: 0;
+}
+
+.form-check-input {
+    margin-top: 0 !important;
+}
+
+.open-fields {
+    display: none;
+}
+
+.availability-table tbody td {
+    vertical-align: top;
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+}
+
+@media(max-width: 991.98px) {
+    .fc .fc-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.85rem;
+    }
+
+    .fc .fc-toolbar-chunk {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .fc .fc-button-group {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .fc .fc-toolbar-chunk:first-child .fc-button-group {
+        display: contents;
+    }
+
+    .fc .fc-toolbar-chunk:nth-child(2) {
+        order: -1;
+    }
+
+    .fc-toolbar-title {
+        font-size: 1.35rem !important;
+    }
+
+    .availability-table,
+    .availability-table thead,
+    .availability-table tbody,
+    .availability-table th,
+    .availability-table td,
+    .availability-table tr {
+        display: block;
+        width: 100%;
+    }
+
+    .availability-table thead {
+        display: none;
+    }
+
+    .availability-table tbody tr {
+        background: #fff;
+        border: 1px solid var(--bs-border-color);
+        border-radius: 1rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+
+    .availability-table tbody td {
+        padding: 0 !important;
+        border: 0 !important;
+        height: auto !important;
+        background: transparent !important;
+    }
+
+    .availability-table tbody td + td {
+        margin-top: 0.9rem;
+    }
+
+    .mobile-label {
+        display: block !important;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: var(--bs-secondary-color);
+        margin-bottom: 0.35rem;
+        font-weight: 600;
+    }
+
+    .day-name-cell {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--bs-primary);
+    }
+
+    .actions-cell {
+        text-align: left !important;
+    }
+
+    .open-fields > div,
+    .afternoon-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .tw {
+        width: 100%;
+        max-width: 180px;
+    }
+
+    .day-row.day-closed {
+        background-color: var(--bs-neutral-20, #EEEEEE);
+    }
+}
+
+@media(max-width: 575.98px) {
+    .container-fluid {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+
+    .tw {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .slot-btn {
+        width: 38px;
+        height: 38px;
+    }
+
+    .fc-toolbar-title {
+        font-size: 1.15rem !important;
+        text-align: center;
+    }
+
+    .fc .fc-toolbar-chunk:first-child,
+    .fc .fc-toolbar-chunk:last-child .fc-button-group {
+        width: 100%;
+        justify-content: center;
+    }
+}

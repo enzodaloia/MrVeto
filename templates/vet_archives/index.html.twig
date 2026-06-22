@@ -1,0 +1,79 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Archives Médicales - MrVeto{% endblock %}
+
+{% block body %}
+<div class="container-fluid px-0">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+        <div>
+            <h1 class="fw-black text-dark mb-1" style="font-weight: 900;">Archives Médicales</h1>
+            <p class="text-muted mb-0">Retrouvez l'ensemble des comptes-rendus générés (conservation légale)</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-4 shadow-sm p-4 mb-4">
+        <div class="d-flex align-items-center mb-4">
+            <h5 class="fw-bold text-dark d-flex align-items-center gap-2 mb-0">
+                <i class="bi bi-archive text-primary"></i> Liste des comptes-rendus
+            </h5>
+            <span class="badge bg-neutral-20 text-neutral-80 rounded-pill ms-3">{{ archives|length }} document(s)</span>
+        </div>
+
+        {% if archives is empty %}
+            <div class="text-center py-5 bg-light rounded-4">
+                <i class="bi bi-folder2-open display-4 text-muted mb-3 d-block"></i>
+                <p class="text-muted mb-0">Aucune archive disponible pour le moment.</p>
+                <p class="small text-muted mt-2">Les comptes-rendus que vous rédigerez apparaîtront ici.</p>
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-borderless align-middle mb-0">
+                    <thead>
+                        <tr class="border-bottom border-light-subtle">
+                            <th class="text-muted fw-bold pb-2" style="font-size: 0.75rem;">DATE</th>
+                            <th class="text-muted fw-bold pb-2" style="font-size: 0.75rem;">PATIENT & CLIENT</th>
+                            <th class="text-muted fw-bold pb-2" style="font-size: 0.75rem;">MOTIF DE LA CONSULTATION</th>
+                            <th class="text-muted fw-bold pb-2 text-end" style="font-size: 0.75rem;">DOCUMENT</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rdv in archives %}
+                            <tr class="border-bottom border-light-subtle">
+                                <td class="py-3">
+                                    <div class="fw-bold text-dark">{{ rdv.dateHeure|date('d M Y') }}</div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">{{ rdv.dateHeure|date('H:i') }}</div>
+                                </td>
+                                <td class="py-3">
+                                    <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
+                                        <i class="bi bi-heart text-primary"></i>
+                                        <a href="{{ path('app_vet_patients_show', {'slug': rdv.animal.slug}) }}" class="text-decoration-none text-dark hover-text-primary">
+                                            {{ rdv.animal.nom }}
+                                        </a>
+                                    </div>
+                                    <div class="text-muted" style="font-size: 0.8rem;">
+                                        <i class="bi bi-person"></i> {{ rdv.client.prenom }} {{ rdv.client.nom }}
+                                    </div>
+                                </td>
+                                <td class="py-3">
+                                    <div class="fw-bold text-dark">{{ rdv.motif|default('Consultation') }}</div>
+                                    <div class="text-muted" style="font-size: 0.85rem;">{{ rdv.compteRendu|slice(0, 50) }}{% if rdv.compteRendu|length > 50 %}...{% endif %}</div>
+                                </td>
+                                <td class="py-3 text-end">
+                                    <a href="{{ path('app_rdv_download_pdf', {'slug': rdv.slug}) }}" target="_blank" class="btn btn-light text-primary rounded-pill px-3 py-1 fw-medium border-0 hover-bg-primary-bg">
+                                        <i class="bi bi-file-earmark-pdf me-1"></i> Ouvrir
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .hover-text-primary:hover { color: #36BDAF !important; }
+    .hover-bg-primary-bg:hover { background-color: #EBF4FC !important; }
+</style>
+{% endblock %}

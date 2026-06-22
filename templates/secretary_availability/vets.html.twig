@@ -1,0 +1,72 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Vétérinaires du cabinet - MrVeto{% endblock %}
+
+{% block body %}
+	<div class="container py-4">
+		<div class="d-flex align-items-center gap-3 mb-4">
+
+
+			<div>
+				<h1 class="h4 fw-semibold mb-1">
+					Gestion des horaires
+				</h1>
+				<div class="small text-muted mb-2">
+					Gérez les horaires des vétérinaires de votre cabinet</div>
+
+				{% if cabinet and cabinet.nom %}
+					<span class="badge bg-info text-white fw-bold fs-7 px-3 py-2 rounded-3 mb-4">
+						{{ cabinet.nom }}
+					</span>
+				{% endif %}
+			</div>
+		</div>
+
+		<div class="card border-0 rounded-4 overflow-hidden" style="background: transparent;">
+
+			<div class="d-none d-md-flex border-bottom fw-semibold text-muted small text-uppercase px-3 py-3" style="background: transparent;">
+				<div class="col-md-4">Nom</div>
+				<div class="col-md-5">Email</div>
+				<div class="col-md-3 text-end">Action</div>
+			</div>
+
+			<div class="d-flex flex-column">
+				{% for vet in vets %}
+					<div class="border-bottom px-3 py-3">
+						<div class="row g-3 align-items-center">
+							<div class="col-12 col-md-4">
+								<div class="fw-semibold">Dr.
+									{{ vet.prenom }}
+									{{ vet.nom }}</div>
+							</div>
+
+							<div class="col-12 col-md-5">
+								<div class="text-muted text-break">{{ vet.email }}</div>
+							</div>
+
+							<div class="col-12 col-md-3 text-md-end">
+								<a href="{{ path('app_secretary_vet_availability', {'slug': vet.slug}) }}" class="btn btn-primary btn-sm d-inline-flex align-items-center gap-2 text-white">
+									<i class="bi bi-calendar3"></i>
+									Modifier les horaires
+								</a>
+							</div>
+						</div>
+					</div>
+				{% else %}
+					<div class="text-center py-2">
+
+						<img src="{{ asset('empty-states/empty-state-veterinarians.png') }}" alt="Aucun vétérinaire" class="img-fluid d-block mx-auto mb-2" style="max-width: 250px;">
+
+						<div class="text-danger fw-normal">
+							Aucun vétérinaire rattaché à votre cabinet.
+						</div>
+
+					</div>
+
+
+				{% endfor %}
+			</div>
+
+		</div>
+	</div>
+{% endblock %}

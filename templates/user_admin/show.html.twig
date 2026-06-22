@@ -1,0 +1,153 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ user.prenom }} {{ user.nom }} - MrVeto{% endblock %}
+
+{% block body %}
+    {{ block('page_content') }}
+{% endblock %}
+
+{% block page_content %}
+<style>
+    .btn-retour:hover {
+        color: var(--bs-info) !important;
+    }
+</style>
+
+<div id="user-show-content" class="container py-2 px-3">
+    <div class="mx-auto" style="max-width: 700px;">
+
+        <div class="d-flex justify-content-end mb-2">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+
+        <a href="{{ path('app_user_admin_index') }}" class="d-inline-flex align-items-center gap-2 text-decoration-none text-muted fw-semibold btn-retour mb-3">
+            <i class="bi bi-arrow-left"></i>
+            Retour à la liste
+        </a>
+
+        <div class="bg-white rounded-4 shadow-sm p-3 p-md-4">
+
+            <div class="d-flex flex-column flex-sm-row align-items-center align-items-sm-start gap-3 mb-4 pb-4 border-bottom text-center text-sm-start">
+
+                <div style="width:56px;height:56px;border-radius:50%;background:var(--bs-primary-bg,#e6f7f5);color:var(--bs-primary);font-weight:700;font-size:1.1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    {{ user.prenom|default('')|first|upper }}{{ user.nom|default('')|first|upper }}
+                </div>
+
+                <div class="flex-grow-1 w-100">
+
+                    <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center gap-2 mb-1">
+                        <div class="fw-bold fs-5">
+                            {{ user.prenom }} {{ user.nom }}
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <a href="{{ path('app_user_admin_edit', {'slug': user.slug}) }}"
+                               class="btn btn-danger d-flex align-items-center gap-2 px-4">
+                                <i class="bi bi-pencil"></i>
+                                Modifier
+                            </a>
+                            {% if user.archivedAt %}
+                                <form method="post" action="{{ path('app_user_admin_unarchive', {'slug': user.slug}) }}" style="display:inline-block;" onsubmit="return confirm('Voulez-vous vraiment remettre en place ce compte ?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('unarchive' ~ user.id) }}">
+                                    <button class="btn btn-success text-white d-flex align-items-center gap-2 px-4">
+                                        <i class="bi bi-arrow-counterclockwise"></i>
+                                        Remettre en place
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="text-muted mb-2 text-break small">
+                        {{ user.email }}
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-sm-start">
+                        {% if 'ROLE_ADMIN' in user.roles %}
+                            <span class="badge rounded-pill px-3 py-2 text-white bg-info">Admin</span>
+                        {% elseif 'ROLE_SECRETARY' in user.roles or 'ROLE_SECRETAIRE' in user.roles %}
+                            <span class="badge rounded-pill px-3 py-2 bg-secondary text-white">Secrétaire</span>
+                        {% elseif 'ROLE_VETO' in user.roles %}
+                            <span class="badge rounded-pill px-3 py-2" style="background:#e4f0ff;color:#2563eb;">Vétérinaire</span>
+                        {% else %}
+                            <span class="badge rounded-pill px-3 py-2" style="background:#e0f2fe;color:#0369a1;">Utilisateur</span>
+                        {% endif %}
+
+                        {% if user.archivedAt %}
+                            <span class="badge rounded-pill px-3 py-2" style="background:#fef3c7;color:#d97706;">Archivé le {{ user.archivedAt|date('d/m/Y') }}</span>
+                        {% else %}
+                            {% if 'ROLE_VETO' in user.roles %}
+                                {% if user.isVerified %}
+                                    <span class="badge rounded-pill px-3 py-2" style="background:#e4f9f0;color:#16a34a;">Validé </span>
+                                {% else %}
+                                    <span class="badge rounded-pill px-3 py-2" style="background:#fde8e8;color:#dc2626;">En attente admin</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge rounded-pill px-3 py-2" style="background:#dcfce7;color:#166534;">Actif</span>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="row g-3 small">
+                <div class="col-12 col-md-6">
+                    <div class="border-bottom pb-2">
+                        <div class="text-muted ">Téléphone</div>
+                        <div class="fw-normal text-info ">{{ user.telephone ? user.telephone|format_phone : '—' }}</div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <div class="border-bottom pb-2">
+                        <div class="text-muted ">Date de naissance</div>
+                        <div class="fw-normal text-info">
+                            {{ user.datenaissance ? user.datenaissance|date('d/m/Y') : '—' }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="border-bottom pb-2">
+                        <div class="text-muted ">Adresse</div>
+                        <div class="fw-normal text-info">
+                            {{ user.adresse ?: '—' }}
+                            {% if user.codepostal or user.ville %}
+                                , {{ user.codepostal }} {{ user.ville }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                {% if 'ROLE_VETO' in user.roles %}
+                    <div class="col-12 col-md-6">
+                        <div class="border-bottom pb-2">
+                            <div class="text-muted ">SIRET</div>
+                            <div class="fw-normal text-info">{{ user.siret ?: '—' }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <div class="border-bottom pb-2">
+                            <div class="text-muted ">Adresse cabinet</div>
+                            <div class="fw-normal text-info">{{ user.adressecabinet ?: '—' }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        {{ include('user_admin/_siret_verification.html.twig') }}
+                    </div>
+                {% endif %}
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    if (window.lucide) lucide.createIcons();
+</script>
+{% endblock %}

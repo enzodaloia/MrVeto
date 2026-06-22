@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Horaire - MrVeto{% endblock %}
+
+{% block body %}
+    <h1>Horaire</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ horaire.id }}</td>
+            </tr>
+            <tr>
+                <th>StartTime</th>
+                <td>{{ horaire.startTime ? horaire.startTime|date('H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>EndTime</th>
+                <td>{{ horaire.endTime ? horaire.endTime|date('H:i:s') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_horaire_index') }}">back to list</a>
+
+    <a href="{{ path('app_horaire_edit', {'slug': horaire.slug}) }}">edit</a>
+
+    {{ include('horaire/_delete_form.html.twig') }}
+{% endblock %}

@@ -1,0 +1,33 @@
+{{ form_start(form) }}
+    <div data-controller="autocomplete-address" data-autocomplete-address-theme-value="form">
+        <div class="row g-3">
+        <div class="col-md-6 form-floating">
+            {{ form_widget(form.nom, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Nom du cabinet'}}) }}
+            {{ form_label(form.nom, 'Nom du cabinet', {'label_attr': {'class': 'ps-4'}}) }}
+            {{ form_errors(form.nom) }}
+        </div>
+        <div class="col-md-6 form-floating">
+            {{ form_widget(form.telephone, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Téléphone', 'data-controller': 'phone-input', 'data-action': 'input->phone-input#format'}}) }}
+            {{ form_label(form.telephone, 'Téléphone', {'label_attr': {'class': 'ps-4'}}) }}
+            {{ form_errors(form.telephone) }}
+        </div>
+        <div class="col-12 form-floating position-relative">
+            {{ form_widget(form.adresse, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Adresse', 'data-autocomplete-address-target': 'input street', 'data-action': 'input->autocomplete-address#search', 'autocomplete': 'off'}}) }}
+            {{ form_label(form.adresse, 'Adresse', {'label_attr': {'class': 'ps-4'}}) }}
+            <div data-autocomplete-address-target="results" class="position-absolute start-0 end-0 top-100 z-3"></div>
+            {{ form_errors(form.adresse) }}
+        </div>
+        <div class="col-md-6 form-floating">
+            {{ form_widget(form.ville, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Ville', 'data-autocomplete-address-target': 'city'}}) }}
+            {{ form_label(form.ville, 'Ville', {'label_attr': {'class': 'ps-4'}}) }}
+            {{ form_errors(form.ville) }}
+        </div>
+        <div class="col-md-6 form-floating">
+            {{ form_widget(form.codePostal, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Code postal', 'data-autocomplete-address-target': 'postcode'}}) }}
+            {{ form_label(form.codePostal, 'Code postal', {'label_attr': {'class': 'ps-4'}}) }}
+            {{ form_errors(form.codePostal) }}
+        </div>
+    </div>
+    </div>
+    <button class="btn btn-primary text-white px-4 mt-3" style="border-radius: 30px;">{{ button_label|default('Enregistrer') }}</button>
+{{ form_end(form) }}

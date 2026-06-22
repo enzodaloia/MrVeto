@@ -1,0 +1,215 @@
+<?php
+
+namespace App\Controller;
+
+use App\Entity\DayOfWork;
+use App\Entity\Horaire;
+use App\Form\DisponibiliteType;
+use App\Repository\DayOfWorkRepository;
+use App\Repository\JourRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
+
+final class AvailabilityController extends AbstractController
+{
+    #[Route('/api/availability', name: 'api_availability', methods: ['GET'])]
+    public function apiAvailability(
+        Request $request,
+        DayOfWorkRepository $dayOfWorkRepository
+    ): JsonResponse {
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->json([], 401);
+        }
+
+        $daysOfWork = $dayOfWorkRepository->createQueryBuilder('d')
+            ->innerJoin('d.jour', 'j')->addSelect('j')
+            ->leftJoin('d.horaires', 'h')->addSelect('h')
+            ->andWhere('d.user = :u')->setParameter('u', $user)
+            ->orderBy('j.ordre', 'ASC')
+            ->getQuery()->getResult();
+
+        $events = [];
+        $periodStart = $this->parseCalendarDate($request->query->get('start')) ?? new \DateTimeImmutable('monday this week');
+        $periodEnd = $this->parseCalendarDate($request->query->get('end')) ?? $periodStart->modify('+1 week');
+
+        $daysByOrder = [];
+        foreach ($daysOfWork as $dayOfWork) {
+            $daysByOrder[(int) $dayOfWork->getJour()->getOrdre()] = $dayOfWork;
+        }
+
+        for ($date = $periodStart; $date < $periodEnd; $date = $date->modify('+1 day')) {
+            $dow = $daysByOrder[(int) $date->format('N')] ?? null;
+            if (!$dow) {
+                continue;
+            }
+
+            $dateStr = $date->format('Y-m-d');
+
+            $horaire = $dow->getHoraires()->first();
+
+            if (!$dow->isWorking() || !$horaire) {
+                $events[] = [
+                    'title' => 'Absent',
+                    'start' => $dateStr . 'T08:00:00',
+                    'end' => $dateStr . 'T18:00:00',
+                    'backgroundColor' => '#e0e0e0',
+                    'borderColor' => '#bdbdbd',
+                    'textColor' => '#757575',
+                ];
+                continue;
+            }
+
+            // Matinée
+            if ($horaire->getMorningStart() && $horaire->getMorningEnd()) {
+                $events[] = [
+                    'title' => 'Disponible',
+                    'start' => $dateStr . 'T' . $horaire->getMorningStart()->format('H:i:s'),
+                    'end' => $dateStr . 'T' . $horaire->getMorningEnd()->format('H:i:s'),
+                    'backgroundColor' => '#e8f8f6',
+                    'borderColor' => '#1aab96',
+                    'textColor' => '#1aab96',
+                ];
+            }
+
+            // Après-midi
+            if ($horaire->getAfternoonStart() && $horaire->getAfternoonEnd()) {
+                $events[] = [
+                    'title' => 'Disponible',
+                    'start' => $dateStr . 'T' . $horaire->getAfternoonStart()->format('H:i:s'),
+                    'end' => $dateStr . 'T' . $horaire->getAfternoonEnd()->format('H:i:s'),
+                    'backgroundColor' => '#e8f8f6',
+                    'borderColor' => '#1aab96',
+                    'textColor' => '#1aab96',
+                ];
+            }
+        }
+
+        return $this->json($events);
+    }
+    #[Route('/availability', name: 'app_availability', methods: ['GET', 'POST'])]
+    public function index(
+        Request $request,
+        DayOfWorkRepository $dayOfWorkRepository,
+        JourRepository $jourRepository,
+        EntityManagerInterface $em
+    ): Response {
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        // Créer les DayOfWork si premier accès
+        if ($dayOfWorkRepository->countForUser($user) === 0) {
+            foreach ($jourRepository->findBy([], ['ordre' => 'ASC']) as $jour) {
+                $dow = new DayOfWork();
+                $dow->setUser($user)->setJour($jour)->setIsWorking(false);
+                $em->persist($dow);
+            }
+            $em->flush();
+        }
+
+        $daysOfWork = $dayOfWorkRepository->createQueryBuilder('d')
+            ->innerJoin('d.jour', 'j')->addSelect('j')
+            ->leftJoin('d.horaires', 'h')->addSelect('h')
+            ->andWhere('d.user = :u')->setParameter('u', $user)
+            ->orderBy('j.ordre', 'ASC')
+            ->getQuery()->getResult();
+
+        $horairesList = [];
+        foreach ($daysOfWork as $dow) {
+
+    if ($dow->getHoraires()->isEmpty()) {
+
+        $h = new Horaire();
+
+        $h->setMorningStart(new \DateTime('08:00'));
+        $h->setMorningEnd(new \DateTime('12:00'));
+        $h->setAfternoonStart(new \DateTime('13:00'));
+        $h->setAfternoonEnd(new \DateTime('18:00'));
+
+        $dow->addHoraire($h);
+        $em->persist($h);
+
+    } else {
+
+        $h = $dow->getHoraires()->first();
+
+    }
+
+    $horairesList[] = $h;
+}
+        $form = $this->createForm(DisponibiliteType::class, ['horaires' => $horairesList], [
+            'user' => $user,
+        ]);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $applyScope = $this->normalizeApplyScope($request->request->get('apply_scope'));
+            $workingDayIds = $request->request->all('working_days') ?? [];
+            foreach ($daysOfWork as $dow) {
+                $dow->setIsWorking(in_array($dow->getId(), array_map('intval', $workingDayIds)));
+            }
+            $this->applyScopeToWeeklyAvailability($applyScope, $daysOfWork);
+            $em->flush();
+
+            if ($request->isXmlHttpRequest()) {
+                return $this->json([
+                    'success' => true,
+                    'applyScope' => $applyScope,
+                ]);
+            }
+
+            $this->addFlash('success', 'Disponibilités enregistrées.');
+            return $this->redirectToRoute('app_availability');
+        }
+
+        return $this->render('availability/index.html.twig', [
+            'daysOfWork' => $daysOfWork,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    private function normalizeApplyScope(mixed $scope): string
+    {
+        return in_array($scope, ['week', 'month', 'year'], true) ? $scope : 'week';
+    }
+
+
+    private function applyScopeToWeeklyAvailability(string $scope, array $daysOfWork): void
+    {
+        if ($scope === 'week') {
+            return;
+        }
+
+        foreach ($daysOfWork as $dayOfWork) {
+            foreach ($dayOfWork->getHoraires() as $horaire) {
+                $horaire->setMorningStart($this->cloneTime($horaire->getMorningStart()));
+                $horaire->setMorningEnd($this->cloneTime($horaire->getMorningEnd()));
+                $horaire->setAfternoonStart($this->cloneTime($horaire->getAfternoonStart()));
+                $horaire->setAfternoonEnd($this->cloneTime($horaire->getAfternoonEnd()));
+            }
+        }
+    }
+
+    private function cloneTime(?\DateTime $time): ?\DateTime
+    {
+        return $time === null ? null : clone $time;
+    }
+
+    private function parseCalendarDate(mixed $value): ?\DateTimeImmutable
+    {
+        if (!is_string($value) || trim($value) === '') {
+            return null;
+        }
+
+        try {
+            return new \DateTimeImmutable($value);
+        } catch (\Exception) {
+            return null;
+        }
+    }
+}

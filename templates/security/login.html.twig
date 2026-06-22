@@ -1,0 +1,106 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Se connecter - MrVeto{% endblock %}
+
+{% block body %}
+<div class="container-fluid d-flex flex-column p-0" style="background-color: #fff9f0;">
+
+    <!-- Main Form -->
+    <main class="d-flex justify-content-center align-items-center py-5" style="min-height: 90vh;">
+        <form method="post" class="w-100 px-4 px-sm-5" style="max-width: 600px;">
+            
+            <h2 class="text-center mb-4" style="color: #36BDAF;">Connexion</h2>
+
+            {% if error %}
+                {% if error.messageKey == 'VOTRE_COMPTE_EN_ATTENTE' or error.messageData is defined %}
+                    <!-- DEBUG error key is {{ error.messageKey }} -->
+                {% endif %}
+
+                {% if error.messageKey == 'VOTRE_COMPTE_EN_ATTENTE' or error.messageKey == 'CustomUserMessageAccountStatusException' %}
+                    <button type="button" id="triggerPendingModal" class="d-none" data-bs-toggle="modal" data-bs-target="#pendingValidationModal"></button>
+                    <script>
+                        setTimeout(function() {
+                            var btn = document.getElementById('triggerPendingModal');
+                            if (btn) btn.click();
+                        }, 100);
+                    </script>
+                {% else %}
+                    <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                {% endif %}
+            {% endif %}
+
+            <div class="mb-3 form-floating">
+                <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" placeholder="Adresse email" autocomplete="email" required autofocus>
+                <label for="inputEmail">Adresse email</label>
+            </div>
+
+            <div class="mb-3 form-floating position-relative">
+                <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Mot de passe" autocomplete="current-password" required>
+                <label for="inputPassword">Mot de passe</label>
+
+                <!-- Bouton toggle avec Font Awesome -->
+                <button type="button" id="togglePassword" class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2" style="z-index: 2;" aria-label="Afficher le mot de passe">
+                    <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+            <div class="mb-2 form-check">
+                <input class="form-check-input" type="checkbox" name="_remember_me" id="remember_me">
+                <label class="form-check-label" for="remember_me">Se souvenir de moi</label>
+            </div>
+            <div class="text-end mb-4">
+                <a href="{{ path('app_forgot_password_request') }}" class="text-danger small">Mot de passe oublié?</a>
+            </div>
+
+            <div class="text-center">
+                <button class="btn w-50 mb-3" style="background-color: #36BDAF; color: white;" type="submit">Se connecter</button>
+            </div>
+
+            {% if not app.user %}
+                <div class="text-center small text-muted">
+                    Nouveau sur Mr Veto? Créer un compte <a href="{{ path('app_register', {'type': 'utilisateur'}) }}">personnel</a> ou <a href="{{ path('app_register', {'type': 'veterinaire'}) }}">professionnel</a>
+                </div>
+            {% endif %}
+        </form>
+    </main>
+</div>
+
+<script>
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('inputPassword');
+    const toggleIcon = togglePassword.querySelector('i');
+
+    togglePassword.addEventListener('click', function () {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+
+        // Changer l'icône
+        toggleIcon.classList.toggle('fa-eye');
+        toggleIcon.classList.toggle('fa-eye-slash');
+
+        // Mettre à jour l'aria-label pour l'accessibilité
+        togglePassword.setAttribute('aria-label', type === 'text' ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
+    });
+</script>
+
+<!-- Modal pour compte en attente -->
+<div class="modal fade" id="pendingValidationModal" tabindex="-1" aria-labelledby="pendingValidationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow">
+      <div class="modal-header border-0 pb-0">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body text-center pb-5 px-4">
+        <div class="mb-4 text-warning">
+            <i class="fa-solid fa-clock fa-4x"></i>
+        </div>
+        <h4 class="fw-bold mb-3" id="pendingValidationModalLabel" style="color: #36BDAF;">Compte en attente</h4>
+        <p class="text-muted">Votre compte vétérinaire est actuellement en cours de validation par notre équipe.<br><br>Merci pour votre patience !</p>
+        <button type="button" class="btn text-white w-100 mt-3" style="background-color: #36BDAF; border-radius: 12px; padding: 12px;" data-bs-dismiss="modal">J'ai compris</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

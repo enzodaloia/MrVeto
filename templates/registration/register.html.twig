@@ -1,0 +1,307 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer un compte - MrVeto{% endblock %}
+
+{% block body %}
+	<div class="container-fluid d-flex flex-column p-0" style="background-color: #fff9f0;">
+
+		<main class="d-flex justify-content-center align-items-center mt-5 pb-5" style="min-height: 90vh;">
+			{{ form_start(registrationForm, {'attr': {'class': 'w-100', 'style': 'max-width: 800px;'}}) }}
+
+			{% if type == 'veterinaire' %}
+				<h1 class="mb-4" style="color: #36BDAF;">Créer un compte professionnel</h1>
+				<h4 class="mb-4" style="color: #3688BD;">Informations personnelles</h4>
+			{% else %}
+				<h2 class="mb-4" style="color: #36BDAF;">Créer un compte</h2>
+				<h4 class="mb-4" style="color: #3688BD;">Informations personnelles</h4>
+			{% endif %}
+
+			{% if registrationForm.vars.errors|length > 0 %}
+				<div class="alert alert-danger rounded-3 mb-4">
+					{% for error in registrationForm.vars.errors %}
+						<div>{{ error.message }}</div>
+					{% endfor %}
+				</div>
+			{% endif %}
+
+			<!-- Informations personnelles -->
+			<div class="row">
+				<div class="col-md-6 mb-3 form-floating">
+					{{ form_widget(registrationForm.nom, {'attr': {'class': 'form-control ps-4 pe-4' ~ (registrationForm.nom.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder': 'Nom'}}) }}
+					{{ form_label(registrationForm.nom, 'Nom *', {'label_attr': {'class': 'ps-4'}}) }}
+					{% for error in registrationForm.nom.vars.errors %}
+						<div class="invalid-feedback d-block">{{ error.message }}</div>
+					{% endfor %}
+				</div>
+				<div class="col-md-6 mb-3 form-floating">
+					{{ form_widget(registrationForm.prenom, {'attr': {'class': 'form-control ps-4 pe-4' ~ (registrationForm.prenom.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder': 'Prénom'}}) }}
+					{{ form_label(registrationForm.prenom, 'Prénom *', {'label_attr': {'class': 'ps-4'}}) }}
+					{% for error in registrationForm.prenom.vars.errors %}
+						<div class="invalid-feedback d-block">{{ error.message }}</div>
+					{% endfor %}
+				</div>
+			</div>
+
+			<!-- Bloc Recherche d'adresse -->
+			<div data-controller="autocomplete-address" data-autocomplete-address-theme-value="form">
+				<div class="mb-4 position-relative">
+					<div class="form-floating">
+						<input type="text" id="address_search" class="form-control ps-4 pe-4" placeholder="Rechercher une adresse..." data-autocomplete-address-target="input" data-action="input->autocomplete-address#search" autocomplete="off">
+						<label for="address_search">Rechercher une adresse</label>
+					</div>
+					<div data-autocomplete-address-target="results" class="position-absolute start-0 end-0 top-100 z-3"></div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-4 mb-3 form-floating">
+						{{ form_widget(registrationForm.adresse, {'attr': {'class': 'form-control ps-4 pe-4' ~ (registrationForm.adresse.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder': 'Adresse', 'data-autocomplete-address-target': 'street'}}) }}
+						{{ form_label(registrationForm.adresse, 'Adresse *', {'label_attr': {'class': 'ps-4'}}) }}
+						{% for error in registrationForm.adresse.vars.errors %}
+							<div class="invalid-feedback d-block">{{ error.message }}</div>
+						{% endfor %}
+					</div>
+					<div class="col-md-4 mb-3 form-floating">
+						{{ form_widget(registrationForm.ville, {'attr': {'class': 'form-control ps-4 pe-4' ~ (registrationForm.ville.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder': 'Ville', 'data-autocomplete-address-target': 'city'}}) }}
+						{{ form_label(registrationForm.ville, 'Ville *', {'label_attr': {'class': 'ps-4'}}) }}
+						{% for error in registrationForm.ville.vars.errors %}
+							<div class="invalid-feedback d-block">{{ error.message }}</div>
+						{% endfor %}
+					</div>
+					<div class="col-md-4 mb-3 form-floating">
+						{{ form_widget(registrationForm.codepostal, {'attr': {'class': 'form-control ps-4 pe-4' ~ (registrationForm.codepostal.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder': 'Code postal', 'data-autocomplete-address-target': 'postcode'}}) }}
+						{{ form_label(registrationForm.codepostal, 'Code postal *', {'label_attr': {'class': 'ps-4'}}) }}
+						{% for error in registrationForm.codepostal.vars.errors %}
+							<div class="invalid-feedback d-block">{{ error.message }}</div>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+
+			{% if type == 'veterinaire' %}
+				<div class="row">
+					<div class="col-md-6 mb-3 form-floating">
+						{{ form_widget(registrationForm.email, {'attr': {'class': 'form-control ps-4 pe-4' ~ (registrationForm.email.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder': 'Adresse email', 'pattern': '[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$', 'title': 'Veuillez entrer une adresse email valide'}}) }}
+						{{ form_label(registrationForm.email, 'Adresse email *', {'label_attr': {'class': 'ps-4'}}) }}
+						{% for error in registrationForm.email.vars.errors %}
+							<div class="invalid-feedback d-block">{{ error.message }}</div>
+						{% endfor %}
+					</div>
+					<div class="col-md-6 mb-3 form-floating">
+						{{ form_widget(registrationForm.telephone, {'attr': {'class': 'form-control ps-4 pe-4' ~ (registrationForm.telephone.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder': 'Téléphone', 'data-controller': 'phone-input', 'data-action': 'input->phone-input#format'}}) }}
+						{{ form_label(registrationForm.telephone, 'Téléphone *', {'label_attr': {'class': 'ps-4'}}) }}
+						{% for error in registrationForm.telephone.vars.errors %}
+							<div class="invalid-feedback d-block">{{ error.message }}</div>
+						{% endfor %}
+					</div>
+				</div>
+			{% else %}
+				<div class="row">
+					<div class="col-md-6 mb-3 form-floating">
+						{{ form_widget(registrationForm.datenaissance, {'attr': {'class': 'form-control ps-4 pe-4' ~ (registrationForm.datenaissance.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder': 'Date de naissance'}}) }}
+						{{ form_label(registrationForm.datenaissance, 'Date de naissance *', {'label_attr': {'class': 'ps-4'}}) }}
+						{% for error in registrationForm.datenaissance.vars.errors %}
+							<div class="invalid-feedback d-block">{{ error.message }}</div>
+						{% endfor %}
+					</div>
+					<div class="col-md-6 mb-3 form-floating">
+						{{ form_widget(registrationForm.telephone, {'attr': {'class': 'form-control ps-4 pe-4' ~ (registrationForm.telephone.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder': 'Téléphone', 'data-controller': 'phone-input', 'data-action': 'input->phone-input#format'}}) }}
+						{{ form_label(registrationForm.telephone, 'Téléphone *', {'label_attr': {'class': 'ps-4'}}) }}
+						{% for error in registrationForm.telephone.vars.errors %}
+							<div class="invalid-feedback d-block">{{ error.message }}</div>
+						{% endfor %}
+					</div>
+				</div>
+				<div class="mb-3 form-floating">
+					{{ form_widget(registrationForm.email, {'attr': {'class': 'form-control ps-4 pe-4' ~ (registrationForm.email.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder': 'Adresse email', 'pattern': '[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$', 'title': 'Veuillez entrer une adresse email valide'}}) }}
+					{{ form_label(registrationForm.email, 'Adresse email *') }}
+					{% for error in registrationForm.email.vars.errors %}
+						<div class="invalid-feedback d-block">{{ error.message }}</div>
+					{% endfor %}
+				</div>
+			{% endif %}
+
+			{% if type == 'veterinaire' %}
+				<hr class="my-5">
+				<h4 class="mb-4" style="color: #3688BD;">Informations professionnelles</h4>
+				{# SIRET = SIREN (9) + NIC (5) — séparation visuelle dans un seul champ #}
+				<div class="mb-3 form-floating" data-controller="siret">
+					{{ form_widget(registrationForm.siret, {'attr': {
+						'style': 'display:none',
+						'tabindex': '-1',
+						'aria-hidden': 'true',
+						'data-siret-target': 'combined'
+					}}) }}
+					<input type="text" id="siret_display"
+						   class="form-control ps-4 pe-4{{ registrationForm.siret.vars.errors|length > 0 ? ' is-invalid' : '' }}"
+						   placeholder="N° de SIRET" maxlength="15" inputmode="numeric" autocomplete="off"
+						   data-siret-target="display"
+						   data-action="keydown->siret#block input->siret#format paste->siret#paste">
+					<label for="siret_display" class="ps-4">N° de SIRET *</label>
+					{% for error in registrationForm.siret.vars.errors %}
+						<div class="invalid-feedback d-block mt-1">{{ error.message }}</div>
+					{% endfor %}
+				</div>
+				<div data-controller="autocomplete-address" data-autocomplete-address-theme-value="form">
+					<div class="mb-3 position-relative">
+						<div class="form-floating">
+							<input type="text" id="cabinet_address_search" class="form-control ps-4 pe-4" placeholder="Rechercher l'adresse du cabinet..." data-autocomplete-address-target="input" data-action="input->autocomplete-address#search" autocomplete="off">
+							<label for="cabinet_address_search">Rechercher l'adresse du cabinet</label>
+						</div>
+						<div data-autocomplete-address-target="results" class="position-absolute start-0 end-0 top-100 z-3"></div>
+					</div>
+					<div class="mb-3 form-floating">
+						{{ form_widget(registrationForm.adressecabinet, {'attr': {'class': 'form-control ps-4 pe-4' ~ (registrationForm.adressecabinet.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder': 'Adresse du cabinet', 'data-autocomplete-address-target': 'fullAddress'}}) }}
+						{{ form_label(registrationForm.adressecabinet, 'Adresse du cabinet *') }}
+						{% for error in registrationForm.adressecabinet.vars.errors %}
+							<div class="invalid-feedback d-block">{{ error.message }}</div>
+						{% endfor %}
+					</div>
+					{# Hidden coordinate fields #}
+					{{ form_widget(registrationForm.latitude, {'attr': {'data-autocomplete-address-target': 'lat'}}) }}
+					{{ form_widget(registrationForm.longitude, {'attr': {'data-autocomplete-address-target': 'lon'}}) }}
+				</div>
+			{% endif %}
+
+			<!-- Mot de passe avec toggle JS -->
+			<div
+				class="row mt-4">
+				<!-- Mot de passe -->
+				<div class="col-md-6 mb-3">
+					<div class="form-floating position-relative" data-password-wrapper>
+					{% set pw_first_class = 'form-control ps-4 pe-5' %}
+					{% if registrationForm.plainPassword.first.vars.errors|length > 0 %}
+						{% set pw_first_class = pw_first_class ~ ' is-invalid' %}
+					{% endif %}
+
+					{{ form_widget(registrationForm.plainPassword.first, {
+					'attr': {'class': pw_first_class ~ ' password-toggle-input', 'placeholder': 'Mot de passe', 'id': 'password'}
+                }) }}
+					{{ form_label(registrationForm.plainPassword.first, 'Mot de passe', {'label_attr': {'class': 'ps-4'}}) }}
+
+					<button type="button" class="btn btn-link btn-sm text-dark p-0 position-absolute top-50 end-0 translate-middle-y me-3 toggle-password password-reveal-btn">
+						<i class="fa-solid fa-eye"></i>
+					</button>
+					</div>
+
+					{% for error in registrationForm.plainPassword.first.vars.errors %}
+						<div class="invalid-feedback d-block">{{ error.message }}</div>
+					{% endfor %}
+				</div>
+
+				<!-- Confirmation mot de passe -->
+				<div class="col-md-6 mb-3">
+					<div class="form-floating position-relative" data-password-wrapper>
+					{% set pw_second_class = 'form-control ps-4 pe-5' %}
+					{% if registrationForm.plainPassword.second.vars.errors|length > 0 %}
+						{% set pw_second_class = pw_second_class ~ ' is-invalid' %}
+					{% endif %}
+
+					{{ form_widget(registrationForm.plainPassword.second, {
+					'attr': {'class': pw_second_class ~ ' password-toggle-input', 'placeholder': 'Confirmation mot de passe', 'id': 'passwordConfirm'}
+                }) }}
+					{{ form_label(registrationForm.plainPassword.second, 'Confirmation mot de passe', {'label_attr': {'class': 'ps-4'}}) }}
+
+					<button type="button" class="btn btn-link btn-sm text-dark p-0 position-absolute top-50 end-0 translate-middle-y me-3 toggle-password password-reveal-btn">
+						<i class="fa-solid fa-eye"></i>
+					</button>
+					</div>
+
+					{% for error in registrationForm.plainPassword.second.vars.errors %}
+						<div class="invalid-feedback d-block">{{ error.message }}</div>
+					{% endfor %}
+				</div>
+			</div>
+
+
+			<!-- Conditions -->
+			<div class="form-check mb-4">
+				{{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input' ~ (registrationForm.agreeTerms.vars.errors|length > 0 ? ' is-invalid' : '')}}) }}
+				{{ form_label(registrationForm.agreeTerms, null, {'label_attr': {'class': 'form-check-label'}}) }}
+				{% for error in registrationForm.agreeTerms.vars.errors %}
+					<div class="invalid-feedback d-block">{{ error.message }}</div>
+				{% endfor %}
+			</div>
+
+			{{ form_rest(registrationForm) }}
+
+			<!-- Boutons -->
+			<div class="d-flex justify-content-center gap-4 mt-4">
+				<a href="{{ path('app_login') }}" class="btn px-4" style="background-color:#C53B45; color:white; border-radius:30px;">Annuler</a>
+				<button type="submit" class="btn px-4" style="background-color:#36BDAF; color:white; border-radius:30px;">Créer le compte</button>
+			</div>
+
+			{{ form_end(registrationForm) }}
+		</main>
+	</div>
+
+	<style>
+		.password-toggle-input {
+			padding-right: 3rem !important;
+		}
+
+		.password-toggle-input.is-valid,
+		.password-toggle-input.is-invalid,
+		.was-validated .password-toggle-input:valid,
+		.was-validated .password-toggle-input:invalid {
+			background-image: none !important;
+		}
+
+		.password-toggle-input::-ms-reveal,
+		.password-toggle-input::-ms-clear {
+			display: none;
+		}
+
+		.password-reveal-btn {
+			z-index: 2;
+			line-height: 1;
+		}
+	</style>
+
+	{# JS toggle pur #}
+	<script>
+		(function () {
+			function syncPasswordToggleIcons() {
+				document.querySelectorAll('[data-password-wrapper]').forEach((wrapper) => {
+					const input = wrapper.querySelector('input');
+					const icon = wrapper.querySelector('.toggle-password i');
+
+					if (!input || !icon) {
+						return;
+					}
+
+					const isPassword = input.type === 'password';
+					icon.classList.toggle('fa-eye', isPassword);
+					icon.classList.toggle('fa-eye-slash', !isPassword);
+				});
+			}
+
+			if (!window.__registrationPasswordToggleBound) {
+				document.addEventListener('click', function (event) {
+					const button = event.target.closest('.toggle-password');
+					if (!button) {
+						return;
+					}
+
+					const wrapper = button.closest('[data-password-wrapper]');
+					const input = wrapper ? wrapper.querySelector('input') : null;
+					const icon = button.querySelector('i');
+
+					if (!input || !icon) {
+						return;
+					}
+
+					const isPassword = input.type === 'password';
+					input.type = isPassword ? 'text' : 'password';
+					icon.classList.toggle('fa-eye', !isPassword);
+					icon.classList.toggle('fa-eye-slash', isPassword);
+				});
+
+				window.__registrationPasswordToggleBound = true;
+			}
+
+			document.addEventListener('DOMContentLoaded', syncPasswordToggleIcons);
+			document.addEventListener('turbo:load', syncPasswordToggleIcons);
+		})();
+	</script>
+
+{% endblock %}

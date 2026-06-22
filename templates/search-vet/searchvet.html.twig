@@ -1,0 +1,543 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Trouver un vétérinaire - MrVeto{% endblock %}
+
+{% block body %}
+    {# Vets data for the Stimulus map controller #}
+    {% set vetsData = [] %}
+    {% for vet in pagination %}
+        {% if vet.latitude and vet.longitude %}
+            {% set avail = vetAvailability[vet.id]|default({'isOpen': false, 'label': 'Fermé', 'detail': 'Aucun horaire renseigné'}) %}
+            {% set vetsData = vetsData|merge([{
+                lat: vet.latitude,
+                lon: vet.longitude,
+                nom: 'Dr. ' ~ vet.prenom ~ ' ' ~ vet.nom,
+                adresse: vet.adressecabinet ?? '',
+                url: path('app_vet_info', {slug: vet.slug}),
+                isOpen: avail.isOpen,
+                availLabel: avail.label,
+                availDetail: avail.detail
+            }]) %}
+        {% endif %}
+    {% endfor %}
+
+    {# Wrapper Stimulus controller (englobe le container ET la modal) #}
+    <div data-controller="searchmap"
+         data-searchmap-user-lat-value="{{ lat is not null ? lat : '' }}"
+         data-searchmap-user-lon-value="{{ lon is not null ? lon : '' }}"
+         data-searchmap-vets-value="{{ vetsData|json_encode|e('html_attr') }}">
+
+    {# Main Container #}
+    <div class="container-xxl d-flex flex-column gap-4 py-4">
+        <h1 class="visually-hidden">Recherche de vétérinaires</h1>
+
+        {# Sticky Search Bar #}
+        <div class="sticky-top pt-2 pb-1" style="top: 0;">
+            <div class="d-flex justify-content-center mb-2">
+                <form action="{{ path('app_search_vet') }}" method="get" class="bg-secondary-bg p-2 ps-4 pe-2 rounded-pill shadow d-flex align-items-center gap-3 w-100" style="max-width: 900px;" data-controller="autocomplete-address" data-action="submit->autocomplete-address#onSubmit">
+
+                    <input type="hidden" name="lat" data-autocomplete-address-target="lat" value="{{ lat }}">
+                    <input
+                        type="hidden" name="lon" data-autocomplete-address-target="lon" value="{{ lon }}">
+
+                    {# Location Input #}
+                    <div class="d-flex align-items-center flex-grow-1 bg-white rounded-pill px-3 py-2 shadow-sm position-relative">
+                        <twig:ux:icon class="text-secondary fs-5 me-2" name="lucide:map-pin"/>
+                        <input
+                            type="text" name="location" placeholder="Ville ou Code postal" aria-label="Ville ou code postal" value="{{ location }}" class="form-control bg-transparent border-0 text-dark shadow-none p-0 focus-ring-none" style="outline: none;" data-autocomplete-address-target="input" data-action="input->autocomplete-address#search" autocomplete="off">
+                        {# Autocomplete Results Container #}
+                        <div data-autocomplete-address-target="results" class="position-absolute start-0 end-0 top-100 z-3"></div>
+                    </div>
+
+                    {# Distance Dropdown (Custom Design) #}
+                    <div class="d-none d-md-block">
+                        <div class="dropdown">
+                            <button class="filter-btn btn rounded-pill px-3 py-2 fw-medium d-inline-flex align-items-center gap-2"
+                                    type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false"
+                                    aria-label="Rayon de recherche : {{ distance }} km">
+                                <twig:ux:icon class="text-secondary fs-5" name="lucide:radar" aria-hidden="true"/>
+                                <span id="distanceLabel" data-searchmap-target="distanceLabel">{{ distance }} km</span>
+                                <i class="bi bi-chevron-down filter-chevron ms-1" style="font-size:0.7rem; transition:transform .2s;"></i>
+                            </button>
+                            <div class="dropdown-menu border-0 shadow-lg rounded-4 p-0 mt-2" style="min-width:160px;">
+                                <ul class="filter-option-list list-unstyled mb-0 py-1">
+                                    {% for d in [5, 10, 20, 50, 100] %}
+                                    <li>
+                                        <label class="filter-option d-flex align-items-center gap-3 px-3 py-2 cursor-pointer w-100 mb-0 {{ distance == d ? 'selected' : '' }}"
+                                               data-action="click->searchmap#updateDistance"
+                                               data-searchmap-distance-value-param="{{ d }}"
+                                               data-searchmap-distance-label-param="{{ d }} km">
+                                            <span class="flex-grow-1" style="font-size:0.88rem;">{{ d }} km</span>
+                                            <i class="bi bi-check2 filter-check-icon text-primary"></i>
+                                        </label>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <input type="hidden" name="distance" id="distanceInput" data-searchmap-target="distanceInput" value="{{ distance }}">
+                        </div>
+                    </div>
+
+                    {# Submit Button #}
+                    <button type="submit" class="btn btn-secondary rounded-circle p-0 d-flex align-items-center justify-content-center flex-shrink-0 shadow shadow-hover text-dark" style="width: 48px; height: 48px;" aria-label="Lancer la recherche">
+                        <twig:ux:icon class="fs-5 text-light" name="lucide:search" aria-hidden="true"/>
+                    </button>
+                </form>
+            </div>
+
+            {# ── Filter Bar ── #}
+            {% set activeCount = (filterUrgentiste ? 1 : 0) + filterSpecialites|length + filterAnimaux|length %}
+            {% set animauxOptions = [
+                {value: 'chien',   label: '🐶 Chien'},
+                {value: 'chat',    label: '🐱 Chat'},
+                {value: 'lapin',   label: '🐰 Lapin / NAC'},
+                {value: 'oiseau',  label: '🐦 Oiseau'},
+                {value: 'reptile', label: '🦎 Reptile'},
+                {value: 'equin',   label: '🐴 Cheval'},
+                {value: 'bovin',   label: '🐄 Rural'},
+            ] %}
+            <div class="d-flex justify-content-center">
+                <form id="filters-form" action="{{ path('app_search_vet') }}" method="get"
+                      class="w-100 d-flex align-items-center flex-wrap gap-2 pb-1" style="max-width: 900px;"
+                      aria-label="Filtres de recherche">
+                    <input type="hidden" name="lat" value="{{ lat }}">
+                    <input type="hidden" name="lon" value="{{ lon }}">
+                    <input type="hidden" name="location" value="{{ location }}">
+                    <input type="hidden" name="distance" value="{{ distance }}">
+                    <input type="hidden" name="limit" value="{{ limit }}">
+
+                    {# Urgences pill #}
+                    <label class="cursor-pointer flex-shrink-0 filter-urgence-label" aria-label="Filtrer : Urgences 24h">
+                        <input type="checkbox" name="urgentiste" value="1" id="filter_urgentiste"
+                               class="d-none filter-toggle" {{ filterUrgentiste ? 'checked' : '' }}>
+                        <span class="filter-btn filter-btn-urgence btn rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center gap-2
+                                     {{ filterUrgentiste ? 'active' : '' }}">
+                            <i class="bi bi-bell-fill" aria-hidden="true"></i> Urgences 24h
+                        </span>
+                    </label>
+
+                    <div class="vr opacity-25 mx-1 d-none d-sm-block flex-shrink-0" style="height:28px; align-self:center;"></div>
+
+                    {# Spécialités dropdown #}
+                    {% if allSpecialites is not empty %}
+                    <div class="dropdown flex-shrink-0">
+                        <button class="filter-btn btn rounded-pill px-3 py-2 fw-medium d-inline-flex align-items-center gap-2
+                                       {{ filterSpecialites|length > 0 ? 'active' : '' }}"
+                                type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"
+                                aria-label="Filtrer par spécialité{% if filterSpecialites|length > 0 %} ({{ filterSpecialites|length }} sélectionnée{{ filterSpecialites|length > 1 ? 's' : '' }}){% endif %}">
+                            <i class="bi bi-activity" aria-hidden="true"></i>
+                            Spécialités
+                            {% if filterSpecialites|length > 0 %}
+                                <span class="filter-count-badge badge rounded-pill px-2">{{ filterSpecialites|length }}</span>
+                            {% endif %}
+                            <i class="bi bi-chevron-down filter-chevron ms-1" aria-hidden="true" style="font-size:0.7rem; transition:transform .2s;"></i>
+                        </button>
+                        <div class="dropdown-menu border-0 shadow-lg rounded-4 p-0 mt-2" style="min-width:280px; width:300px;">
+                            <div class="p-2 border-bottom">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-light border-0 ps-2" aria-hidden="true"><i class="bi bi-search text-muted"></i></span>
+                                    <input type="text" class="form-control bg-light border-0 shadow-none filter-search"
+                                           placeholder="Rechercher..." autocomplete="off" data-target="spec-list"
+                                           aria-label="Rechercher une spécialité">
+                                </div>
+                            </div>
+                            <ul class="filter-option-list list-unstyled mb-0 py-1" id="spec-list"
+                                style="max-height:220px; overflow-y:auto;">
+                                {% for spec in allSpecialites %}
+                                <li>
+                                    <label class="filter-option d-flex align-items-center gap-3 px-3 py-2 cursor-pointer w-100 mb-0
+                                                  {{ spec.slug in filterSpecialites ? 'selected' : '' }}">
+                                        <input type="checkbox" name="spec[]" value="{{ spec.slug }}"
+                                               class="filter-toggle flex-shrink-0"
+                                               {{ spec.slug in filterSpecialites ? 'checked' : '' }}>
+                                        <span class="flex-grow-1" style="font-size:0.88rem;">{{ spec.label }}</span>
+                                        <i class="bi bi-check2 filter-check-icon text-primary" aria-hidden="true"></i>
+                                    </label>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {# Animaux dropdown #}
+                    <div class="dropdown flex-shrink-0">
+                        <button class="filter-btn btn rounded-pill px-3 py-2 fw-medium d-inline-flex align-items-center gap-2
+                                       {{ filterAnimaux|length > 0 ? 'active' : '' }}"
+                                type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"
+                                aria-label="Filtrer par type d'animal{% if filterAnimaux|length > 0 %} ({{ filterAnimaux|length }} sélectionné{{ filterAnimaux|length > 1 ? 's' : '' }}){% endif %}">
+                            <i class="bi bi-heart" aria-hidden="true"></i>
+                            Animaux
+                            {% if filterAnimaux|length > 0 %}
+                                <span class="filter-count-badge badge rounded-pill px-2">{{ filterAnimaux|length }}</span>
+                            {% endif %}
+                            <i class="bi bi-chevron-down filter-chevron ms-1" aria-hidden="true" style="font-size:0.7rem; transition:transform .2s;"></i>
+                        </button>
+                        <div class="dropdown-menu border-0 shadow-lg rounded-4 p-0 mt-2" style="min-width:260px; width:280px;">
+                            <div class="p-2 border-bottom">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-light border-0 ps-2" aria-hidden="true"><i class="bi bi-search text-muted"></i></span>
+                                    <input type="text" class="form-control bg-light border-0 shadow-none filter-search"
+                                           placeholder="Rechercher..." autocomplete="off" data-target="animaux-list"
+                                           aria-label="Rechercher un type d'animal">
+                                </div>
+                            </div>
+                            <ul class="filter-option-list list-unstyled mb-0 py-1" id="animaux-list"
+                                style="max-height:220px; overflow-y:auto;">
+                                {% for opt in animauxOptions %}
+                                <li>
+                                    <label class="filter-option d-flex align-items-center gap-3 px-3 py-2 cursor-pointer w-100 mb-0
+                                                  {{ opt.value in filterAnimaux ? 'selected' : '' }}">
+                                        <input type="checkbox" name="animaux[]" value="{{ opt.value }}"
+                                               class="filter-toggle flex-shrink-0"
+                                               {{ opt.value in filterAnimaux ? 'checked' : '' }}>
+                                        <span class="flex-grow-1" style="font-size:0.88rem;">{{ opt.label }}</span>
+                                        <i class="bi bi-check2 filter-check-icon text-primary" aria-hidden="true"></i>
+                                    </label>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    {# Reset #}
+                    {% if activeCount > 0 %}
+                    <a href="{{ path('app_search_vet', {lat: lat, lon: lon, location: location, distance: distance, limit: limit}) }}"
+                       class="btn btn-sm text-danger d-inline-flex align-items-center gap-1 flex-shrink-0 ms-auto text-nowrap"
+                       aria-label="Effacer tous les filtres ({{ activeCount }} actif{{ activeCount > 1 ? 's' : '' }})">
+                        <i class="bi bi-x-lg" aria-hidden="true"></i> Effacer ({{ activeCount }})
+                    </a>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+
+        {# Content Grid #}
+        <div class="row g-4">
+
+            {# Results Column #}
+            <div class="col-12 col-lg-8">
+                <div class="d-flex flex-column gap-4">
+                    {% for vet in pagination %}
+                        <div class="card border-0 shadow-sm p-4 transition-hover cursor-pointer" onclick="window.location.href='{{ path('app_vet_info', {slug: vet.slug}) }}'">
+                            <div
+                                class="d-flex flex-column flex-sm-row gap-4 align-items-start align-items-sm-center">
+                                {# Avatar #}
+                                <img
+                                    src="https://ui-avatars.com/api/?name={{ vet.prenom }}+{{ vet.nom }}&background=random" alt="Photo de profil de Dr. {{ vet.prenom }} {{ vet.nom }}" class="rounded-circle flex-shrink-0 bg-light shadow-sm" style="width: 80px; height: 80px; object-fit: cover;">
+
+                                {# Info #}
+                                <div class="flex-grow-1">
+                                    {% set availability = vetAvailability[vet.id]|default({'isOpen': false, 'label': 'Ferme', 'detail': 'Aucun horaire renseigne'}) %}
+                                    <h3 class="h5 text-primary fw-bold mb-1">Dr.
+                                        {{ vet.prenom }}
+                                        {{ vet.nom }}</h3>
+
+                                    {# Badges profil #}
+                                    {% set vp = vet.vetProfile %}
+                                    {% if vp %}
+                                    <div class="d-flex flex-wrap gap-1 mb-2">
+                                        {% if vp.isUrgentiste %}
+                                            <span class="badge rounded-pill text-white px-2 py-1" style="background-color:#e84545;font-size:0.72rem;"><i class="bi bi-bell-fill me-1" aria-hidden="true"></i>Urgences 24h</span>
+                                        {% endif %}
+                                        {% for spec in vp.specialites|slice(0, 2) %}
+                                            <span class="badge rounded-pill bg-primary-subtle text-primary px-2 py-1" style="font-size:0.72rem;">{{ spec.label }}</span>
+                                        {% endfor %}
+                                        {% if vp.specialites|length > 2 %}
+                                            <span class="badge rounded-pill bg-secondary-subtle text-secondary px-2 py-1" style="font-size:0.72rem;">+{{ vp.specialites|length - 2 }}</span>
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
+
+                                    <div class="d-flex flex-column gap-1 text-muted small">
+										<span class="d-flex align-items-center gap-2">
+											<twig:ux:icon class="fs-6 text-primary" name="lucide:map-pin"/>
+											{{ vet.adressecabinet }}
+										</span>
+                                        <span class="d-flex align-items-center gap-2">
+											<twig:ux:icon class="fs-6 text-primary" name="lucide:clock"/>
+											<span class="fw-medium {{ availability.isOpen ? 'text-primary' : 'text-danger' }}">{{ availability.label }}</span>
+											<span class="">{{ availability.detail }}</span>
+										</span>
+                                    </div>
+                                </div>
+
+                                {# Actions #}
+                                <div class="mt-3 mt-sm-0 ms-sm-auto align-self-sm-center" onclick="event.stopPropagation();">
+                                    <a href="{{ path('app_vet_info', {slug: vet.slug}) }}" class="btn btn-primary rounded-pill hover-bg-secondary px-4 py-2 fw-medium shadow-sm custom-hover-lift text-light"
+                                       aria-label="Voir le profil de Dr. {{ vet.prenom }} {{ vet.nom }} et prendre rendez-vous">
+                                        Voir / Prendre RDV
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info border-0 shadow-sm text-center p-4">
+                            <twig:ux:icon class="fs-1 text-primary mb-3" name="lucide:info"/>
+                            <p class="mb-0">Aucun vétérinaire trouvé pour cette recherche.</p>
+                        </div>
+                    {% endfor %}
+
+                    {# Pagination Controls #}
+                    {% set totalItems = pagination.getTotalItemCount() %}
+                    {% set totalPages = totalItems > 0 ? (totalItems / limit)|round(0, 'ceil') : 1 %}
+                    {% set baseParams = app.request.query.all|filter((v, k) => k != 'page' and k != 'limit') %}
+
+                    {% if totalPages > 1 or totalItems > 0 %}
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 p-3 bg-white rounded-pill shadow-sm">
+
+                            {# Limit Dropdown #}
+                            <div class="d-flex align-items-center gap-2 mb-3 mb-md-0 ms-2">
+                                <span class="text-muted small fw-medium">Nombre de résultats</span>
+                                <div class="dropup">
+                                    <button class="btn btn-white rounded-pill d-flex align-items-center justify-content-between gap-2 border px-3 limit-dropdown-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-display="static"
+                                            aria-label="Nombre de résultats par page : {{ limit }}">
+                                        <span class="fw-medium text-dark pe-2">{{ limit }}</span>
+                                        <twig:ux:icon class="fs-6 text-muted" name="lucide:chevron-up" aria-hidden="true"/>
+                                    </button>
+                                    <ul class="dropdown-menu shadow-sm border rounded-top-4 mb-0 p-0 limit-dropdown-menu" style="min-width: 100%;">
+                                        <li><a class="dropdown-item limit-dropdown-item rounded-top-4 {% if limit == 10 %}bg-light fw-bold{% endif %} py-2 text-center text-dark" href="{{ path('app_search_vet', baseParams|merge({limit: 10, page: 1})) }}" aria-label="Afficher 10 résultats par page">10</a></li>
+                                        <li><a class="dropdown-item limit-dropdown-item {% if limit == 20 %}bg-light fw-bold{% endif %} py-2 text-center text-dark" href="{{ path('app_search_vet', baseParams|merge({limit: 20, page: 1})) }}" aria-label="Afficher 20 résultats par page">20</a></li>
+                                        <li><a class="dropdown-item limit-dropdown-item {% if limit == 50 %}bg-light fw-bold{% endif %} py-2 text-center text-dark" href="{{ path('app_search_vet', baseParams|merge({limit: 50, page: 1})) }}" aria-label="Afficher 50 résultats par page">50</a></li>
+                                    </ul>
+                                </div>
+                                <span class="text-muted ms-2 small">sur {{ totalItems }} lignes</span>
+                            </div>
+
+                            {# Page Nav Pills #}
+                            <nav aria-label="Pagination des résultats">
+                            <div class="d-flex gap-2 pe-2">
+                                {# First & Prev #}
+                                <a href="{{ path('app_search_vet', baseParams|merge({limit: limit, page: 1})) }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage <= 1 %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;" aria-label="Première page" {% if currentPage <= 1 %}aria-disabled="true"{% endif %}>
+                                    <twig:ux:icon class="fs-6 text-muted" name="lucide:chevrons-left" aria-hidden="true"/>
+                                </a>
+                                <a href="{{ path('app_search_vet', baseParams|merge({limit: limit, page: currentPage - 1})) }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage <= 1 %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;" aria-label="Page précédente" {% if currentPage <= 1 %}aria-disabled="true"{% endif %}>
+                                    <twig:ux:icon class="fs-6 text-muted" name="lucide:chevron-left" aria-hidden="true"/>
+                                </a>
+
+                                {# Dynamic Pages #}
+                                {% set startPage = max(1, currentPage - 1) %}
+                                {% set endPage = min(totalPages, startPage + 2) %}
+                                {% if endPage - startPage < 2 and startPage > 1 %}
+                                    {% set startPage = max(1, endPage - 2) %}
+                                {% endif %}
+
+                                {% for i in startPage..endPage %}
+                                    <a href="{{ path('app_search_vet', baseParams|merge({limit: limit, page: i})) }}" class="btn rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover fw-medium {% if i == currentPage %}bg-dark text-white border-0{% else %}btn-white text-muted{% endif %}" style="width: 40px; height: 40px; {% if i != currentPage %}border: 1px solid #dee2e6;{% endif %}" aria-label="Page {{ i }}" {% if i == currentPage %}aria-current="page"{% endif %}>
+                                        {{ i }}
+                                    </a>
+                                {% endfor %}
+
+                                {# Ellipsis + last page #}
+                                {% if endPage < totalPages %}
+                                    <span class="d-flex align-items-center justify-content-center text-muted px-1" aria-hidden="true">...</span>
+                                    <a href="{{ path('app_search_vet', baseParams|merge({limit: limit, page: totalPages})) }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover text-muted fw-medium" style="width: 40px; height: 40px; border: 1px solid #dee2e6;" aria-label="Dernière page ({{ totalPages }})">
+                                        {{ totalPages }}
+                                    </a>
+                                {% endif %}
+
+                                {# Next & Last #}
+                                <a href="{{ path('app_search_vet', baseParams|merge({limit: limit, page: currentPage + 1})) }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage >= totalPages %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;" aria-label="Page suivante" {% if currentPage >= totalPages %}aria-disabled="true"{% endif %}>
+                                    <twig:ux:icon class="fs-6 text-muted" name="lucide:chevron-right" aria-hidden="true"/>
+                                </a>
+                                <a href="{{ path('app_search_vet', baseParams|merge({limit: limit, page: totalPages})) }}" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale transition-hover {% if currentPage >= totalPages %}disabled opacity-50{% endif %}" style="width: 40px; height: 40px; border: 1px solid #dee2e6;" aria-label="Dernière page" {% if currentPage >= totalPages %}aria-disabled="true"{% endif %}>
+                                    <twig:ux:icon class="fs-6 text-muted" name="lucide:chevrons-right" aria-hidden="true"/>
+                                </a>
+                            </div>
+                            </nav>
+
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {# Right Column: Map #}
+            <div class="col-lg-4 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 2;">
+                    <div id="search-map-wrapper" class="rounded-4 shadow-sm overflow-hidden position-relative" style="height: 480px;" data-searchmap-target="mapWrapper">
+                        <div id="search-map" style="height: 100%; width: 100%;" data-searchmap-target="map"></div>
+                        <button id="map-expand-btn" class="btn bg-white border-0 position-absolute top-0 end-0 m-2 rounded-circle shadow-sm p-2 d-flex align-items-center justify-content-center hover-scale" style="width: 32px; height: 32px; z-index: 1000;" aria-label="Agrandir la carte" data-action="click->searchmap#toggleMapExpand">
+                            <twig:ux:icon class="fs-5 text-primary" name="lucide:expand" aria-hidden="true"/>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="modal fade" id="searchMapModal" tabindex="-1" aria-label="Carte interactive des vétérinaires" aria-hidden="true" data-searchmap-target="modal">
+        <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 90vw;">
+            <div class="modal-content border-0 shadow-lg overflow-hidden" style="height: 85vh; position: relative;">
+                <button type="button"
+                        class="btn bg-white border-0 position-absolute top-0 end-0 m-2 rounded-circle shadow-sm p-2 d-flex align-items-center justify-content-center hover-scale"
+                        style="width:32px;height:32px;z-index:1010;"
+                        data-bs-dismiss="modal" aria-label="Fermer">
+                        <twig:ux:icon class="fs-5 text-primary" name="lucide:shrink" aria-hidden="true"/>
+                </button>
+                <div data-searchmap-target="modalMap" style="height: 100%; width: 100%;"></div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+
+    <style>
+        /* ── Filter buttons ── */
+        .filter-btn {
+            background: #fff;
+            border: 1.5px solid #dee2e6;
+            color: #343a40;
+            transition: background .15s, border-color .15s, color .15s, box-shadow .15s;
+            box-shadow: 0 1px 3px rgba(0,0,0,.06);
+        }
+        .filter-btn:hover:not(.active) {
+            background: #f8f9fa;
+            border-color: #adb5bd;
+            box-shadow: 0 2px 6px rgba(0,0,0,.10);
+        }
+        .filter-btn.active {
+            background: var(--bs-primary);
+            border-color: var(--bs-primary);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(var(--bs-primary-rgb),.35);
+        }
+        .filter-btn.show {
+            background: #f0f0f0;
+            border-color: #adb5bd;
+            box-shadow: 0 2px 6px rgba(0,0,0,.10);
+        }
+        .filter-btn.active.show {
+            background: var(--bs-primary);
+            border-color: var(--bs-primary);
+            filter: brightness(1.08);
+        }
+        .filter-btn .filter-chevron { transition: transform .2s; }
+        .filter-btn.show .filter-chevron { transform: rotate(180deg); }
+
+        /* Urgences specifics */
+        .filter-btn-urgence {
+            border-color: #e84545;
+            color: #e84545;
+        }
+        .filter-btn-urgence:hover:not(.active) {
+            background: #fff5f5;
+            border-color: #e84545;
+        }
+        .filter-btn-urgence.active {
+            background: #e84545;
+            border-color: #e84545;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(232,69,69,.35);
+        }
+
+        /* Count badge */
+        .filter-count-badge {
+            background: rgba(255,255,255,0.25);
+            color: inherit;
+            font-size: 0.68rem;
+        }
+        .filter-btn:not(.active) .filter-count-badge {
+            background: var(--bs-primary);
+            color: #fff;
+        }
+
+        /* ── Dropdown option list ── */
+        .filter-option {
+            border-radius: 6px;
+            transition: background .12s;
+            user-select: none;
+        }
+        .filter-option:hover {
+            background: #f0f4ff;
+        }
+        .filter-option.selected {
+            background: #eef2ff;
+        }
+        .filter-option input[type="checkbox"] {
+            width: 16px; height: 16px;
+            accent-color: var(--bs-primary);
+            cursor: pointer;
+        }
+        .filter-check-icon {
+            opacity: 0;
+            font-size: 1rem;
+            transition: opacity .12s;
+        }
+        .filter-option.selected .filter-check-icon { opacity: 1; }
+
+        /* Search input in dropdown */
+        .filter-search:focus { box-shadow: none; background: #e9ecef !important; }
+    </style>
+
+    <script>
+        (function () {
+            const filtersForm = document.getElementById('filters-form');
+            if (!filtersForm) return;
+
+            // ── Urgences toggle ──
+            const urgCb = document.getElementById('filter_urgentiste');
+            if (urgCb) {
+                urgCb.addEventListener('change', function () {
+                    const btn = this.closest('label').querySelector('.filter-btn-urgence');
+                    btn.classList.toggle('active', this.checked);
+                    filtersForm.submit();
+                });
+            }
+
+            // ── Dropdown checkboxes (spec + animaux) ──
+            filtersForm.querySelectorAll('.filter-option-list .filter-toggle').forEach(function (cb) {
+                cb.addEventListener('change', function () {
+                    const row = this.closest('.filter-option');
+                    row.classList.toggle('selected', this.checked);
+                    // Update parent dropdown button state
+                    const list = this.closest('.filter-option-list');
+                    const btn = list?.closest('.dropdown')?.querySelector('.filter-btn');
+                    if (btn) {
+                        const anyChecked = list.querySelectorAll('.filter-toggle:checked').length > 0;
+                        btn.classList.toggle('active', anyChecked);
+                    }
+                    filtersForm.submit();
+                });
+            });
+
+            // ── Search inside dropdowns ──
+            filtersForm.querySelectorAll('.filter-search').forEach(function (input) {
+                input.addEventListener('input', function () {
+                    const targetId = this.dataset.target;
+                    const list = document.getElementById(targetId);
+                    if (!list) return;
+                    const q = this.value.toLowerCase().trim();
+                    list.querySelectorAll('li').forEach(function (li) {
+                        const label = li.querySelector('span')?.textContent.toLowerCase() ?? '';
+                        li.style.display = (!q || label.includes(q)) ? '' : 'none';
+                    });
+                });
+                // Prevent form submit on Enter inside search
+                input.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter') e.preventDefault();
+                });
+            });
+
+            // ── Carry active filters when location form is submitted ──
+            const locationForm = document.querySelector('form[data-controller="autocomplete-address"]');
+            if (locationForm) {
+                locationForm.addEventListener('submit', function () {
+                    filtersForm.querySelectorAll('.filter-toggle:checked').forEach(function (cb) {
+                        const hidden = document.createElement('input');
+                        hidden.type = 'hidden';
+                        hidden.name = cb.name;
+                        hidden.value = cb.value;
+                        locationForm.appendChild(hidden);
+                    });
+                    // Also carry urgentiste
+                    if (urgCb?.checked) {
+                        const h = document.createElement('input');
+                        h.type = 'hidden'; h.name = 'urgentiste'; h.value = '1';
+                        locationForm.appendChild(h);
+                    }
+                });
+            }
+        })();
+    </script>
+{% endblock %}

@@ -1,0 +1,266 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Animaux - MrVeto{% endblock %}
+
+{% block body %}
+<div class="p-3 p-lg-4">
+    <div class="container-fluid p-0">
+
+        {# Header #}
+        <div class="mb-3 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="fw-black text-dark mb-1" style="font-weight: 900;">Mes Animaux</h1>
+                <p class="text-muted mb-0">Retrouvez et gérez vos animaux de compagnie</p>
+            </div>
+            <button type="button"
+                    class="btn btn-primary text-white d-flex align-items-center gap-2 fw-bold shadow-sm"
+                    data-bs-toggle="modal" data-bs-target="#addAnimalModal"
+                    style="border-radius: 8px;">
+                <i class="bi bi-plus-lg"></i>
+                <span class="d-none d-md-inline">Ajouter un animal</span>
+            </button>
+        </div>
+
+        {# Barre de recherche #}
+        <div class="mb-4">
+            <form method="GET" action="{{ path('app_animaux') }}">
+                <div class="bg-white rounded-pill shadow d-flex align-items-center px-3 py-2 gap-2" style="max-width: 580px;">
+                    <i class="bi bi-search text-muted fs-5 flex-shrink-0"></i>
+                    <input
+                        type="text"
+                        name="q"
+                        class="form-control border-0 shadow-none"
+                        placeholder="Nom, espèce, race..."
+                        value="{{ search }}"
+                        autocomplete="off"
+                        list="animaux-datalist"
+                    >
+                    {% if search %}
+                        <a href="{{ path('app_animaux') }}" class="text-muted text-decoration-none flex-shrink-0 px-1" title="Effacer">
+                            <i class="bi bi-x-circle-fill fs-5"></i>
+                        </a>
+                    {% endif %}
+                    <button type="submit" class="btn btn-primary text-white rounded-pill px-4 flex-shrink-0">Rechercher</button>
+                </div>
+            </form>
+            <datalist id="animaux-datalist">
+                {% for animal in animals %}
+                    <option value="{{ animal.nom }}"></option>
+                {% endfor %}
+            </datalist>
+        </div>
+
+        {# Liste vide #}
+        {% if animals is empty %}
+            <div class="card border-0 shadow-sm">
+                <div class="card-body py-5 text-center">
+                    <twig:ux:icon name="lucide:paw-print" class="display-5 text-primary mb-3"/>
+                    <h2 class="h4 text-neutral-90 fw-bold mb-2">
+                        {% if search %}
+                            Aucun résultat pour "{{ search }}"
+                        {% else %}
+                            Aucun animal pour le moment
+                        {% endif %}
+                    </h2>
+                    <p class="text-muted mb-0">
+                        {% if search %}
+                            Essayez un autre terme de recherche.
+                        {% else %}
+                            Ajoutez votre premier animal pour commencer le suivi de sa santé.
+                        {% endif %}
+                    </p>
+                    {% if not search %}
+                        <button type="button"
+                                class="btn btn-primary rounded-pill px-4 mt-4"
+                                data-bs-toggle="modal" data-bs-target="#addAnimalModal">
+                            <i class="bi bi-plus-lg"></i> Ajouter un animal
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+
+        {# Grille de cartes #}
+        {% else %}
+            <div class="mb-3 text-muted small">
+                {{ animals|length }} animal{{ animals|length > 1 ? 'x' : '' }}{% if search %} pour "{{ search }}"{% endif %}
+            </div>
+
+            <div class="row g-3">
+                {% for animal in animals %}
+                    <div class="col-12 col-sm-6 col-xl-4 position-relative">
+                        <a href="{{ path('app_animaux_animal', {slug: animal.slug}) }}" class="text-decoration-none d-block h-100">
+                            <div class="card border-0 shadow-sm h-100" style="transition: box-shadow .15s ease; border-radius: 12px;">
+                                <div class="card-body p-4">
+                                    <div class="d-flex align-items-center gap-3 mb-3">
+                                        <img
+                                            src="https://ui-avatars.com/api/?name={{ animal.nom|url_encode }}&background=EBF4FC&color=36BDAF&bold=true&size=128"
+                                            alt="{{ animal.nom }}"
+                                            class="rounded-circle border border-2 border-white shadow-sm flex-shrink-0"
+                                            width="54" height="54"
+                                        >
+                                        <div class="min-w-0">
+                                            <div class="fw-bold text-dark fs-6 text-truncate">{{ animal.nom }}</div>
+                                            <div class="text-muted small text-truncate">
+                                                {{ animal.espece|default('Espèce inconnue') }}{% if animal.race %} · {{ animal.race }}{% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex flex-wrap gap-2 mb-3">
+                                        {% if animal.vaccinAJour %}
+                                            <span class="badge bg-success-bg text-success fw-medium rounded-pill px-2 py-1" style="font-size: 0.75rem;">
+                                                <i class="bi bi-shield-check me-1"></i>Vaccins à jour
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-danger-bg text-danger fw-medium rounded-pill px-2 py-1" style="font-size: 0.75rem;">
+                                                <i class="bi bi-shield-exclamation me-1"></i>Vaccins expirés
+                                            </span>
+                                        {% endif %}
+                                        {% if animal.poids %}
+                                            <span class="badge bg-neutral-20 text-neutral-80 fw-medium rounded-pill px-2 py-1" style="font-size: 0.75rem;">
+                                                {{ animal.poids }} kg
+                                            </span>
+                                        {% endif %}
+                                        {% if animal.age %}
+                                            <span class="badge bg-neutral-20 text-neutral-80 fw-medium rounded-pill px-2 py-1" style="font-size: 0.75rem;">
+                                                {{ animal.age }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="border-top pt-3 d-flex align-items-center justify-content-between">
+                                        <div class="small text-muted">
+                                            <i class="bi bi-clipboard2-pulse me-1"></i>Voir le carnet de santé
+                                        </div>
+                                        <i class="bi bi-chevron-right text-primary"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        <button type="button"
+                                class="btn btn-sm btn-light border-0 shadow-sm rounded-3 position-absolute d-flex align-items-center justify-content-center"
+                                style="top: 10px; right: 22px; z-index: 1; width: 30px; height: 30px; padding: 0;"
+                                data-bs-toggle="modal" data-bs-target="#deleteAnimalModal"
+                                data-animal-nom="{{ animal.nom }}"
+                                data-animal-slug="{{ animal.slug }}"
+                                data-csrf-token="{{ csrf_token('delete_animal_' ~ animal.id) }}">
+                            <i class="bi bi-trash3 text-danger" style="font-size: 0.8rem;"></i>
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+
+{# Modal ajout animal #}
+<div class="modal fade" id="addAnimalModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0 px-4 pt-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-primary-bg text-primary rounded-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                        <twig:ux:icon name="lucide:paw-print" class="fs-4"/>
+                    </div>
+                    <div>
+                        <h4 class="modal-title fw-bold text-dark mb-1">Ajouter un animal</h4>
+                        <p class="text-muted small mb-0">Complétez les informations pour créer la fiche.</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body px-4 py-4">
+                <form method="POST" action="{{ path('app_carnet_sante_save_animal') }}">
+                    <input type="hidden" name="_returnSlug" value="">
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-medium">Nom de l'animal <span class="text-danger">*</span></label>
+                            <input type="text" name="animalNom" class="form-control rounded-pill border-light-subtle shadow-sm px-3" placeholder="Ex: Luna" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-medium">Espèce <span class="text-danger">*</span></label>
+                            <input type="text" name="animalEspece" class="form-control rounded-pill border-light-subtle shadow-sm px-3" placeholder="Ex: Chat" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-medium">Âge <span class="text-danger">*</span></label>
+                            <input type="text" name="animalAge" class="form-control rounded-pill border-light-subtle shadow-sm px-3" placeholder="Ex: 3 ans" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-medium d-block">Vaccin à jour</label>
+                            <div class="d-flex gap-4 mt-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="vaccin" value="oui" id="vaccinOui">
+                                    <label class="form-check-label" for="vaccinOui">Oui</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="vaccin" value="non" id="vaccinNon" checked>
+                                    <label class="form-check-label" for="vaccinNon">Non</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-medium">Race (optionnel)</label>
+                            <input type="text" name="animalRace" class="form-control rounded-pill border-light-subtle shadow-sm px-3" placeholder="Ex: Européen">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-medium">Poids (optionnel)</label>
+                            <input type="text" name="animalPoids" class="form-control rounded-pill border-light-subtle shadow-sm px-3" placeholder="Ex: 4.5 kg">
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary text-white rounded-pill px-4 fw-bold shadow-sm">Créer la fiche</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Modal suppression animal #}
+<div class="modal fade" id="deleteAnimalModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0 px-4 pt-4">
+                <h2 class="h5 fw-bold mb-0">Supprimer l'animal</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body px-4 py-3">
+                <div class="d-flex align-items-start gap-3 p-3 bg-danger-bg rounded-3 mb-1">
+                    <i class="bi bi-exclamation-triangle-fill text-danger fs-5 mt-1 flex-shrink-0"></i>
+                    <p class="mb-0 text-danger-emphasis">
+                        Vous êtes sur le point de supprimer <strong id="deleteAnimalName"></strong>.
+                        <br><span class="small opacity-75">L'historique médical et les rendez-vous associés seront définitivement supprimés.</span>
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Annuler</button>
+                <form id="deleteAnimalForm" method="POST" action="">
+                    <input type="hidden" name="_token" id="deleteAnimalToken" value="">
+                    <button type="submit" class="btn btn-danger rounded-pill px-4">Supprimer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+(function () {
+    const modal = document.getElementById('deleteAnimalModal');
+    if (!modal) return;
+    modal.addEventListener('show.bs.modal', function (e) {
+        const btn = e.relatedTarget;
+        document.getElementById('deleteAnimalName').textContent = btn.dataset.animalNom;
+        document.getElementById('deleteAnimalToken').value = btn.dataset.csrfToken;
+        document.getElementById('deleteAnimalForm').action =
+            '/app/animaux/a/' + btn.dataset.animalSlug + '/delete';
+    });
+})();
+</script>
+{% endblock %}
+
+{% endblock %}

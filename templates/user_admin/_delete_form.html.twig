@@ -1,0 +1,4 @@
+{% set modal_id = 'deleteModal' ~ user.id %}
+<button type="button" class="action-btn delete btn btn-link p-1 text-danger" data-bs-toggle="modal" data-bs-target="#{{ modal_id }}" aria-label="Supprimer l'utilisateur">
+    <i data-lucide="trash-2" aria-hidden="true"></i>
+</button>

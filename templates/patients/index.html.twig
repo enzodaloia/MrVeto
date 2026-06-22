@@ -1,0 +1,149 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Patients - MrVeto{% endblock %}
+
+{% block body %}
+<div class="p-3 p-lg-4">
+    <div class="container-fluid p-0">
+
+        <!-- Header -->
+        <div class="mb-3 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="fw-black text-dark mb-1" style="font-weight: 900;">Mes Patients</h1>
+                <p class="text-muted mb-0">
+                    {% if isReadOnly %}
+                        Animaux suivis par votre cabinet
+                    {% else %}
+                        Animaux que vous avez pris en charge
+                    {% endif %}
+                </p>
+            </div>
+            <div>
+                <button type="button" class="btn btn-primary text-white d-flex align-items-center gap-2 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#newPatientModal" style="border-radius: 8px;">
+                    <i class="bi bi-person-plus-fill"></i> <span class="d-none d-md-inline">Créer un dossier</span>
+                </button>
+            </div>
+        </div>
+
+        {% if isReadOnly %}
+            <div class="mb-3">
+                <span class="badge bg-neutral-20 text-neutral-80 rounded-pill">Lecture seule</span>
+            </div>
+        {% endif %}
+
+        <!-- Barre de recherche -->
+        <div class="mb-4">
+            <form method="GET" action="{{ path('app_vet_patients') }}">
+                <div class="bg-white rounded-pill shadow d-flex align-items-center px-3 py-2 gap-2" style="max-width: 580px;">
+                    <i class="bi bi-search text-muted fs-5 flex-shrink-0"></i>
+                    <input
+                        type="text"
+                        name="q"
+                        class="form-control border-0 shadow-none"
+                        placeholder="Nom de l'animal, propriétaire, espèce..."
+                        value="{{ search }}"
+                        autocomplete="off"
+                        list="patients-datalist"
+                    >
+                    {% if search %}
+                        <a href="{{ path('app_vet_patients') }}" class="text-muted text-decoration-none flex-shrink-0 px-1" title="Effacer la recherche">
+                            <i class="bi bi-x-circle-fill fs-5"></i>
+                        </a>
+                    {% endif %}
+                    <button type="submit" class="btn btn-primary text-white rounded-pill px-4 flex-shrink-0">Rechercher</button>
+                </div>
+            </form>
+            <datalist id="patients-datalist">
+                {% for animal in animals %}
+                    <option value="{{ animal.nom }}"></option>
+                {% endfor %}
+            </datalist>
+        </div>
+
+        {% if animals is empty %}
+            <div class="card border-0 shadow-sm">
+                <div class="card-body py-5 text-center">
+                    <i class="bi bi-people display-5 text-primary mb-3 d-block"></i>
+                    <h2 class="h4 text-neutral-90 fw-bold mb-2">
+                        {% if search %}
+                            Aucun résultat pour "{{ search }}"
+                        {% else %}
+                            Aucun patient pour le moment
+                        {% endif %}
+                    </h2>
+                    <p class="text-muted mb-0">
+                        {% if search %}
+                            Essayez un autre terme de recherche.
+                        {% else %}
+                            Les animaux de vos patients apparaîtront ici après leurs premiers rendez-vous.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        {% else %}
+            <div class="mb-3 text-muted small">
+                {{ animals|length }} patient{{ animals|length > 1 ? 's' : '' }}{% if search %} pour "{{ search }}"{% endif %}
+            </div>
+
+            <div class="row g-3">
+                {% for animal in animals %}
+                    <div class="col-12 col-sm-6 col-xl-4">
+                        <a href="{{ path('app_vet_patients_show', {'slug': animal.slug}) }}" class="text-decoration-none">
+                            <div class="card border-0 shadow-sm h-100 hover-shadow transition-all" style="transition: box-shadow .15s ease;">
+                                <div class="card-body p-4">
+                                    <div class="d-flex align-items-center gap-3 mb-3">
+                                        <img
+                                            src="https://ui-avatars.com/api/?name={{ animal.nom|url_encode }}&background=EBF4FC&color=36BDAF&bold=true&size=128"
+                                            alt="{{ animal.nom }}"
+                                            class="rounded-circle border border-2 border-white shadow-sm flex-shrink-0"
+                                            width="54"
+                                            height="54"
+                                        >
+                                        <div class="min-w-0">
+                                            <div class="fw-bold text-dark fs-6 text-truncate">
+                                                {{ animal.proprietaire ? (animal.proprietaire.prenom ~ ' ' ~ animal.proprietaire.nom) : 'Propriétaire inconnu' }} - {{ animal.nom }}
+                                            </div>
+                                            <div class="text-muted small text-truncate">
+                                                {{ animal.espece|default('Espèce inconnue') }}{% if animal.race %} · {{ animal.race }}{% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex flex-wrap gap-2 mb-3">
+                                        {% if animal.vaccinAJour %}
+                                            <span class="badge bg-success-bg text-success fw-medium rounded-pill px-2 py-1" style="font-size: 0.75rem;">
+                                                <i class="bi bi-shield-check me-1"></i>Vaccins à jour
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-danger-bg text-danger fw-medium rounded-pill px-2 py-1" style="font-size: 0.75rem;">
+                                                <i class="bi bi-shield-exclamation me-1"></i>Vaccins expirés
+                                            </span>
+                                        {% endif %}
+                                        {% if animal.poids %}
+                                            <span class="badge bg-neutral-20 text-neutral-80 fw-medium rounded-pill px-2 py-1" style="font-size: 0.75rem;">
+                                                {{ animal.poids }} kg
+                                            </span>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="border-top pt-3 d-flex align-items-center justify-content-between">
+                                        <div class="small text-muted">
+                                            <i class="bi bi-person me-1"></i>
+                                            {{ animal.proprietaire ? (animal.proprietaire.prenom ~ ' ' ~ animal.proprietaire.nom) : 'Propriétaire inconnu' }}
+                                        </div>
+                                        <i class="bi bi-chevron-right text-primary"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+
+{% include 'patients/_new_patient_modal.html.twig' %}
+
+{% endblock %}

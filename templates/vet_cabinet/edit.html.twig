@@ -1,0 +1,309 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier cabinet - MrVeto{% endblock %}
+
+{% block body %}
+    <style>
+        .cabinet-title {
+            display: inline-block;
+            max-width: 360px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: bottom;
+        }
+        .cabinet-user-name {
+            display: block;
+            max-width: 260px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: bottom;
+        }
+        .cabinet-user-email {
+            display: block;
+        }
+    </style>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Modifier le cabinet</h1>
+        <a class="btn btn-primary text-white" href="{{ path('app_vet_cabinet_index', {'cabinet': cabinet.slug}) }}">Retour</a>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                {{ form_start(form) }}
+                    <div data-controller="autocomplete-address" data-autocomplete-address-theme-value="form">
+                        <div class="row g-3">
+                        <div class="col-md-6 form-floating">
+                            {{ form_widget(form.nom, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Nom du cabinet'}}) }}
+                            {{ form_label(form.nom, 'Nom du cabinet', {'label_attr': {'class': 'ps-4'}}) }}
+                            {{ form_errors(form.nom) }}
+                        </div>
+                        <div class="col-md-6 form-floating">
+                            {{ form_widget(form.telephone, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Téléphone', 'data-controller': 'phone-input', 'data-action': 'input->phone-input#format'}}) }}
+                            {{ form_label(form.telephone, 'Téléphone', {'label_attr': {'class': 'ps-4'}}) }}
+                            {{ form_errors(form.telephone) }}
+                        </div>
+                        <div class="col-12 form-floating position-relative">
+                            {{ form_widget(form.adresse, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Adresse', 'data-autocomplete-address-target': 'input street', 'data-action': 'input->autocomplete-address#search', 'autocomplete': 'off'}}) }}
+                            {{ form_label(form.adresse, 'Adresse', {'label_attr': {'class': 'ps-4'}}) }}
+                            <div data-autocomplete-address-target="results" class="position-absolute start-0 end-0 top-100 z-3"></div>
+                            {{ form_errors(form.adresse) }}
+                        </div>
+                        <div class="col-md-6 form-floating">
+                            {{ form_widget(form.ville, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Ville', 'data-autocomplete-address-target': 'city'}}) }}
+                            {{ form_label(form.ville, 'Ville', {'label_attr': {'class': 'ps-4'}}) }}
+                            {{ form_errors(form.ville) }}
+                        </div>
+                        <div class="col-md-6 form-floating">
+                            {{ form_widget(form.codePostal, {'attr': {'class': 'form-control ps-4 pe-4', 'placeholder': 'Code postal', 'data-autocomplete-address-target': 'postcode'}}) }}
+                            {{ form_label(form.codePostal, 'Code postal', {'label_attr': {'class': 'ps-4'}}) }}
+                            {{ form_errors(form.codePostal) }}
+                        </div>
+                    </div>
+                    </div>
+                    <button class="btn btn-primary text-white px-4 mt-3" style="border-radius: 30px;">Enregistrer</button>
+                {{ form_end(form) }}
+            </div>
+
+              <div class="card border-0 shadow-sm rounded-4 p-3"
+                  data-controller="user-autocomplete"
+                  data-user-autocomplete-search-url-value="{{ path('app_vet_cabinet_user_search', {'slug': cabinet.slug}) }}">
+                <h2 class="h5 mb-2">Ajouter un membre</h2>
+                <p class="text-muted small mb-3">
+                    Recherchez par email. Aucun résultat n'est affiché tant que vous ne recherchez pas.
+                </p>
+
+                <form method="post" action="{{ path('app_vet_cabinet_assign', {'slug': cabinet.slug}) }}" id="assign-user-form">
+                    <input type="hidden" name="_token" value="{{ csrf_token('vet_cabinet_assign_' ~ cabinet.id) }}">
+                    <input type="hidden" name="user_id" data-user-autocomplete-target="userId">
+
+                    <div class="mb-3 position-relative">
+                        <div class="form-floating">
+                            <input type="text"
+                                   class="form-control ps-4 pe-4"
+                                   id="assign_email_query"
+                                   placeholder="Rechercher un email"
+                                   autocomplete="off"
+                                   data-user-autocomplete-target="input"
+                                   data-action="input->user-autocomplete#search">
+                            <label for="assign_email_query">Recherche email</label>
+                        </div>
+                        <div data-user-autocomplete-target="results" class="position-absolute start-0 end-0 top-100 z-3"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Rôle dans le cabinet</label>
+                        <select class="form-select" name="role_in_cabinet" id="assign_role" disabled data-user-autocomplete-target="role">
+                            <option value="">Sélectionnez d'abord un utilisateur</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <small class="text-muted" id="assign_selected_label" data-user-autocomplete-target="selectedLabel">Aucun utilisateur sélectionné.</small>
+                    </div>
+
+                    <button class="btn btn-primary text-white px-4" style="border-radius: 30px;" type="submit">Affecter</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body border-bottom">
+                    <h2 class="h5 mb-1">
+                        <span class="cabinet-title" title="{{ cabinet.nom }}">{{ cabinet.nom }}</span>
+                    </h2>
+                    <p class="text-muted mb-0">
+                        {{ cabinet.adresse ?: 'Adresse non renseignée' }}
+                        {% if cabinet.ville %} - {{ cabinet.ville }}{% endif %}
+                        {% if cabinet.codePostal %} ({{ cabinet.codePostal }}){% endif %}
+                    </p>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table mb-0 align-middle">
+                        <thead>
+                            <tr>
+                                <th>Membre</th>
+                                <th>Rôle</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for assignment in assignments %}
+                            <tr>
+                                <td>
+                                    <span class="cabinet-user-name" title="{{ assignment.user.prenom }} {{ assignment.user.nom }}">
+                                        {{ assignment.user.prenom }} {{ assignment.user.nom }}
+                                    </span>
+                                    <small class="text-muted cabinet-user-email">({{ assignment.user.email }})</small>
+                                </td>
+                                <td>{{ assignment.roleInCabinet }}</td>
+                                <td class="text-end">
+                                    {% if not (assignment.user and app.user and assignment.user.id == app.user.id) %}
+                                        <form method="post" action="{{ path('app_vet_cabinet_assignment_delete', {'slug': assignment.slug}) }}">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete_assignment_' ~ assignment.id) }}">
+                                            <button class="btn btn-sm btn-danger text-white">Retirer</button>
+                                        </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted py-4">Aucun membre affecté.</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const wrapper = document.querySelector('[data-controller~="user-autocomplete"]');
+    if (!wrapper) {
+        return;
+    }
+
+    setTimeout(function () {
+        if (wrapper.dataset.userAutocompleteBound === '1') {
+            return;
+        }
+
+        const searchUrl = wrapper.getAttribute('data-user-autocomplete-search-url-value');
+        const input = wrapper.querySelector('[data-user-autocomplete-target="input"]');
+        const results = wrapper.querySelector('[data-user-autocomplete-target="results"]');
+        const userId = wrapper.querySelector('[data-user-autocomplete-target="userId"]');
+        const role = wrapper.querySelector('[data-user-autocomplete-target="role"]');
+        const selectedLabel = wrapper.querySelector('[data-user-autocomplete-target="selectedLabel"]');
+
+        if (!searchUrl || !input || !results || !userId || !role || !selectedLabel) {
+            return;
+        }
+
+        let timeout = null;
+
+        const resetSelection = function () {
+            userId.value = '';
+            selectedLabel.textContent = 'Aucun utilisateur sélectionné.';
+            role.innerHTML = '';
+            role.appendChild(new Option('Sélectionnez d\'abord un utilisateur', '', true, true));
+            role.disabled = true;
+        };
+
+        const renderNoResult = function () {
+            results.innerHTML = '';
+            const wrapperResult = document.createElement('div');
+            wrapperResult.className = 'position-absolute w-100 z-3 mt-1 rounded shadow overflow-hidden bg-white border';
+            wrapperResult.style.top = '100%';
+
+            const message = document.createElement('div');
+            message.className = 'px-3 py-2 small text-muted';
+            message.textContent = 'Aucun utilisateur trouvé.';
+
+            wrapperResult.appendChild(message);
+            results.appendChild(wrapperResult);
+        };
+
+        const renderResults = function (items) {
+            results.innerHTML = '';
+
+            if (!items || items.length === 0) {
+                renderNoResult();
+                return;
+            }
+
+            const wrapperResult = document.createElement('div');
+            wrapperResult.className = 'position-absolute w-100 z-3 mt-1 rounded shadow overflow-hidden bg-white border';
+            wrapperResult.style.top = '100%';
+
+            const list = document.createElement('ul');
+            list.className = 'list-group list-group-flush';
+            list.style.maxHeight = '260px';
+            list.style.overflowY = 'auto';
+
+            items.forEach(function (item) {
+                const li = document.createElement('li');
+                li.className = 'list-group-item list-group-item-action border-0';
+                li.style.cursor = 'pointer';
+
+                const fullName = ((item.prenom || '') + ' ' + (item.nom || '')).trim();
+                li.textContent = fullName !== '' ? item.email + ' - ' + fullName : item.email;
+
+                li.addEventListener('mousedown', function (event) {
+                    event.preventDefault();
+                    userId.value = String(item.id);
+                    selectedLabel.textContent = 'Sélectionné: ' + item.email;
+
+                    role.innerHTML = '';
+                    if (item.isVeto) {
+                        role.appendChild(new Option('Vétérinaire', 'VETERINAIRE', true, true));
+                        role.disabled = false;
+                    } else if (item.isSecretary) {
+                        role.appendChild(new Option('Secrétaire', 'SECRETAIRE', true, true));
+                        role.disabled = false;
+                    } else {
+                        role.appendChild(new Option('Aucun rôle disponible', '', true, true));
+                        role.disabled = true;
+                    }
+
+                    results.innerHTML = '';
+                });
+
+                list.appendChild(li);
+            });
+
+            wrapperResult.appendChild(list);
+            results.appendChild(wrapperResult);
+        };
+
+        input.addEventListener('input', function () {
+            if (timeout) {
+                clearTimeout(timeout);
+            }
+
+            const query = input.value.trim();
+            resetSelection();
+
+            if (query.length < 3) {
+                results.innerHTML = '';
+                return;
+            }
+
+            timeout = setTimeout(function () {
+                fetch(searchUrl + '?q=' + encodeURIComponent(query), {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                    .then(function (response) {
+                        if (!response.ok) {
+                            throw new Error('Search request failed');
+                        }
+
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        renderResults(data.items || []);
+                    })
+                    .catch(function () {
+                        renderNoResult();
+                    });
+            }, 250);
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!wrapper.contains(event.target)) {
+                results.innerHTML = '';
+            }
+        });
+
+        resetSelection();
+    }, 0);
+});
+</script>
+{% endblock %}
