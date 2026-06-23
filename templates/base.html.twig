@@ -298,7 +298,7 @@
 							</button>
 
 							<div class="collapse navbar-collapse mt-3 mt-lg-0" id="navbarContent">
-								<div class="bg-white rounded-4 rounded-lg-pill px-4 py-3 py-lg-2 shadow-sm d-flex flex-column flex-lg-row gap-3 gap-lg-4 align-items-start align-items-lg-center mx-auto">
+								<div class="bg-white rounded-4 rounded-lg-pill px-3 px-lg-3 py-2 py-lg-3 shadow-sm d-flex flex-column flex-lg-row gap-3 gap-lg-4 align-items-start align-items-lg-center mx-auto">
 									<a class="nav-link text-muted hover-text-primary d-flex align-items-center gap-2" href="{{ path('app_home') }}" {% if app.request.attributes.get('_route') == 'app_home' %}aria-current="page"{% endif %}>
 										<i class="bi bi-house d-inline-block d-lg-none"></i>
 										Accueil
@@ -307,18 +307,19 @@
 										<i class="bi bi-search d-inline-block d-lg-none"></i>
 										Rechercher un vétérinaire
 									</a>
-
+	
 									{% if not app.user %}
 										<div class="dropdown w-lg-auto">
-											<button class="btn dropdown-toggle text-start px-0 px-lg-3 text-muted" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+											<a class="nav-link text-muted hover-text-primary d-flex align-items-center gap-2 dropdown-toggle" href="#" role="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+												<i class="bi bi-person-plus d-inline-block d-lg-none"></i>
 												S'inscrire
-											</button>
+											</a>
 											<ul class="dropdown-menu border-0 shadow-sm" aria-labelledby="dropdownMenuButton">
 												<li>
-													<a class="dropdown-item" href="{{ path('app_register', {'type': 'veterinaire'}) }}">Vétérinaire</a>
+													<a class="dropdown-item hover-text-primary" href="{{ path('app_register', {'type': 'veterinaire'}) }}">Vétérinaire</a>
 												</li>
 												<li>
-													<a class="dropdown-item" href="{{ path('app_register', {'type': 'utilisateur'}) }}">Utilisateur</a>
+													<a class="dropdown-item hover-text-primary" href="{{ path('app_register', {'type': 'utilisateur'}) }}">Utilisateur</a>
 												</li>
 											</ul>
 										</div>
