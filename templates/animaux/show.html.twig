@@ -141,7 +141,7 @@
                             </div>
                             {% if rdv.veterinaire and rdv.veterinaire.slug %}
                                 <a href="{{ path('app_vet_book', {'slug': rdv.veterinaire.slug}) }}"
-                                   class="btn btn-sm btn-outline-primary rounded-3 d-flex align-items-center gap-1 flex-shrink-0"
+                                   class="btn btn-sm btn-outline-primary rounded-3 d-flex align-items-center gap-1 flex-shrink-0 text-hover-white"
                                    aria-label="Modifier le rendez-vous du {{ rdv.dateHeure|date('d/m/Y') }} avec Dr. {{ rdv.veterinaire.nom }}">
                                     <i class="bi bi-arrow-repeat" aria-hidden="true"></i> Modifier
                                 </a>
@@ -384,7 +384,7 @@
                                         {% if rdv.compteRenduPdf %}
                                             <div class="mt-2">
                                                 <a href="{{ path('app_rdv_download_pdf', {'slug': rdv.slug}) }}" target="_blank"
-                                                   class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 py-1" style="font-size: 0.75rem;">
+                                                   class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 py-1 text-hover-white" style="font-size: 0.75rem;">
                                                     <i class="bi bi-file-earmark-pdf"></i> PDF
                                                 </a>
                                             </div>
