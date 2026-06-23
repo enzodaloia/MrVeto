@@ -35,7 +35,7 @@
                     <a href="{{ path('app_vet_patients_book', {slug: animal.slug, month: prevMonth|date('Y-m'), vet_id: selectedVet.id}) }}#calendar" class="btn btn-outline-secondary rounded-circle shadow-sm p-2 d-flex align-items-center justify-content-center me-3 border text-decoration-none border-neutral-30 text-neutral-60" style="width: 36px; height: 36px;">
                         <i class="bi bi-chevron-left"></i>
                     </a>
-                    <span class="fw-semibold mx-3 text-dark">{{ currentMonth|date('F Y') }}</span>
+                    <span class="fw-semibold mx-3 text-dark">{{ currentMonth|date_fr('month_year') }}</span>
                     <a href="{{ path('app_vet_patients_book', {slug: animal.slug, month: nextMonth|date('Y-m'), vet_id: selectedVet.id}) }}#calendar" class="btn btn-primary rounded-circle shadow-sm p-2 d-flex align-items-center justify-content-center ms-3 text-white border-0 text-decoration-none" style="width: 36px; height: 36px;">
                         <i class="bi bi-chevron-right"></i>
                     </a>

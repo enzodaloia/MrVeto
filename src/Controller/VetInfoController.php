@@ -61,7 +61,7 @@ class VetInfoController extends AbstractController
         for ($offset = 0; $offset < 7; $offset++) {
             $date = $now->modify(sprintf('+%d day', $offset));
             $dayOrder = (int) $date->format('N');
-            $dayLabel = $dayLabels[$dayOrder] ?? strtolower($date->format('l'));
+            $dayLabel = $dayLabels[$dayOrder] ?? 'inconnu';
 
             $daySlotsByOffset[$offset] = $this->findDayHalfHourSlots($dayOfWorks, $dayOrder);
             $dayLabelsByOffset[$offset] = $dayLabel;
@@ -75,8 +75,8 @@ class VetInfoController extends AbstractController
             'status'            => $status,
             'weekAvailability'  => $weekAvailability,
             'todaySlots'        => $todaySlots,
-            'selectedDayLabel'  => $dayLabels[$selectedDayOrder] ?? strtolower($selectedDate->format('l')),
-            'selectedDayDisplay' => $dayDisplaysByOffset[$selectedDayOffset] ?? (($dayLabels[$selectedDayOrder] ?? strtolower($selectedDate->format('l'))) . ' ' . $selectedDate->format('j')),
+            'selectedDayLabel'  => $dayLabels[$selectedDayOrder] ?? 'inconnu',
+            'selectedDayDisplay' => $dayDisplaysByOffset[$selectedDayOffset] ?? (($dayLabels[$selectedDayOrder] ?? 'inconnu') . ' ' . $selectedDate->format('j')),
             'daySlotsByOffset'  => $daySlotsByOffset,
             'dayLabelsByOffset' => $dayLabelsByOffset,
             'dayDisplaysByOffset' => $dayDisplaysByOffset,
