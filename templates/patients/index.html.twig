@@ -121,7 +121,7 @@
                                         {% endif %}
                                         {% if animal.poids %}
                                             <span class="badge bg-neutral-20 text-neutral-80 fw-medium rounded-pill px-2 py-1" style="font-size: 0.75rem;">
-                                                {{ animal.poids }} kg
+                                                {{ animal.poids }}{% if 'kg' not in (animal.poids ~ '')|lower %} kg{% endif %}
                                             </span>
                                         {% endif %}
                                     </div>

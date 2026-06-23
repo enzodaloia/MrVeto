@@ -411,7 +411,7 @@
 									<th class="py-3">
 										<span class="text-nowrap d-inline-block">Date inscription</span>
 									</th>
-									<span class="text-muted text-end">{{ user.createdAt ? user.createdAt|date('d M Y') : '—' }}</span>
+									<span class="text-muted text-end">{{ user.createdAt ? user.createdAt|date_fr('long_date') : '—' }}</span>
 								</div>
 							</div>
 
@@ -464,7 +464,7 @@
 
 						<div class="d-flex justify-content-center align-items-center gap-4 mb-4 text-primary">
 							<span><i data-lucide="calendar" style="width:18px;height:18px;" aria-hidden="true"></i></span>
-							<span class="fw-medium">{{ "now"|date("d M, Y") }}</span>
+							<span class="fw-medium">{{ "now"|date_fr('long_date') }}</span>
 						</div>
 
 						<h5 id="modalLabel_deleteModal{{ user.id }}" class="fw-bold text-primary mb-4" style="font-size:1.1rem;">

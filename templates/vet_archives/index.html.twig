@@ -40,7 +40,7 @@
                         {% for rdv in archives %}
                             <tr class="border-bottom border-light-subtle">
                                 <td class="py-3">
-                                    <div class="fw-bold text-dark">{{ rdv.dateHeure|date('d M Y') }}</div>
+                                    <div class="fw-bold text-dark">{{ rdv.dateHeure|date_fr('long_date') }}</div>
                                     <div class="text-muted" style="font-size: 0.75rem;">{{ rdv.dateHeure|date('H:i') }}</div>
                                 </td>
                                 <td class="py-3">

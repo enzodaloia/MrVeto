@@ -70,7 +70,7 @@
                                         {% if animal.poids %}
                                             <span class="d-inline-flex align-items-center gap-1">
                                                 <i class="bi bi-speedometer2 text-primary"></i>
-                                                {{ animal.poids }} kg
+                                                {{ animal.poids }}{% if 'kg' not in (animal.poids ~ '')|lower %} kg{% endif %}
                                             </span>
                                         {% endif %}
                                         <span class="d-inline-flex align-items-center gap-1">
@@ -84,14 +84,14 @@
                                 <div class="text-center px-4 py-2 rounded-3 bg-neutral-20">
                                     <div class="text-muted fw-bold mb-1" style="font-size: 0.65rem; letter-spacing: 0.06em; text-transform: uppercase;">Dernière visite</div>
                                     {% if lastVisit %}
-                                        <div class="fw-semibold text-neutral-90 small">{{ lastVisit.dateHeure|date('d M Y') }}</div>
+                                        <div class="fw-semibold text-neutral-90 small">{{ lastVisit.dateHeure|date_fr('long_date') }}</div>
                                     {% else %}
                                         <div class="fw-semibold text-neutral-90 small">Aucune</div>
                                     {% endif %}
                                 </div>
                                 {% if not isReadOnly %}
                                     <button
-                                        class="btn btn-outline-primary rounded-3 d-flex align-items-center justify-content-center gap-2 w-100"
+                                        class="btn btn-outline-primary rounded-3 d-flex align-items-center justify-content-center gap-2 w-100 text-hover-white"
                                         data-bs-toggle="modal"
                                         data-bs-target="#editAnimalModal"
                                         type="button"
@@ -229,7 +229,7 @@
 
                                         <!-- Date + statut -->
                                         <div style="min-width: 130px;">
-                                            <div class="fw-bold text-neutral-100">{{ rdv.dateHeure|date('d M Y') }}</div>
+                                            <div class="fw-bold text-neutral-100">{{ rdv.dateHeure|date_fr('long_date') }}</div>
                                             <div class="small text-muted">{{ rdv.dateHeure|date('H:i') }}</div>
                                             {% set isFinished = rdv.statut == 'termine' or rdv.dateHeure < date() %}
                                             {% if isFinished %}
@@ -263,7 +263,7 @@
                                             <!-- Compte-rendu / remarque -->
                                             {% if not isFinished %}
                                                 <div class="d-flex gap-2 mt-3 mb-2">
-                                                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-medium"
+                                                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 text-hover-white fw-medium"
                                                             data-action="click->rendezvous#openEditModal"
                                                             data-slug="{{ rdv.slug }}"
                                                             data-vet="{{ rdv.veterinaire.prenom|default('') }} {{ rdv.veterinaire.nom|default('') }}"
@@ -523,7 +523,7 @@
                             </div>
                         </div>
                         <div class="d-flex gap-2 mt-4">
-                            <button class="btn btn-primary rounded-pill px-4" type="submit">Enregistrer</button>
+                            <button class="btn btn-primary text-white rounded-pill px-4" type="submit">Enregistrer</button>
                             <button class="btn btn-light rounded-pill px-4" type="button" data-bs-dismiss="modal">Annuler</button>
                         </div>
                     </form>

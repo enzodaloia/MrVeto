@@ -337,6 +337,10 @@ $theme-colors: $custom-colors;
 }
 
 // Utilities
+.text-hover-white:hover {
+    color: #ffffff !important;
+}
+
 .cursor-pointer {
     cursor: pointer !important;
 }
