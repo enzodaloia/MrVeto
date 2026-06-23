@@ -127,10 +127,10 @@
                             <div class="d-flex align-items-center gap-3">
                                 <div class="text-center px-3 py-2 bg-primary-bg rounded-3" style="min-width: 60px;">
                                     <div class="fw-bold text-primary" style="font-size: 1.3rem; line-height: 1;">{{ rdv.dateHeure|date('d') }}</div>
-                                    <div class="text-primary small fw-medium" style="font-size: 0.7rem; text-transform: uppercase;">{{ rdv.dateHeure|date('M') }}</div>
+                                    <div class="text-primary small fw-medium" style="font-size: 0.7rem; text-transform: uppercase;">{{ rdv.dateHeure|date_fr('short_month') }}</div>
                                 </div>
                                 <div>
-                                    <div class="fw-semibold text-neutral-100">{{ rdv.dateHeure|date('l') }} à {{ rdv.dateHeure|date('H:i') }}</div>
+                                    <div class="fw-semibold text-neutral-100">{{ rdv.dateHeure|date_fr('day_name') }} à {{ rdv.dateHeure|date('H:i') }}</div>
                                     {% if rdv.veterinaire %}
                                         <div class="small text-muted">Dr. {{ rdv.veterinaire.prenom }} {{ rdv.veterinaire.nom }}</div>
                                     {% endif %}
@@ -331,7 +331,7 @@
 
                             {# Date + statuts #}
                             <div style="min-width: 130px;">
-                                <div class="fw-bold text-neutral-100">{{ rdv.dateHeure|date('d M Y') }}</div>
+                                <div class="fw-bold text-neutral-100">{{ rdv.dateHeure|date_fr('long_date') }}</div>
                                 <div class="small text-muted">{{ rdv.dateHeure|date('H:i') }}</div>
                                 <div class="d-flex flex-wrap gap-1 mt-1">
                                     <span class="badge bg-success-bg text-success rounded-pill" style="font-size: 0.7rem;">Terminé</span>
